@@ -9,12 +9,14 @@
     "lint": "eslint",
     "start:all": "pnpm db:start && pnpm dev",
     "db:start": "pnpx supabase start",
+    "db:stop": "pnpx supabase stop",
     "db:init": "pnpx supabase init",
     "db:reset": "pnpx supabase db reset",
     "db:studio": "pnpm drizzle-kit studio",
     "db:generate": "pnpm drizzle-kit generate"
   },
   "dependencies": {
+    "better-auth": "^1.5.6",
     "dotenv": "^17.4.0",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.2",
