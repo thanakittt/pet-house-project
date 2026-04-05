@@ -10,7 +10,9 @@
     "start:all": "pnpm db:start && pnpm dev",
     "db:start": "pnpx supabase start",
     "db:init": "pnpx supabase init",
-    "db:studio": "pnpm drizzle-kit studio"
+    "db:reset": "pnpx supabase db reset",
+    "db:studio": "pnpm drizzle-kit studio",
+    "db:generate": "pnpm drizzle-kit generate"
   },
   "dependencies": {
     "dotenv": "^17.4.0",
