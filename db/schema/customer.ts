@@ -5,7 +5,6 @@ import { genderEnum, petTypeEnum } from "./enum";
 import * as p from "drizzle-orm/pg-core";
 
 // ตาราง customers: เก็บข้อมูลลูกค้าของร้าน
-// index บน user_id เพื่อเร่ง JOIN กับตาราง users
 export const customers = pgTable("customers", {
   id: p.uuid("id").defaultRandom().primaryKey(),
   nickname: p.text("nickname").notNull(),

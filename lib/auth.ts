@@ -2,6 +2,8 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "@/db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { admin } from "better-auth/plugins";
+import { ac, owner, staff, customer, admin as adminRole } from "./permissions";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -19,5 +21,37 @@ export const auth = betterAuth({
       clientSecret: process.env.LINE_CLIENT_SECRET!,
     },
   },
-  plugins: [nextCookies()],
+
+  user: {
+    modelName: "users",
+    additionalFields: {
+      phoneNumber: {
+        type: "string",
+        required: false,
+        unique: true,
+      },
+    },
+  },
+  account: {
+    modelName: "accounts",
+  },
+  session: {
+    modelName: "sessions",
+  },
+  verification: {
+    modelName: "verifications",
+  },
+  plugins: [
+    admin({
+      defaultRole: "customer",
+      ac,
+      roles: {
+        owner,
+        staff,
+        customer,
+        admin: adminRole,
+      },
+    }),
+    nextCookies(),
+  ],
 });
