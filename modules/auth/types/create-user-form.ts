@@ -1,4 +1,4 @@
-export type CreateUserForm = {
+export type UserForm = {
   name: string;
   email: string;
   phoneNumber: string;
@@ -13,4 +13,16 @@ export type CreateStaffForm = {
   nickname: string;
   gender: string;
   birthDate: string;
+};
+
+export type UpdateUserForm = {
+  userId: string;
+  name?: string;
+  nickname: string;
+  email?: string;
+  phoneNumber?: string;
+  password?: string;
+  gender?: string;
+  birthDate?: string;
+  role?: string;
 };

@@ -1,14 +1,14 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { CreateUserForm } from "@/modules/auth/types/create-user-form";
+import { UserForm } from "@/modules/auth/types/create-user-form";
 import { ActionResponse } from "@/types/action";
 import { isAPIError } from "better-auth/api";
 import { isPhoneNumberExists } from "../queries/get-user";
 import { createStaff } from "@/modules/staff/actions/create-staff";
 
 export async function createUser(
-  data: CreateUserForm,
+  data: UserForm,
 ): Promise<ActionResponse<null>> {
   try {
     const isPhoneNumberExistsResult = await isPhoneNumberExists(
