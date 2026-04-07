@@ -12,11 +12,6 @@ export async function createUser(
   data: UserForm,
 ): Promise<ActionResponse<null>> {
   try {
-    const allowedGender = new Set(["MALE", "FEMALE", "UNSPECIFIED"] as const);
-    const gender = allowedGender.has((data.gender ?? "UNSPECIFIED") as any)
-      ? (data.gender as "MALE" | "FEMALE" | "UNSPECIFIED")
-      : "UNSPECIFIED";
-
     const isPhoneNumberExistsResult = await isPhoneNumberExists(
       data.phoneNumber,
     );
@@ -52,7 +47,7 @@ export async function createUser(
       const createStaffResult = await createStaff({
         userId: signUpResult.user.id,
         nickname: data.name,
-        gender: gender,
+        gender: data.gender,
         birthDate: data.birthDate,
       });
 

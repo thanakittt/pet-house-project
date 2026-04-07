@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { DrizzleQueryError } from "drizzle-orm";
 import { DatabaseError } from "pg";
 import { updateStaff } from "@/modules/staff/actions/update-staff";
+import { isAPIError } from "better-auth/api";
 
 export async function updateUser(data: UpdateUserForm) {
   try {
@@ -48,7 +49,10 @@ export async function updateUser(data: UpdateUserForm) {
       }
     }
 
-    if ((data.gender || data.birthDate) && data.role === "customer") {
+    if (
+      (data.gender || data.birthDate || data.nickname) &&
+      data.role === "customer"
+    ) {
       return { success: false, error: "ระบบยังไม่รองรับการแก้ไขข้อมูลลูกค้า" };
     }
 
