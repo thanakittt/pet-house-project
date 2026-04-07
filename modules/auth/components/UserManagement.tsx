@@ -73,7 +73,8 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
             <TableRow key={user.id}>
               <TableCell className="font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.phoneNumber}</TableCell>
+              {/* phoneNumber อาจเป็น null/undefined — แสดง "—" เมื่อไม่มีข้อมูล */}
+              <TableCell>{user.phoneNumber ?? "—"}</TableCell>
               <TableCell>
                 <RoleBadge role={user.role} />
               </TableCell>

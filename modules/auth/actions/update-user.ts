@@ -33,19 +33,23 @@ export async function updateUser(data: UpdateUserForm) {
     }
 
     if (
-      (data.gender || data.birthDate) &&
+      (data.gender || data.birthDate || data.nickname) &&
       (data.role === "staff" || data.role === "admin" || data.role === "owner")
     ) {
-      await updateStaff({
+      const updateStaffResult = await updateStaff({
         userId: data.userId,
         gender: data.gender,
         birthDate: data.birthDate,
         nickname: data.nickname,
       });
+
+      if (!updateStaffResult.success) {
+        return { success: false, error: updateStaffResult.error };
+      }
     }
 
     if ((data.gender || data.birthDate) && data.role === "customer") {
-      // TODO: update customer
+      return { success: false, error: "ระบบยังไม่รองรับการแก้ไขข้อมูลลูกค้า" };
     }
 
     return { success: true, data: null };

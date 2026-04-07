@@ -33,10 +33,12 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
     control,
     formState: { isSubmitting, isValid },
   } = useForm({
+    mode: "onChange",
     defaultValues: {
       name: user.name,
       email: user.email,
-      phoneNumber: user.phoneNumber,
+      // phoneNumber อาจเป็น null/undefined ได้ตาม schema → ใช้ empty string เป็นค่าเริ่มต้น
+      phoneNumber: user.phoneNumber ?? "",
       password: "",
       gender: user.gender ?? "",
       birthDate: user.birthDate ?? "",
@@ -149,7 +151,8 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
               rules={{
                 required: "กรุณาระบุเบอร์โทรศัพท์",
                 validate: (value) => {
-                  if (value.length !== 10) {
+                  // value อาจเป็น null/undefined ได้ → แปลงเป็น string ก่อนตรวจความยาว
+                  if ((value ?? "").length !== 10) {
                     return "เบอร์โทรศัพท์ต้องมี 10 หลัก";
                   }
                   return true;
@@ -164,6 +167,8 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
                   <FieldLabel htmlFor={field.name}>เบอร์โทรศัพท์</FieldLabel>
                   <Input
                     {...field}
+                    // Input ต้องการ string → coerce null/undefined เป็น empty string
+                    value={field.value ?? ""}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุเบอร์โทรศัพท์"

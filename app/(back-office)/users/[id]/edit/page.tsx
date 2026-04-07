@@ -14,7 +14,10 @@ export default async function EditUserPage({
   const result = await getUserById(id);
 
   if (!result.success) {
-    notFound();
+    if (result.error === "ไม่พบผู้ใช้") {
+      notFound();
+    }
+    throw new Error(result.error);
   }
 
   return (

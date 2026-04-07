@@ -4,21 +4,22 @@ import { db } from "@/db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin } from "better-auth/plugins";
 import { ac, owner, staff, customer, admin as adminRole } from "./permissions";
+import { requiredEnv } from "./utils";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  baseURL: process.env.BETTER_AUTH_URL!,
+  baseURL: requiredEnv("BETTER_AUTH_URL"),
   emailAndPassword: { enabled: true },
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: requiredEnv("GOOGLE_CLIENT_ID"),
+      clientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
     },
     line: {
-      clientId: process.env.LINE_CLIENT_ID!,
-      clientSecret: process.env.LINE_CLIENT_SECRET!,
+      clientId: requiredEnv("LINE_CLIENT_ID"),
+      clientSecret: requiredEnv("LINE_CLIENT_SECRET"),
     },
   },
 

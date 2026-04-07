@@ -6,11 +6,17 @@ import { ActionResponse } from "@/types/action";
 import { isAPIError } from "better-auth/api";
 import { isPhoneNumberExists } from "../queries/get-user";
 import { createStaff } from "@/modules/staff/actions/create-staff";
+import { headers } from "next/headers";
 
 export async function createUser(
   data: UserForm,
 ): Promise<ActionResponse<null>> {
   try {
+    const allowedGender = new Set(["MALE", "FEMALE", "UNSPECIFIED"] as const);
+    const gender = allowedGender.has((data.gender ?? "UNSPECIFIED") as any)
+      ? (data.gender as "MALE" | "FEMALE" | "UNSPECIFIED")
+      : "UNSPECIFIED";
+
     const isPhoneNumberExistsResult = await isPhoneNumberExists(
       data.phoneNumber,
     );
@@ -39,14 +45,32 @@ export async function createUser(
       throw new Error();
     }
 
-    if (data.birthDate || data.gender) {
+    if (
+      (data.birthDate || data.gender) &&
+      ["staff", "admin", "owner"].includes(data.role)
+    ) {
       const createStaffResult = await createStaff({
         userId: signUpResult.user.id,
         nickname: data.name,
-        gender: data.gender?.toUpperCase() ?? "UNSPECIFIED",
+        gender: gender,
         birthDate: data.birthDate,
       });
+
+      // ถ้าสร้าง Staff ล้มเหลว ให้ลบ user ที่เพิ่งสร้างออกเพื่อ rollback สภาพ
+      // (compensation pattern: ป้องกัน orphaned auth record)
       if (!createStaffResult.success) {
+        try {
+          await auth.api.removeUser({
+            body: { userId: signUpResult.user.id },
+            headers: await headers(),
+          });
+        } catch (cleanupError) {
+          // log เฉพาะเพื่อช่วย debug — ไม่ throw ซ้ำเพราะยังต้องส่ง error เดิมคืน
+          console.error(
+            `[createUser] Rollback failed – ลบ user id=${signUpResult.user.id} ไม่สำเร็จ:`,
+            cleanupError,
+          );
+        }
         return { success: false, error: createStaffResult.error };
       }
     }
