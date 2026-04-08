@@ -33,3 +33,13 @@ export async function requireAdmin() {
 
   return session;
 }
+
+export async function requireStaff() {
+  const session = await requireRole(["admin", "staff", "owner"]);
+
+  if (!session) {
+    redirect("/staff-login");
+  }
+
+  return session;
+}

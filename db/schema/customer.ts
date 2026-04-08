@@ -10,6 +10,7 @@ export const customers = pgTable("customers", {
   nickname: p.text("nickname").notNull(),
   birthDate: p.date("birth_date"),
   gender: genderEnum("gender").default("UNSPECIFIED").notNull(),
+  walkInPhoneNumber: p.text("walk_in_phone_number").unique(),
   // FK ไปยัง users (optional: ลูกค้าอาจยังไม่มี account)
   // UNIQUE เพื่อบังคับ 1:1 — 1 user เป็นได้ 1 customer เท่านั้น
   userId: p
