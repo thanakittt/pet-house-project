@@ -61,6 +61,18 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
         role: data.role,
       };
 
+      if (
+        dataUpdate.name === undefined &&
+        dataUpdate.email === undefined &&
+        dataUpdate.phoneNumber === undefined &&
+        dataUpdate.password === undefined &&
+        dataUpdate.gender === undefined &&
+        dataUpdate.birthDate === undefined &&
+        dataUpdate.role === undefined
+      ) {
+        toast.error("กรุณาระบุข้อมูลที่ต้องการแก้ไข");
+        return;
+      }
       const result = await updateUser({
         userId: user.id,
         ...dataUpdate,

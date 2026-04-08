@@ -5,8 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const requiredEnv = (key: string) => {
+export function requiredEnv(key: string): string {
   const value = process.env[key];
-  if (!value) throw new Error(`ไม่ได้ตั้งค่า env: ${key}`);
+  if (!value) {
+    throw new Error(`ไม่ได้ตั้งค่าตัวแปรสภาพแวดล้อม: ${key}`);
+  }
   return value;
-};
+}

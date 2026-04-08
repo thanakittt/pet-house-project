@@ -217,8 +217,9 @@ export default function CreateUserPage() {
                       <SelectValue placeholder="เลือกเพศ" />
                     </SelectTrigger>
                     <SelectContent position="item-aligned">
-                      <SelectItem value="male">ชาย</SelectItem>
-                      <SelectItem value="female">หญิง</SelectItem>
+                      <SelectItem value="MALE">ชาย</SelectItem>
+                      <SelectItem value="FEMALE">หญิง</SelectItem>
+                      <SelectItem value="UNSPECIFIED">ไม่ระบุ</SelectItem>
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (
