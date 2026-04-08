@@ -58,7 +58,7 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
         gender: data.gender === user.gender ? undefined : data.gender,
         birthDate:
           data.birthDate === user.birthDate ? undefined : data.birthDate,
-        role: data.role === user.role ? undefined : data.role,
+        role: data.role,
       };
 
       if (

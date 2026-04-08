@@ -79,7 +79,7 @@ export default function CustomerManagement({
                   </TableCell>
                   <TableCell>{customer.walkInPhoneNumber}</TableCell>
                   <TableCell>
-                    {customer.createdAt.toLocaleDateString("th-TH")}
+                    {new Date(customer.createdAt).toLocaleDateString("th-TH")}
                   </TableCell>
                   <TableCell className="space-x-2 text-right">
                     {/* <Link

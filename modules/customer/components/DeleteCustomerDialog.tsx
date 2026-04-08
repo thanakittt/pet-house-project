@@ -60,6 +60,7 @@ export function DeleteCustomerDialog({
       </AlertDialogTrigger> */}
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogTitle>ยืนยันการลบข้อมูลลูกค้า</AlertDialogTitle>
           <AlertDialogDescription>
             คุณต้องการลบข้อมูลลูกค้า &quot;{customer.nickname}&quot; หรือไม่?
           </AlertDialogDescription>

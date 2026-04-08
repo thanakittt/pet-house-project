@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,7 +18,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
@@ -31,7 +29,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CustomerForm } from "../types/create-customer";
-import { createCustomer } from "../actions/create-customer";
 import { toast } from "sonner";
 import { Customer } from "../types/customer";
 import { updateCustomer } from "../actions/update-customer";
@@ -40,7 +37,7 @@ import { useRouter } from "next/navigation";
 interface UpdateCustomerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  customer: Customer | null;
+  customer: Customer;
 }
 
 export function UpdateCustomerDialog({
@@ -75,15 +72,15 @@ export function UpdateCustomerDialog({
       setServerError(null);
 
       const customerUpdate = {
-        id: customer?.id as string,
+        id: customer.id,
         nickname:
-          data.nickname === customer?.nickname ? undefined : data.nickname,
+          data.nickname === customer.nickname ? undefined : data.nickname,
         walkInPhoneNumber:
-          data.walkInPhoneNumber === customer?.walkInPhoneNumber
+          data.walkInPhoneNumber === customer.walkInPhoneNumber
             ? undefined
             : data.walkInPhoneNumber,
         gender:
-          data.gender === customer?.gender || data.gender === ""
+          data.gender === customer.gender || data.gender === ""
             ? undefined
             : data.gender,
       };
