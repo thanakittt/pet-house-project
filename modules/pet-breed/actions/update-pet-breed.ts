@@ -18,13 +18,12 @@ export async function updatePetBreed(data: PetBreed): Promise<ActionResponse<nul
       .where(eq(petBreeds.id, data.id))
       .returning({ id: petBreeds.id });
 
-    if (!result[0].id) {
+    if (result.length === 0) {
       return {
         success: false,
         error: "ไม่พบข้อมูลสายพันธุ์สัตว์เลี้ยงที่ต้องการแก้ไข",
       };
     }
-
     return { success: true, data: null };
   } catch (error) {
     console.error("UpdatePetBreed Error:", error);

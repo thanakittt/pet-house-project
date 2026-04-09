@@ -41,18 +41,11 @@ export function CreatePetBreedDialog() {
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const mockData = {
-    name: generateRandomString(10, "a-z"),
-    type: Math.random() > 0.5 ? "DOG" : "CAT",
-  };
-
   const form = useForm({
-    // defaultValues: {
-    //   name: "",
-    //   type: "",
-    // },
-
-    defaultValues: mockData,
+    defaultValues: {
+      name: "",
+      type: "",
+    },
     mode: "onBlur",
   });
 

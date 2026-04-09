@@ -1,11 +1,11 @@
 "use server";
 
 import { db } from "@/db";
-import { CreatePetBreedForm } from "../types/pet-breed";
+import { PetBreedForm } from "../types/pet-breed";
 import { petBreeds } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 
-export async function createPetBreed(data: CreatePetBreedForm): Promise<ActionResponse<null>> {
+export async function createPetBreed(data: PetBreedForm): Promise<ActionResponse<null>> {
   try {
     await db.insert(petBreeds).values({
       name: data.name,
