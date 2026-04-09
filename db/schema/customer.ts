@@ -20,8 +20,8 @@ export const customers = pgTable("customers", {
   ...timestamps,
 }).enableRLS();
 
-// ตาราง pet_breeds: เก็บข้อมูลสายพันธุ์สัตว์เลี้ยง (ไม่มี FK → ไม่ต้องใส่ index เพิ่ม)
-export const pet_breeds = pgTable("pet_breeds", {
+// ตาราง petBreeds: เก็บข้อมูลสายพันธุ์สัตว์เลี้ยง (ไม่มี FK → ไม่ต้องใส่ index เพิ่ม)
+export const petBreeds = pgTable("pet_breeds", {
   id: p.uuid("id").defaultRandom().primaryKey(),
   name: p.text("name").notNull(),
   type: petTypeEnum("type").notNull(),
@@ -44,11 +44,11 @@ export const pets = p
         .uuid("customer_id")
         .notNull()
         .references(() => customers.id, { onDelete: "restrict" }),
-      // FK ไปยัง pet_breeds (สายพันธุ์)
+      // FK ไปยัง petBreeds (สายพันธุ์)
       petBreedId: p
         .uuid("pet_breed_id")
         .notNull()
-        .references(() => pet_breeds.id, { onDelete: "restrict" }),
+        .references(() => petBreeds.id, { onDelete: "restrict" }),
       ...timestamps,
     },
     (table) => [

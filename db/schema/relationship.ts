@@ -12,7 +12,7 @@ import { relations } from "drizzle-orm";
 import { users, sessions, accounts } from "./auth";
 
 // --- Customer ---
-import { customers, pets, pet_breeds } from "./customer";
+import { customers, pets, petBreeds } from "./customer";
 
 // --- Appointment ---
 import {
@@ -130,9 +130,9 @@ export const petRelations = relations(pets, ({ one, many }) => ({
     references: [customers.id],
   }),
   // pet มีสายพันธุ์หนึ่ง
-  breed: one(pet_breeds, {
+  breed: one(petBreeds, {
     fields: [pets.petBreedId],
-    references: [pet_breeds.id],
+    references: [petBreeds.id],
   }),
   // pet ถูกนำมารับบริการได้หลายครั้ง
   appointmentItems: many(appointment_items),
@@ -142,7 +142,7 @@ export const petRelations = relations(pets, ({ one, many }) => ({
  * pet_breeds → pets (1:N)
  * สายพันธุ์หนึ่งมีสัตว์เลี้ยงได้หลายตัว
  */
-export const petBreedRelations = relations(pet_breeds, ({ many }) => ({
+export const petBreedRelations = relations(petBreeds, ({ many }) => ({
   pets: many(pets),
 }));
 
