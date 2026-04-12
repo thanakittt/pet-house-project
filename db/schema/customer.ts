@@ -36,8 +36,6 @@ export const pets = p
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       name: p.text("name").notNull(),
-      birthDate: p.date("birth_date").notNull(),
-      isActive: p.boolean("is_active").default(true).notNull(),
       medicalNotes: p.text("medical_notes"),
       // FK ไปยัง customers (เจ้าของสัตว์เลี้ยง)
       customerId: p

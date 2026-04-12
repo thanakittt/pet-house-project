@@ -33,7 +33,6 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PetBreedForm } from "../types/pet-breed";
-import { generateRandomString } from "better-auth/crypto";
 import { createPetBreed } from "../actions/create-pet-breed";
 
 export function CreatePetBreedDialog() {

@@ -14,13 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilIcon, SearchIcon, TrashIcon } from "lucide-react";
+import { EyeIcon, PencilIcon, SearchIcon, TrashIcon } from "lucide-react";
 import { CreateCustomerDialog } from "@/modules/customer/components/CreateCustomerDialog";
 import { Customer } from "../types/customer";
 import { Button } from "@/components/ui/button";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 import { useState } from "react";
 import { DeleteCustomerDialog } from "./DeleteCustomerDialog";
+import Link from "next/link";
 
 interface CustomerManagementProps {
   customers: Customer[];
@@ -82,12 +83,12 @@ export default function CustomerManagement({
                     {new Date(customer.createdAt).toLocaleDateString("th-TH")}
                   </TableCell>
                   <TableCell className="space-x-2 text-right">
-                    {/* <Link
-                    href={`/customers/${customer.id}`}
-                    className="text-primary text-sm hover:underline cursor-pointer"
-                  >
-                    ดูรายละเอียด
-                  </Link> */}
+
+                    <Button variant="outline" size="icon" aria-label="ดูรายละเอียด" asChild>
+                      <Link href={`/customers/${customer.id}`}>
+                        <EyeIcon className="size-3.5" />
+                      </Link>
+                    </Button>
 
                     {/* Edit user */}
                     <Button

@@ -1,10 +1,5 @@
 "use client";
 
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -15,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PencilIcon, TrashIcon } from "lucide-react";
-import { CreateCustomerDialog } from "@/modules/customer/components/CreateCustomerDialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
