@@ -6,14 +6,19 @@ import { eq } from "drizzle-orm";
 import { updatePetForm } from "../types/pet";
 import { ActionResponse } from "@/types/action";
 
-export async function updatePet(data: updatePetForm): Promise<ActionResponse<null>> {
+export async function updatePet(
+  data: updatePetForm,
+): Promise<ActionResponse<null>> {
   try {
-
-    const result = await db.update(pets).set({
-      name: data.name,
-      medicalNotes: data.medicalNotes === "" ? undefined : data.medicalNotes,
-      petBreedId: data.petBreedId,
-    }).where(eq(pets.id, data.petId)).returning({ id: pets.id });
+    const result = await db
+      .update(pets)
+      .set({
+        name: data.name,
+        medicalNotes: data.medicalNotes === "" ? null : data.medicalNotes,
+        petBreedId: data.petBreedId,
+      })
+      .where(eq(pets.id, data.petId))
+      .returning({ id: pets.id });
 
     if (result.length === 0) {
       return {
@@ -26,7 +31,6 @@ export async function updatePet(data: updatePetForm): Promise<ActionResponse<nul
       success: true,
       data: null,
     };
-
   } catch (error) {
     console.error("updatePet error:", error);
     return {

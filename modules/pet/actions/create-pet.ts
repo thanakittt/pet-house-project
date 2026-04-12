@@ -2,11 +2,26 @@
 
 import { db } from "@/db";
 import { PetForm } from "../types/pet";
-import { pets } from "@/db/schema";
+import { petBreeds, pets } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
+import { and, eq, isNull } from "drizzle-orm";
 
 export async function createPet(data: PetForm): Promise<ActionResponse<null>> {
   try {
+    const activeBreed = await db.query.petBreeds.findFirst({
+      where: and(
+        eq(petBreeds.id, data.petBreedId),
+        isNull(petBreeds.deletedAt),
+      ),
+    });
+
+    if (!activeBreed) {
+      return {
+        success: false,
+        error: "ไม่พบข้อมูลสายพันธุ์สัตว์เลี้ยง หรือสายพันธุ์ถูกลบไปแล้ว",
+      };
+    }
+
     await db.insert(pets).values({
       name: data.name,
       medicalNotes: data.medicalNotes === "" ? undefined : data.medicalNotes,

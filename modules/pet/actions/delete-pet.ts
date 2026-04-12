@@ -1,15 +1,15 @@
-"use server"
+"use server";
 
 import { db } from "@/db";
 import { pets } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 export async function deletePet({ id }: { id: string }) {
   try {
     const result = await db
       .update(pets)
       .set({ deletedAt: new Date() })
-      .where(eq(pets.id, id))
+      .where(and(eq(pets.id, id), isNull(pets.deletedAt)))
       .returning({ id: pets.id });
 
     if (result.length === 0) {

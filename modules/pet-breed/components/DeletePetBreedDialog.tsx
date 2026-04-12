@@ -1,6 +1,7 @@
 "use client";
 
-import {  AlertDialog,
+import {
+  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -45,7 +46,7 @@ export function DeletePetBreedDialog({
         onOpenChange(false);
         router.refresh();
       } catch (error) {
-        console.error("deleteCustomer error:", error);
+        console.error("deletePetBreed error:", error);
         toast.error("เกิดข้อผิดพลาดในการลบข้อมูลสายพันธุ์");
       }
     });
@@ -58,9 +59,12 @@ export function DeletePetBreedDialog({
       </AlertDialogTrigger> */}
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>ยืนยันการลบข้อมูลสายพันธุ์สัตว์เลี้ยง</AlertDialogTitle>
+          <AlertDialogTitle>
+            ยืนยันการลบข้อมูลสายพันธุ์สัตว์เลี้ยง
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            คุณต้องการลบข้อมูลสายพันธุ์สัตว์เลี้ยง &quot;{petBreed.name}&quot; หรือไม่?
+            คุณต้องการลบข้อมูลสายพันธุ์สัตว์เลี้ยง &quot;{petBreed.name}&quot;
+            หรือไม่?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

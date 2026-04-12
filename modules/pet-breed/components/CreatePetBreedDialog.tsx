@@ -80,9 +80,9 @@ export function CreatePetBreedDialog() {
         setOpen(value);
       }}
     >
-      <form onSubmit={form.handleSubmit(onSubmit)} id="create-customer">
+      <form onSubmit={form.handleSubmit(onSubmit)} id="create-pet-breed">
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
-          <Button>
+          <Button type="button">
             {" "}
             <PlusIcon className="size-3.5" /> เพิ่มสายพันธุ์สัตว์เลี้ยง
           </Button>
@@ -141,12 +141,11 @@ export function CreatePetBreedDialog() {
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>ประเภทสัตว์เลี้ยง</FieldLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger>
+                  <FieldLabel htmlFor={field.name}>
+                    ประเภทสัตว์เลี้ยง
+                  </FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={field.name}>
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
@@ -174,7 +173,7 @@ export function CreatePetBreedDialog() {
               </DialogClose>
               <Button
                 type="submit"
-                form="create-customer"
+                form="create-pet-breed"
                 className="px-6 py-5 text-sm cursor-pointer"
                 disabled={form.formState.isSubmitting}
               >

@@ -50,11 +50,13 @@ export default function PetTypeBadge({ type, className }: Props) {
     return (
         <Badge
             variant="outline"
-            className={`
-                ${className} 
-                ${config.bg} ${config.text} ${config.border} 
-                py-1 px-2 transition-all hover:opacity-80 w-12 h-12
-            `}
+            className={[
+                className,
+                config.bg,
+                config.text,
+                config.border,
+                "py-1 px-2 transition-all hover:opacity-80 w-12 h-12"
+            ].filter(Boolean).join(" ")}
         >
             <div className="flex flex-col items-center gap-1.5 font-bold">
                 {Icon && <Icon className="w-4 h-4" />}
