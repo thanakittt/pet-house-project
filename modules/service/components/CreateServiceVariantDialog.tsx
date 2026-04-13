@@ -209,7 +209,7 @@ export function CreateServiceVariantDialog({
               rules={{
                 required: "กรุณาระบุราคาขั้นต่ำ",
                 min: {
-                  value: 0,
+                  value: 1,
                   message: "ราคาขั้นต่ำต้องมากกว่า 0",
                 },
               }}
