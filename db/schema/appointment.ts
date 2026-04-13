@@ -2,7 +2,7 @@ import * as p from "drizzle-orm/pg-core";
 import { appointmentStatusEnum, serviceImageTypeEnum } from "./enum";
 import { customers, pets } from "./customer";
 import { timestamps } from "./column.helper";
-import { service_variants } from "./service";
+import { serviceVariants } from "./service";
 import { sql } from "drizzle-orm";
 
 // ตาราง appointments: เก็บข้อมูลการนัดหมาย
@@ -63,11 +63,11 @@ export const appointment_items = p
         .references(() => pets.id, {
           onDelete: "restrict",
         }),
-      // FK ไปยัง service_variants (ตัวเลือกบริการ)
+      // FK ไปยัง serviceVariants (ตัวเลือกบริการ)
       serviceVariantId: p
         .uuid("service_variant_id")
         .notNull()
-        .references(() => service_variants.id, {
+        .references(() => serviceVariants.id, {
           onDelete: "restrict",
         }),
       ...timestamps,

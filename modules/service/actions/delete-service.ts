@@ -3,14 +3,14 @@
 import { db } from "@/db";
 import { services } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 export async function deleteService({ id }: { id: string }): Promise<ActionResponse<null>> {
   try {
     const result = await db
       .update(services)
       .set({ deletedAt: new Date() })
-      .where(eq(services.id, id))
+      .where(and(eq(services.id, id), isNull(services.deletedAt)))
       .returning({ id: services.id });
 
     if (result.length === 0) {

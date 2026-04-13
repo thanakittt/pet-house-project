@@ -23,7 +23,7 @@ import {
 } from "./appointment";
 
 // --- Service ---
-import { services, service_variants } from "./service";
+import { services, serviceVariants } from "./service";
 
 // --- Finance ---
 import {
@@ -203,9 +203,9 @@ export const appointmentItemRelations = relations(
       references: [pets.id],
     }),
     // item ใช้ service variant หนึ่ง (ตัวเลือกบริการ)
-    serviceVariant: one(service_variants, {
+    serviceVariant: one(serviceVariants, {
       fields: [appointment_items.serviceVariantId],
-      references: [service_variants.id],
+      references: [serviceVariants.id],
     }),
     // item มีรายงานสุขภาพได้หลายรายการ
     healthReports: many(health_reports),
@@ -245,7 +245,7 @@ export const serviceImageRelations = relations(service_images, ({ one }) => ({
  * บริการหลักมีตัวเลือกย่อยได้หลายตัว (แยกตามขนาด/ประเภทสัตว์)
  */
 export const serviceRelations = relations(services, ({ many }) => ({
-  variants: many(service_variants),
+  variants: many(serviceVariants),
 }));
 
 /**
@@ -253,11 +253,11 @@ export const serviceRelations = relations(services, ({ many }) => ({
  * service_variants → appointment_items (1:N)
  */
 export const serviceVariantRelations = relations(
-  service_variants,
+  serviceVariants,
   ({ one, many }) => ({
     // variant เป็นของ service หลัก
     service: one(services, {
-      fields: [service_variants.serviceId],
+      fields: [serviceVariants.serviceId],
       references: [services.id],
     }),
     // variant ถูกใช้ใน appointment_items หลายรายการ

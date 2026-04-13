@@ -16,14 +16,16 @@ export const services = p
 
 // ตาราง service_variants: เก็บตัวเลือกย่อยของบริการ แยกตามขนาดสัตว์และประเภท
 // index บน service_id เพื่อเร่ง JOIN ดู variants ทั้งหมดของ service
-export const service_variants = p
+export const serviceVariants = p
   .pgTable(
     "service_variants",
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       size: petSizeEnum("size").notNull(),
       minPrice: p.numeric("min_price", { precision: 8, scale: 2 }).notNull(),
-      maxPrice: p.numeric("max_price", { precision: 8, scale: 2 }).notNull(),
+      maxPrice: p
+        .numeric("max_price", { precision: 8, scale: 2 })
+        .notNull(),
       isStartingPriceOnly: p
         .boolean("is_starting_price_only")
         .default(false)

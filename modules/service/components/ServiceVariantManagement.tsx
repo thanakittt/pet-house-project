@@ -11,26 +11,35 @@ import {
 import { PencilIcon, Settings, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { CreateServiceDialog } from "./CreateServiceDialog";
-import { Service } from "../types/service";
-import { UpdateServiceDialog } from "./UpdateServiceDialog";
-import { DeleteServiceDialog } from "./DeleteServiceDialog";
 import Link from "next/link";
+import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
+import { ServiceVariant } from "../types/service-variant";
+import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
+import { DeleteServiceVariantDialog } from "./DeleteServiceVariantDialog";
 
-interface ServicesPageProps {
-  services: Service[];
+interface ServiceVariantsManagementProps {
+  serviceId: string;
+  variants: ServiceVariant[];
 }
 
-export default function ServicesPage({ services }: ServicesPageProps) {
+export default function ServiceVariantsManagement({
+  serviceId,
+  variants,
+}: ServiceVariantsManagementProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ServiceVariant | null>(
+    null,
+  );
 
   return (
     <>
       <main className="mx-auto p-5 max-w-6xl h-svh">
         <header className="mb-2">
-          <h1 className="font-bold text-2xl">จัดการบริการ</h1>
+          <h1 className="font-bold text-2xl">จัดการตัวเลือกบริการ</h1>
+          <Link href="/services" className="">
+            กลับไปหน้าบริการ
+          </Link>
         </header>
         <Separator className="mb-5" />
         <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
@@ -46,50 +55,55 @@ export default function ServicesPage({ services }: ServicesPageProps) {
             </InputGroup> */}
           </div>
           <div className="flex justify-end">
-            <CreateServiceDialog />
+            <CreateServiceVariantDialog serviceId={serviceId} />
           </div>
         </div>
         <div className="border rounded-md overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>
-                <TableHead>ชื่อบริการ</TableHead>
-                <TableHead>ประเภท</TableHead>
-                <TableHead>คำอธิบาย</TableHead>
+                <TableHead>สัตว์เลี้ยง</TableHead>
+                <TableHead>ขนาด</TableHead>
+                <TableHead>ราคา (บาท)</TableHead>
+                <TableHead>เวลา (นาที)</TableHead>
                 <TableHead className="text-right">จัดการ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services && services.length > 0 ? (
-                services.map((service) => (
-                  <TableRow key={service.id}>
-                    <TableCell>{service.name}</TableCell>
+              {variants && variants.length > 0 ? (
+                variants.map((variant) => (
+                  <TableRow key={variant.id}>
                     <TableCell>
-                      {service.serviceType === "MAIN"
-                        ? "หลัก"
-                        : service.serviceType === "ADDON"
-                          ? "เสริม"
-                          : "อื่นๆ"}
+                      {variant.petType === "DOG"
+                        ? "หมา"
+                        : variant.petType === "CAT"
+                          ? "แมว"
+                          : variant.petType}
                     </TableCell>
-                    <TableCell>{service.description || "-"}</TableCell>
+                    <TableCell>
+                      {variant.size === "S"
+                        ? "เล็ก"
+                        : variant.size === "M"
+                          ? "กลาง"
+                          : variant.size === "L"
+                            ? "ใหญ่"
+                            : variant.size === "ALL"
+                              ? "ทุกขนาด"
+                              : variant.size}
+                    </TableCell>
+                    <TableCell>
+                      {variant.isStartingPriceOnly
+                        ? variant.minPrice
+                        : `${variant.minPrice} - ${variant.maxPrice}`}
+                    </TableCell>
+                    <TableCell>{variant.durationMinutes}</TableCell>
                     <TableCell className="space-x-2 text-right">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        aria-label="จัดการตัวเลือกบริการ"
-                        asChild
-                      >
-                        <Link href={`/services/${service.id}/variants`}>
-                          <Settings />
-                        </Link>
-                      </Button>
-
                       <Button
                         variant="outline"
                         size="icon"
                         aria-label="แก้ไขข้อมูล"
                         onClick={() => {
-                          setSelectedService(service);
+                          setSelectedVariant(variant);
                           setIsEditDialogOpen(true);
                         }}
                       >
@@ -101,7 +115,7 @@ export default function ServicesPage({ services }: ServicesPageProps) {
                         size="icon"
                         aria-label="ลบข้อมูล"
                         onClick={() => {
-                          setSelectedService(service);
+                          setSelectedVariant(variant);
                           setIsDeleteDialogOpen(true);
                         }}
                       >
@@ -112,7 +126,7 @@ export default function ServicesPage({ services }: ServicesPageProps) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-10 text-center">
+                  <TableCell colSpan={5} className="py-10 text-center">
                     ไม่มีข้อมูล
                   </TableCell>
                 </TableRow>
@@ -121,17 +135,17 @@ export default function ServicesPage({ services }: ServicesPageProps) {
           </Table>
         </div>
       </main>
-      {selectedService && (
+      {selectedVariant && (
         <>
-          <UpdateServiceDialog
+          <UpdateServiceVariantDialog
             open={isEditDialogOpen}
             onOpenChange={setIsEditDialogOpen}
-            service={selectedService}
+            serviceVariant={selectedVariant}
           />
-          <DeleteServiceDialog
+          <DeleteServiceVariantDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            service={{ id: selectedService.id, name: selectedService.name }}
+            serviceVariantId={selectedVariant.id}
           />
         </>
       )}

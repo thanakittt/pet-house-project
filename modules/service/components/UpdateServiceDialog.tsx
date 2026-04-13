@@ -66,8 +66,7 @@ export function UpdateServiceDialog({ service, open, onOpenChange }: UpdateServi
         description: service.description || "",
       });
     }
-  }, [service]);
-
+  }, [service, form]);
   const onSubmit = async (data: ServiceForm) => {
     try {
       setServerError(null);
