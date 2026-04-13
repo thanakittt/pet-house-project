@@ -12,6 +12,8 @@ import { PencilIcon, Settings, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
+import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
+import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
 import { ServiceVariant } from "../types/service-variant";
 import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
@@ -44,15 +46,6 @@ export default function ServiceVariantsManagement({
         <Separator className="mb-5" />
         <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
           <div className="flex items-center gap-3">
-            {/* <InputGroup className="py-5">
-              <InputGroupInput
-                placeholder="ค้นหาด้วยชื่อสายพันธุ์"
-                className="text-sm"
-              />
-              <InputGroupAddon>
-                <SearchIcon className="size-3.5" />
-              </InputGroupAddon>
-            </InputGroup> */}
           </div>
           <div className="flex justify-end">
             <CreateServiceVariantDialog serviceId={serviceId} />
@@ -74,22 +67,10 @@ export default function ServiceVariantsManagement({
                 variants.map((variant) => (
                   <TableRow key={variant.id}>
                     <TableCell>
-                      {variant.petType === "DOG"
-                        ? "หมา"
-                        : variant.petType === "CAT"
-                          ? "แมว"
-                          : variant.petType}
+                      {PET_TYPE_LABELS[variant.petType] || variant.petType}
                     </TableCell>
                     <TableCell>
-                      {variant.size === "S"
-                        ? "เล็ก"
-                        : variant.size === "M"
-                          ? "กลาง"
-                          : variant.size === "L"
-                            ? "ใหญ่"
-                            : variant.size === "ALL"
-                              ? "ทุกขนาด"
-                              : variant.size}
+                      {PET_SIZE_LABELS[variant.size] || variant.size}
                     </TableCell>
                     <TableCell>
                       {variant.isStartingPriceOnly

@@ -3,8 +3,10 @@
 import { db } from "@/db";
 import { customers } from "@/db/schema";
 import { isNull } from "drizzle-orm";
+import { ActionResponse } from "@/types/action";
+import { Customer } from "../types/customer";
 
-export async function listCustomers() {
+export async function listCustomers(): Promise<ActionResponse<Customer[]>> {
   try {
     const result = await db
       .select({

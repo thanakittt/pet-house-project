@@ -9,20 +9,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Field,
-  FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
 import {
   Select,
   SelectContent,
@@ -32,15 +31,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Textarea } from "@/components/ui/textarea";
-import { ServiceForm } from "../types/service";
-import { createService } from "../actions/create-service";
-import { createServiceVariant } from "../actions/create-service-variant";
-import { ServiceVariant } from "../types/service-variant";
-import { UpdateServiceVariantForm } from "../types/service-variant";
 import { updateServiceVariant } from "../actions/update-service-variant";
-// import { ServiceForm } from "../types/service";
-// import { createService } from "../actions/create-service";
+import { ServiceVariant, UpdateServiceVariantForm } from "../types/service-variant";
 
 interface UpdateServiceVariantDialogProps {
   serviceVariant: ServiceVariant;
@@ -159,8 +151,11 @@ export function UpdateServiceVariantDialog({
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DOG">หมา</SelectItem>
-                      <SelectItem value="CAT">แมว</SelectItem>
+                      {PET_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (
@@ -185,10 +180,11 @@ export function UpdateServiceVariantDialog({
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="S">เล็ก (S)</SelectItem>
-                      <SelectItem value="M">กลาง (M)</SelectItem>
-                      <SelectItem value="L">ใหญ่ (L)</SelectItem>
-                      <SelectItem value="ALL">ทุกขนาด</SelectItem>
+                      {PET_SIZE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (

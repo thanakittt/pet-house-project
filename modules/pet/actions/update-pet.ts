@@ -3,11 +3,11 @@
 import { db } from "@/db";
 import { pets } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { updatePetForm } from "../types/pet";
+import { UpdatePetForm } from "../types/pet";
 import { ActionResponse } from "@/types/action";
 
 export async function updatePet(
-  data: updatePetForm,
+  data: UpdatePetForm,
 ): Promise<ActionResponse<null>> {
   try {
     const result = await db

@@ -12,6 +12,7 @@ import {
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
 import { PetBreed } from "../types/pet-breed";
 import { UpdatePetBreedDialog } from "./UpdatePetBreedDialog";
@@ -33,15 +34,6 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
         <Separator className="mb-5" />
         <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
           <div className="flex items-center gap-3">
-            {/* <InputGroup className="py-5">
-              <InputGroupInput
-                placeholder="ค้นหาด้วยชื่อสายพันธุ์"
-                className="text-sm"
-              />
-              <InputGroupAddon>
-                <SearchIcon className="size-3.5" />
-              </InputGroupAddon>
-            </InputGroup> */}
           </div>
           <div className="flex justify-end">
             <CreatePetBreedDialog />
@@ -62,11 +54,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
                   <TableRow key={petBreed.id}>
                     <TableCell>{petBreed.name}</TableCell>
                     <TableCell>
-                      {petBreed.type === "CAT"
-                        ? "แมว"
-                        : petBreed.type === "DOG"
-                          ? "หมา"
-                          : "อื่นๆ"}
+                      {PET_TYPE_LABELS[petBreed.type] || "อื่นๆ"}
                     </TableCell>
                     <TableCell className="space-x-2 text-right">
                       <Button

@@ -1,6 +1,6 @@
 import { listPets } from "@/modules/pet/queries/list-pets";
 import CustomerDetail from "@/modules/customer/components/CustomerDetail";
-import { listPetBreeds } from "@/modules/pet-breed/actions/list-pet-breeds";
+import { listPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { notFound } from "next/navigation";
 
 interface CustomerDetailPageProps {

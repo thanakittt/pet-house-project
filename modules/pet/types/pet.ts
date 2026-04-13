@@ -5,7 +5,7 @@ export type PetForm = {
   customerId: string;
 };
 
-export type createPetForm = {
+export type CreatePetForm = {
   name: string;
   petType: string;
   medicalNotes: string;
@@ -20,11 +20,11 @@ export type Pet = {
   breed: {
     name: string;
     id: string;
-    type: string;
+    type: "DOG" | "CAT";
   };
 };
 
-export type updatePetForm = {
+export type UpdatePetForm = {
   petId: string;
   name: string;
   medicalNotes: string;

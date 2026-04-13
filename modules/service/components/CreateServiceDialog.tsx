@@ -23,6 +23,7 @@ import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
+import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import {
   Select,
   SelectContent,
@@ -35,8 +36,6 @@ import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { ServiceForm } from "../types/service";
 import { createService } from "../actions/create-service";
-// import { ServiceForm } from "../types/service";
-// import { createService } from "../actions/create-service";
 
 export function CreateServiceDialog() {
   const router = useRouter();
@@ -180,8 +179,11 @@ export function CreateServiceDialog() {
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="MAIN">บริการหลัก</SelectItem>
-                      <SelectItem value="ADDON">บริการเสริม</SelectItem>
+                      {SERVICE_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (

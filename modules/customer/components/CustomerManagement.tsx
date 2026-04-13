@@ -1,10 +1,5 @@
 "use client";
 
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -14,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EyeIcon, PencilIcon, SearchIcon, TrashIcon } from "lucide-react";
+import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { CreateCustomerDialog } from "@/modules/customer/components/CreateCustomerDialog";
 import { Customer } from "../types/customer";
 import { Button } from "@/components/ui/button";
@@ -45,15 +40,6 @@ export default function CustomerManagement({
         <Separator className="mb-5" />
         <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
           <div className="flex items-center gap-3">
-            {/* <InputGroup className="py-5">
-              <InputGroupInput
-                placeholder="ค้นหาด้วยชื่อ หรือเบอร์โทรศัพท์"
-                className="text-sm"
-              />
-              <InputGroupAddon>
-                <SearchIcon className="size-3.5" />
-              </InputGroupAddon>
-            </InputGroup> */}
           </div>
           <div className="flex justify-end">
             <CreateCustomerDialog />

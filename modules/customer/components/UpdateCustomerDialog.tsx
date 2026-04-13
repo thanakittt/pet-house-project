@@ -125,12 +125,6 @@ export function UpdateCustomerDialog({
         onSubmit={form.handleSubmit(onSubmit)}
         id={`update-customer-${customer?.id}`}
       >
-        {/* <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
-          <Button>
-            {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มลูกค้าใหม่
-          </Button>
-        </DialogTrigger> */}
         <DialogContent className="md:max-w-md">
           <DialogHeader className="px-4 pt-4">
             <DialogTitle className="font-bold text-lg">

@@ -8,7 +8,6 @@ import {  AlertDialog,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -55,9 +54,6 @@ export function DeleteCustomerDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      {/* <AlertDialogTrigger asChild>
-        <Button variant="outline">Show Dialog</Button>
-      </AlertDialogTrigger> */}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>ยืนยันการลบข้อมูลลูกค้า</AlertDialogTitle>
