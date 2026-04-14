@@ -1,5 +1,5 @@
 "use client";
-import { Separator } from "@/components/ui/separator";
+// Separator ถูกลบออกเนื่องจากไม่ได้ใช้งานใน JSX ของคอมโพเนนต์นี้
 import {
   Table,
   TableBody,

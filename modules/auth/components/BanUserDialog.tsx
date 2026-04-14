@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger ไม่ได้ใช้ — Dialog ถูกควบคุมด้วย isBanUserDialogOpen prop
 } from "@/components/ui/dialog";
 import {
   Field,
@@ -16,13 +16,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Ban } from "lucide-react";
+// Ban icon ถูกลบออก — ไม่ได้ใช้แสดงในปุ่มหรือ label ใดๆ
 import { Button } from "@/components/ui/button";
 import { Controller, useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+// useState ถูกลบออก — state ถูกจัดการผ่าน prop setIsBanUserDialogOpen
 import { useRouter } from "next/navigation";
 
 const DAY_TO_SECONDS = 60 * 60 * 24;

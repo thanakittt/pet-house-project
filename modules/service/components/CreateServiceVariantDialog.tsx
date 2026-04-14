@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   Field,
-  FieldContent,
+  // FieldContent ถูกลบออกเนื่องจากไม่ได้ใช้งานในคอมโพเนนต์นี้
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -34,9 +34,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Textarea } from "@/components/ui/textarea";
+// Textarea ถูกลบออกเพราะไม่มี field ที่ต้องการ textarea ในฟอร์มนี้
 import { createServiceVariant } from "../actions/create-service-variant";
-import { ServiceVariant, ServiceVariantForm } from "../types/service-variant";
+// import เฉพาะ ServiceVariantForm — ServiceVariant ไม่ได้ใช้โดยตรง
+import { ServiceVariantForm } from "../types/service-variant";
 
 interface CreateServiceVariantDialogProps {
   serviceId: string;

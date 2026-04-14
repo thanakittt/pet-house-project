@@ -9,7 +9,7 @@ import {  AlertDialog,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+// Button ถูกลบออก — ใช้ AlertDialogAction/AlertDialogCancel แทน
 import { toast } from "sonner";
 import { deleteCustomer } from "../actions/delete-customer";
 import { useRouter } from "next/navigation";

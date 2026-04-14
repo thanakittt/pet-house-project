@@ -1,10 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import {
-  ServiceVariant,
-  UpdateServiceVariantForm,
-} from "../types/service-variant";
+// import เฉพาะ ServiceVariant เพราะ UpdateServiceVariantForm ไม่ได้ใช้ใน action นี้
+import { ServiceVariant } from "../types/service-variant";
 import { serviceVariants } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { ActionResponse } from "@/types/action";

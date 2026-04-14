@@ -32,7 +32,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Service, ServiceForm } from "../types/service";
-import { createService } from "../actions/create-service";
+// createService ถูกลบออก — UpdateServiceDialog ใช้แค่ updateService
 import { updateService } from "../actions/update-service";
 
 interface UpdateServiceDialogProps {

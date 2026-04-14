@@ -31,6 +31,7 @@ export async function listPets(customerId: string): Promise<ActionResponse<Pet[]
       data: petsData,
     };
   } catch (error) {
+    console.error("listPets error:", error);
     return {
       success: false,
       error: "เกิดข้อผิดพลาดในการดึงข้อมูลสัตว์เลี้ยง",
