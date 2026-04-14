@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceVariantsManagement from "@/modules/service/components/ServiceVariantManagement";
 import { getServiceVariants } from "@/modules/service/queries/get-service";
-import { ServiceVariant } from "@/modules/service/types/service-variant";
+import { SiteHeader } from "@/components/site-header";
 
 interface ServiceVariantsPageProps {
   params: Promise<{
@@ -28,6 +28,11 @@ export default async function ServiceVariantsPage({
   }
 
   return (
-    <ServiceVariantsManagement serviceId={id} variants={serviceVariants.data} />
+    <>
+      <SiteHeader title="จัดการตัวเลือกบริการ" />
+      <div className="p-6">
+        <ServiceVariantsManagement serviceId={id} variants={serviceVariants.data} />
+      </div>
+    </>
   );
 }

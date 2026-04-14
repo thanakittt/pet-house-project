@@ -1,6 +1,7 @@
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceManagement from "@/modules/service/components/ServiceManagement";
 import { listServices } from "@/modules/service/queries/list-services";
+import { SiteHeader } from "@/components/site-header";
 
 export default async function ServicesPage() {
   await requireAdminAndOwner();
@@ -11,5 +12,12 @@ export default async function ServicesPage() {
     throw new Error(services.error);
   }
 
-  return <ServiceManagement services={services.data} />;
+  return (
+    <>
+      <SiteHeader title="จัดการบริการ" />
+      <div className="p-6">
+        <ServiceManagement services={services.data} />
+      </div>
+    </>
+  );
 }
