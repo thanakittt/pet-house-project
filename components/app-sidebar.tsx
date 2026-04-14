@@ -35,7 +35,7 @@ const data = {
       icon: <User2Icon />,
     },
     {
-      title: "จัดการประเภทสัตว์เลี้ยง",
+      title: "จัดการสายพันธุ์สัตว์เลี้ยง",
       url: "/pet-breeds",
       icon: <PawPrintIcon />,
     },
