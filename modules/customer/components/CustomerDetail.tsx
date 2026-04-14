@@ -18,7 +18,7 @@ export default function CustomerDetail({
   pets,
 }: CustomerDetailProps) {
   return (
-    <div className="mx-auto p-5 max-w-6xl">
+    <>
       <header className="flex items-center gap-4 mb-6 hover:text-muted-foreground transition-colors cursor-pointer">
         <Link href="/customers">
           <div className="flex items-center gap-2">
@@ -42,6 +42,6 @@ export default function CustomerDetail({
         />
         {/* <AppointmentHistoryForm /> */}
       </div>
-    </div>
+    </>
   );
 }

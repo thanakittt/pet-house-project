@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${notoSansThai.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col">
-        <main>{children}</main>
+      <body className="flex flex-col min-h-full">
+        <main>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+        </main>
         <Toaster />
       </body>
     </html>

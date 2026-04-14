@@ -48,8 +48,7 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
 
   return (
     <div>
-      <div className="flex justify-between ">
-        <h1 className="text-2xl font-bold">จัดการผู้ใช้</h1>
+      <div className="flex justify-end">
 
         {/* create user button */}
         <Button asChild variant="default" size="default">
@@ -82,7 +81,7 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                 <BannedBadge banned={user.banned!} />
               </TableCell>
               <TableCell>
-                <div className="flex gap-1 justify-end">
+                <div className="flex justify-end gap-1">
                   {/* Ban/Unban user */}
                   {user.banned ? (
                     <Button
