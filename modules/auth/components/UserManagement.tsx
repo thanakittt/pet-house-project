@@ -89,7 +89,6 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                       variant="outline"
                       size="icon"
                       aria-label="ยกเลิกการแบน"
-                      disabled={false}
                       onClick={() => unbanUser(user.id)}
                     >
                       <CircleCheck className="size-3.5" />

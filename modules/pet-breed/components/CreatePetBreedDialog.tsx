@@ -23,6 +23,7 @@ import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   Select,
   SelectContent,
@@ -149,8 +150,11 @@ export function CreatePetBreedDialog() {
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DOG">หมา</SelectItem>
-                      <SelectItem value="CAT">แมว</SelectItem>
+                      {PET_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (

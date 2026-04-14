@@ -19,10 +19,11 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { ChevronsUpDown, PencilIcon, PlusIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   Select,
   SelectContent,
@@ -32,10 +33,9 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { createPetForm } from "@/modules/pet/types/pet";
+import { CreatePetForm } from "@/modules/pet/types/pet";
 import { Textarea } from "@/components/ui/textarea";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
-import { createPet } from "../actions/create-pet";
 import { Pet } from "../types/pet";
 import { updatePet } from "../actions/update-pet";
 
@@ -76,7 +76,7 @@ export function UpdatePetDialog({
     }
   }, [pet, form]);
 
-  const onSubmit = async (data: createPetForm) => {
+  const onSubmit = async (data: CreatePetForm) => {
     try {
       setServerError(null);
 
@@ -91,8 +91,6 @@ export function UpdatePetDialog({
         setServerError(result.error);
         return;
       }
-
-      console.log("UpdatePetDialog onSubmit", data);
 
       onOpenChange(false);
       form.reset();
@@ -188,8 +186,11 @@ export function UpdatePetDialog({
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DOG">หมา</SelectItem>
-                      <SelectItem value="CAT">แมว</SelectItem>
+                      {PET_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (

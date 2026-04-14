@@ -11,6 +11,7 @@ import {
 import { PencilIcon, Settings, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { SERVICE_TYPE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceDialog } from "./CreateServiceDialog";
 import { Service } from "../types/service";
 import { UpdateServiceDialog } from "./UpdateServiceDialog";
@@ -35,15 +36,6 @@ export default function ServicesPage({ services }: ServicesPageProps) {
         <Separator className="mb-5" />
         <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
           <div className="flex items-center gap-3">
-            {/* <InputGroup className="py-5">
-              <InputGroupInput
-                placeholder="ค้นหาด้วยชื่อสายพันธุ์"
-                className="text-sm"
-              />
-              <InputGroupAddon>
-                <SearchIcon className="size-3.5" />
-              </InputGroupAddon>
-            </InputGroup> */}
           </div>
           <div className="flex justify-end">
             <CreateServiceDialog />
@@ -65,11 +57,7 @@ export default function ServicesPage({ services }: ServicesPageProps) {
                   <TableRow key={service.id}>
                     <TableCell>{service.name}</TableCell>
                     <TableCell>
-                      {service.serviceType === "MAIN"
-                        ? "หลัก"
-                        : service.serviceType === "ADDON"
-                          ? "เสริม"
-                          : "อื่นๆ"}
+                      {SERVICE_TYPE_LABELS[service.serviceType] || "อื่นๆ"}
                     </TableCell>
                     <TableCell>{service.description || "-"}</TableCell>
                     <TableCell className="space-x-2 text-right">

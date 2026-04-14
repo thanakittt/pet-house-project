@@ -94,7 +94,7 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
   return (
     <Card className="w-full sm:max-w-md">
       <CardContent>
-        <form id="create-user" onSubmit={handleSubmit(onSubmit)}>
+        <form id="edit-user" onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup>
             {/* Name Field */}
             <Controller
@@ -346,7 +346,7 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
           </Button>
           <Button
             type="submit"
-            form="create-user"
+            form="edit-user"
             disabled={isSubmitting || !isValid}
           >
             {isSubmitting ? "กำลังบันทึก..." : "บันทึก"}

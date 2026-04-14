@@ -1,6 +1,6 @@
 import { requireStaff } from "@/lib/session";
 import { PetBreedManagement } from "@/modules/pet-breed/components/PetBreedManagement";
-import { listPetBreeds } from "@/modules/pet-breed/actions/list-pet-breeds";
+import { listPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 
 export default async function PetBreedsPage() {
   await requireStaff();

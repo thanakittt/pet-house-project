@@ -9,20 +9,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Field,
-  FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
+import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import {
   Select,
   SelectContent,
@@ -36,8 +34,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Service, ServiceForm } from "../types/service";
 import { createService } from "../actions/create-service";
 import { updateService } from "../actions/update-service";
-// import { ServiceForm } from "../types/service";
-// import { createService } from "../actions/create-service";
 
 interface UpdateServiceDialogProps {
   service: Service,
@@ -192,8 +188,11 @@ export function UpdateServiceDialog({ service, open, onOpenChange }: UpdateServi
                       <SelectValue placeholder="เลือกประเภท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="MAIN">บริการหลัก</SelectItem>
-                      <SelectItem value="ADDON">บริการเสริม</SelectItem>
+                      {SERVICE_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {fieldState.invalid && (
