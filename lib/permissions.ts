@@ -2,7 +2,7 @@ import { createAccessControl } from "better-auth/plugins/access";
 import {
   defaultStatements,
   adminAc,
-  userAc,
+  // userAc ถูกลบออก — ยังไม่ได้ใช้งานในการกำหนด role ปัจจุบัน
 } from "better-auth/plugins/admin/access";
 
 const statement = {

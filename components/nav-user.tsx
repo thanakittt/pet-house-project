@@ -20,8 +20,7 @@ import { authClient } from "@/lib/auth-client";
 import {
   EllipsisVerticalIcon,
   CircleUserRoundIcon,
-  CreditCardIcon,
-  BellIcon,
+  // CreditCardIcon และ BellIcon ถูกลบออก — ยังไม่ได้ใช้ในเมนู dropdown
   LogOutIcon,
 } from "lucide-react";
 import { toast } from "sonner";

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, UserX } from "lucide-react";
+// UserX icon ถูกลบออก — ฟีเจอร์ unlink customer ยังไม่ได้พัฒนา
+import { ChevronLeft } from "lucide-react";
 import { PetInfoForm } from "@/modules/pet/components/PetInfoForm";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { Pet } from "@/modules/pet/types/pet";

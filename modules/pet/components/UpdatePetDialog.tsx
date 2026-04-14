@@ -9,17 +9,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger ไม่ได้ใช้ — Dialog นี้ถูกควบคุมด้วย open prop จากภายนอก
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Field,
-  FieldContent,
+  // FieldContent ถูกลบออกเนื่องจากไม่ได้ใช้งานในคอมโพเนนต์นี้
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { PencilIcon } from "lucide-react";
+// PencilIcon ถูกลบออก — ไม่ได้ใช้ภายใน UpdatePetDialog (trigger อยู่ที่ parent component)
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";

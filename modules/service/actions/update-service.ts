@@ -2,7 +2,8 @@
 
 import { db } from "@/db";
 import { services } from "@/db/schema";
-import { Service, ServiceForm } from "../types/service";
+// import เฉพาะ Service เพราะ ServiceForm ไม่ได้ใช้ใน action นี้
+import { Service } from "../types/service";
 import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
 

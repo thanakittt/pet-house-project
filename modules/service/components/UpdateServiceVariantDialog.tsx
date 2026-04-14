@@ -61,6 +61,8 @@ export function UpdateServiceVariantDialog({
   });
 
   useEffect(() => {
+    // reset form ทุกครั้งที่ serviceVariant เปลี่ยนแปลง (เช่น เปิด dialog สำหรับ variant อื่น)
+    // `form` ถูกรวมใน deps เพื่อให้ ESLint พอใจ — object นี้มี stable reference จาก useForm
     form.reset({
       petType: serviceVariant.petType,
       size: serviceVariant.size,
@@ -69,7 +71,7 @@ export function UpdateServiceVariantDialog({
       isStartingPriceOnly: serviceVariant.isStartingPriceOnly.toString(),
       durationMinutes: serviceVariant.durationMinutes.toString(),
     });
-  }, [serviceVariant]);
+  }, [serviceVariant, form]);
 
   const onSubmit = async (data: UpdateServiceVariantForm) => {
     try {

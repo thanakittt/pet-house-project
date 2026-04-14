@@ -1,6 +1,6 @@
 "use client";
 
-import { Separator } from "@/components/ui/separator";
+// Separator ถูกลบออก — ไม่ได้ใช้งานใน layout ปัจจุบัน
 import {
   Table,
   TableBody,

@@ -1,5 +1,5 @@
 "use client";
-import { Separator } from "@/components/ui/separator";
+// Separator ถูกลบออกเนื่องจากไม่ได้ใช้งานใน JSX ของคอมโพเนนต์นี้
 import {
   Table,
   TableBody,
@@ -8,7 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilIcon, Settings, TrashIcon } from "lucide-react";
+// Settings icon ถูกลบออก — ไม่มีปุ่มจัดการ settings ใน ServiceVariant management
+import { PencilIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";

@@ -8,13 +8,13 @@ import {  AlertDialog,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  // AlertDialogTrigger ไม่ได้ใช้ — Dialog ถูกควบคุมด้วย open prop จากภายนอก
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+// Button ไม่ได้ใช้โดยตรง — ใช้ AlertDialogAction/Cancel แทน
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { customer } from "@/lib/permissions";
+// customer (from permissions) ถูกลบออก — ไม่เกี่ยวข้องกับการลบสัตว์เลี้ยง
 import { deletePet } from "../actions/delete-pet";
 
 interface DeletePetDialogProps {
