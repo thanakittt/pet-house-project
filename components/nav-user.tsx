@@ -107,7 +107,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <CircleUserRoundIcon />
                 ข้อมูลส่วนตัว
               </DropdownMenuItem>
