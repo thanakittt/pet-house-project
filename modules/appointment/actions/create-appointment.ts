@@ -6,6 +6,7 @@ import { inArray, and, or, lt, gt, eq } from "drizzle-orm";
 import { addMinutes, parseISO, startOfDay } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { ActionResponse } from "@/types/action";
+import { requireStaff } from "@/lib/session";
 
 type PetBookingInput = {
   petId: string;
@@ -22,6 +23,13 @@ export interface CreateMultipleAppointmentInput {
 
 export async function createAppointment(data: CreateMultipleAppointmentInput): Promise<ActionResponse<{ appointmentId: string }>> {
   try {
+
+    const session = await requireStaff({redirect: false});
+    
+    if (!session) {
+      return { success: false, error: "คุณไม่มีสิทธิ์ในการดำเนินการนี้" };
+    }
+
     if (!data.petBookings || data.petBookings.length === 0) {
       return { success: false, error: "ไม่พบข้อมูลสัตว์เลี้ยงที่ต้องการรับบริการ" };
     }

@@ -48,7 +48,12 @@ const InteractiveStatusSelect = ({
   currentStatus: ScheduleRecord["status"];
 }) => {
   const [isPending, startTransition] = useTransition();
-  const [optimisticStatus, setOptimisticStatus] = useState<ScheduleRecord["status"]>(currentStatus);
+  const [optimisticStatus, setOptimisticStatus] =
+    useState<ScheduleRecord["status"]>(currentStatus);
+
+  useEffect(() => {
+    setOptimisticStatus(currentStatus);
+  }, [currentStatus]);
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault(); // กันเหนียว แม้ว่า select ส่วนใหญ่จะไม่ trigger link ก็ตาม
@@ -77,10 +82,11 @@ const InteractiveStatusSelect = ({
     });
   };
 
-  const currentConfig = STATUS_CONFIG[optimisticStatus] || STATUS_CONFIG[currentStatus] || {
-    label: optimisticStatus,
-    colorClass: "bg-slate-100 text-slate-800 border-slate-200",
-  };
+  const currentConfig = STATUS_CONFIG[optimisticStatus] ||
+    STATUS_CONFIG[currentStatus] || {
+      label: optimisticStatus,
+      colorClass: "bg-slate-100 text-slate-800 border-slate-200",
+    };
 
   return (
     <div

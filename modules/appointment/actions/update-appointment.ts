@@ -5,12 +5,19 @@ import { appointments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { AppointmentStatus } from "../types/status";
+import { requireStaff } from "@/lib/session";
 
 export async function updateAppointmentStatus(
   appointmentId: string,
   newStatus: AppointmentStatus,
 ) {
   try {
+    const session = await requireStaff({redirect: false});
+    
+    if (!session) {
+      return { success: false, error: "คุณไม่มีสิทธิ์ในการดำเนินการนี้" };
+    }
+
     const result = await db
       .update(appointments)
       .set({ status: newStatus, updatedAt: new Date() }) // สมมติว่ามีฟิลด์ updatedAt
