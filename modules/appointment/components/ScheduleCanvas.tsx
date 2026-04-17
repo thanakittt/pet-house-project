@@ -178,7 +178,7 @@ export default function ScheduleCanvas({
 
   const getCurrentTimePosition = () => {
     const now = new Date();
-    if (now.getHours() < START_HOUR || now.getHours() > END_HOUR) return null;
+    if (now.getHours() < START_HOUR || now.getHours() >= END_HOUR) return null;
 
     const dayStart = new Date(now);
     dayStart.setHours(START_HOUR, 0, 0, 0);
