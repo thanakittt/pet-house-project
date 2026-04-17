@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-// UserX icon ถูกลบออก — ฟีเจอร์ unlink customer ยังไม่ได้พัฒนา
 import { ChevronLeft } from "lucide-react";
 import { PetInfoForm } from "@/modules/pet/components/PetInfoForm";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { Pet } from "@/modules/pet/types/pet";
+import { AppointmentHistoryList } from "./AppointmentHistoryList";
 
 interface CustomerDetailProps {
   petBreeds: PetBreed[];
@@ -26,10 +26,6 @@ export default function CustomerDetail({
             <ChevronLeft size={20} />
             <div className="flex flex-col">
               <h1 className="font-bold text-xl">รายละเอียดลูกค้า</h1>
-              {/* <p className="text-muted-foreground text-sm">
-                จัดการข้อมูลของ{" "}
-                <span className="font-normal">{customer.name}</span>
-              </p> */}
             </div>
           </div>
         </Link>
@@ -41,7 +37,7 @@ export default function CustomerDetail({
           petBreeds={petBreeds}
           customerId={customerId}
         />
-        {/* <AppointmentHistoryForm /> */}
+        <AppointmentHistoryList customerId={customerId} />
       </div>
     </>
   );

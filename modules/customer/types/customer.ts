@@ -6,3 +6,16 @@ export type Customer = {
   createdAt: Date;
   gender: string | null;
 };
+
+export type CustomerSearchResult = {
+  id: string;
+  nickname: string;
+  pets: {
+    id: string;
+    name: string;
+    breed: {
+      name: string;
+      type: string;
+    };
+  }[];
+};

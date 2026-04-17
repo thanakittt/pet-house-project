@@ -43,6 +43,13 @@
       "when": 1776017737309,
       "tag": "0005_flat_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776237763807,
+      "tag": "0006_silky_frank_castle",
+      "breakpoints": true
     }
   ]
 }
