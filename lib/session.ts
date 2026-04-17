@@ -34,10 +34,10 @@ export async function requireAdmin() {
   return session;
 }
 
-export async function requireStaff() {
+export async function requireStaff(config = { redirect: true }) {
   const session = await requireRole(["admin", "staff", "owner"]);
 
-  if (!session) {
+  if (!session && config.redirect) {
     redirect("/staff-login");
   }
 

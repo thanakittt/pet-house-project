@@ -7,6 +7,7 @@ import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { SiteHeader } from "@/components/site-header";
 import BackButton from "@/components/BackButton";
+import { requireStaff } from "@/lib/session";
 
 type PetWithServices = {
   petId: string;
@@ -28,6 +29,8 @@ export default async function AppointmentDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireStaff();
+
   const { id } = await params;
   const result = await getAppointmentDetail(id);
 

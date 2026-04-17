@@ -48,13 +48,16 @@ const InteractiveStatusSelect = ({
   currentStatus: ScheduleRecord["status"];
 }) => {
   const [isPending, startTransition] = useTransition();
-
+  const [optimisticStatus, setOptimisticStatus] = useState<ScheduleRecord["status"]>(currentStatus);
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault(); // กันเหนียว แม้ว่า select ส่วนใหญ่จะไม่ trigger link ก็ตาม
     e.stopPropagation();
 
     const newStatus = e.target.value as ScheduleRecord["status"];
+    const previousStatus = optimisticStatus;
+
+    setOptimisticStatus(newStatus);
 
     startTransition(async () => {
       try {
@@ -63,17 +66,19 @@ const InteractiveStatusSelect = ({
         if (result.success) {
           toast.success("อัปเดตสถานะสำเร็จ");
         } else {
+          setOptimisticStatus(previousStatus);
           toast.error(result.error || "เกิดข้อผิดพลาด");
         }
       } catch (error) {
         console.error("updateAppointmentStatus error:", error);
+        setOptimisticStatus(previousStatus);
         toast.error("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
       }
     });
   };
 
-  const currentConfig = STATUS_CONFIG[currentStatus] || {
-    label: currentStatus,
+  const currentConfig = STATUS_CONFIG[optimisticStatus] || STATUS_CONFIG[currentStatus] || {
+    label: optimisticStatus,
     colorClass: "bg-slate-100 text-slate-800 border-slate-200",
   };
 
@@ -86,10 +91,10 @@ const InteractiveStatusSelect = ({
       }}
     >
       <select
-        value={currentStatus}
+        value={optimisticStatus}
         onChange={handleStatusChange}
         disabled={isPending}
-        className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${STATUS_CONFIG[currentStatus].colorClass} ${isPending ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
+        className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${currentConfig.colorClass} ${isPending ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
       >
         <optgroup label="ช่วงการจอง" className="bg-background text-foreground">
           <option value="PENDING_DEPOSIT">

@@ -1,3 +1,5 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NewAppointmentRequests from "./new-appointment-requests";
 import { ScheduleRecord } from "../types/schedule";

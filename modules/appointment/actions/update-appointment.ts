@@ -6,12 +6,20 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { AppointmentStatus } from "../types/status";
 
-export async function updateAppointmentStatus(appointmentId: string, newStatus: AppointmentStatus) {
+export async function updateAppointmentStatus(
+  appointmentId: string,
+  newStatus: AppointmentStatus,
+) {
   try {
-    await db
+    const result = await db
       .update(appointments)
       .set({ status: newStatus, updatedAt: new Date() }) // สมมติว่ามีฟิลด์ updatedAt
-      .where(eq(appointments.id, appointmentId));
+      .where(eq(appointments.id, appointmentId))
+      .returning({ id: appointments.id });
+
+    if (result.length === 0) {
+      return { success: false, error: "ไม่พบข้อมูลการจอง" };
+    }
 
     // ล้างแคชหน้า Detail และหน้า Schedule เพื่อให้เห็นสถานะใหม่ทันที
     revalidatePath(`/appointments/${appointmentId}`);

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { appointments, appointmentItems, serviceVariants } from "@/db/schema";
-import { inArray } from "drizzle-orm";
+import { inArray, and, or, lt, gt, eq } from "drizzle-orm";
 import { addMinutes, parseISO, startOfDay } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { ActionResponse } from "@/types/action";
@@ -27,11 +27,9 @@ export async function createAppointment(data: CreateMultipleAppointmentInput): P
     }
 
     const initialStartTime = parseISO(data.startTimeIso);
-    // แปลงเวลาเริ่มต้นเป็น Date object สำหรับฟิลด์ appointment_date (ต้องการ String รูปแบบ date ในบาง setup)
-    // หาก Drizzle schema ตั้ง mode: "date" ไว้ สามารถส่ง Date object ได้เลย
     const appointmentDate = startOfDay(initialStartTime); 
 
-    // 2. รวบรวม ID ของ Service Variant ทั้งหมดที่ถูกเรียกใช้ เพื่อนำไปค้นหาราคา
+    // 1. รวบรวม ID ของ Service Variant ทั้งหมดที่ถูกเรียกใช้ เพื่อนำไปค้นหาราคา
     const allVariantIds = new Set<string>();
     data.petBookings.forEach((booking) => {
       allVariantIds.add(booking.mainVariantId);
@@ -40,10 +38,10 @@ export async function createAppointment(data: CreateMultipleAppointmentInput): P
 
     let appointmentId = "";
 
-    // 3. เริ่มต้น Database Transaction
+    // 2. เริ่มต้น Database Transaction
     await db.transaction(async (tx) => {
       
-      // 3.1 ดึงข้อมูลราคาและระยะเวลาล่าสุดจากฐานข้อมูล (ป้องกัน Client แก้ไขราคา)
+      // 2.1 ดึงข้อมูลราคาและระยะเวลาล่าสุดจากฐานข้อมูล (ป้องกัน Client แก้ไขราคา)
       const selectedVariants = await tx.query.serviceVariants.findMany({
         where: inArray(serviceVariants.id, Array.from(allVariantIds)),
       });
@@ -53,7 +51,7 @@ export async function createAppointment(data: CreateMultipleAppointmentInput): P
         throw new Error("ข้อมูลบริการบางรายการไม่ถูกต้องหรือถูกยกเลิกไปแล้ว");
       }
 
-      // 3.2 สร้างหัวบิลการจอง (Appointment Header)
+      // 2.2 สร้างหัวบิลการจอง (Appointment Header)
       const [newAppointment] = await tx
         .insert(appointments)
         .values({
@@ -66,7 +64,7 @@ export async function createAppointment(data: CreateMultipleAppointmentInput): P
 
       appointmentId = newAppointment.id;
 
-      // 3.3 เตรียมรายการบริการ (Appointment Items) ของสัตว์เลี้ยงทุกตัว
+      // 2.3 เตรียมรายการบริการ (Appointment Items) ของสัตว์เลี้ยงทุกตัว
       const itemsToInsert = [];
       let currentStartTime = initialStartTime;
 
@@ -85,7 +83,6 @@ export async function createAppointment(data: CreateMultipleAppointmentInput): P
           endTime: mainEndTime,
         });
         
-        // ขยับเวลาเพื่อเริ่มบริการเสริมตัวถัดไป
         currentStartTime = mainEndTime; 
 
         // จัดการบริการเสริม
@@ -103,28 +100,56 @@ export async function createAppointment(data: CreateMultipleAppointmentInput): P
                 endTime: addOnEndTime,
               });
               
-              // ขยับเวลาไปเรื่อยๆ จนจบการบริการของสัตว์เลี้ยงตัวนี้
               currentStartTime = addOnEndTime; 
             }
           }
         }
-      } // จบลูปสัตว์เลี้ยง 1 ตัว
+      }
 
-      // 3.4 บันทึกรายการย่อยทั้งหมดลงฐานข้อมูลในคำสั่งเดียว (Batch Insert)
+      // 2.4 ตรวจสอบ Collision และบันทึกรายการย่อย (Batch Insert)
       if (itemsToInsert.length > 0) {
+        // 2.4.1 สร้างเงื่อนไข Overlap Check (เริ่มก่อนจบ และจบหลังเริ่ม)
+        const overlapConditions = itemsToInsert.map(item =>
+          and(
+            lt(appointmentItems.startTime, item.endTime),
+            gt(appointmentItems.endTime, item.startTime)
+          )
+        );
+
+        // 2.4.2 ดึงข้อมูลและล็อค Row ด้วย FOR UPDATE
+        const collisions = await tx
+          .select({ id: appointmentItems.id })
+          .from(appointmentItems)
+          .innerJoin(appointments, eq(appointmentItems.appointmentId, appointments.id))
+          .where(
+            and(
+              eq(appointments.appointmentDate, appointmentDate),
+              inArray(appointments.status, [
+                "PENDING_DEPOSIT", "PENDING_APPROVAL", "CONFIRMED", 
+                "CHECKED_IN", "IN_PROGRESS", "READY_FOR_PICKUP"
+              ]), // ละเว้นการตรวจจับคิวที่ถูก CANCELLED หรือ NO_SHOW ไปแล้ว
+              or(...overlapConditions)
+            )
+          )
+          .for("update");
+
+        // 2.4.3 หากเจอทับซ้อน ให้โยน Error เพื่อ Rollback ทันที
+        if (collisions.length > 0) {
+          throw new Error("เกิดข้อผิดพลาด: มีบางช่วงเวลาถูกจองไปแล้วในขณะที่คุณกำลังทำรายการ กรุณารีเฟรชและเลือกเวลาใหม่");
+        }
+
+        // 2.4.4 บันทึกลงฐานข้อมูลหากปลอดภัยจากการทับซ้อน
         await tx.insert(appointmentItems).values(itemsToInsert);
       }
     });
-    // สิ้นสุด Transaction: หากไม่มี Error ข้อมูลจะถูก Commit อย่างสมบูรณ์
 
-    // 4. สั่งล้าง Cache ของระบบเพื่อแสดงคิวใหม่ในหน้าปฏิทิน
+    // 3. สั่งล้าง Cache ของระบบเพื่ออัปเดต UI ปฏิทิน
     revalidatePath("/appointments/create");
     revalidatePath("/appointments");
 
     return { success: true, data: { appointmentId } };
   } catch (error) {
     console.error("Create Appointment Transaction Error:", error);
-    // หากเข้า catch block นี้ ข้อมูลทั้งหมดใน tx จะถูก Rollback ทันที
     return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการบันทึกข้อมูล" };
   }
 }

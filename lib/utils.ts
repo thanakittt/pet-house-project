@@ -14,10 +14,3 @@ export function requiredEnv(key: string): string {
   }
   return value;
 }
-
-export function formatThaiDate(dateString: string | Date) {
-  const date = new Date(dateString);
-  const dayAndMonth = format(date, "d MMMM", { locale: th });
-  const buddhistYear = date.getFullYear() + 543;
-  return `${dayAndMonth} ${buddhistYear}`;
-}

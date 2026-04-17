@@ -3,9 +3,19 @@
 import { db } from "@/db";
 import { appointments } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { requireStaff } from "@/lib/session";
 
 export async function getCustomerAppointmentHistory(customerId: string) {
-  try {
+  const session = await requireStaff({ redirect: false });
+
+  if (!session) {
+    return {
+      success: false,
+      error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้",
+    };
+  }
+
+  try {    
     // 2. ดึงข้อมูลประวัติการจอง พร้อม Relational Data
     const history = await db.query.appointments.findMany({
       where: eq(appointments.customerId, customerId),
@@ -35,11 +45,11 @@ export async function getCustomerAppointmentHistory(customerId: string) {
     }));
 
     return { success: true, data: formattedHistory };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching appointment history:", error);
     return {
       success: false,
-      error: error.message || "Failed to fetch history",
+      error: "เกิดข้อผิดพลาดในการดึงข้อมูลประวัติการจอง",
     };
   }
 }

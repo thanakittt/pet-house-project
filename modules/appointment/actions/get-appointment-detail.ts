@@ -4,11 +4,20 @@ import { db } from "@/db";
 import { appointments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { AppointmentStatus } from "../types/status";
+import { requireStaff } from "@/lib/session";
 // import { revalidatePath } from "next/cache"; // นำกลับมาใช้ได้เมื่อมีฟังก์ชัน Update
-
 
 export async function getAppointmentDetail(appointmentId: string) {
   try {
+    const session = await requireStaff({ redirect: false });
+
+    if (!session) {
+      return {
+        success: false,
+        error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้",
+      };
+    }
+
     // 1. ใช้ Drizzle Relational Query ดึงข้อมูลทั้งหมดในคำสั่งเดียว
     const appointmentData = await db.query.appointments.findFirst({
       where: eq(appointments.id, appointmentId),
@@ -42,7 +51,7 @@ export async function getAppointmentDetail(appointmentId: string) {
 
     appointmentData.items.forEach((item) => {
       totalPrice += Number(item.price);
-      
+
       // ตรวจสอบและสร้างโครงสร้างของสัตว์เลี้ยงใน Map หากยังไม่มี
       if (!petsMap.has(item.petId)) {
         petsMap.set(item.petId, {
@@ -58,7 +67,7 @@ export async function getAppointmentDetail(appointmentId: string) {
       petsMap.get(item.petId).services.push({
         id: item.id,
         name: item.serviceVariant.service.name, // ชื่อบริการหลัก
-        size: item.serviceVariant.size,         // ไซส์/รูปแบบ
+        size: item.serviceVariant.size, // ไซส์/รูปแบบ
         price: Number(item.price),
         startTime: item.startTime.toISOString(),
         endTime: item.endTime.toISOString(),
@@ -68,7 +77,7 @@ export async function getAppointmentDetail(appointmentId: string) {
     // 3. จัดรูปแบบข้อมูลส่งกลับไปยัง Frontend
     const formattedData = {
       id: appointmentData.id,
-      date: appointmentData.appointmentDate, 
+      date: appointmentData.appointmentDate,
       status: appointmentData.status as AppointmentStatus,
       note: appointmentData.note,
       customer: {

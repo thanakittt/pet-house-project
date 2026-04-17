@@ -10,14 +10,20 @@ export async function searchCustomer(
   keyword: string,
 ): Promise<ActionResponse<CustomerSearchResult[]>> {
   try {
+    const trimmedKeyword = keyword.trim();
+
+    if (trimmedKeyword.length < 2) {
+      return { success: true, data: [] };
+    }
+
     const customer = await db.query.customers.findMany({
       columns: {
         id: true,
         nickname: true,
       },
       where: or(
-        like(customers.walkInPhoneNumber, `%${keyword}%`),
-        like(customers.nickname, `%${keyword}%`),
+        like(customers.walkInPhoneNumber, `%${trimmedKeyword}%`),
+        like(customers.nickname, `%${trimmedKeyword}%`),
       ),
       with: {
         pets: {
