@@ -17,9 +17,9 @@ import { customers, pets, petBreeds } from "./customer";
 // --- Appointment ---
 import {
   appointments,
-  appointment_items,
-  health_reports,
-  service_images,
+  appointmentItems,
+  healthReports,
+  serviceImages,
 } from "./appointment";
 
 // --- Service ---
@@ -135,7 +135,7 @@ export const petRelations = relations(pets, ({ one, many }) => ({
     references: [petBreeds.id],
   }),
   // pet ถูกนำมารับบริการได้หลายครั้ง
-  appointmentItems: many(appointment_items),
+  appointmentItems: many(appointmentItems),
 }));
 
 /**
@@ -166,7 +166,7 @@ export const appointmentRelations = relations(
       references: [customers.id],
     }),
     // นัดหมายมีรายการบริการหลายรายการ
-    items: many(appointment_items),
+    items: many(appointmentItems),
     // นัดหมายมีการชำระเงินได้หลายรายการ (เช่น มัดจำ + ชำระส่วนที่เหลือ)
     payments: many(payments),
     // นัดหมายสร้าง 1 transaction รายรับ (optional)
@@ -190,27 +190,27 @@ export const appointmentRelations = relations(
  * appointment_items → service_images (1:N)
  */
 export const appointmentItemRelations = relations(
-  appointment_items,
+  appointmentItems,
   ({ one, many }) => ({
     // item เป็นส่วนหนึ่งของนัดหมาย
     appointment: one(appointments, {
-      fields: [appointment_items.appointmentId],
+      fields: [appointmentItems.appointmentId],
       references: [appointments.id],
     }),
     // item เป็นบริการให้กับ pet ตัวหนึ่ง
     pet: one(pets, {
-      fields: [appointment_items.petId],
+      fields: [appointmentItems.petId],
       references: [pets.id],
     }),
     // item ใช้ service variant หนึ่ง (ตัวเลือกบริการ)
     serviceVariant: one(serviceVariants, {
-      fields: [appointment_items.serviceVariantId],
+      fields: [appointmentItems.serviceVariantId],
       references: [serviceVariants.id],
     }),
     // item มีรายงานสุขภาพได้หลายรายการ
-    healthReports: many(health_reports),
+    healthReports: many(healthReports),
     // item มีรูปภาพก่อน/หลังได้หลายรูป
-    serviceImages: many(service_images),
+    serviceImages: many(serviceImages),
   }),
 );
 
@@ -218,10 +218,10 @@ export const appointmentItemRelations = relations(
  * health_reports → appointment_items (N:1)
  * รายงานสุขภาพเป็นของ appointment_item หนึ่ง
  */
-export const healthReportRelations = relations(health_reports, ({ one }) => ({
-  appointmentItem: one(appointment_items, {
-    fields: [health_reports.appointmentItemId],
-    references: [appointment_items.id],
+export const healthReportRelations = relations(healthReports, ({ one }) => ({
+  appointmentItem: one(appointmentItems, {
+    fields: [healthReports.appointmentItemId],
+    references: [appointmentItems.id],
   }),
 }));
 
@@ -229,10 +229,10 @@ export const healthReportRelations = relations(health_reports, ({ one }) => ({
  * service_images → appointment_items (N:1)
  * รูปภาพบริการเป็นของ appointment_item หนึ่ง
  */
-export const serviceImageRelations = relations(service_images, ({ one }) => ({
-  appointmentItem: one(appointment_items, {
-    fields: [service_images.appointmentItemId],
-    references: [appointment_items.id],
+export const serviceImageRelations = relations(serviceImages, ({ one }) => ({
+  appointmentItem: one(appointmentItems, {
+    fields: [serviceImages.appointmentItemId],
+    references: [appointmentItems.id],
   }),
 }));
 
@@ -260,8 +260,8 @@ export const serviceVariantRelations = relations(
       fields: [serviceVariants.serviceId],
       references: [services.id],
     }),
-    // variant ถูกใช้ใน appointment_items หลายรายการ
-    appointmentItems: many(appointment_items),
+    // variant ถูกใช้ใน appointmentItems หลายรายการ
+    appointmentItems: many(appointmentItems),
   }),
 );
 

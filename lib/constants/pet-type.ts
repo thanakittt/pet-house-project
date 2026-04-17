@@ -1,9 +1,9 @@
 export const PET_TYPE_OPTIONS = [
-  { value: "DOG", label: "หมา" },
+  { value: "DOG", label: "สุนัข" },
   { value: "CAT", label: "แมว" },
 ] as const;
 
 export const PET_TYPE_LABELS: Record<string, string> = {
-  DOG: "หมา",
+  DOG: "สุนัข",
   CAT: "แมว",
 };

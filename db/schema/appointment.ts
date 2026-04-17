@@ -12,10 +12,7 @@ export const appointments = p
     "appointments",
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
-      appointmentDate: p
-        .timestamp("appointment_date", { withTimezone: true })
-        .notNull(),
-      endDate: p.timestamp("end_date", { withTimezone: true }).notNull(),
+      appointmentDate: p.date("appointment_date", { mode: "date" }).notNull(),
       note: p.text("note"),
       status: appointmentStatusEnum("status").notNull(),
       // FK ไปยัง customers (เจ้าของนัดหมาย)
@@ -32,23 +29,23 @@ export const appointments = p
       p.index("appointments_customer_id_idx").on(table.customerId),
       // index สำหรับค้นหานัดหมายตามวันที่ (หน้า calendar/schedule)
       p.index("appointments_date_idx").on(table.appointmentDate),
-      // check constraint เพื่อป้องกัน end_date < appointment_date
-      p.check(
-        "appointment_date_check",
-        sql`${table.appointmentDate} < ${table.endDate}`,
-      ),
     ],
   )
   .enableRLS();
 
-// ตาราง appointment_items: เก็บรายการบริการแต่ละตัวภายในการนัดหมาย
+// ตาราง appointmentItems: เก็บรายการบริการแต่ละตัวภายในการนัดหมาย
 // index บน appointment_id, pet_id, service_variant_id เพื่อเร่ง JOIN ทุกด้าน
-export const appointment_items = p
+export const appointmentItems = p
   .pgTable(
     "appointment_items",
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
-      price: p.numeric("price", { precision: 8, scale: 2 }).notNull(),
+      price: p
+        .numeric("price", { precision: 8, scale: 2 })
+        .default("0")
+        .notNull(),
+      startTime: p.timestamp("start_time", { withTimezone: true }).notNull(),
+      endTime: p.timestamp("end_time", { withTimezone: true }).notNull(),
       // FK ไปยัง appointments
       appointmentId: p
         .uuid("appointment_id")
@@ -85,20 +82,20 @@ export const appointment_items = p
   )
   .enableRLS();
 
-// ตาราง health_reports: เก็บรายงานสุขภาพสัตว์เลี้ยงจากการนัดหมาย
+// ตาราง healthReports: เก็บรายงานสุขภาพสัตว์เลี้ยงจากการนัดหมาย
 // index บน appointment_item_id เพื่อเร่ง JOIN ดูรายงานสุขภาพ
-export const health_reports = p
+export const healthReports = p
   .pgTable(
     "health_reports",
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       topic: p.text("topic").notNull(),
       description: p.text("description").notNull(),
-      // FK ไปยัง appointment_items
+      // FK ไปยัง appointmentItems
       appointmentItemId: p
         .uuid("appointment_item_id")
         .notNull()
-        .references(() => appointment_items.id, {
+        .references(() => appointmentItems.id, {
           onDelete: "restrict",
         }),
       ...timestamps,
@@ -112,20 +109,20 @@ export const health_reports = p
   )
   .enableRLS();
 
-// ตาราง service_images: เก็บรูปภาพก่อน/หลังการให้บริการ
+// ตาราง serviceImages: เก็บรูปภาพก่อน/หลังการให้บริการ
 // index บน appointment_item_id เพื่อเร่ง JOIN ดูรูปภาพ
-export const service_images = p
+export const serviceImages = p
   .pgTable(
     "service_images",
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       imageUrl: p.text("image_url").notNull(),
       type: serviceImageTypeEnum("type").notNull(),
-      // FK ไปยัง appointment_items
+      // FK ไปยัง appointmentItems
       appointmentItemId: p
         .uuid("appointment_item_id")
         .notNull()
-        .references(() => appointment_items.id, {
+        .references(() => appointmentItems.id, {
           onDelete: "restrict",
         }),
       ...timestamps,
