@@ -2,6 +2,7 @@ import { listPets } from "@/modules/pet/queries/list-pets";
 import CustomerDetail from "@/modules/customer/components/CustomerDetail";
 import { listPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { notFound } from "next/navigation";
+import { SiteHeader } from "@/components/site-header";
 
 interface CustomerDetailPageProps {
   params: Promise<{ id: string }>;
@@ -49,10 +50,15 @@ export default async function CustomerDetailPage({
   }
 
   return (
-    <CustomerDetail
-      petBreeds={petBreeds.data}
-      customerId={id}
-      pets={pets.data}
-    />
+    <>
+      <SiteHeader title="รายละเอียดลูกค้า" />
+      <div className="p-6">
+        <CustomerDetail
+          petBreeds={petBreeds.data}
+          customerId={id}
+          pets={pets.data}
+        />
+      </div>
+    </>
   );
 }

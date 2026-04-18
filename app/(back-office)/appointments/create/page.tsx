@@ -1,3 +1,4 @@
+import BackButton from "@/components/BackButton";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import CreateAppointmentForm from "@/modules/appointment/components/CreateAppointmentForm";
@@ -20,13 +21,7 @@ export default async function CreateAppointmentPage() {
     <div>
       <SiteHeader title="เพิ่มนัดหมายใหม่" />
       <div className="p-6">
-        <Button asChild variant="outline" className="mb-6">
-          <Link href="/appointments">
-            <ChevronLeft className="mr-2 w-4 h-4" />
-            กลับ
-          </Link>
-        </Button>
-
+        <BackButton />
         <CreateAppointmentForm services={servicesWithVariants.data} />
       </div>
     </div>

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppointmentStatus } from "@/modules/appointment/types/status";
-import { STATUS_CONFIG } from "@/modules/appointment/constants/appointment-status";
+import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 import { updateAppointmentStatus } from "../actions/update-appointment";
 
 interface Props {

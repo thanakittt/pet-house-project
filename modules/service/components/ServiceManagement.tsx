@@ -1,5 +1,5 @@
 "use client";
-// Separator ถูกลบออกเนื่องจากไม่ได้ใช้งานใน JSX ของคอมโพเนนต์นี้
+
 import {
   Table,
   TableBody,
@@ -15,14 +15,16 @@ import { SERVICE_TYPE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceDialog } from "./CreateServiceDialog";
 import { Service } from "../types/service";
 import { UpdateServiceDialog } from "./UpdateServiceDialog";
-import { DeleteServiceDialog } from "./DeleteServiceDialog";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { deleteService } from "../actions/delete-service";
 import Link from "next/link";
 
-interface ServicesPageProps {
+interface ServiceManagementProps {
   services: Service[];
 }
 
-export default function ServicesPage({ services }: ServicesPageProps) {
+/** คอมโพเนนต์จัดการบริการ — แสดงตาราง + CRUD actions */
+export default function ServiceManagement({ services }: ServiceManagementProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -55,6 +57,7 @@ export default function ServicesPage({ services }: ServicesPageProps) {
                   </TableCell>
                   <TableCell>{service.description || "-"}</TableCell>
                   <TableCell className="space-x-2 text-right">
+                    {/* จัดการตัวเลือกบริการ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -66,6 +69,7 @@ export default function ServicesPage({ services }: ServicesPageProps) {
                       </Link>
                     </Button>
 
+                    {/* แก้ไขข้อมูลบริการ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -78,6 +82,7 @@ export default function ServicesPage({ services }: ServicesPageProps) {
                       <PencilIcon className="size-3.5" />
                     </Button>
 
+                    {/* ลบข้อมูลบริการ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -110,13 +115,18 @@ export default function ServicesPage({ services }: ServicesPageProps) {
             onOpenChange={setIsEditDialogOpen}
             service={selectedService}
           />
-          <DeleteServiceDialog
+          <DeleteConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            service={{ id: selectedService.id, name: selectedService.name }}
+            title="ยืนยันการลบข้อมูลบริการ"
+            description={`คุณต้องการลบข้อมูลบริการ "${selectedService.name}" หรือไม่?`}
+            onConfirm={() => deleteService({ id: selectedService.id })}
+            successMessage="ลบข้อมูลบริการเรียบร้อย"
+            errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลบริการ"
           />
         </>
       )}
     </>
   );
 }
+

@@ -56,8 +56,9 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
         </Button>
       </div>
 
+      <div className="border rounded-md overflow-x-auto">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-muted">
           <TableRow>
             <TableHead>ชื่อ</TableHead>
             <TableHead>อีเมล</TableHead>
@@ -68,7 +69,8 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
+          {users.length > 0 ? (
+            users.map((user) => (
             <TableRow key={user.id}>
               <TableCell className="font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
@@ -122,14 +124,22 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                 </div>
               </TableCell>
             </TableRow>
-          ))}
+          ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="py-10 text-center">
+                ไม่มีข้อมูล
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
+      </div>
 
       <BanUserDialog
         userId={selectedUserId!}
-        setIsBanUserDialogOpen={setIsBanUserDialogOpen}
-        isBanUserDialogOpen={isBanUserDialogOpen}
+        open={isBanUserDialogOpen}
+        onOpenChange={setIsBanUserDialogOpen}
       />
     </div>
   );

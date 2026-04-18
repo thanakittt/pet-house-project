@@ -105,7 +105,7 @@ export function CreatePetBreedDialog() {
           <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
-            {/* Nickname Field */}
+            {/* Pet Breed Name Field */}
             <Controller
               name="name"
               control={form.control}

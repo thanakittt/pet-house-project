@@ -1,6 +1,5 @@
 "use client";
 
-// Separator ถูกลบออก — ไม่ได้ใช้งานใน layout ปัจจุบัน
 import {
   Table,
   TableBody,
@@ -16,7 +15,8 @@ import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
 import { PetBreed } from "../types/pet-breed";
 import { UpdatePetBreedDialog } from "./UpdatePetBreedDialog";
-import { DeletePetBreedDialog } from "./DeletePetBreedDialog";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { deletePetBreed } from "../actions/delete-pet-breed";
 
 export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -51,6 +51,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
                     {PET_TYPE_LABELS[petBreed.type] || "อื่นๆ"}
                   </TableCell>
                   <TableCell className="space-x-2 text-right">
+                    {/* แก้ไขข้อมูลสายพันธุ์ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -63,6 +64,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
                       <PencilIcon className="size-3.5" />
                     </Button>
 
+                    {/* ลบข้อมูลสายพันธุ์ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -96,13 +98,18 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
             petBreed={selectedPetBreed}
           />
 
-          <DeletePetBreedDialog
+          <DeleteConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            petBreed={selectedPetBreed}
+            title="ยืนยันการลบข้อมูลสายพันธุ์สัตว์เลี้ยง"
+            description={`คุณต้องการลบข้อมูลสายพันธุ์สัตว์เลี้ยง "${selectedPetBreed.name}" หรือไม่?`}
+            onConfirm={() => deletePetBreed({ id: selectedPetBreed.id })}
+            successMessage="ลบข้อมูลสายพันธุ์เรียบร้อย"
+            errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสายพันธุ์"
           />
         </>
       )}
     </>
   );
 }
+

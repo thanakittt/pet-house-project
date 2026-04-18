@@ -116,7 +116,7 @@ export function UpdateServiceDialog({ service, open, onOpenChange }: UpdateServi
           <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
-            {/* Nickname Field */}
+            {/* Service Name Field */}
             <Controller
               name="name"
               control={form.control}
@@ -171,7 +171,7 @@ export function UpdateServiceDialog({ service, open, onOpenChange }: UpdateServi
               )}
             />
 
-            {/* Pet Type Field */}
+            {/* Service Type Field */}
             <Controller
               name="serviceType"
               control={form.control}

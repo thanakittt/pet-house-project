@@ -1,7 +1,7 @@
 import AppointmentManagement from "@/modules/appointment/components/appointmentManagement";
 
 import { format } from "date-fns";
-import { getScheduleByDate } from "@/modules/appointment/actions/get-schedule";
+import { getScheduleByDate } from "@/modules/appointment/queries/get-schedule";
 import { SiteHeader } from "@/components/site-header";
 
 export default async function AppointmentsPage({
@@ -13,17 +13,19 @@ export default async function AppointmentsPage({
   const targetDate =
     (await searchParams).date || format(new Date(), "yyyy-MM-dd");
 
-  // เรียก Server Action โดยตรงบนฝั่ง Server
+  // เรียก Query โดยตรงบนฝั่ง Server
   const result = await getScheduleByDate(targetDate);
   const appointments = result.success && result.data ? result.data : [];
 
   return (
     <>
       <SiteHeader title="จัดการนัดหมาย" />
-      <AppointmentManagement
-        initialDate={targetDate}
-        appointments={appointments}
-      />
+      <div className="p-6">
+        <AppointmentManagement
+          initialDate={targetDate}
+          appointments={appointments}
+        />
+      </div>
     </>
   );
 }

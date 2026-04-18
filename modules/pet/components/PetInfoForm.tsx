@@ -7,7 +7,8 @@ import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { Pet } from "../types/pet";
 import { useState } from "react";
 import { UpdatePetDialog } from "./UpdatePetDialog";
-import { DeletePetDialog } from "./DeletePetDialog";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { deletePet } from "../actions/delete-pet";
 
 interface PetInfoFormProps {
   pets: Pet[];
@@ -64,10 +65,14 @@ export function PetInfoForm({ pets, petBreeds, customerId }: PetInfoFormProps) {
             onOpenChange={setIsEditOpen}
             pet={selectedPet}
           />
-          <DeletePetDialog
+          <DeleteConfirmDialog
             open={isDeleteOpen}
             onOpenChange={setIsDeleteOpen}
-            pet={{ name: selectedPet.name, id: selectedPet.id }}
+            title="ยืนยันการลบข้อมูลสัตว์เลี้ยง"
+            description={`คุณต้องการลบข้อมูลสัตว์เลี้ยง "${selectedPet.name}" หรือไม่?`}
+            onConfirm={() => deletePet({ id: selectedPet.id })}
+            successMessage="ลบข้อมูลสัตว์เลี้ยงเรียบร้อย"
+            errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสัตว์เลี้ยง"
           />
         </>
       )}

@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { searchCustomer } from "@/modules/customer/actions/search-customer";
 import { CustomerSearchResult } from "@/modules/customer/types/customer";
 import { ServiceWithVariants } from "@/modules/service/types/service";
-import { getAvailableSlots } from "../actions/get-available-slots";
+import { getAvailableSlots } from "../queries/get-available-slots";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { createAppointment } from "../actions/create-appointment";

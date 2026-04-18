@@ -105,12 +105,6 @@ export function UpdatePetBreedDialog({
         onSubmit={form.handleSubmit(onSubmit)}
         id={`update-pet-breed-${petBreed?.id}`}
       >
-        {/* <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
-          <Button>
-            {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มลูกค้าใหม่
-          </Button>
-        </DialogTrigger> */}
         <DialogContent className="md:max-w-md">
           <DialogHeader className="px-4 pt-4">
             <DialogTitle className="font-bold text-lg">
@@ -128,7 +122,7 @@ export function UpdatePetBreedDialog({
           <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
-            {/* Nickname Field */}
+            {/* Pet Breed Name Field */}
             <Controller
               name="name"
               control={form.control}
