@@ -29,14 +29,16 @@ const DAY_TO_SECONDS = 60 * 60 * 24;
 
 type BanUserDialogProps = {
   userId: string;
-  setIsBanUserDialogOpen: (isBanUserDialogOpen: boolean) => void;
-  isBanUserDialogOpen: boolean;
+  /** สถานะเปิด/ปิดของ Dialog */
+  open: boolean;
+  /** callback เมื่อสถานะเปิด/ปิดเปลี่ยน */
+  onOpenChange: (open: boolean) => void;
 };
 
 export default function BanUserDialog({
   userId,
-  setIsBanUserDialogOpen,
-  isBanUserDialogOpen,
+  open,
+  onOpenChange,
 }: BanUserDialogProps) {
   const router = useRouter();
 
@@ -76,7 +78,7 @@ export default function BanUserDialog({
       }
 
       toast.success("แบนผู้ใช้สำเร็จ");
-      setIsBanUserDialogOpen(false);
+      onOpenChange(false);
       reset();
       router.refresh();
     } catch (error) {
@@ -87,12 +89,12 @@ export default function BanUserDialog({
 
   return (
     <Dialog
-      open={isBanUserDialogOpen}
-      onOpenChange={(open) => {
-        if (!open) {
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
           reset();
         }
-        setIsBanUserDialogOpen(open);
+        onOpenChange(isOpen);
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} id="ban-user-form">

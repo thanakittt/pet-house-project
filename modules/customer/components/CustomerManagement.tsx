@@ -1,6 +1,5 @@
 "use client";
 
-// Separator ถูกลบออก — ไม่ได้ใช้งานใน layout ปัจจุบัน
 import {
   Table,
   TableBody,
@@ -15,7 +14,8 @@ import { Customer } from "../types/customer";
 import { Button } from "@/components/ui/button";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 import { useState } from "react";
-import { DeleteCustomerDialog } from "./DeleteCustomerDialog";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { deleteCustomer } from "../actions/delete-customer";
 import Link from "next/link";
 
 interface CustomerManagementProps {
@@ -52,69 +52,79 @@ export default function CustomerManagement({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {customers.map((customer) => (
-              <TableRow key={customer.id}>
-                <TableCell>{customer.nickname}</TableCell>
-                <TableCell>
-                  {customer.userId === null ? "Walk-in" : "Online"}
-                </TableCell>
-                <TableCell>{customer.walkInPhoneNumber}</TableCell>
-                <TableCell>
-                  {new Date(customer.createdAt).toLocaleDateString("th-TH")}
-                </TableCell>
-                <TableCell className="space-x-2 text-right">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="ดูรายละเอียด"
-                    asChild
-                  >
-                    <Link href={`/customers/${customer.id}`}>
-                      <EyeIcon className="size-3.5" />
-                    </Link>
-                  </Button>
+            {customers.length > 0 ? (
+              customers.map((customer) => (
+                <TableRow key={customer.id}>
+                  <TableCell>{customer.nickname}</TableCell>
+                  <TableCell>
+                    {customer.userId === null ? "Walk-in" : "Online"}
+                  </TableCell>
+                  <TableCell>{customer.walkInPhoneNumber}</TableCell>
+                  <TableCell>
+                    {new Date(customer.createdAt).toLocaleDateString("th-TH")}
+                  </TableCell>
+                  <TableCell className="space-x-2 text-right">
+                    {/* ดูรายละเอียดลูกค้า */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="ดูรายละเอียด"
+                      asChild
+                    >
+                      <Link href={`/customers/${customer.id}`}>
+                        <EyeIcon className="size-3.5" />
+                      </Link>
+                    </Button>
 
-                  {/* Edit user */}
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="แก้ไขข้อมูล"
-                    onClick={() => {
-                      setSelectedCustomer(customer);
-                      setIsUpdateDialogOpen(true);
-                    }}
-                  >
-                    <PencilIcon className="size-3.5" />
-                  </Button>
+                    {/* แก้ไขข้อมูลลูกค้า */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="แก้ไขข้อมูล"
+                      onClick={() => {
+                        setSelectedCustomer(customer);
+                        setIsUpdateDialogOpen(true);
+                      }}
+                    >
+                      <PencilIcon className="size-3.5" />
+                    </Button>
 
-                  {/* Delete user */}
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="ลบข้อมูล"
-                    onClick={() => {
-                      setSelectedCustomer(customer);
-                      setIsDeleteDialogOpen(true);
-                    }}
-                  >
-                    <TrashIcon className="size-3.5" />
-                  </Button>
+                    {/* ลบข้อมูลลูกค้า */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="ลบข้อมูล"
+                      onClick={() => {
+                        setSelectedCustomer(customer);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
+                      <TrashIcon className="size-3.5" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="py-10 text-center">
+                  ไม่มีข้อมูล
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>
 
       {selectedCustomer && (
         <>
-          <DeleteCustomerDialog
+          <DeleteConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            customer={{
-              nickname: selectedCustomer.nickname,
-              id: selectedCustomer.id,
-            }}
+            title="ยืนยันการลบข้อมูลลูกค้า"
+            description={`คุณต้องการลบข้อมูลลูกค้า "${selectedCustomer.nickname}" หรือไม่?`}
+            onConfirm={() => deleteCustomer(selectedCustomer.id)}
+            successMessage="ลบข้อมูลลูกค้าเรียบร้อย"
+            errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า"
           />
 
           <UpdateCustomerDialog

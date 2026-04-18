@@ -1,7 +1,7 @@
+import { SiteHeader } from "@/components/site-header";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceManagement from "@/modules/service/components/ServiceManagement";
 import { listServices } from "@/modules/service/queries/list-services";
-import { SiteHeader } from "@/components/site-header";
 
 export default async function ServicesPage() {
   await requireAdminAndOwner();

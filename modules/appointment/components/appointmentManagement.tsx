@@ -15,7 +15,7 @@ export default function AppointmentManagement({
   appointments,
 }: AppointmentManagementProps) {
   return (
-    <main className="p-5">
+    <main>
       <div className="mx-auto w-full md:w-6xl">
         {/* form card */}
         <Tabs defaultValue="appointment-schedule" className="mb-5 w-full">

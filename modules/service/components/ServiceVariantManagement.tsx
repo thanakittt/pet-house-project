@@ -1,5 +1,5 @@
 "use client";
-// Separator ถูกลบออกเนื่องจากไม่ได้ใช้งานใน JSX ของคอมโพเนนต์นี้
+
 import {
   Table,
   TableBody,
@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// Settings icon ถูกลบออก — ไม่มีปุ่มจัดการ settings ใน ServiceVariant management
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -18,7 +17,9 @@ import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
 import { ServiceVariant } from "../types/service-variant";
 import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
-import { DeleteServiceVariantDialog } from "./DeleteServiceVariantDialog";
+import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { deleteServiceVariant } from "../actions/delete-service-variant";
+import BackButton from "@/components/BackButton";
 
 interface ServiceVariantsManagementProps {
   serviceId: string;
@@ -38,9 +39,7 @@ export default function ServiceVariantsManagement({
   return (
     <>
       <div className="flex justify-between items-center gap-3 mb-5">
-        <Button variant="ghost" asChild>
-          <Link href="/services">กลับ</Link>
-        </Button>
+        <BackButton />
         <CreateServiceVariantDialog serviceId={serviceId} />
       </div>
       <div className="border rounded-md overflow-x-auto">
@@ -71,6 +70,7 @@ export default function ServiceVariantsManagement({
                   </TableCell>
                   <TableCell>{variant.durationMinutes}</TableCell>
                   <TableCell className="space-x-2 text-right">
+                    {/* แก้ไขข้อมูลตัวเลือกบริการ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -83,6 +83,7 @@ export default function ServiceVariantsManagement({
                       <PencilIcon className="size-3.5" />
                     </Button>
 
+                    {/* ลบข้อมูลตัวเลือกบริการ */}
                     <Button
                       variant="outline"
                       size="icon"
@@ -115,10 +116,14 @@ export default function ServiceVariantsManagement({
             onOpenChange={setIsEditDialogOpen}
             serviceVariant={selectedVariant}
           />
-          <DeleteServiceVariantDialog
+          <DeleteConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            serviceVariantId={selectedVariant.id}
+            title="ยืนยันการลบข้อมูลตัวเลือกบริการ"
+            description="คุณต้องการลบข้อมูลตัวเลือกบริการหรือไม่?"
+            onConfirm={() => deleteServiceVariant({ id: selectedVariant.id })}
+            successMessage="ลบข้อมูลตัวเลือกบริการเรียบร้อย"
+            errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลตัวเลือกบริการ"
           />
         </>
       )}

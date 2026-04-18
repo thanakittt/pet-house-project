@@ -8,7 +8,7 @@ import { th } from "date-fns/locale";
 import {
   getCustomerAppointmentHistory,
   CustomerAppointmentHistory,
-} from "@/modules/appointment/actions/get-customer-history";
+} from "@/modules/appointment/queries/get-customer-history";
 import { AppointmentStatusBadge } from "@/components/StatusBadge";
 
 interface AppointmentHistoryListProps {

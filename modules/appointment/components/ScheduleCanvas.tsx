@@ -24,7 +24,7 @@ import { ScheduleRecord } from "@/modules/appointment/types/schedule";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { toast } from "sonner";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment"; // ตรวจสอบ path ให้ตรงกับโปรเจกต์ของคุณ
-import { STATUS_CONFIG } from "@/modules/appointment/constants/appointment-status";
+import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 
 const START_HOUR = 9;
 const END_HOUR = 18;
