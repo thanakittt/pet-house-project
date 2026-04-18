@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
@@ -33,4 +31,4 @@ export function AppointmentStatusBadge({
       {config.label}
     </Badge>
   );
-}
+}

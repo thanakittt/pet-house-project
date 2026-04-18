@@ -91,7 +91,13 @@ export function DeleteConfirmDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
+            disabled={isPending}
+          >
             {isPending ? "กำลังลบ..." : "ยืนยัน"}
           </AlertDialogAction>
         </AlertDialogFooter>
