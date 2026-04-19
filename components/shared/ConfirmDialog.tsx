@@ -59,7 +59,7 @@ export function ConfirmDialog({
   onConfirm,
   successMessage,
   errorMessage,
-  redirectPath = '',
+  redirectPath = "",
 }: ConfirmDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -71,7 +71,7 @@ export function ConfirmDialog({
         const result = await onConfirm();
 
         if (!result.success) {
-          toast.error(result.error);
+          toast.error(result.error || errorMessage);
           return;
         }
 

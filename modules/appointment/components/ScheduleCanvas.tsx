@@ -62,6 +62,11 @@ const InteractiveStatusSelect = ({
     const newStatus = e.target.value as ScheduleRecord["status"];
     const previousStatus = optimisticStatus;
 
+    if (newStatus === "COMPLETED") {
+      toast.info("กรุณาชำระเงินผ่านระบบ POS เพื่อเสร็จสิ้นการนัดหมาย");
+      return;
+    }
+
     setOptimisticStatus(newStatus);
 
     startTransition(async () => {
@@ -126,7 +131,7 @@ const InteractiveStatusSelect = ({
           </option>
         </optgroup>
         <optgroup label="จบงาน" className="bg-background text-foreground">
-          <option value="COMPLETED">{STATUS_CONFIG["COMPLETED"].label}</option>
+          <option value="COMPLETED" disabled={optimisticStatus !== "COMPLETED"}>{STATUS_CONFIG["COMPLETED"].label}</option>
           <option value="CANCELLED">{STATUS_CONFIG["CANCELLED"].label}</option>
           <option value="NO_SHOW">{STATUS_CONFIG["NO_SHOW"].label}</option>
         </optgroup>

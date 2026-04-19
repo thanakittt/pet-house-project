@@ -18,16 +18,22 @@ interface ReceiptPrintViewProps {
 export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
   const router = useRouter();
 
-  // จัดกลุ่มข้อมูล item ตามชื่อสัตว์เลี้ยง
+  // จัดกลุ่มข้อมูล item ตาม ID สัตว์เลี้ยงเพื่อป้องกันชื่อซ้ำ
   const groupedItems = useMemo(() => {
-    return data.items.reduce((groups, item) => {
-      const petName = item.petName;
-      if (!groups[petName]) {
-        groups[petName] = [];
-      }
-      groups[petName].push(item);
-      return groups;
-    }, {} as Record<string, typeof data.items>);
+    return data.items.reduce(
+      (groups, item) => {
+        const key = item.petId;
+        if (!groups[key]) {
+          groups[key] = {
+            petName: item.petName,
+            items: [],
+          };
+        }
+        groups[key].items.push(item);
+        return groups;
+      },
+      {} as Record<string, { petName: string; items: typeof data.items }>,
+    );
   }, [data.items]);
 
   const handlePrint = () => {
@@ -72,7 +78,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
           <div className="flex justify-between">
             <span>วันที่:</span>
             <span>
-              {format(new Date(data.paymentDate), "dd MMM yyyy HH:mm", {
+              {format(new Date(data.paymentDate), "dd MMM yyyy", {
                 locale: th,
               })}
             </span>
@@ -102,19 +108,19 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
               </tr>
             </thead>
             <tbody className="align-top">
-              {Object.entries(groupedItems).map(([petName, items]) => (
-                <Fragment key={petName}>
+              {Object.entries(groupedItems).map(([petId, group]) => (
+                <Fragment key={petId}>
                   {/* หัวข้อชื่อสัตว์เลี้ยง */}
                   <tr>
                     <td
                       colSpan={2}
                       className="pt-3 pb-1 font-bold text-foreground print:text-black text-sm"
                     >
-                      น้อง: {petName}
+                      น้อง: {group.petName}
                     </td>
                   </tr>
                   {/* รายการบริการของสัตว์เลี้ยงตัวนั้น */}
-                  {items.map((item) => (
+                  {group.items.map((item) => (
                     <tr key={item.id}>
                       <td className="py-1 pl-3 text-[11px] text-muted-foreground print:text-black">
                         - {item.serviceName} (
@@ -161,10 +167,6 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
 }
 
 // สร้าง Component Fragment เพื่อใช้เป็น Wrapper ใน Map แบบมี Key
-function Fragment({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function Fragment({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

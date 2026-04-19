@@ -20,19 +20,33 @@ export async function processPayment(data: ProcessPaymentInput) {
       return { success: false, error: "ไม่มีสิทธิ์ดำเนินการ" };
     }
 
-    if (!data.appointmentId || typeof data.appointmentId !== "string" || data.appointmentId.trim() === "") {
+    if (
+      !data.appointmentId ||
+      typeof data.appointmentId !== "string" ||
+      data.appointmentId.trim() === ""
+    ) {
       return { success: false, error: "รหัสการจองไม่ถูกต้อง" };
     }
-    if (typeof data.amount !== "number" || isNaN(data.amount) || data.amount <= 0) {
+    if (
+      typeof data.amount !== "number" ||
+      isNaN(data.amount) ||
+      data.amount <= 0
+    ) {
       return { success: false, error: "จำนวนเงินไม่ถูกต้อง" };
     }
-    if (!data.paymentMethod || !["CASH", "TRANSFER"].includes(data.paymentMethod)) {
+    if (
+      !data.paymentMethod ||
+      !["CASH", "TRANSFER"].includes(data.paymentMethod)
+    ) {
       return { success: false, error: "วิธีการชำระเงินไม่ถูกต้อง" };
     }
 
     // 2. ดำเนินการ Database Transaction
     await db.transaction(async (tx) => {
-      const existingAppointments = await tx.select().from(appointments).where(eq(appointments.id, data.appointmentId));
+      const existingAppointments = await tx
+        .select()
+        .from(appointments)
+        .where(eq(appointments.id, data.appointmentId));
       if (existingAppointments.length === 0) {
         throw new Error("ไม่พบข้อมูลการจอง");
       }

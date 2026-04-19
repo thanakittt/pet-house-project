@@ -17,13 +17,37 @@ export async function getPOSCheckoutData(appointmentId: string) {
     const appointmentData = await db.query.appointments.findFirst({
       where: eq(appointments.id, appointmentId),
       with: {
-        customer: true, // ดึงข้อมูลลูกค้า (ชื่อ-นามสกุล)
+        customer: {
+          columns: {
+            nickname: true,
+            walkInPhoneNumber: true,
+          },
+        },
         items: {
+          columns: {
+            id: true,
+            price: true,
+          },
           with: {
-            pet: true, // ดึงข้อมูลสัตว์เลี้ยงที่รับบริการ
+            pet: {
+              columns: {
+                id: true,
+                name: true,
+              },
+            },
             serviceVariant: {
+              columns: {
+                id: true,
+                size: true,
+                petType: true,
+              },
               with: {
-                service: true, // ดึงชื่อบริการหลัก
+                service: {
+                  columns: {
+                    name: true,
+                    serviceType: true,
+                  },
+                },
               },
             },
           },
@@ -81,11 +105,11 @@ export async function getPOSCheckoutData(appointmentId: string) {
         availableServices: availableServices,
       },
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching POS data:", error);
     return {
       success: false,
-      error: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูล POS",
+      error: "เกิดข้อผิดพลาดในการดึงข้อมูล POS",
     };
   }
 }

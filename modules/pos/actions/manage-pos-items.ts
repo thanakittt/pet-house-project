@@ -18,9 +18,21 @@ export async function updateAppointmentItemPrice(
       return { success: false, error: "ไม่มีสิทธิ์ดำเนินการ" };
     }
 
+    if (typeof newPrice !== "number" || !Number.isFinite(newPrice)) {
+      return { success: false, error: "ราคาไม่ถูกต้อง" };
+    }
+    if (newPrice < 0) {
+      return { success: false, error: "ราคาต้องไม่ติดลบ" };
+    }
+    if (newPrice > 999999.99) {
+      return { success: false, error: "ราคาต้องไม่เกิน 999,999.99" };
+    }
+
+    const normalizedPrice = Math.round(newPrice * 100) / 100;
+
     const result = await db
       .update(appointmentItems)
-      .set({ price: newPrice.toString() })
+      .set({ price: normalizedPrice.toString() })
       .where(eq(appointmentItems.id, itemId))
       .returning({ id: appointmentItems.id });
 
@@ -60,8 +72,8 @@ export async function addAppointmentItem(data: {
           },
           orderBy: (t, { desc }) => [desc(t.endTime)], // เรียงเอาตัวที่จบช้าที่สุดขึ้นก่อน
           limit: 1,
-        }
-      }
+        },
+      },
     });
 
     if (!appointment) {
@@ -78,7 +90,7 @@ export async function addAppointmentItem(data: {
     if (appointment.items && appointment.items.length > 0) {
       const lastItemEndTime = appointment.items[0].endTime;
       newStartTime = lastItemEndTime;
-      newEndTime = lastItemEndTime; 
+      newEndTime = lastItemEndTime;
     }
 
     // 3. บันทึกข้อมูลลงฐานข้อมูล
@@ -94,7 +106,7 @@ export async function addAppointmentItem(data: {
     // สั่งรีเฟรชหน้า POS และ Calendar
     revalidatePath("/pos");
     revalidatePath("/appointments");
-    
+
     return { success: true };
   } catch (error) {
     console.error("addAppointmentItem error:", error);
@@ -109,9 +121,15 @@ export async function removeAppointmentItem(itemId: string) {
     if (!session) {
       return { success: false, error: "ไม่มีสิทธิ์ดำเนินการ" };
     }
-    await db.delete(appointmentItems).where(eq(appointmentItems.id, itemId));
+    const result = await db
+      .delete(appointmentItems)
+      .where(eq(appointmentItems.id, itemId))
+      .returning({ id: appointmentItems.id });
+    if (result.length === 0) {
+      return { success: false, error: "ไม่พบรายการบริการที่ต้องการลบ" };
+    }
     revalidatePath("/pos");
-    return { success: true, data: null };
+    return { success: true, data: result[0] };
   } catch (error) {
     console.error("removeAppointmentItem error:", error);
     return { success: false, error: "เกิดข้อผิดพลาดในการลบบริการ" };

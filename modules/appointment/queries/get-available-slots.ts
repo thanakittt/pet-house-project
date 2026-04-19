@@ -3,7 +3,14 @@
 import { db } from "@/db";
 import { appointments, appointmentItems } from "@/db/schema";
 import { and, gte, lte, ne, eq } from "drizzle-orm";
-import { addMinutes, isBefore, parseISO, setHours, setMinutes, startOfDay } from "date-fns";
+import {
+  addMinutes,
+  isBefore,
+  parseISO,
+  setHours,
+  setMinutes,
+  startOfDay,
+} from "date-fns";
 
 interface GetSlotsParams {
   date: string;
@@ -28,15 +35,15 @@ export async function getAvailableSlots({
       .from(appointmentItems)
       .innerJoin(
         appointments,
-        eq(appointmentItems.appointmentId, appointments.id) 
+        eq(appointmentItems.appointmentId, appointments.id),
       )
       .where(
         and(
           gte(appointmentItems.startTime, startOfTargetDay),
           lte(appointmentItems.endTime, endOfTargetDay),
           ne(appointments.status, "CANCELLED"),
-          ne(appointments.status, "NO_SHOW")
-        )
+          ne(appointments.status, "NO_SHOW"),
+        ),
       );
 
     // 2. กำหนดเวลาเปิด-ปิดร้าน และเงื่อนไขเวลา
@@ -44,10 +51,9 @@ export async function getAvailableSlots({
     const closingTime = setMinutes(setHours(targetDate, 18), 0);
     const slotInterval = 30; // ตัดสล็อตทุกๆ 30 นาที
 
-    // [NEW] กำหนดเวลาปัจจุบัน และเวลาที่ต้องจองล่วงหน้า (Lead Time)
-    // เช่น ต้องจองล่วงหน้าอย่างน้อย 30 นาที เพื่อให้ช่างเตรียมตัว
+    // [NEW] กำหนดเวลาปัจจุบัน (สามารถตั้ง Lead Time ได้ในอนาคต เช่น addMinutes(now, 30))
     const now = new Date();
-    const minimumBookingTime = addMinutes(now, 0); 
+    const minimumBookingTime = addMinutes(now, 0);
 
     const availableSlots: string[] = [];
     let currentSlotStart = openingTime;
@@ -70,8 +76,7 @@ export async function getAvailableSlots({
       // ตรวจสอบ Collision
       const isOverlapping = bookedSlots.some((slot) => {
         return (
-          currentSlotStart < slot.endTime &&
-          currentSlotEnd > slot.startTime
+          currentSlotStart < slot.endTime && currentSlotEnd > slot.startTime
         );
       });
 

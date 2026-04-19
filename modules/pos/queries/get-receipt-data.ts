@@ -18,6 +18,7 @@ export interface ReceiptData {
   };
   items: {
     id: string;
+    petId: string;
     petName: string;
     serviceName: string;
     size: string;
@@ -43,13 +44,19 @@ export async function getReceiptData(
         },
         // ปรับแก้: ดึงเฉพาะ Payment ล่าสุด 1 รายการจาก Database โดยตรง
         payments: {
-          columns: { id: true, createdAt: true, paymentMethod: true, amount: true },
-          orderBy: [desc(payments.createdAt)], 
-          limit: 1, 
+          columns: {
+            id: true,
+            createdAt: true,
+            paymentMethod: true,
+            amount: true,
+          },
+          where: eq(payments.status, "PAID"),
+          orderBy: [desc(payments.createdAt)],
+          limit: 1,
         },
         items: {
           with: {
-            pet: { columns: { name: true } },
+            pet: { columns: { id: true, name: true } },
             serviceVariant: {
               with: { service: { columns: { name: true } } },
             },
@@ -58,7 +65,11 @@ export async function getReceiptData(
       },
     });
 
-    if (!appointmentData || !appointmentData.payments || appointmentData.payments.length === 0) {
+    if (
+      !appointmentData ||
+      !appointmentData.payments ||
+      appointmentData.payments.length === 0
+    ) {
       return { success: false, error: "ไม่พบข้อมูลการชำระเงิน" };
     }
 
@@ -80,6 +91,7 @@ export async function getReceiptData(
         },
         items: appointmentData.items.map((item) => ({
           id: item.id,
+          petId: item.pet.id,
           petName: item.pet.name,
           serviceName: item.serviceVariant.service.name,
           size: item.serviceVariant.size,

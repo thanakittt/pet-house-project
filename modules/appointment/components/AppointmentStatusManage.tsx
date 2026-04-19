@@ -46,6 +46,11 @@ export default function AppointmentStatusManager({
   );
 
   const handleUpdateStatus = async (newStatus: AppointmentStatus) => {
+    if (newStatus === "COMPLETED") {
+      toast.info("กรุณาชำระเงินผ่านระบบ POS เพื่อเสร็จสิ้นการนัดหมาย");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await updateAppointmentStatus(appointmentId, newStatus);
@@ -67,6 +72,11 @@ export default function AppointmentStatusManager({
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as AppointmentStatus;
     if (newStatus === currentStatus) return;
+
+    if (newStatus === "COMPLETED") {
+      toast.info("กรุณาชำระเงินผ่านระบบ POS เพื่อเสร็จสิ้นการนัดหมาย");
+      return;
+    }
 
     if (["CANCELLED", "NO_SHOW"].includes(newStatus)) {
       if (
@@ -135,7 +145,7 @@ export default function AppointmentStatusManager({
               </option>
             </optgroup>
             <optgroup label="จบงาน" className="bg-background text-foreground">
-              <option value="COMPLETED">
+              <option value="COMPLETED" disabled={currentStatus !== "COMPLETED"}>
                 {STATUS_CONFIG["COMPLETED"].label}
               </option>
               <option value="CANCELLED">
