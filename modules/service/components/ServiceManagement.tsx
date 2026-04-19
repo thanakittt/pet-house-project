@@ -15,7 +15,7 @@ import { SERVICE_TYPE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceDialog } from "./CreateServiceDialog";
 import { Service } from "../types/service";
 import { UpdateServiceDialog } from "./UpdateServiceDialog";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteService } from "../actions/delete-service";
 import Link from "next/link";
 
@@ -115,7 +115,7 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
             onOpenChange={setIsEditDialogOpen}
             service={selectedService}
           />
-          <DeleteConfirmDialog
+          <ConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
             title="ยืนยันการลบข้อมูลบริการ"

@@ -14,7 +14,7 @@ import { Customer } from "../types/customer";
 import { Button } from "@/components/ui/button";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 import { useState } from "react";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteCustomer } from "../actions/delete-customer";
 import Link from "next/link";
 
@@ -117,7 +117,7 @@ export default function CustomerManagement({
 
       {selectedCustomer && (
         <>
-          <DeleteConfirmDialog
+          <ConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
             title="ยืนยันการลบข้อมูลลูกค้า"

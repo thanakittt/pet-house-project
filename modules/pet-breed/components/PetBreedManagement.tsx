@@ -15,7 +15,7 @@ import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
 import { PetBreed } from "../types/pet-breed";
 import { UpdatePetBreedDialog } from "./UpdatePetBreedDialog";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deletePetBreed } from "../actions/delete-pet-breed";
 
 export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
@@ -98,7 +98,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
             petBreed={selectedPetBreed}
           />
 
-          <DeleteConfirmDialog
+          <ConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
             title="ยืนยันการลบข้อมูลสายพันธุ์สัตว์เลี้ยง"

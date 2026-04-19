@@ -18,7 +18,7 @@ export const payments = p
       id: p.uuid("id").defaultRandom().primaryKey(),
       amount: p.numeric("amount", { precision: 8, scale: 2 }).notNull(),
       paymentMethod: paymentMethodTypeEnum("payment_method").notNull(),
-      paymentDate: p.date("payment_date").notNull(),
+      paymentDate: p.date("payment_date", { mode: "date"}).notNull(),
       status: paymentStatusEnum("status").notNull(),
       // FK ไปยัง appointments
       appointmentId: p

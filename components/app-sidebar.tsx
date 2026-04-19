@@ -19,6 +19,7 @@ import {
   PawPrintIcon,
   LayoutGridIcon,
   CalendarClockIcon,
+  ReceiptIcon,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
@@ -49,6 +50,11 @@ const data = {
       title: "จัดการนัดหมาย",
       url: "/appointments",
       icon: <CalendarClockIcon />,
+    },
+    {
+      title: "POS",
+      url: "/pos",
+      icon: <ReceiptIcon />,
     },
   ],
 };

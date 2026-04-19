@@ -5,7 +5,6 @@ import { appointments, appointmentItems } from "@/db/schema";
 import { and, gte, lte, ne, eq } from "drizzle-orm";
 import { addMinutes, isBefore, parseISO, setHours, setMinutes, startOfDay } from "date-fns";
 
-
 interface GetSlotsParams {
   date: string;
   durationMinutes: number;
@@ -20,8 +19,7 @@ export async function getAvailableSlots({
     const startOfTargetDay = startOfDay(targetDate);
     const endOfTargetDay = addMinutes(startOfTargetDay, 24 * 60 - 1);
 
-    // 1. Optimize Database Query: คิวรีที่ appointmentItems โดยตรงแล้ว Join กับ appointments
-    // เพื่อให้ Database ประมวลผลและดึงมาเฉพาะช่วงเวลาของวันนั้นจริงๆ (ลด Memory Usage ฝั่ง Server)
+    // 1. Optimize Database Query
     const bookedSlots = await db
       .select({
         startTime: appointmentItems.startTime,
@@ -41,16 +39,27 @@ export async function getAvailableSlots({
         )
       );
 
-    // 2. กำหนดเวลาเปิด-ปิดร้าน (สามารถดึงจาก Database/Settings ของร้านได้ในอนาคต)
+    // 2. กำหนดเวลาเปิด-ปิดร้าน และเงื่อนไขเวลา
     const openingTime = setMinutes(setHours(targetDate, 9), 0);
     const closingTime = setMinutes(setHours(targetDate, 18), 0);
     const slotInterval = 30; // ตัดสล็อตทุกๆ 30 นาที
+
+    // [NEW] กำหนดเวลาปัจจุบัน และเวลาที่ต้องจองล่วงหน้า (Lead Time)
+    // เช่น ต้องจองล่วงหน้าอย่างน้อย 30 นาที เพื่อให้ช่างเตรียมตัว
+    const now = new Date();
+    const minimumBookingTime = addMinutes(now, 0); 
 
     const availableSlots: string[] = [];
     let currentSlotStart = openingTime;
 
     // 3. ตรวจสอบการทับซ้อนทีละสล็อต
     while (isBefore(currentSlotStart, closingTime)) {
+      // [NEW] ข้ามสล็อตนี้ทันที ถ้าเวลาเริ่มของสล็อตนี้ น้อยกว่า เวลาที่อนุญาตให้จองได้ (อดีต หรือกระชั้นชิดเกินไป)
+      if (isBefore(currentSlotStart, minimumBookingTime)) {
+        currentSlotStart = addMinutes(currentSlotStart, slotInterval);
+        continue;
+      }
+
       const currentSlotEnd = addMinutes(currentSlotStart, durationMinutes);
 
       // ตรวจสอบว่าเวลาสิ้นสุดของคิวนี้ เกินเวลาปิดร้านหรือไม่
@@ -58,7 +67,7 @@ export async function getAvailableSlots({
         break;
       }
 
-      // ตรวจสอบ Collision: ใช้ .some() เพื่อหยุดเช็คทันทีที่เจอช่วงเวลาทับซ้อน (O(N) => Best case O(1))
+      // ตรวจสอบ Collision
       const isOverlapping = bookedSlots.some((slot) => {
         return (
           currentSlotStart < slot.endTime &&
