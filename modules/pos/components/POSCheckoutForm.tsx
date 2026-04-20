@@ -51,10 +51,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import {
-  PET_SIZE_LABELS,
-  PET_SIZE_OPTIONS,
-} from "@/lib/constants/service-type";
+import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 
 interface POSCheckoutProps {
@@ -92,12 +89,15 @@ interface POSCheckoutProps {
       minPrice: string;
     }[];
   }[];
+  // [NEW] เพิ่ม Prop สำหรับรับค่ามัดจำจาก Server
+  depositAmount?: number;
 }
 
 export function POSCheckoutForm({
   appointment,
   availablePets,
   availableServices,
+  depositAmount = 0, // ค่าเริ่มต้นเป็น 0 หากไม่มีการส่งมา
 }: POSCheckoutProps) {
   const [isPending, startTransition] = useTransition();
   const [paymentMethod, setPaymentMethod] =
@@ -118,10 +118,13 @@ export function POSCheckoutForm({
   const [newVariantId, setNewVariantId] = useState("");
   const [newPrice, setNewPrice] = useState("");
 
-  const totalAmount = appointment.items.reduce(
+  // [NEW] 0. คำนวณยอดเงินต่างๆ
+  const subTotal = appointment.items.reduce(
     (sum, item) => sum + Number(item.price),
     0,
   );
+  // ยอดสุทธิ (ต้องไม่ต่ำกว่า 0)
+  const netTotal = Math.max(0, subTotal - depositAmount);
 
   // 1. จัดกลุ่มรายการตามสัตว์เลี้ยง
   const groupedItems = useMemo(() => {
@@ -135,7 +138,7 @@ export function POSCheckoutForm({
       }
       groups[item.pet.id].items.push(item);
     });
-    return Object.entries(groups); // [petId, { petName, items }][]
+    return Object.entries(groups);
   }, [appointment.items]);
 
   const selectedPet = useMemo(
@@ -153,7 +156,7 @@ export function POSCheckoutForm({
     );
   }, [appointment.items, newPetId]);
 
-  // [NEW] 2.1 ตรวจสอบว่าสัตว์เลี้ยงตัวนี้มีบริการหลัก (MAIN) อยู่ในตะกร้าแล้วหรือยัง
+  // 2.1 ตรวจสอบว่าสัตว์เลี้ยงตัวนี้มีบริการหลัก (MAIN) อยู่ในตะกร้าแล้วหรือยัง
   const hasMainService = useMemo(() => {
     if (!newPetId) return false;
     return appointment.items.some(
@@ -168,12 +171,9 @@ export function POSCheckoutForm({
     if (!selectedPet) return [];
 
     return availableServices.filter((service) => {
-      // 3.1 ถ้ามีบริการ MAIN อยู่แล้ว และบริการที่กำลังเช็คเป็น MAIN ให้ซ่อนไปเลย
       if (hasMainService && service.serviceType === "MAIN") {
         return false;
       }
-
-      // 3.2 กรองเอาเฉพาะบริการที่มี Variant ว่างอยู่
       return service.variants.some(
         (v) =>
           v.petType === selectedPet.breed.type && !existingVariantIds.has(v.id),
@@ -275,7 +275,6 @@ export function POSCheckoutForm({
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              {/* Items List (Grouped by Pet) */}
               <div className="divide-y divide-border/50">
                 {groupedItems.length === 0 ? (
                   <div className="p-6 text-muted-foreground text-sm text-center">
@@ -284,12 +283,9 @@ export function POSCheckoutForm({
                 ) : (
                   groupedItems.map(([petId, group]) => (
                     <div key={petId} className="flex flex-col">
-                      {/* Pet Group Header */}
                       <div className="bg-muted/30 px-4 sm:px-6 py-2 border-border/50 border-b font-bold text-foreground text-sm">
                         น้อง: {group.petName}
                       </div>
-
-                      {/* Items under Pet */}
                       <div className="divide-y divide-border/50">
                         {group.items.map((item) => (
                           <div
@@ -299,7 +295,6 @@ export function POSCheckoutForm({
                             <div className="flex-1 sm:pl-4">
                               <p className="flex items-center font-medium text-base">
                                 {item.serviceVariant.service.name}
-                                {/* เพิ่ม Badge บอกว่าเป็น MAIN หรือ ADDON สำหรับดูง่ายๆ */}
                                 {item.serviceVariant.service.serviceType ===
                                   "MAIN" && (
                                   <Badge
@@ -322,7 +317,6 @@ export function POSCheckoutForm({
                                 </Badge>
                               </p>
                             </div>
-
                             <div className="flex justify-between sm:justify-end items-center gap-4 w-full sm:w-auto">
                               {editingItemId === item.id ? (
                                 <div className="flex items-center gap-2">
@@ -337,7 +331,6 @@ export function POSCheckoutForm({
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter") {
                                         e.preventDefault();
-                                        setEditingItemId(null);
                                         handleSavePrice(item.id);
                                       }
                                     }}
@@ -519,20 +512,40 @@ export function POSCheckoutForm({
               <CardTitle className="text-lg">สรุปการสั่งซื้อ</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
-              <div className="space-y-1">
-                <div className="flex justify-between mb-2 text-muted-foreground text-sm">
+              {/* [NEW] UI แสดงยอดรวมแบบแยกบรรทัด */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-muted-foreground text-sm">
                   <span>จำนวนรายการทั้งหมด</span>
                   <span className="font-bold text-foreground">
                     {appointment.items.length} รายการ
                   </span>
                 </div>
+
+                <div className="flex justify-between text-muted-foreground text-sm">
+                  <span>ยอดรวมบริการ</span>
+                  <span className="font-bold text-foreground">
+                    ฿{subTotal.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* แสดงส่วนลด/หักมัดจำเฉพาะเมื่อมีค่ามัดจำมากกว่า 0 */}
+                {depositAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600 text-sm">
+                    <span>หักมัดจำล่วงหน้า</span>
+                    <span className="font-bold">
+                      -฿{depositAmount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
                 <Separator className="my-4" />
+
                 <div className="flex justify-between items-end">
                   <span className="font-bold text-base uppercase">
-                    ยอดรวมสุทธิ
+                    ยอดชำระสุทธิ
                   </span>
                   <span className="font-black text-primary text-4xl tracking-tight">
-                    ฿{totalAmount.toLocaleString()}
+                    ฿{netTotal.toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -625,11 +638,11 @@ export function POSCheckoutForm({
         open={isConfirmDialogOpen}
         onOpenChange={setIsConfirmDialogOpen}
         title="ยืนยันการชำระเงิน"
-        description="คุณต้องการชำระเงินหรือไม่?"
+        description={`คุณต้องการยืนยันการชำระยอดสุทธิ ฿${netTotal.toLocaleString()} หรือไม่?`}
         onConfirm={() =>
           processPayment({
             appointmentId: appointment.id,
-            amount: totalAmount,
+            amount: netTotal, // [NEW] ส่งค่ายอดสุทธิ (netTotal) แทนยอดรวมเดิม
             paymentMethod,
           })
         }

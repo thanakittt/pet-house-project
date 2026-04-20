@@ -50,6 +50,20 @@
       "when": 1776237763807,
       "tag": "0006_silky_frank_castle",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776619929562,
+      "tag": "0007_flat_hellion",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776620074100,
+      "tag": "0008_flawless_dazzler",
+      "breakpoints": true
     }
   ]
 }

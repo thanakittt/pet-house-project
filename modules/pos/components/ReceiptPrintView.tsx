@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, Fragment } from "react"; // นำเข้า Fragment จาก react โดยตรง
 import { Printer, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,8 +22,8 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
   const groupedItems = useMemo(() => {
     return data.items.reduce(
       (groups, item) => {
-        const key = item.petId;
-        if (!groups[key]) {
+        // เพิ่ม petId ใน type ของ item หากมีการเรียกใช้
+        const key = item.petId || item.petName;        if (!groups[key]) {
           groups[key] = {
             petName: item.petName,
             items: [],
@@ -35,6 +35,15 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
       {} as Record<string, { petName: string; items: typeof data.items }>,
     );
   }, [data.items]);
+
+  // [NEW] คำนวณยอดเงินสำหรับแสดงผล
+  const subTotal = useMemo(() => {
+    return data.items.reduce((sum, item) => sum + Number(item.price), 0);
+  }, [data.items]);
+  
+  const netTotal = data.totalAmount;
+  // ส่วนต่างระหว่างราคาสินค้าจริง กับเงินที่จ่ายหน้าเคาน์เตอร์ คือค่ามัดจำที่หักออกไป
+  const depositAmount = Math.max(0, subTotal - netTotal);
 
   const handlePrint = () => {
     window.print();
@@ -144,13 +153,27 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
 
         <Separator className="my-4 border-dashed" />
 
-        {/* สรุปยอด */}
+        {/* [NEW] สรุปยอดแบบแจกแจงรายละเอียด */}
         <div className="space-y-2 mb-6 text-sm">
-          <div className="flex justify-between items-center font-bold text-base">
-            <span>ยอดรวมสุทธิ</span>
-            <span>฿{data.totalAmount.toLocaleString()}</span>
+          <div className="flex justify-between items-center text-muted-foreground print:text-black">
+            <span>ยอดรวมบริการ</span>
+            <span>฿{subTotal.toLocaleString()}</span>
           </div>
-          <div className="flex justify-between items-center text-muted-foreground print:text-black text-xs">
+          
+          {/* แสดงบรรทัดหักมัดจำเฉพาะกรณีที่มีมัดจำเท่านั้น */}
+          {depositAmount > 0 && (
+            <div className="flex justify-between items-center text-emerald-600 print:text-black">
+              <span>หักมัดจำล่วงหน้า</span>
+              <span>-฿{depositAmount.toLocaleString()}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center pt-2 border-border border-t border-dashed font-bold text-base">
+            <span>ยอดชำระสุทธิ</span>
+            <span>฿{netTotal.toLocaleString()}</span>
+          </div>
+          
+          <div className="flex justify-between items-center pt-1 text-muted-foreground print:text-black text-xs">
             <span>วิธีชำระเงิน</span>
             <span>{data.paymentMethod === "CASH" ? "เงินสด" : "โอนเงิน"}</span>
           </div>
@@ -164,9 +187,4 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
       </div>
     </div>
   );
-}
-
-// สร้าง Component Fragment เพื่อใช้เป็น Wrapper ใน Map แบบมี Key
-function Fragment({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
 }

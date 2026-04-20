@@ -3,7 +3,6 @@
 import { db } from "@/db";
 import { appointmentItems, appointments } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/session";
 

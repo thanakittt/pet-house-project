@@ -3,6 +3,7 @@ import { getPOSCheckoutData } from "@/modules/pos/queries/get-pos-data";
 import { POSCheckoutForm } from "@/modules/pos/components/POSCheckoutForm";
 import { SiteHeader } from "@/components/site-header";
 import BackButton from "@/components/BackButton";
+import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 
 interface POSPageProps {
   params: Promise<{
@@ -42,6 +43,7 @@ export default async function POSPage({ params }: POSPageProps) {
           appointment={result.data.appointment}
           availablePets={result.data.availablePets}
           availableServices={result.data.availableServices}
+          depositAmount={APPOINTMENT_DEPOSIT_AMOUNT}
         />
       </div>
     </>

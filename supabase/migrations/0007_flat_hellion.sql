@@ -1,0 +1,1 @@
+CREATE TYPE "public"."payment_type" AS ENUM('DEPOSIT', 'FULL_PAYMENT');

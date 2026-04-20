@@ -55,9 +55,16 @@ export default function AppointmentStatusManager({
     try {
       const result = await updateAppointmentStatus(appointmentId, newStatus);
       if (result.success) {
-        toast.success(
-          `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
-        );
+        // เพิ่มเงื่อนไขแจ้งเตือนพิเศษสำหรับสถานะ CONFIRMED
+        if (newStatus === "CONFIRMED") {
+          toast.success(
+            `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
+          );
+        } else {
+          toast.success(
+            `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
+          );
+        }
       } else {
         toast.error(result.error);
       }
@@ -92,7 +99,16 @@ export default function AppointmentStatusManager({
       try {
         const result = await updateAppointmentStatus(appointmentId, newStatus);
         if (result.success) {
-          toast.success("อัปเดตสถานะคิวสำเร็จ");
+          // เพิ่มเงื่อนไขแจ้งเตือนพิเศษสำหรับสถานะ CONFIRMED
+          if (newStatus === "CONFIRMED") {
+            toast.success(
+              `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
+            );
+          } else {
+            toast.success(
+              `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
+            );
+          }
         } else {
           toast.error(result.error || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
         }
@@ -145,7 +161,10 @@ export default function AppointmentStatusManager({
               </option>
             </optgroup>
             <optgroup label="จบงาน" className="bg-background text-foreground">
-              <option value="COMPLETED" disabled={currentStatus !== "COMPLETED"}>
+              <option
+                value="COMPLETED"
+                disabled={currentStatus !== "COMPLETED"}
+              >
                 {STATUS_CONFIG["COMPLETED"].label}
               </option>
               <option value="CANCELLED">

@@ -28,6 +28,10 @@ export const paymentStatusEnum = pgEnum("payment_status", [
   "PAID",
   "CANCELLED",
 ]);
+export const paymentTypeEnum = pgEnum("payment_type", [
+  "DEPOSIT",
+  "FULL_PAYMENT",
+]);
 export const announcementTypeEnum = pgEnum("announcement_type", [
   "NEWS",
   "PROMOTION",
