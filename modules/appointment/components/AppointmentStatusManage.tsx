@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Receipt } from "lucide-react"; // เพิ่ม Receipt icon
+import Link from "next/link"; // เพิ่ม Link
 import { Button } from "@/components/ui/button";
 import { AppointmentStatus } from "@/modules/appointment/types/status";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
@@ -13,39 +14,57 @@ interface Props {
   currentStatus: AppointmentStatus;
 }
 
-const HAPPY_PATH_FLOW: AppointmentStatus[] = [
+const PATH_FLOW: AppointmentStatus[] = [
   "PENDING_DEPOSIT",
   "PENDING_APPROVAL",
   "CONFIRMED",
   "CHECKED_IN",
   "IN_PROGRESS",
   "READY_FOR_PICKUP",
-  "COMPLETED"
 ];
 
-export default function AppointmentStatusManager({ appointmentId, currentStatus }: Props) {
+export default function AppointmentStatusManager({
+  appointmentId,
+  currentStatus,
+}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const isWorking = isLoading || isPending;
 
   const getNextStatus = (): AppointmentStatus | null => {
-    const currentIndex = HAPPY_PATH_FLOW.indexOf(currentStatus);
-    if (currentIndex >= 0 && currentIndex < HAPPY_PATH_FLOW.length - 1) {
-      return HAPPY_PATH_FLOW[currentIndex + 1];
+    const currentIndex = PATH_FLOW.indexOf(currentStatus);
+    if (currentIndex >= 0 && currentIndex < PATH_FLOW.length - 1) {
+      return PATH_FLOW[currentIndex + 1];
     }
     return null;
   };
 
   const nextStatus = getNextStatus();
-  const isFinished = ["COMPLETED", "CANCELLED", "NO_SHOW"].includes(currentStatus);
+  const isFinished = ["COMPLETED", "CANCELLED", "NO_SHOW"].includes(
+    currentStatus,
+  );
 
   const handleUpdateStatus = async (newStatus: AppointmentStatus) => {
+    if (newStatus === "COMPLETED") {
+      toast.info("กรุณาชำระเงินผ่านระบบ POS เพื่อเสร็จสิ้นการนัดหมาย");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await updateAppointmentStatus(appointmentId, newStatus);
       if (result.success) {
-        toast.success(`อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`);
+        // เพิ่มเงื่อนไขแจ้งเตือนพิเศษสำหรับสถานะ CONFIRMED
+        if (newStatus === "CONFIRMED") {
+          toast.success(
+            `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
+          );
+        } else {
+          toast.success(
+            `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
+          );
+        }
       } else {
         toast.error(result.error);
       }
@@ -56,15 +75,23 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
     }
   };
 
-  // Handler สำหรับ Select Dropdown (ใช้ useTransition เพื่อไม่ให้ UI บล็อค)
+  // Handler สำหรับ Select Dropdown
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as AppointmentStatus;
     if (newStatus === currentStatus) return;
 
-    // มีการยืนยันถ้าผู้ใช้เลือกสถานะสิ้นสุด
+    if (newStatus === "COMPLETED") {
+      toast.info("กรุณาชำระเงินผ่านระบบ POS เพื่อเสร็จสิ้นการนัดหมาย");
+      return;
+    }
+
     if (["CANCELLED", "NO_SHOW"].includes(newStatus)) {
-      if (!window.confirm(`ยืนยันการเปลี่ยนสถานะเป็น "${STATUS_CONFIG[newStatus].label}" ใช่หรือไม่?`)) {
-        return; // ยกเลิกการเปลี่ยน (Select จะดีดกลับเป็นค่าเดิมเพราะผูกกับ currentStatus prop ที่ยังไม่ถูกอัปเดต)
+      if (
+        !window.confirm(
+          `ยืนยันการเปลี่ยนสถานะเป็น "${STATUS_CONFIG[newStatus].label}" ใช่หรือไม่?`,
+        )
+      ) {
+        return;
       }
     }
 
@@ -72,7 +99,16 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
       try {
         const result = await updateAppointmentStatus(appointmentId, newStatus);
         if (result.success) {
-          toast.success("อัปเดตสถานะคิวสำเร็จ");
+          // เพิ่มเงื่อนไขแจ้งเตือนพิเศษสำหรับสถานะ CONFIRMED
+          if (newStatus === "CONFIRMED") {
+            toast.success(
+              `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
+            );
+          } else {
+            toast.success(
+              `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
+            );
+          }
         } else {
           toast.error(result.error || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
         }
@@ -84,41 +120,79 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
 
   return (
     <div className="flex sm:flex-row flex-col justify-between items-center gap-4 bg-slate-50 p-4 border border-slate-100 rounded-xl">
-      
       {/* 1. แสดงและเลือกสถานะปัจจุบัน (Dropdown) */}
       <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
-        <span className="font-medium text-slate-500 text-sm">สถานะปัจจุบัน:</span>
+        <span className="font-medium text-slate-500 text-sm">
+          สถานะปัจจุบัน:
+        </span>
         <div className="relative">
           <select
             value={currentStatus}
             onChange={handleSelectChange}
             disabled={isWorking}
-            className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${STATUS_CONFIG[currentStatus].colorClass} ${isWorking ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-95'}`}
+            className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${STATUS_CONFIG[currentStatus].colorClass} ${isWorking ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
           >
-            <optgroup label="ช่วงการจอง" className="bg-background text-foreground">
-              <option value="PENDING_DEPOSIT">{STATUS_CONFIG["PENDING_DEPOSIT"].label}</option>
-              <option value="PENDING_APPROVAL">{STATUS_CONFIG["PENDING_APPROVAL"].label}</option>
-              <option value="CONFIRMED">{STATUS_CONFIG["CONFIRMED"].label}</option>
+            <optgroup
+              label="ช่วงการจอง"
+              className="bg-background text-foreground"
+            >
+              <option value="PENDING_DEPOSIT">
+                {STATUS_CONFIG["PENDING_DEPOSIT"].label}
+              </option>
+              <option value="PENDING_APPROVAL">
+                {STATUS_CONFIG["PENDING_APPROVAL"].label}
+              </option>
+              <option value="CONFIRMED">
+                {STATUS_CONFIG["CONFIRMED"].label}
+              </option>
             </optgroup>
-            <optgroup label="วันที่มาใช้บริการ" className="bg-background text-foreground">
-              <option value="CHECKED_IN">{STATUS_CONFIG["CHECKED_IN"].label}</option>
-              <option value="IN_PROGRESS">{STATUS_CONFIG["IN_PROGRESS"].label}</option>
-              <option value="READY_FOR_PICKUP">{STATUS_CONFIG["READY_FOR_PICKUP"].label}</option>
+            <optgroup
+              label="วันที่มาใช้บริการ"
+              className="bg-background text-foreground"
+            >
+              <option value="CHECKED_IN">
+                {STATUS_CONFIG["CHECKED_IN"].label}
+              </option>
+              <option value="IN_PROGRESS">
+                {STATUS_CONFIG["IN_PROGRESS"].label}
+              </option>
+              <option value="READY_FOR_PICKUP">
+                {STATUS_CONFIG["READY_FOR_PICKUP"].label}
+              </option>
             </optgroup>
             <optgroup label="จบงาน" className="bg-background text-foreground">
-              <option value="COMPLETED">{STATUS_CONFIG["COMPLETED"].label}</option>
-              <option value="CANCELLED">{STATUS_CONFIG["CANCELLED"].label}</option>
+              <option
+                value="COMPLETED"
+                disabled={currentStatus !== "COMPLETED"}
+              >
+                {STATUS_CONFIG["COMPLETED"].label}
+              </option>
+              <option value="CANCELLED">
+                {STATUS_CONFIG["CANCELLED"].label}
+              </option>
               <option value="NO_SHOW">{STATUS_CONFIG["NO_SHOW"].label}</option>
             </optgroup>
           </select>
-          
-          {/* Custom Arrow หรือ Spinner */}
+
           <div className="top-1/2 right-3 absolute flex items-center -translate-y-1/2 pointer-events-none">
             {isPending ? (
-              <Loader2 size={14} className="opacity-70 text-current animate-spin" />
+              <Loader2
+                size={14}
+                className="opacity-70 text-current animate-spin"
+              />
             ) : (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
-                <path d="m6 9 6 6 6-6"/>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-70"
+              >
+                <path d="m6 9 6 6 6-6" />
               </svg>
             )}
           </div>
@@ -127,12 +201,11 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
 
       {/* 2. ปุ่มควบคุมสถานะตาม Flow */}
       <div className="flex flex-wrap justify-end gap-2 w-full sm:w-auto">
-        
         {!isFinished && (
           <>
             {currentStatus === "CONFIRMED" && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="hover:bg-slate-200 text-slate-600"
                 disabled={isWorking}
                 onClick={() => {
@@ -145,8 +218,8 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
               </Button>
             )}
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="hover:bg-red-50 border-red-200 text-red-600 hover:text-red-700"
               disabled={isWorking}
               onClick={() => {
@@ -160,9 +233,31 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
           </>
         )}
 
+        {/* --- ปุ่มลัดไปหน้า POS (จะโชว์เฉพาะสถานะ READY_FOR_PICKUP) --- */}
+        {currentStatus === "READY_FOR_PICKUP" && (
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={`/pos/${appointmentId}`}>
+              <Receipt className="mr-2 w-4 h-4" />
+              ไปหน้ารับชำระเงิน (POS)
+            </Link>
+          </Button>
+        )}
+
+        {/* --- ปุ่มลัดไปหน้าใบเสร็จ (จะโชว์เฉพาะสถานะ COMPLETED) --- */}
+        {currentStatus === "COMPLETED" && (
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={`/receipt/${appointmentId}`}>
+              <Receipt className="mr-2 w-4 h-4" />
+              ดูใบเสร็จ
+            </Link>
+          </Button>
+        )}
+
         {nextStatus && (
-          <Button 
-            variant="default"
+          <Button
+            variant={
+              currentStatus === "READY_FOR_PICKUP" ? "outline" : "default"
+            }
             disabled={isWorking}
             onClick={() => handleUpdateStatus(nextStatus)}
             className="flex-1 sm:flex-none min-w-[180px]"
@@ -170,7 +265,9 @@ export default function AppointmentStatusManager({ appointmentId, currentStatus 
             {isLoading ? (
               <Loader2 size={16} className="mr-2 animate-spin" />
             ) : null}
-            {isLoading ? "กำลังอัปเดต..." : `เปลี่ยนเป็น: ${STATUS_CONFIG[nextStatus].label}`}
+            {isLoading
+              ? "กำลังอัปเดต..."
+              : `เปลี่ยนเป็น: ${STATUS_CONFIG[nextStatus].label}`}
           </Button>
         )}
       </div>

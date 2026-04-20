@@ -3,6 +3,7 @@ import {
   paymentMethodTypeEnum,
   paymentStatusEnum,
   transactionTypeEnum,
+  paymentTypeEnum,
 } from "./enum";
 import { appointments } from "./appointment";
 import { timestamps } from "./column.helper";
@@ -18,8 +19,9 @@ export const payments = p
       id: p.uuid("id").defaultRandom().primaryKey(),
       amount: p.numeric("amount", { precision: 8, scale: 2 }).notNull(),
       paymentMethod: paymentMethodTypeEnum("payment_method").notNull(),
-      paymentDate: p.date("payment_date").notNull(),
+      paymentDate: p.date("payment_date", { mode: "date"}).notNull(),
       status: paymentStatusEnum("status").notNull(),
+      paymentType: paymentTypeEnum("payment_type").notNull().default("FULL_PAYMENT"),
       // FK ไปยัง appointments
       appointmentId: p
         .uuid("appointment_id")

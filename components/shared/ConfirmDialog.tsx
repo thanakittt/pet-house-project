@@ -15,41 +15,43 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 /**
- * DeleteConfirmDialog — คอมโพเนนต์ยืนยันการลบข้อมูลแบบ Generic
+ * ConfirmDialog — คอมโพเนนต์ยืนยันการดำเนินการแบบ Generic
  *
- * ใช้แทน Delete Dialog เฉพาะ module ทั้งหมด (Customer, Service, Pet, PetBreed, ServiceVariant)
+ * ใช้แทน Confirm Dialog เฉพาะ module ทั้งหมด (Customer, Service, Pet, PetBreed, ServiceVariant)
  * โดยรับ props สำหรับกำหนดข้อความและ action ที่ต้องการเรียก
  *
  * @example
- * <DeleteConfirmDialog
- *   open={isDeleteOpen}
- *   onOpenChange={setIsDeleteOpen}
- *   title="ยืนยันการลบข้อมูลลูกค้า"
- *   description={`คุณต้องการลบข้อมูลลูกค้า "${customer.nickname}" หรือไม่?`}
- *   onConfirm={() => deleteCustomer(customer.id)}
- *   successMessage="ลบข้อมูลลูกค้าเรียบร้อย"
- *   errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า"
+ * <ConfirmDialog
+ *   open={isConfirmOpen}
+ *   onOpenChange={setIsConfirmOpen}
+ *   title="ยืนยันการดำเนินการ"
+ *   description={`คุณต้องการดำเนินการ "${action}" หรือไม่?`}
+ *   onConfirm={() => performAction()}
+ *   successMessage="ดำเนินการเรียบร้อย"
+ *   errorMessage="เกิดข้อผิดพลาดในการดำเนินการ"
  * />
  */
 
-interface DeleteConfirmDialogProps {
+interface ConfirmDialogProps {
   /** สถานะเปิด/ปิดของ Dialog */
   open: boolean;
   /** callback เมื่อสถานะเปิด/ปิดเปลี่ยน */
   onOpenChange: (open: boolean) => void;
-  /** หัวข้อของ Dialog เช่น "ยืนยันการลบข้อมูลลูกค้า" */
+  /** หัวข้อของ Dialog เช่น "ยืนยันการดำเนินการ" */
   title: string;
-  /** คำอธิบายรายละเอียด เช่น "คุณต้องการลบข้อมูลลูกค้า "xxx" หรือไม่?" */
+  /** คำอธิบายรายละเอียด เช่น "คุณต้องการดำเนินการ "xxx" หรือไม่?" */
   description: string;
   /** ฟังก์ชันที่เรียกเมื่อผู้ใช้กดยืนยัน — ควรเป็น server action ที่คืนค่าผลลัพธ์ */
   onConfirm: () => Promise<{ success: boolean; error?: string }>;
-  /** ข้อความแสดงเมื่อลบสำเร็จ */
+  /** ข้อความแสดงเมื่อดำเนินการสำเร็จ */
   successMessage: string;
   /** ข้อความแสดงเมื่อเกิดข้อผิดพลาดที่ไม่คาดคิด (catch block) */
   errorMessage: string;
+  /** ทางกลับหลังหลังจากดำเนินการสำเร็จ (optional) */
+  redirectPath?: string;
 }
 
-export function DeleteConfirmDialog({
+export function ConfirmDialog({
   open,
   onOpenChange,
   title,
@@ -57,26 +59,31 @@ export function DeleteConfirmDialog({
   onConfirm,
   successMessage,
   errorMessage,
-}: DeleteConfirmDialogProps) {
+  redirectPath = "",
+}: ConfirmDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   /** จัดการการกดยืนยันลบ — ใช้ useTransition เพื่อป้องกัน UI freeze */
-  const handleDelete = async () => {
+  const handleConfirm = async () => {
     startTransition(async () => {
       try {
         const result = await onConfirm();
 
         if (!result.success) {
-          toast.error(result.error);
+          toast.error(result.error || errorMessage);
           return;
         }
 
         toast.success(successMessage);
         onOpenChange(false);
-        router.refresh();
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else {
+          router.refresh();
+        }
       } catch (error) {
-        console.error("Delete error:", error);
+        console.error("Confirm error:", error);
         toast.error(errorMessage);
       }
     });
@@ -94,11 +101,11 @@ export function DeleteConfirmDialog({
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
-              handleDelete();
+              handleConfirm();
             }}
             disabled={isPending}
           >
-            {isPending ? "กำลังลบ..." : "ยืนยัน"}
+            {isPending ? "กำลังดำเนินการ..." : "ยืนยัน"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

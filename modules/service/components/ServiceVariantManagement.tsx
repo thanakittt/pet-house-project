@@ -17,7 +17,7 @@ import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
 import { ServiceVariant } from "../types/service-variant";
 import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteServiceVariant } from "../actions/delete-service-variant";
 import BackButton from "@/components/BackButton";
 
@@ -116,7 +116,7 @@ export default function ServiceVariantsManagement({
             onOpenChange={setIsEditDialogOpen}
             serviceVariant={selectedVariant}
           />
-          <DeleteConfirmDialog
+          <ConfirmDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
             title="ยืนยันการลบข้อมูลตัวเลือกบริการ"

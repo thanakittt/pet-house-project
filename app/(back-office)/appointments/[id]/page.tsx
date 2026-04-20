@@ -45,7 +45,7 @@ export default async function AppointmentDetailPage({
     <div>
       <SiteHeader title="รายละเอียดการจอง" />
 
-      <main className="space-y-6 p-6 mx-auto w-full">
+      <main className="space-y-6 mx-auto p-6 w-full">
         <BackButton />
         {/* 1. Header & Status Manager */}
         <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">

@@ -1,0 +1,1 @@
+export const APPOINTMENT_DEPOSIT_AMOUNT = 100;
