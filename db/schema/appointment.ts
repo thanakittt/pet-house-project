@@ -117,7 +117,7 @@ export const serviceImages = p
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       imageUrl: p.text("image_url").notNull(),
-      type: serviceImageTypeEnum("type").notNull(),
+      type: serviceImageTypeEnum("type").notNull(), // "BEFORE", "AFTER", "ISSUE"
       // FK ไปยัง appointmentItems
       appointmentItemId: p
         .uuid("appointment_item_id")

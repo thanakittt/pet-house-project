@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { appointments, appointmentItems } from "@/db/schema"; // นำเข้าตารางของคุณ
 // สมมติว่าคุณมีตารางเหล่านี้ (กรุณาปรับ path ตามจริง)
 import { customers, pets, serviceVariants, services } from "@/db/schema";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, eq, gte, lte, not } from "drizzle-orm";
 import { startOfDay, endOfDay, parseISO } from "date-fns";
 import { ScheduleRecord } from "../types/schedule";
 import { ActionResponse } from "@/types/action";
@@ -23,6 +23,7 @@ export async function getScheduleByDate(
       .select({
         itemId: appointmentItems.id,
         appointmentId: appointments.id,
+        note: appointments.note,
         status: appointments.status,
         startTime: appointmentItems.startTime,
         endTime: appointmentItems.endTime,
@@ -49,6 +50,7 @@ export async function getScheduleByDate(
         and(
           gte(appointmentItems.startTime, start),
           lte(appointmentItems.startTime, end),
+          not(eq(appointments.status, "CANCELLED")),
         ),
       )
       .orderBy(appointmentItems.startTime);
@@ -78,6 +80,7 @@ export async function getScheduleByDate(
           startTimeIso: item.startTime.toISOString(),
           endTimeIso: item.endTime.toISOString(),
           status: item.status as ScheduleRecord["status"],
+          note: item.note || "",
         });
       }
     });

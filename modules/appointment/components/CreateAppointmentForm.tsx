@@ -30,22 +30,14 @@ interface AvailableSlotsProps {
   error?: string;
 }
 
-/**
- * แปลงระยะเวลาจากนาทีให้อยู่ในรูปแบบข้อความ (เช่น "1 ชั่วโมง 30 นาที")
- * @param duration ระยะเวลาเป็นนาที
- * @returns ข้อความแสดงระยะเวลา
- */
 export function formatDurationMinutes(duration: number): string {
-  // 1. ตรวจสอบ Edge Cases: หากค่าน้อยกว่าหรือเท่ากับ 0 หรือไม่ใช่ตัวเลข ให้คืนค่าเริ่มต้น
   if (!Number.isFinite(duration) || duration <= 0) {
     return "0 นาที";
   }
 
-  // 2. คำนวณชั่วโมงและนาทีโดยปัดเศษทิ้งป้องกันค่าทศนิยม
   const hours = Math.floor(duration / 60);
   const minutes = Math.floor(duration % 60);
 
-  // 3. ใช้ Early Return เพื่อให้อ่านตรรกะได้ง่ายขึ้น
   if (hours === 0) return `${minutes} นาที`;
   if (minutes === 0) return `${hours} ชั่วโมง`;
 
@@ -165,6 +157,7 @@ type AppointmentFormValues = {
   customerId: string;
   petBookings: PetBooking[];
   startTime: string;
+  note: string; // เพิ่มฟิลด์ note
 };
 
 interface CreateAppointmentFormProps {
@@ -193,6 +186,7 @@ export default function CreateAppointmentForm({
       customerId: "",
       petBookings: [],
       startTime: "",
+      note: "", // กำหนดค่าเริ่มต้น
     },
     mode: "onSubmit",
   });
@@ -202,7 +196,6 @@ export default function CreateAppointmentForm({
     name: "petBookings",
   });
 
-  // 1. [FIXED] ใช้ useWatch แทน watch เพื่อติดตามการเปลี่ยนแปลงลึกๆ ใน Array แบบ Real-time
   const watchedPetBookings = useWatch({ control, name: "petBookings" }) || [];
 
   const searchQuery = watch("searchQuery");
@@ -211,7 +204,6 @@ export default function CreateAppointmentForm({
     (c) => c.id === selectedCustomerId,
   );
 
-  // Auto-select สัตว์เลี้ยงตัวแรกให้อัตโนมัติเมื่อเปลี่ยนลูกค้า
   useEffect(() => {
     setValue("petBookings", []);
     setValue("startTime", "");
@@ -229,7 +221,6 @@ export default function CreateAppointmentForm({
     }
   }, [selectedCustomerId, selectedCustomer, setValue, append]);
 
-  // 2. [FIXED] คำนวณ duration จาก watchedPetBookings (ดักจับการเปลี่ยนแปลงทุกฝีก้าว)
   const maxDuration = useMemo(() => {
     let total = 0;
     if (!watchedPetBookings || watchedPetBookings.length === 0) return total;
@@ -259,7 +250,6 @@ export default function CreateAppointmentForm({
     return total;
   }, [watchedPetBookings, services]);
 
-  // ล้างเวลาคิวทิ้ง หากเวลาบริการรวมเปลี่ยน
   useEffect(() => {
     setValue("startTime", "", { shouldValidate: false });
   }, [maxDuration, setValue]);
@@ -297,6 +287,7 @@ export default function CreateAppointmentForm({
       const result = await createAppointment({
         customerId: data.customerId,
         startTimeIso: data.startTime,
+        note: data.note.trim() || undefined, // ส่ง note ไปยัง Server Action
         petBookings: data.petBookings.map((b) => ({
           petId: b.petId,
           mainVariantId: b.mainVariantId,
@@ -315,10 +306,7 @@ export default function CreateAppointmentForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 w-full"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
       {/* 1. ค้นหาลูกค้า */}
       <FieldGroup>
         <div className="flex items-end gap-2">
@@ -384,7 +372,7 @@ export default function CreateAppointmentForm({
         </div>
       )}
 
-      {/* 3. [FIXED] ส่วนเลือกสัตว์เลี้ยง (ติ๊ก Checkbox) แยกต่างหาก */}
+      {/* 3. ส่วนเลือกสัตว์เลี้ยง */}
       {selectedCustomer && selectedCustomer.pets.length > 0 && (
         <div className="space-y-4">
           <Separator />
@@ -433,7 +421,7 @@ export default function CreateAppointmentForm({
         </div>
       )}
 
-      {/* 4. [FIXED] ตั้งค่าบริการ (แสดงการ์ดตาม fields ที่ถูกเพิ่มเข้ามา) */}
+      {/* 4. ตั้งค่าบริการ */}
       {fields.length > 0 && (
         <div className="space-y-6">
           <Separator />
@@ -445,7 +433,6 @@ export default function CreateAppointmentForm({
             );
             if (!petInfo) return null;
 
-            // ดึงค่าปัจจุบันของแถวนี้มาเพื่อใช้โชว์ Variant ที่เกี่ยวข้อง
             const currentMainServiceId =
               watchedPetBookings[index]?.mainServiceId;
             const selectedMainService = services.find(
@@ -608,6 +595,18 @@ export default function CreateAppointmentForm({
               />
             )}
           />
+
+          {/* 6. เพิ่มช่องกรอกหมายเหตุ (Note) */}
+          <FieldGroup className="pt-4">
+            <FieldLabel htmlFor="note">หมายเหตุเพิ่มเติม (ถ้ามี)</FieldLabel>
+            <textarea
+              {...register("note")}
+              id="note"
+              rows={3}
+              placeholder="เช่น ฝากรับกลับเลท, สุนัขมีอาการหวาดกลัวง่าย, ต้องการช่างคนไหนเป็นพิเศษ..."
+              className="flex bg-background px-3 py-2 border border-input focus-visible:border-transparent rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary w-full text-sm resize-y"
+            />
+          </FieldGroup>
 
           <div className="flex justify-end pt-4">
             <Button type="submit" size="lg" disabled={isSubmitting}>
