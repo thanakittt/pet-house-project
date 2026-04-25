@@ -35,21 +35,16 @@ export default function ImageLightbox({
         {children}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        {/* 1. ใช้ max-w-none w-full h-full เพื่อให้กรอบ Dialog กางเต็ม 100% ของหน้าจอ
-          2. ใช้ flex justify-center items-center เพื่อดันเนื้อหาข้างในให้อยู่ตรงกลางจอเป๊ะๆ
-        */}
         <DialogContent
           showCloseButton={false}
           className="flex justify-center items-center bg-transparent shadow-none p-0 border-none outline-none w-full max-w-none h-full"
         >
           <DialogTitle className="sr-only">ดูรูปภาพขนาดเต็ม</DialogTitle>
 
-          {/* กล่องนี้มีขนาดตายตัวเพื่อให้ Image แบบ fill ทำงานได้ */}
           <div className="relative flex justify-center items-center w-[95vw] h-[90vh]">
-            {/* ปุ่มกากบาท จะเกาะอยู่ที่มุมขวาบนของรูปภาพเสมอ */}
             <button
               onClick={() => setOpen(false)}
-              className="-top-4 sm:-top-5 -right-4 sm:-right-5 z-[60] absolute bg-black/60 hover:bg-black/90 shadow-2xl p-2 border border-white/20 rounded-full focus:outline-none text-white/90 hover:text-white transition-all"
+              className="-top-4 sm:-top-5 -right-4 sm:-right-5 z-60 absolute bg-black/60 hover:bg-black/90 shadow-2xl p-2 border border-white/20 rounded-full focus:outline-none text-white/90 hover:text-white transition-all"
             >
               <X className="w-5 sm:w-6 h-5 sm:h-6" />
             </button>
@@ -59,6 +54,7 @@ export default function ImageLightbox({
               alt={alt}
               fill
               className="shadow-2xl rounded-lg object-contain"
+              unoptimized
             />
           </div>
         </DialogContent>
