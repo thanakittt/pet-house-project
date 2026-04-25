@@ -6,9 +6,11 @@ import AppointmentStatusManager from "@/modules/appointment/components/Appointme
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 
-import BackButton from "@/components/BackButton";
 import { requireStaff } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
 type PetWithServices = {
   petId: string;
@@ -46,7 +48,15 @@ export default async function AppointmentDetailPage({
       <SiteHeader title="รายละเอียดการจอง" />
 
       <main className="space-y-6 mx-auto p-6 w-full">
-        <BackButton />
+        <Button
+          variant="outline"
+          asChild
+        >
+          <Link href="/appointments">
+            <ChevronLeft className="mr-2 w-4 h-4" />
+            กลับ
+          </Link>
+        </Button>
         {/* 1. Header & Status Manager */}
         <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
           <div className="flex justify-between items-start mb-6 pb-4 border-b">

@@ -29,7 +29,7 @@ import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 const START_HOUR = 9;
 const END_HOUR = 18;
 const TOTAL_HOURS = END_HOUR - START_HOUR;
-const ROW_HEIGHT_PX = 80;
+const ROW_HEIGHT_PX = 100;
 const CANVAS_PADDING_TOP = 16;
 
 const hoursGrid = Array.from(
@@ -56,7 +56,6 @@ const InteractiveStatusSelect = ({
   }, [currentStatus]);
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    e.preventDefault(); // กันเหนียว แม้ว่า select ส่วนใหญ่จะไม่ trigger link ก็ตาม
     e.stopPropagation();
 
     const newStatus = e.target.value as ScheduleRecord["status"];

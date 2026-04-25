@@ -20,6 +20,7 @@ import {
   LayoutGridIcon,
   CalendarClockIcon,
   ReceiptIcon,
+  ListTodoIcon,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
@@ -50,6 +51,11 @@ const data = {
       title: "จัดการนัดหมาย",
       url: "/appointments",
       icon: <CalendarClockIcon />,
+    },
+    {
+      title: "คิวงานประจำวัน",
+      url: "/operations",
+      icon: <ListTodoIcon />,
     },
     {
       title: "POS",
