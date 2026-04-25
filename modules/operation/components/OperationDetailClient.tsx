@@ -1,8 +1,15 @@
 "use client";
 
-import { format } from "date-fns"; // เอา useState ออก
+import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { Camera, ClipboardList, Info, Loader2 } from "lucide-react";
+import {
+  Camera,
+  ClipboardList,
+  Info,
+  Loader2,
+  AlertCircle,
+  StickyNote, // เพิ่ม StickyNote
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +27,6 @@ import { useTransition } from "react";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { toast } from "sonner";
 
-// 1. สร้าง Type สำหรับสถานะและข้อมูลย่อย
 export type AppointmentStatus =
   | "PENDING_DEPOSIT"
   | "PENDING_APPROVAL"
@@ -46,12 +52,12 @@ export interface HealthReport {
   createdAt: string | Date;
 }
 
-// 2. สร้าง Interface หลักสำหรับ initialData
 export interface OperationData {
   appointmentId: string;
   petId: string;
   appointment: {
     status: AppointmentStatus;
+    note: string | null;
     customer: {
       nickname: string;
     };
@@ -61,10 +67,11 @@ export interface OperationData {
     breed: {
       name: string;
     };
+    medicalNotes: string | null;
   };
   startTime: string | Date;
   services: string[];
-  itemIds: string[]; // เก็บ ID ของ appointmentItems ไว้ใช้อ้างอิง
+  itemIds: string[];
   healthReports: HealthReport[];
   serviceImages: ServiceImage[];
 }
@@ -74,15 +81,10 @@ interface OperationDetailClientProps {
 }
 
 export default function OperationDetailClient({
-  initialData: operation, // Destructure และเปลี่ยนชื่อเป็น operation เพื่อให้ไม่ต้องแก้โค้ดด้านล่าง
+  initialData: operation,
 }: OperationDetailClientProps) {
   const router = useRouter();
-
-  // 1. เพิ่ม useTransition สำหรับจัดการ Loading State ของปุ่มเปลี่ยนสถานะ
   const [isPendingStatus, startTransitionStatus] = useTransition();
-
-  // ไม่ต้องใช้ useState แล้ว
-  // const [operation] = useState<OperationData>(initialData);
 
   const serviceImages = operation?.serviceImages || [];
   const healthReports = operation?.healthReports || [];
@@ -90,7 +92,6 @@ export default function OperationDetailClient({
   const beforeImages = serviceImages.filter((img) => img.type === "BEFORE");
   const afterImages = serviceImages.filter((img) => img.type === "AFTER");
 
-  // 2. ฟังก์ชันจัดการการคลิกเปลี่ยนสถานะ
   const handleUpdateStatus = (newStatus: AppointmentStatus) => {
     startTransitionStatus(async () => {
       const result = await updateAppointmentStatus(
@@ -128,6 +129,20 @@ export default function OperationDetailClient({
                 </Badge>
               </span>
             </div>
+
+            {/* แสดงผล Medical Notes */}
+            {operation.pet.medicalNotes && (
+              <div className="bg-amber-50 p-3 border border-amber-200 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-amber-800 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  ข้อมูลสุขภาพ / ข้อควรระวัง
+                </div>
+                <p className="text-amber-700 text-sm leading-relaxed whitespace-pre-wrap">
+                  {operation.pet.medicalNotes}
+                </p>
+              </div>
+            )}
+
             <Separator />
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">เจ้าของ</span>
@@ -135,6 +150,20 @@ export default function OperationDetailClient({
                 คุณ{operation.appointment.customer.nickname}
               </span>
             </div>
+
+            {/* [NEW] แสดงผล Appointment Note (หมายเหตุการจอง) */}
+            {operation.appointment.note && (
+              <div className="bg-blue-50 mt-2 p-3 border border-blue-200 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-blue-800 text-sm">
+                  <StickyNote className="w-4 h-4" />
+                  หมายเหตุการจอง
+                </div>
+                <p className="text-blue-700 text-sm leading-relaxed whitespace-pre-wrap">
+                  {operation.appointment.note}
+                </p>
+              </div>
+            )}
+
             <Separator />
             <div className="flex justify-between items-start">
               <span className="mt-1 text-muted-foreground">บริการ</span>
@@ -178,8 +207,6 @@ export default function OperationDetailClient({
             </div>
 
             <div className="flex flex-wrap gap-2 pt-4 border-t">
-              {/* 3. แสดงปุ่มแบบไดนามิก ตามสถานะปัจจุบัน */}
-
               {currentStatus === "CONFIRMED" && (
                 <Button
                   onClick={() => handleUpdateStatus("CHECKED_IN")}
@@ -221,9 +248,6 @@ export default function OperationDetailClient({
                   รอรับกลับ
                 </Button>
               )}
-
-
-
             </div>
           </CardContent>
         </Card>
@@ -235,7 +259,6 @@ export default function OperationDetailClient({
               <Camera className="w-5 h-5 text-muted-foreground" />
               <CardTitle>รูปภาพก่อน - หลัง ({serviceImages.length})</CardTitle>
             </div>
-            {/* เรียกใช้งาน UploadImageDialog */}
             <UploadImageDialog
               appointmentId={operation.appointmentId}
               petId={operation.petId}
@@ -250,7 +273,6 @@ export default function OperationDetailClient({
               {beforeImages.length > 0 ? (
                 <div className="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                   {beforeImages.map((img) => (
-                    // เพิ่มคลาส group ตรงนี้
                     <div
                       key={img.id}
                       className="group relative bg-muted rounded-md aspect-square overflow-hidden"
@@ -262,8 +284,6 @@ export default function OperationDetailClient({
                           className="w-full h-full object-cover"
                         />
                       </ImageLightbox>
-
-                      {/* วางปุ่มลบรูปภาพ ตรงนี้ */}
                       <DeleteImageButton
                         imageId={img.id}
                         imageUrl={img.imageUrl}
@@ -288,7 +308,6 @@ export default function OperationDetailClient({
               {afterImages.length > 0 ? (
                 <div className="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                   {afterImages.map((img) => (
-                    // เพิ่มคลาส group ตรงนี้
                     <div
                       key={img.id}
                       className="group relative bg-muted rounded-md aspect-square overflow-hidden"
@@ -300,8 +319,6 @@ export default function OperationDetailClient({
                           className="w-full h-full object-cover"
                         />
                       </ImageLightbox>
-
-                      {/* วางปุ่มลบรูปภาพ ตรงนี้ */}
                       <DeleteImageButton
                         imageId={img.id}
                         imageUrl={img.imageUrl}
@@ -360,7 +377,6 @@ export default function OperationDetailClient({
                           petId={operation.petId}
                         />
 
-                        {/* เพิ่มปุ่มลบ ตรงนี้ */}
                         <DeleteHealthReportButton
                           reportId={report.id}
                           topic={report.topic}

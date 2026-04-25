@@ -9,4 +9,5 @@ export interface ScheduleRecord {
   startTimeIso: string;
   endTimeIso: string;
   status: AppointmentStatus;
+  note: string;
 }

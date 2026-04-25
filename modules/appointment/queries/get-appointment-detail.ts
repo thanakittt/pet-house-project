@@ -5,7 +5,6 @@ import { appointments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { AppointmentStatus } from "../types/status";
 import { requireStaff } from "@/lib/session";
-// import { revalidatePath } from "next/cache"; // นำกลับมาใช้ได้เมื่อมีฟังก์ชัน Update
 
 export async function getAppointmentDetail(appointmentId: string) {
   try {
@@ -18,24 +17,28 @@ export async function getAppointmentDetail(appointmentId: string) {
       };
     }
 
-    // 1. ใช้ Drizzle Relational Query ดึงข้อมูลทั้งหมดในคำสั่งเดียว
+    // 1. Drizzle Relational Query
     const appointmentData = await db.query.appointments.findFirst({
       where: eq(appointments.id, appointmentId),
       with: {
-        customer: true, // ดึงข้อมูลลูกค้าที่เชื่อมกับนัดหมาย
+        customer: true,
         items: {
-          orderBy: (items, { asc }) => [asc(items.startTime)], // เรียงลำดับเวลา
+          orderBy: (items, { asc }) => [asc(items.startTime)],
           with: {
             pet: {
               with: {
                 breed: true,
               },
-            }, // ดึงข้อมูลสัตว์เลี้ยง (หากมี relations ของ breed สามารถใส่ { with: { breed: true } } ได้)
+            },
             serviceVariant: {
               with: {
-                service: true, // ดึงชื่อบริการหลักที่เชื่อมกับ Variant
+                service: true,
               },
             },
+            serviceImages: true,
+            healthReports: {
+              where: (reports, { isNull }) => isNull(reports.deletedAt),
+            }, // [NEW] ดึงข้อมูลรายงานสุขภาพ
           },
         },
       },
@@ -45,36 +48,47 @@ export async function getAppointmentDetail(appointmentId: string) {
       return { success: false, error: "ไม่พบข้อมูลการจองนี้" };
     }
 
-    // 2. จัดกลุ่มรายการบริการตามสัตว์เลี้ยง (Grouping)
+    // 2. จัดกลุ่มข้อมูล (Grouping)
     const petsMap = new Map();
     let totalPrice = 0;
 
     appointmentData.items.forEach((item) => {
       totalPrice += Number(item.price);
 
-      // ตรวจสอบและสร้างโครงสร้างของสัตว์เลี้ยงใน Map หากยังไม่มี
       if (!petsMap.has(item.petId)) {
         petsMap.set(item.petId, {
           petId: item.pet.id,
           petName: item.pet.name,
-          petBreed: item.pet.breed.name, // หรือ item.pet.breed.type ขึ้นอยู่กับ Schema
-          petType: item.pet.breed.type, // หรือ item.pet.breed.type ขึ้นอยู่กับ Schema
+          petBreed: item.pet.breed.name,
+          petType: item.pet.breed.type,
           services: [],
+          serviceImages: [],
+          healthReports: [], // [NEW] สร้าง Array มารองรับรายงานสุขภาพ
         });
       }
 
-      // ดันข้อมูลบริการเข้าไปในสัตว์เลี้ยงตัวนั้น
-      petsMap.get(item.petId).services.push({
+      const petData = petsMap.get(item.petId);
+
+      petData.services.push({
         id: item.id,
-        name: item.serviceVariant.service.name, // ชื่อบริการหลัก
-        size: item.serviceVariant.size, // ไซส์/รูปแบบ
+        name: item.serviceVariant.service.name,
+        size: item.serviceVariant.size,
         price: Number(item.price),
         startTime: item.startTime.toISOString(),
         endTime: item.endTime.toISOString(),
       });
+
+      if (item.serviceImages && item.serviceImages.length > 0) {
+        petData.serviceImages.push(...item.serviceImages);
+      }
+
+      // [NEW] ดันข้อมูลรายงานสุขภาพเข้าไป (ถ้ารายการนี้มีการบันทึกรายงาน)
+      if (item.healthReports && item.healthReports.length > 0) {
+        petData.healthReports.push(...item.healthReports);
+      }
     });
 
-    // 3. จัดรูปแบบข้อมูลส่งกลับไปยัง Frontend
+    // 3. ส่งข้อมูลที่จัดรูปแบบแล้ว
     const formattedData = {
       id: appointmentData.id,
       date: appointmentData.appointmentDate,

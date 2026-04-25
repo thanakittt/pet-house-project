@@ -18,12 +18,13 @@ import {
   Calendar as CalendarIcon,
   Clock,
   Loader2,
+  StickyNote, // เพิ่ม Icon สำหรับโน้ต
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScheduleRecord } from "@/modules/appointment/types/schedule";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { toast } from "sonner";
-import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment"; // ตรวจสอบ path ให้ตรงกับโปรเจกต์ของคุณ
+import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 
 const START_HOUR = 9;
@@ -70,7 +71,6 @@ const InteractiveStatusSelect = ({
 
     startTransition(async () => {
       try {
-        // ใช้ Server Action เดียวกับในหน้า Detail
         const result = await updateAppointmentStatus(appointmentId, newStatus);
         if (result.success) {
           toast.success("อัปเดตสถานะสำเร็จ");
@@ -130,13 +130,14 @@ const InteractiveStatusSelect = ({
           </option>
         </optgroup>
         <optgroup label="จบงาน" className="bg-background text-foreground">
-          <option value="COMPLETED" disabled={optimisticStatus !== "COMPLETED"}>{STATUS_CONFIG["COMPLETED"].label}</option>
+          <option value="COMPLETED" disabled={optimisticStatus !== "COMPLETED"}>
+            {STATUS_CONFIG["COMPLETED"].label}
+          </option>
           <option value="CANCELLED">{STATUS_CONFIG["CANCELLED"].label}</option>
           <option value="NO_SHOW">{STATUS_CONFIG["NO_SHOW"].label}</option>
         </optgroup>
       </select>
 
-      {/* Custom Arrow หรือ Spinner */}
       <div className="top-1/2 right-3 absolute flex items-center -translate-y-1/2 pointer-events-none">
         {isPending ? (
           <Loader2 size={14} className="opacity-70 text-current animate-spin" />
@@ -342,16 +343,19 @@ export default function ScheduleCanvas({
                   height,
                 }}
               >
-                <div className="flex flex-col bg-white shadow-sm hover:shadow-lg p-3 border-slate-200 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full overflow-hidden transition-all group-hover:-translate-y-0.5 duration-200">
+                <div className="relative flex flex-col bg-white shadow-sm hover:shadow-lg p-3 border-slate-200 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
                   <div className="flex justify-between items-start gap-2 mb-1.5">
-                    <p className="font-bold text-primary text-base truncate leading-tight">
+                    <div className="flex items-center gap-1 font-bold text-primary text-base truncate leading-tight">
                       {appt.petName}{" "}
                       <span className="font-normal text-slate-500 text-base">
                         ({appt.customerName})
                       </span>
-                    </p>
+                      {/* [NEW] แสดงไอคอนโน้ตหากมีการบันทึกหมายเหตุ */}
+                      {appt.note && (
+                        <StickyNote size={14} className="text-amber-500" />
+                      )}
+                    </div>
 
-                    {/* [FIXED] ใช้ Component ใหม่ที่รองรับการคลิกเลือก Status */}
                     <InteractiveStatusSelect
                       appointmentId={appt.id}
                       currentStatus={appt.status}

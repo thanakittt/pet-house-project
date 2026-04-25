@@ -23,6 +23,7 @@ export async function getScheduleByDate(
       .select({
         itemId: appointmentItems.id,
         appointmentId: appointments.id,
+        note: appointments.note,
         status: appointments.status,
         startTime: appointmentItems.startTime,
         endTime: appointmentItems.endTime,
@@ -79,6 +80,7 @@ export async function getScheduleByDate(
           startTimeIso: item.startTime.toISOString(),
           endTimeIso: item.endTime.toISOString(),
           status: item.status as ScheduleRecord["status"],
+          note: item.note || "",
         });
       }
     });
