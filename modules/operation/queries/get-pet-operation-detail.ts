@@ -65,9 +65,13 @@ export async function getPetOperationDetail(
       services: items.map((item) => item.serviceVariant.service.name),
       // Map รายการ items เอาไว้ใช้อ้างอิงตอนสร้าง Health Report/Image
       itemIds: items.map((item) => item.id),
-      // นำรูปภาพและรายงานมารวมกันใน Array เดียว
-      healthReports: items.flatMap((item) => item.healthReports),
-      serviceImages: items.flatMap((item) => item.serviceImages),
+      // นำรูปภาพและรายงานมารวมกันใน Array เดียว พร้อมเรียงลำดับใหม่ล่าสุดขึ้นก่อน
+      healthReports: items
+        .flatMap((item) => item.healthReports)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+      serviceImages: items
+        .flatMap((item) => item.serviceImages)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     };
 
     return { success: true, data: mergedData };

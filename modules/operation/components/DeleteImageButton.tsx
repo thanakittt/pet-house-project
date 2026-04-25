@@ -28,11 +28,13 @@ export default function DeleteImageButton({
     <>
       {/* ปุ่มลบรูปภาพ (ซ่อนอยู่ จะโผล่ตอน Hover Container ด้านนอก) */}
       <button
+        type="button"
+        aria-label="ลบรูปภาพ"
         onClick={(e) => {
           e.stopPropagation(); // ป้องกันไม่ให้ทะลุไปเปิด Lightbox
           setOpen(true);
         }}
-        className="top-1 right-1 z-10 absolute bg-black/60 hover:bg-destructive opacity-0 group-hover:opacity-100 p-1.5 rounded-full focus:outline-none text-white transition-all"
+        className="top-1 right-1 z-10 absolute bg-black/60 hover:bg-destructive opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
         title="ลบรูปภาพ"
       >
         <Trash2Icon className="w-3.5 h-3.5" />

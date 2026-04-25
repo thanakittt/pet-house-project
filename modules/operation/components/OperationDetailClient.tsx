@@ -23,6 +23,7 @@ import DeleteHealthReportButton from "./DeleteHealthReportButton";
 import UploadImageDialog from "./UploadImageDialog";
 import ImageLightbox from "./ImageLightbox";
 import DeleteImageButton from "./DeleteImageButton";
+import Image from "next/image";
 import { useTransition } from "react";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { toast } from "sonner";
@@ -278,10 +279,12 @@ export default function OperationDetailClient({
                       className="group relative bg-muted rounded-md aspect-square overflow-hidden"
                     >
                       <ImageLightbox src={img.imageUrl} alt="Before">
-                        <img
+                        <Image
                           src={img.imageUrl}
                           alt="Before"
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          unoptimized
                         />
                       </ImageLightbox>
                       <DeleteImageButton
@@ -313,10 +316,12 @@ export default function OperationDetailClient({
                       className="group relative bg-muted rounded-md aspect-square overflow-hidden"
                     >
                       <ImageLightbox src={img.imageUrl} alt="After">
-                        <img
+                        <Image
                           src={img.imageUrl}
                           alt="After"
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          unoptimized
                         />
                       </ImageLightbox>
                       <DeleteImageButton

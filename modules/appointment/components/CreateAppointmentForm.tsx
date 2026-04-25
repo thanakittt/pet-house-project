@@ -287,7 +287,7 @@ export default function CreateAppointmentForm({
       const result = await createAppointment({
         customerId: data.customerId,
         startTimeIso: data.startTime,
-        note: data.note, // ส่ง note ไปยัง Server Action
+        note: data.note.trim() || undefined, // ส่ง note ไปยัง Server Action
         petBookings: data.petBookings.map((b) => ({
           petId: b.petId,
           mainVariantId: b.mainVariantId,

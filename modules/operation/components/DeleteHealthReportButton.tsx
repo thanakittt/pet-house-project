@@ -28,6 +28,8 @@ export default function DeleteHealthReportButton({
   return (
     <>
       <Button
+        type="button"
+        aria-label={`ลบรายงานสุขภาพ: ${topic}`}
         variant="ghost"
         size="icon"
         className="hover:bg-destructive/10 w-8 h-8 text-muted-foreground hover:text-destructive"

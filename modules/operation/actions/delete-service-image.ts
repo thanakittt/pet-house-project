@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { serviceImages } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { appointmentItems, serviceImages } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase"; // ปรับ path ตามจริง
 import { requireStaff } from "@/lib/session";
@@ -22,14 +22,35 @@ export async function deleteServiceImage(
       };
     }
 
-    // 1. ดึงชื่อไฟล์ออกมาจาก URL เพื่อนำไปลบใน Storage
-    // ตัวอย่าง URL: https://[project].supabase.co/storage/v1/object/public/images/12345.jpg
-    const urlObj = new URL(imageUrl);
+    // 1. ตรวจสอบและดึงข้อมูลจาก Database เพื่อความปลอดภัย
+    const [imageRecord] = await db
+      .select({ imageUrl: serviceImages.imageUrl })
+      .from(serviceImages)
+      .innerJoin(
+        appointmentItems,
+        eq(serviceImages.appointmentItemId, appointmentItems.id)
+      )
+      .where(
+        and(
+          eq(serviceImages.id, imageId),
+          eq(appointmentItems.appointmentId, appointmentId),
+          eq(appointmentItems.petId, petId)
+        )
+      )
+      .limit(1);
+
+    if (!imageRecord) {
+      return { success: false, error: "ไม่พบรูปภาพหรือไม่มีสิทธิ์ลบ" };
+    }
+
+    // 2. ดึงชื่อไฟล์ออกมาจาก URL ใน DB เพื่อนำไปลบใน Storage
+    const dbImageUrl = imageRecord.imageUrl;
+    const urlObj = new URL(dbImageUrl);
     const pathParts = urlObj.pathname.split("/");
     const fileName = pathParts[pathParts.length - 1];
 
     if (fileName) {
-      // 2. ลบไฟล์ใน Supabase Storage
+      // 3. ลบไฟล์ใน Supabase Storage
       const { error: storageError } = await supabase.storage
         .from("images") // ระบุชื่อ bucket ให้ถูกต้อง
         .remove([fileName]);
@@ -40,7 +61,7 @@ export async function deleteServiceImage(
       }
     }
 
-    // 3. ลบ Record ใน Database
+    // 4. ลบ Record ใน Database
     await db.delete(serviceImages).where(eq(serviceImages.id, imageId));
 
     // 4. Refresh UI

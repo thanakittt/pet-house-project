@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { healthReports } from "@/db/schema";
+import { appointmentItems, healthReports } from "@/db/schema";
 import { requireStaff } from "@/lib/session";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function updateHealthReport(data: {
@@ -28,7 +28,24 @@ export async function updateHealthReport(data: {
         topic: data.topic,
         description: data.description,
       })
-      .where(eq(healthReports.id, data.id))
+      .where(
+        and(
+          eq(healthReports.id, data.id),
+          isNull(healthReports.deletedAt),
+          inArray(
+            healthReports.appointmentItemId,
+            db
+              .select({ id: appointmentItems.id })
+              .from(appointmentItems)
+              .where(
+                and(
+                  eq(appointmentItems.appointmentId, data.appointmentId),
+                  eq(appointmentItems.petId, data.petId)
+                )
+              )
+          )
+        )
+      )
       .returning({ id: healthReports.id });
 
     if (result.length === 0) {
