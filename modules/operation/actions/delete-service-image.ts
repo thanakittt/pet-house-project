@@ -22,6 +22,15 @@ export async function deleteServiceImage(
       };
     }
 
+    // ตรวจสอบว่า role ต้องเป็น admin หรือ staff เท่านั้น (ไม่อนุญาต owner)
+    const role = session.user.role;
+    if (role !== "admin" && role !== "staff") {
+      return {
+        success: false as const,
+        error: "คุณไม่มีสิทธิ์ดำเนินการ",
+      };
+    }
+
     // 1. ตรวจสอบและดึงข้อมูลจาก Database เพื่อความปลอดภัย
     const [imageRecord] = await db
       .select({ imageUrl: serviceImages.imageUrl })
@@ -43,17 +52,24 @@ export async function deleteServiceImage(
       return { success: false, error: "ไม่พบรูปภาพหรือไม่มีสิทธิ์ลบ" };
     }
 
-    // 2. ดึงชื่อไฟล์ออกมาจาก URL ใน DB เพื่อนำไปลบใน Storage
+    // 2. ดึง full storage key (relative path ภายใน bucket) จาก URL ใน DB
+    // ตัวอย่าง URL: https://xxx.supabase.co/storage/v1/object/public/images/subfolder/file.jpg
+    // เราต้องดึงเฉพาะส่วน "subfolder/file.jpg" (path หลัง /object/public/images/)
     const dbImageUrl = imageRecord.imageUrl;
     const urlObj = new URL(dbImageUrl);
-    const pathParts = urlObj.pathname.split("/");
-    const fileName = pathParts[pathParts.length - 1];
+    // pathname จะเป็น /storage/v1/object/public/images/subfolder/file.jpg
+    // หา prefix ของ bucket แล้วตัดออกเพื่อให้ได้ path ภายใน bucket
+    const bucketPrefix = "/storage/v1/object/public/images/";
+    const pathnameAfterBucket = urlObj.pathname.startsWith(bucketPrefix)
+      ? urlObj.pathname.slice(bucketPrefix.length)
+      : urlObj.pathname.split("/").pop() ?? ""; // fallback กรณี URL format ต่างออกไป
+    const storageKey = decodeURIComponent(pathnameAfterBucket);
 
-    if (fileName) {
-      // 3. ลบไฟล์ใน Supabase Storage
+    if (storageKey) {
+      // 3. ลบไฟล์ใน Supabase Storage โดยใช้ full relative path (รองรับ subfolder)
       const { error: storageError } = await supabase.storage
         .from("images") // ระบุชื่อ bucket ให้ถูกต้อง
-        .remove([fileName]);
+        .remove([storageKey]);
 
       if (storageError) {
         console.error("Storage delete error:", storageError);

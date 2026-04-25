@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { healthReports } from "@/db/schema";
+import { appointmentItems, healthReports } from "@/db/schema";
 import { requireStaff } from "@/lib/session";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function deleteHealthReport(
@@ -17,6 +17,31 @@ export async function deleteHealthReport(
       return {
         success: false as const,
         error: "คุณไม่มีสิทธิ์ดำเนินการ",
+      };
+    }
+
+    // ตรวจสอบความเชื่อมโยง: healthReport.id ต้องเชื่อมโยงกับ appointmentItem ที่ตรงกับ appointmentId และ petId
+    // เพื่อป้องกัน request ที่รู้แค่ reportId ไม่ให้ลบ report จากนัดหมาย/สัตว์เลี้ยงอื่น (mirror การ validate ใน delete-service-image)
+    const [reportRecord] = await db
+      .select({ id: healthReports.id })
+      .from(healthReports)
+      .innerJoin(
+        appointmentItems,
+        eq(healthReports.appointmentItemId, appointmentItems.id),
+      )
+      .where(
+        and(
+          eq(healthReports.id, id),
+          eq(appointmentItems.appointmentId, appointmentId),
+          eq(appointmentItems.petId, petId),
+        ),
+      )
+      .limit(1);
+
+    if (!reportRecord) {
+      return {
+        success: false as const,
+        error: "ไม่พบรายงานหรือไม่มีสิทธิ์ลบ",
       };
     }
 
