@@ -24,8 +24,9 @@ export async function deleteServiceImage(
 
     // 1. ดึงชื่อไฟล์ออกมาจาก URL เพื่อนำไปลบใน Storage
     // ตัวอย่าง URL: https://[project].supabase.co/storage/v1/object/public/images/12345.jpg
-    const urlParts = imageUrl.split("/");
-    const fileName = urlParts[urlParts.length - 1];
+    const urlObj = new URL(imageUrl);
+    const pathParts = urlObj.pathname.split("/");
+    const fileName = pathParts[pathParts.length - 1];
 
     if (fileName) {
       // 2. ลบไฟล์ใน Supabase Storage

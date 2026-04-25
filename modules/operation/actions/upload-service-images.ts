@@ -13,16 +13,21 @@ import { revalidatePath } from "next/cache";
 
 export async function uploadServiceImages(data: {
   imageUrls: string[];
-  type: "BEFORE" | "AFTER";
+  type: "BEFORE" | "AFTER" | "ISSUE";
   appointmentId: string;
   petId: string;
 }) {
+  const uploadedFileNames = data.imageUrls
+    .map((url) => url.split("/").pop() || "")
+    .filter(Boolean);
+
   try {
     const session = await requireStaff({ redirect: false });
     if (!session) {
       return {
         success: false as const,
         error: "คุณไม่มีสิทธิ์ดำเนินการ",
+        uploadedFileNames,
       };
     }
 
@@ -46,8 +51,9 @@ export async function uploadServiceImages(data: {
 
     if (mainServiceItems.length === 0) {
       return {
-        success: false,
+        success: false as const,
         error: "ไม่พบรายการบริการหลัก (MAIN) ไม่สามารถบันทึกรูปภาพได้",
+        uploadedFileNames,
       };
     }
 
@@ -68,12 +74,13 @@ export async function uploadServiceImages(data: {
     // 4. รีเฟรชหน้า UI
     revalidatePath(`/operations/${data.appointmentId}/${data.petId}`);
 
-    return { success: true };
+    return { success: true as const, uploadedFileNames };
   } catch (error) {
     console.error("Error adding service images:", error);
     return {
-      success: false,
+      success: false as const,
       error: "เกิดข้อผิดพลาดในการบันทึกรูปภาพลงฐานข้อมูล",
+      uploadedFileNames,
     };
   }
 }

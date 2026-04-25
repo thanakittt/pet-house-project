@@ -162,6 +162,10 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
       });
 
       if (!result.success) {
+        // หากบันทึกลงฐานข้อมูลไม่สำเร็จ ให้ลบไฟล์ที่เพิ่งอัปโหลดขึ้น Supabase ออก
+        if (result.uploadedFileNames && result.uploadedFileNames.length > 0) {
+          await supabase.storage.from("images").remove(result.uploadedFileNames);
+        }
         setServerError(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
         return;
       }
