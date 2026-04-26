@@ -21,6 +21,7 @@ import {
   CalendarClockIcon,
   ReceiptIcon,
   ListTodoIcon,
+  PackageIcon,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
@@ -61,6 +62,11 @@ const data = {
       title: "POS",
       url: "/pos",
       icon: <ReceiptIcon />,
+    },
+    {
+      title: "จัดการหมวดหมู่สินค้า",
+      url: "/inventory-categories",
+      icon: <PackageIcon />,
     },
   ],
 };
