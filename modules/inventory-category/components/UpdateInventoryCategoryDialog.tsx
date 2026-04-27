@@ -120,6 +120,11 @@ export function UpdateInventoryCategoryDialog({
                   value: 100,
                   message: "ชื่อหมวดหมู่ไม่เกิน 100 ตัวอักษร",
                 },
+                validate: (value: string) => {
+                  if (value.trim() === "") {
+                    return "กรุณาระบุชื่อหมวดหมู่";
+                  }
+                },
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>

@@ -184,7 +184,7 @@ export function UpdateInventoryDialog({
                       {...field}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? Number(e.target.value) : "",
+                          e.target.value ? Number(e.target.value) : 0,
                         )
                       }
                       id={field.name}
@@ -244,7 +244,7 @@ export function UpdateInventoryDialog({
                     {...field}
                     onChange={(e) =>
                       field.onChange(
-                        e.target.value ? Number(e.target.value) : "",
+                        e.target.value ? Number(e.target.value) : 0,
                       )
                     }
                     id={field.name}

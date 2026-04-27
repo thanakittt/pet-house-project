@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { inventoryCategories } from "@/db/schema";
+import { inventoryCategories, inventoryItems } from "@/db/schema";
 import { requireStaff } from "@/lib/session";
 import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
@@ -18,6 +18,24 @@ export async function deleteInventoryCategory({
       return {
         success: false,
         error: "คุณไม่ได้รับอนุญาตในการลบหมวดหมู่สินค้า",
+      };
+    }
+
+    const [activeItem] = await db
+      .select({ id: inventoryItems.id })
+      .from(inventoryItems)
+      .where(
+        and(
+          eq(inventoryItems.inventoryCategoryId, id),
+          isNull(inventoryItems.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (activeItem) {
+      return {
+        success: false,
+        error: "ไม่สามารถลบหมวดหมู่ที่ยังมีสินค้าคงคลังใช้งานอยู่",
       };
     }
 

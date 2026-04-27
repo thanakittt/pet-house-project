@@ -52,7 +52,7 @@ export async function updateInventory(
       };
     }
 
-    await db
+    const result = await db
       .update(inventoryItems)
       .set({
         name: trimmedName,
@@ -61,7 +61,15 @@ export async function updateInventory(
         reorderLevel: data.reorderLevel,
         inventoryCategoryId: data.inventoryCategoryId,
       })
-      .where(and(eq(inventoryItems.id, id), isNull(inventoryItems.deletedAt)));
+      .where(and(eq(inventoryItems.id, id), isNull(inventoryItems.deletedAt)))
+      .returning({ id: inventoryItems.id });
+
+    if (!result.length) {
+      return {
+        success: false,
+        error: "ไม่พบสินค้าที่ต้องการแก้ไข หรือถูกลบไปแล้ว",
+      };
+    }
 
     revalidatePath("/inventories");
 

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { purchaseOrders } from "@/db/schema";
+import { purchaseOrderItems, purchaseOrders } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
@@ -13,7 +13,7 @@ import { and, eq, isNull } from "drizzle-orm";
  * - ใบสั่งซื้อที่ ORDERED / RECEIVED / CANCELLED ลบไม่ได้
  */
 export async function deletePurchaseOrder(
-  id: string
+  id: string,
 ): Promise<ActionResponse<null>> {
   try {
     const session = await requireStaff({ redirect: false });
@@ -29,9 +29,7 @@ export async function deletePurchaseOrder(
     const [order] = await db
       .select({ id: purchaseOrders.id, status: purchaseOrders.status })
       .from(purchaseOrders)
-      .where(
-        and(eq(purchaseOrders.id, id), isNull(purchaseOrders.deletedAt))
-      );
+      .where(and(eq(purchaseOrders.id, id), isNull(purchaseOrders.deletedAt)));
 
     if (!order) {
       return {
@@ -48,11 +46,26 @@ export async function deletePurchaseOrder(
       };
     }
 
-    // ── Soft delete: set deletedAt = now() ──
-    await db
-      .update(purchaseOrders)
-      .set({ deletedAt: new Date() })
-      .where(eq(purchaseOrders.id, id));
+    await db.transaction(async (tx) => {
+      // ลบ items ก่อน (soft delete)
+      await tx
+        .update(purchaseOrderItems)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(purchaseOrderItems.purchaseOrderId, id),
+            isNull(purchaseOrderItems.deletedAt),
+          ),
+        );
+
+      // จากนั้นลบ PO
+      await tx
+        .update(purchaseOrders)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(eq(purchaseOrders.id, id), isNull(purchaseOrders.deletedAt)),
+        );
+    });
 
     revalidatePath("/inventories");
 

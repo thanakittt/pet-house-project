@@ -92,7 +92,13 @@ export default function PurchaseOrderFormPage({
       (i) => i.inventoryItemId === inventoryItemId,
     );
     if (existing) {
-      updateItemField(inventoryItemId, "quantity", existing.quantity + 1);
+      setOrderItems((prev) =>
+        prev.map((item) =>
+          item.inventoryItemId === inventoryItemId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        ),
+      );
     } else {
       setOrderItems((prev) => [
         ...prev,
@@ -151,16 +157,20 @@ export default function PurchaseOrderFormPage({
     };
 
     startTransition(async () => {
-      const result = await createPurchaseOrder(formData);
+      try {
+        const result = await createPurchaseOrder(formData);
 
-      if (!result.success) {
-        toast.error(result.error);
-        return;
+        if (!result.success) {
+          toast.error(result.error);
+          return;
+        }
+
+        toast.success("สร้างใบสั่งซื้อเรียบร้อยแล้ว");
+        // redirect กลับหน้า inventory พร้อม tab order
+        router.push("/inventories?tab=order");
+      } catch {
+        toast.error("เกิดข้อผิดพลาดในการสร้างใบสั่งซื้อ");
       }
-
-      toast.success("สร้างใบสั่งซื้อเรียบร้อยแล้ว");
-      // redirect กลับหน้า inventory พร้อม tab order
-      router.push("/inventories?tab=order");
     });
   };
 
@@ -354,6 +364,8 @@ export default function PurchaseOrderFormPage({
                             size="icon"
                             className="size-8 text-muted-foreground hover:text-red-500"
                             onClick={() => removeItem(item.inventoryItemId)}
+                            aria-label={`ลบรายการ ${item.inventoryItemName}`}
+                            title="ลบรายการ"
                           >
                             <Trash2 className="size-4" />
                           </Button>

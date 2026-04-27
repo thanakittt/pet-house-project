@@ -5,7 +5,7 @@ import { inventoryItems } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 export async function deleteInventory(
   id: string,
@@ -25,7 +25,7 @@ export async function deleteInventory(
       .set({
         deletedAt: new Date(),
       })
-      .where(eq(inventoryItems.id, id))
+      .where(and(eq(inventoryItems.id, id), isNull(inventoryItems.deletedAt)))
       .returning({ id: inventoryItems.id });
 
     if (!result.length) {

@@ -10,7 +10,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { INVENTORY_UNITS } from "../constants/units";
 
 export async function createInventory(
-  data: InventoryForm
+  data: InventoryForm,
 ): Promise<ActionResponse<null>> {
   try {
     const session = await requireStaff({ redirect: false });
@@ -60,37 +60,46 @@ export async function createInventory(
       };
     }
 
-    const [category] = await db
-      .select({ id: inventoryCategories.id })
-      .from(inventoryCategories)
-      .where(
-        and(
-          eq(inventoryCategories.id, data.inventoryCategoryId),
-          isNull(inventoryCategories.deletedAt)
+    // Wrap the check and insert inside a single database transaction
+    const transactionResult = await db.transaction(async (tx) => {
+      // Step 1: Select and lock the category row using FOR UPDATE
+      const [category] = await tx
+        .select({ id: inventoryCategories.id })
+        .from(inventoryCategories)
+        .where(
+          and(
+            eq(inventoryCategories.id, data.inventoryCategoryId),
+            isNull(inventoryCategories.deletedAt),
+          ),
         )
-      );
+        .for("update"); // <-- Prevents concurrent soft-deletes
 
-    if (!category) {
-      return {
-        success: false,
-        error: "ไม่พบหมวดหมู่สินค้า หรือถูกลบไปแล้ว",
-      };
-    }
+      // Step 2: Validate existence
+      if (!category) {
+        return {
+          success: false,
+          error: "ไม่พบหมวดหมู่สินค้า หรือถูกลบไปแล้ว",
+        };
+      }
 
-    await db.insert(inventoryItems).values({
-      name: trimmedName,
-      quantity: data.quantity,
-      unit: data.unit,
-      reorderLevel: data.reorderLevel,
-      inventoryCategoryId: data.inventoryCategoryId,
+      // Step 3: Insert the inventory item securely
+      await tx.insert(inventoryItems).values({
+        name: trimmedName,
+        quantity: data.quantity,
+        unit: data.unit,
+        reorderLevel: data.reorderLevel,
+        inventoryCategoryId: data.inventoryCategoryId,
+      });
+
+      return { success: true, data: null };
     });
 
-    revalidatePath("/inventories");
+    // Revalidate cache only if the transaction was successful
+    if (transactionResult.success) {
+      revalidatePath("/inventories");
+    }
 
-    return {
-      success: true,
-      data: null,
-    };
+    return { success: true, data: null };
   } catch (error) {
     console.error("createInventory error:", error);
 

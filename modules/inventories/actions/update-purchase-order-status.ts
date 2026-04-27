@@ -9,16 +9,12 @@ import {
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql, SQL } from "drizzle-orm";
 import {
   isValidPurchaseOrderStatus,
   PurchaseOrderStatus,
 } from "../constants/purchase-order-status";
 
-/**
- * กฎ transition: บอกว่าจาก status ใดไปได้ status ไหนบ้าง
- * ป้องกันการกระโดดข้ามสถานะ เช่น DRAFT → RECEIVED โดยตรง
- */
 const ALLOWED_TRANSITIONS: Record<PurchaseOrderStatus, PurchaseOrderStatus[]> =
   {
     DRAFT: ["ORDERED", "CANCELLED"],
@@ -27,11 +23,9 @@ const ALLOWED_TRANSITIONS: Record<PurchaseOrderStatus, PurchaseOrderStatus[]> =
     CANCELLED: [], // terminal — ไม่สามารถเปลี่ยนสถานะได้อีก
   };
 
-/**
- * updatePurchaseOrderStatus — อัปเดตสถานะใบสั่งซื้อ
- * - ตรวจสอบว่า status ใหม่อยู่ใน allowed transitions ของ status ปัจจุบัน
- * - ป้องกัน terminal states จากการถูกเปลี่ยน
- */
+// ขีดจำกัดสูงสุดของ SmallInt ใน PostgreSQL
+const MAX_SMALLINT = 32767;
+
 export async function updatePurchaseOrderStatus(
   id: string,
   newStatus: PurchaseOrderStatus,
@@ -46,7 +40,6 @@ export async function updatePurchaseOrderStatus(
       };
     }
 
-    // ── Validate: newStatus ต้องเป็นค่าที่ถูกต้อง ──
     if (!isValidPurchaseOrderStatus(newStatus)) {
       return {
         success: false,
@@ -54,7 +47,6 @@ export async function updatePurchaseOrderStatus(
       };
     }
 
-    // ── ดึง PO ปัจจุบันเพื่อตรวจสอบสถานะ ──
     const [order] = await db
       .select({ status: purchaseOrders.status })
       .from(purchaseOrders)
@@ -69,7 +61,6 @@ export async function updatePurchaseOrderStatus(
 
     const currentStatus = order.status as PurchaseOrderStatus;
 
-    // ── ตรวจสอบว่า transition นี้อนุญาตหรือไม่ ──
     const allowed = ALLOWED_TRANSITIONS[currentStatus];
     if (!allowed.includes(newStatus)) {
       return {
@@ -78,7 +69,7 @@ export async function updatePurchaseOrderStatus(
       };
     }
 
-    // ── Update สถานะ ──
+    // ทำทุกอย่างภายใต้ Transaction เพื่อความเป็น Atomic
     await db.transaction(async (tx) => {
       // 1. Update สถานะใบสั่งซื้อ
       await tx
@@ -88,7 +79,6 @@ export async function updatePurchaseOrderStatus(
 
       // 2. ถ้าสถานะเปลี่ยนเป็น RECEIVED ให้เพิ่มสินค้าเข้า inventory
       if (newStatus === "RECEIVED") {
-        // ดึงรายละเอียดสินค้าในใบสั่งซื้อ
         const items = await tx
           .select({
             inventoryItemId: purchaseOrderItems.inventoryItemId,
@@ -102,19 +92,57 @@ export async function updatePurchaseOrderStatus(
             ),
           );
 
-        // Update จำนวนคงคลัง
-        for (const item of items) {
-          await tx
-            .update(inventoryItems)
-            .set({
-              quantity: sql`${inventoryItems.quantity} + ${item.quantity}`,
+        if (items.length > 0) {
+          const itemIds = items.map((item) => item.inventoryItemId);
+
+          // 3. Lock แถวของสินค้าคงคลังด้วย FOR UPDATE ป้องกัน Race Condition
+          const lockedInventoryItems = await tx
+            .select({
+              id: inventoryItems.id,
+              name: inventoryItems.name,
+              quantity: inventoryItems.quantity,
             })
+            .from(inventoryItems)
             .where(
               and(
-                eq(inventoryItems.id, item.inventoryItemId),
+                inArray(inventoryItems.id, itemIds),
                 isNull(inventoryItems.deletedAt),
               ),
+            )
+            .for("update");
+
+          // 4. Validate ข้อมูลเพื่อป้องกัน SmallInt Overflow (เกิน 32767)
+          for (const lockedItem of lockedInventoryItems) {
+            const orderItem = items.find(
+              (i) => i.inventoryItemId === lockedItem.id,
             );
+            if (orderItem) {
+              const totalQuantity = lockedItem.quantity + orderItem.quantity;
+              if (totalQuantity > MAX_SMALLINT) {
+                // โยน Error ออกไปให้ Catch จับเพื่อยกเลิก Transaction (Rollback)
+                throw new Error(
+                  `สินค้า "${lockedItem.name}" จะมีจำนวน (${totalQuantity}) ซึ่งเกินขีดจำกัดของระบบ (${MAX_SMALLINT})`,
+                );
+              }
+            }
+          }
+
+          // 5. เตรียมคำสั่ง Batch Update ด้วย CASE Statement ลดภาระฐานข้อมูล
+          const sqlChunks: SQL[] = [sql`(CASE id`];
+          for (const item of items) {
+            sqlChunks.push(
+              sql`WHEN ${item.inventoryItemId} THEN quantity + ${item.quantity}::integer`,
+            );
+          }
+          sqlChunks.push(sql`END)`);
+
+          const caseStatement = sql.join(sqlChunks, sql` `);
+
+          // ทำการ Update ทีเดียวรวด
+          await tx
+            .update(inventoryItems)
+            .set({ quantity: caseStatement })
+            .where(inArray(inventoryItems.id, itemIds));
         }
       }
     });
@@ -122,8 +150,15 @@ export async function updatePurchaseOrderStatus(
     revalidatePath("/inventories");
 
     return { success: true, data: null };
-  } catch (error) {
+  } catch (error: any) {
     console.error("updatePurchaseOrderStatus error:", error);
+
+    // ส่งข้อความ Overflow กลับไปที่ Client หากเกิดข้อผิดพลาดในการคำนวณจำนวน
+    const errorMessage = error instanceof Error ? error.message : "";
+    if (errorMessage.includes("เกินขีดจำกัด")) {
+      return { success: false, error: errorMessage };
+    }
+
     return {
       success: false,
       error: "เกิดข้อผิดพลาดในการอัปเดตสถานะใบสั่งซื้อ",
