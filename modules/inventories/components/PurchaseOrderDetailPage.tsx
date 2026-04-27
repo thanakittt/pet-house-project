@@ -66,6 +66,11 @@ import { updatePurchaseOrderItems } from "@/modules/inventories/actions/update-p
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import { cn } from "@/lib/utils";
 
+// 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่างใน Edit Mode
+interface OrderItemEditState extends Omit<PurchaseOrderItemForm, "unitCost"> {
+  unitCost: number | "";
+}
+
 // ── Helper: format ยอดเงินเป็นบาท ──
 function formatCurrency(value: number): string {
   return value.toLocaleString("th-TH", {
@@ -81,11 +86,6 @@ function formatPoNumber(id: string): string {
 
 /**
  * PurchaseOrderDetailPage — หน้าแสดงรายละเอียดใบสั่งซื้อ
- * รับข้อมูล PurchaseOrderDetail จาก Server Component
- * เมื่อ status = DRAFT จะเปิดฟีเจอร์แก้ไขรายการสินค้าได้
- *
- * @param order          - ข้อมูลใบสั่งซื้อพร้อม items
- * @param inventoryItems - รายการสินค้าทั้งหมด (ส่งมาเฉพาะตอน DRAFT)
  */
 export default function PurchaseOrderDetailPage({
   order,
@@ -98,11 +98,11 @@ export default function PurchaseOrderDetailPage({
   const statusConfig = PURCHASE_ORDER_STATUS_CONFIG[currentStatus];
   const isDraft = currentStatus === "DRAFT";
 
-  // ── State: โหมดแก้ไข (เปิดได้เฉพาะ DRAFT) ──
+  // ── State: โหมดแก้ไข ──
   const [isEditing, setIsEditing] = useState(false);
 
-  // ── State: รายการสินค้าที่กำลังแก้ไข (clone จาก order.items) ──
-  const [editItems, setEditItems] = useState<PurchaseOrderItemForm[]>(
+  // 2. ใช้ Local Type ที่รองรับค่าว่างกับ State ของการ Edit
+  const [editItems, setEditItems] = useState<OrderItemEditState[]>(
     order.items.map((item) => ({
       inventoryItemId: item.inventoryItemId,
       inventoryItemName: item.inventoryItemName,
@@ -111,22 +111,23 @@ export default function PurchaseOrderDetailPage({
     })),
   );
 
-  // ── State: Combobox เพิ่มสินค้า ──
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState("");
 
   const [isPending, startTransition] = useTransition();
 
-  // คำนวณยอดรวมจาก items (ใช้ editItems เมื่ออยู่ในโหมดแก้ไข)
+  // 3. ปรับการคำนวณ totalAmount โดยแปลง unitCost กลับเป็นตัวเลข
   const displayItems = isEditing ? editItems : order.items;
   const totalAmount = isEditing
-    ? editItems.reduce((acc, item) => acc + item.quantity * item.unitCost, 0)
+    ? editItems.reduce(
+        (acc, item) => acc + item.quantity * (Number(item.unitCost) || 0),
+        0,
+      )
     : order.items.reduce(
         (acc, item) => acc + item.quantity * parseFloat(item.unitCost),
         0,
       );
 
-  // ── format วันที่ด้วย date-fns (locale ไทย) ──
   const formattedDate = format(new Date(order.orderDate), "d MMMM yyyy", {
     locale: th,
   });
@@ -137,12 +138,10 @@ export default function PurchaseOrderDetailPage({
     { locale: th },
   );
 
-  // ── เพิ่มสินค้าเข้า editItems ──
   const handleAddItem = (inventoryItemId: string) => {
     const product = inventoryItems.find((p) => p.id === inventoryItemId);
     if (!product) return;
 
-    // ถ้ามีอยู่แล้ว → เพิ่มจำนวน
     const existing = editItems.find(
       (i) => i.inventoryItemId === inventoryItemId,
     );
@@ -155,7 +154,7 @@ export default function PurchaseOrderDetailPage({
           inventoryItemId: product.id,
           inventoryItemName: product.name,
           quantity: 1,
-          unitCost: 0,
+          unitCost: "", // 4. ค่า default ให้ราคาตั้งต้นเป็น ""
         },
       ]);
     }
@@ -163,11 +162,11 @@ export default function PurchaseOrderDetailPage({
     setSelectedItemId("");
   };
 
-  // ── แก้ไข field ในรายการสินค้า ──
+  // 5. รองรับ parameter unitCost เป็น string ("")
   const updateEditItemField = (
     inventoryItemId: string,
     field: "quantity" | "unitCost",
-    value: number,
+    value: number | "",
   ) => {
     setEditItems((prev) =>
       prev.map((item) =>
@@ -178,14 +177,12 @@ export default function PurchaseOrderDetailPage({
     );
   };
 
-  // ── ลบรายการสินค้า ──
   const removeEditItem = (inventoryItemId: string) => {
     setEditItems((prev) =>
       prev.filter((i) => i.inventoryItemId !== inventoryItemId),
     );
   };
 
-  // ── ยกเลิกการแก้ไข: reset กลับค่าเดิม ──
   const handleCancelEdit = () => {
     setEditItems(
       order.items.map((item) => ({
@@ -198,10 +195,22 @@ export default function PurchaseOrderDetailPage({
     setIsEditing(false);
   };
 
-  // ── บันทึกการแก้ไข: เรียก server action ──
   const handleSaveEdit = () => {
+    // แจ้งเตือนหากลืมใส่ราคา
+    const hasEmptyCost = editItems.some((item) => item.unitCost === "");
+    if (hasEmptyCost) {
+      toast.error("กรุณาระบุราคาต่อหน่วยให้ครบทุกรายการก่อนบันทึก");
+      return;
+    }
+
+    // 6. แปลง State ให้ถูกต้องตาม PurchaseOrderItemForm ก่อนส่ง
+    const payload = editItems.map((item) => ({
+      ...item,
+      unitCost: Number(item.unitCost) || 0,
+    })) as PurchaseOrderItemForm[];
+
     startTransition(async () => {
-      const result = await updatePurchaseOrderItems(order.id, editItems);
+      const result = await updatePurchaseOrderItems(order.id, payload);
 
       if (!result.success) {
         toast.error(result.error);
@@ -218,7 +227,6 @@ export default function PurchaseOrderDetailPage({
       {/* ── Header Area ── */}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-          {/* Decorative background element */}
           <div className="absolute -right-10 -top-10 size-40 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full blur-3xl opacity-50" />
 
           <div className="relative z-10">
@@ -255,7 +263,6 @@ export default function PurchaseOrderDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ── Left Column: Info ── */}
         <div className="lg:col-span-1 flex flex-col gap-8">
-          {/* ── ข้อมูลทั่วไป Card ── */}
           <Card className="rounded-2xl shadow-sm border-slate-100 hover:shadow-md transition-shadow duration-300">
             <CardHeader className="pb-4">
               <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -264,7 +271,6 @@ export default function PurchaseOrderDetailPage({
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-5">
-                {/* วันที่สั่งซื้อ */}
                 <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
                   <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                     <Calendar size={18} />
@@ -281,7 +287,6 @@ export default function PurchaseOrderDetailPage({
 
                 <Separator className="bg-slate-100" />
 
-                {/* พนักงาน */}
                 <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
                   <div className="p-2.5 bg-orange-50 text-orange-600 rounded-lg shrink-0">
                     <User size={18} />
@@ -298,7 +303,6 @@ export default function PurchaseOrderDetailPage({
 
                 <Separator className="bg-slate-100" />
 
-                {/* เลขที่อ้างอิง */}
                 <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
                   <div className="p-2.5 bg-purple-50 text-purple-600 rounded-lg shrink-0">
                     <Hash size={18} />
@@ -335,7 +339,6 @@ export default function PurchaseOrderDetailPage({
                     {displayItems.length} รายการ
                   </Badge>
 
-                  {/* ── ปุ่มแก้ไข (เฉพาะ DRAFT) ── */}
                   {isDraft && !isEditing && (
                     <Button
                       size="sm"
@@ -348,7 +351,6 @@ export default function PurchaseOrderDetailPage({
                     </Button>
                   )}
 
-                  {/* ── ปุ่ม บันทึก / ยกเลิก เมื่ออยู่ใน edit mode ── */}
                   {isEditing && (
                     <div className="flex items-center gap-1.5">
                       <Button
@@ -375,7 +377,6 @@ export default function PurchaseOrderDetailPage({
                 </div>
               </div>
 
-              {/* ── Combobox เพิ่มสินค้า (เฉพาะ edit mode) ── */}
               {isEditing && (
                 <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100">
                   <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
@@ -433,18 +434,6 @@ export default function PurchaseOrderDetailPage({
                       </Command>
                     </PopoverContent>
                   </Popover>
-
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() =>
-                      selectedItemId && handleAddItem(selectedItemId)
-                    }
-                    disabled={!selectedItemId}
-                    className="h-9 gap-1.5"
-                  >
-                    <Plus size={14} /> เพิ่ม
-                  </Button>
                 </div>
               )}
             </CardHeader>
@@ -469,7 +458,6 @@ export default function PurchaseOrderDetailPage({
                       <TableHead className="text-right text-slate-800 font-bold w-36">
                         ยอดรวม
                       </TableHead>
-                      {/* Column ลบ — เฉพาะ edit mode */}
                       {isEditing && <TableHead className="w-10" />}
                     </TableRow>
                   </TableHeader>
@@ -489,7 +477,6 @@ export default function PurchaseOrderDetailPage({
                         </TableCell>
                       </TableRow>
                     ) : isEditing ? (
-                      // ── Edit Mode Rows ──
                       editItems.map((item, idx) => (
                         <TableRow
                           key={item.inventoryItemId}
@@ -501,7 +488,6 @@ export default function PurchaseOrderDetailPage({
                           <TableCell className="font-semibold text-slate-700">
                             {item.inventoryItemName}
                           </TableCell>
-                          {/* Input จำนวน */}
                           <TableCell className="text-right">
                             <Input
                               type="number"
@@ -517,28 +503,30 @@ export default function PurchaseOrderDetailPage({
                               }
                             />
                           </TableCell>
-                          {/* Input ราคา */}
                           <TableCell className="text-right">
+                            {/* 7. Input ของราคารองรับค่าว่าง (Edit Mode) */}
                             <Input
                               type="number"
                               min="0"
-                              step="0.01"
+                              step="1"
                               className="w-24 text-right ml-auto h-8 text-sm"
                               value={item.unitCost}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const val = e.target.value;
                                 updateEditItemField(
                                   item.inventoryItemId,
                                   "unitCost",
-                                  Math.max(0, Number(e.target.value)),
-                                )
-                              }
+                                  val === "" ? "" : Math.max(0, Number(val)),
+                                );
+                              }}
                             />
                           </TableCell>
-                          {/* ยอดรวมแถว */}
                           <TableCell className="text-right text-slate-900 font-bold tabular-nums">
-                            ฿{formatCurrency(item.quantity * item.unitCost)}
+                            {/* คำนวณแปลงค่าเป็น 0 กรณีค่าว่าง */}฿
+                            {formatCurrency(
+                              item.quantity * (Number(item.unitCost) || 0),
+                            )}
                           </TableCell>
-                          {/* ปุ่มลบแถว */}
                           <TableCell>
                             <Button
                               variant="ghost"

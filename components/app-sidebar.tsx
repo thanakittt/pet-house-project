@@ -68,6 +68,11 @@ const data = {
       url: "/inventory-categories",
       icon: <PackageIcon />,
     },
+    {
+      title: "จัดการสินค้าคงคลัง",
+      url: "/inventories",
+      icon: <PackageIcon />,
+    },
   ],
 };
 

@@ -33,10 +33,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  ArrowLeft,
   Plus,
   Trash2,
-  Save,
   Send,
   FileText,
   Search,
@@ -56,11 +54,13 @@ import { cn } from "@/lib/utils";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { format } from "date-fns";
 
+// 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่าง (Empty String)
+interface OrderItemState extends Omit<PurchaseOrderItemForm, "unitCost"> {
+  unitCost: number | "";
+}
+
 /**
  * PurchaseOrderFormPage — หน้าสร้างใบสั่งซื้อ
- * รับ inventoryItems จาก Server Component เพื่อใช้ใน Combobox ค้นหาสินค้า
- *
- * @param inventoryItems - รายการสินค้าทั้งหมดในระบบ
  */
 export default function PurchaseOrderFormPage({
   inventoryItems,
@@ -70,24 +70,20 @@ export default function PurchaseOrderFormPage({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // ── State สำหรับ Combobox ค้นหาสินค้า ──
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string>("");
 
-  // ── State สำหรับรายการสินค้าในใบสั่งซื้อ ──
-  const [orderItems, setOrderItems] = useState<PurchaseOrderItemForm[]>([]);
+  // 2. ใช้ Local Type ที่รองรับค่าว่างกับ State ของตาราง
+  const [orderItems, setOrderItems] = useState<OrderItemState[]>([]);
 
-  // ── State สำหรับวันที่ ──
   const [orderDate, setOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd"),
   );
 
-  // ── เพิ่มสินค้าลงตาราง ──
   const handleAddItem = (inventoryItemId: string) => {
     const product = inventoryItems.find((p) => p.id === inventoryItemId);
     if (!product) return;
 
-    // ถ้ามีสินค้านี้อยู่แล้ว → เพิ่มจำนวน
     const existing = orderItems.find(
       (i) => i.inventoryItemId === inventoryItemId,
     );
@@ -106,21 +102,20 @@ export default function PurchaseOrderFormPage({
           inventoryItemId: product.id,
           inventoryItemName: product.name,
           quantity: 1,
-          unitCost: 0,
+          unitCost: "", // 3. เซ็ตค่า Default เป็น "" (ว่าง) ทันที
         },
       ]);
     }
 
-    // ปิด Combobox และ reset selection
     setComboboxOpen(false);
     setSelectedItemId("");
   };
 
-  // ── แก้ไข field ในรายการสินค้า ──
+  // 4. ปรับ Type ของ Value ให้รับค่าว่างได้
   const updateItemField = (
     inventoryItemId: string,
     field: "quantity" | "unitCost",
-    value: number,
+    value: number | "",
   ) => {
     setOrderItems((prev) =>
       prev.map((item) =>
@@ -131,29 +126,38 @@ export default function PurchaseOrderFormPage({
     );
   };
 
-  // ── ลบรายการสินค้าออกจากตาราง ──
   const removeItem = (inventoryItemId: string) => {
     setOrderItems((prev) =>
       prev.filter((i) => i.inventoryItemId !== inventoryItemId),
     );
   };
 
-  // ── คำนวณยอดรวม ──
+  // 5. แปลง string เป็นตัวเลข (ถ้าว่างให้เป็น 0) สำหรับการคำนวณยอดรวม
   const totalAmount = orderItems.reduce(
-    (acc, item) => acc + item.quantity * item.unitCost,
+    (acc, item) => acc + item.quantity * (Number(item.unitCost) || 0),
     0,
   );
 
-  // ── Submit: ส่งคำสั่งซื้อ ──
   const handleSubmit = () => {
     if (orderItems.length === 0) {
       toast.error("กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ");
       return;
     }
 
+    // ตรวจสอบว่ามีรายการไหนลืมใส่ราคาหรือไม่ (Optional)
+    const hasEmptyCost = orderItems.some((item) => item.unitCost === "");
+    if (hasEmptyCost) {
+      toast.error("กรุณาระบุราคาต่อหน่วยให้ครบทุกรายการ");
+      return;
+    }
+
+    // 6. Map ข้อมูลเพื่อเตรียมส่ง แปลง unitCost ให้เป็นตัวเลขล้วนเพื่อความปลอดภัย
     const formData: PurchaseOrderForm = {
       orderDate,
-      items: orderItems,
+      items: orderItems.map((item) => ({
+        ...item,
+        unitCost: Number(item.unitCost) || 0,
+      })) as PurchaseOrderItemForm[],
     };
 
     startTransition(async () => {
@@ -166,7 +170,6 @@ export default function PurchaseOrderFormPage({
         }
 
         toast.success("สร้างใบสั่งซื้อเรียบร้อยแล้ว");
-        // redirect กลับหน้า inventory พร้อม tab order
         router.push("/inventories?tab=order");
       } catch {
         toast.error("เกิดข้อผิดพลาดในการสร้างใบสั่งซื้อ");
@@ -177,7 +180,6 @@ export default function PurchaseOrderFormPage({
   return (
     <div className="w-full">
       <Card className="overflow-hidden">
-        {/* ── Card Header ── */}
         <CardHeader className="border-b py-4">
           <CardTitle className="text-sm font-bold text-muted-foreground uppercase flex items-center gap-2">
             <FileText size={16} /> ข้อมูลการสั่งซื้อสินค้า
@@ -185,9 +187,7 @@ export default function PurchaseOrderFormPage({
         </CardHeader>
 
         <CardContent className="px-6 md:px-8 py-2 bg-white">
-          {/* ── ส่วนข้อมูลทั่วไป ── */}
           <FieldGroup className="pb-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* วันที่สั่งซื้อ */}
             <Field>
               <FieldLabel className="font-medium text-muted-foreground text-xs md:text-sm uppercase">
                 วันที่สั่งซื้อ
@@ -203,14 +203,12 @@ export default function PurchaseOrderFormPage({
 
           <Separator className="my-4" />
 
-          {/* ── ส่วนค้นหาสินค้า ── */}
           <div className="py-4">
             <div className="flex flex-col gap-2 mb-6">
               <label className="text-sm md:text-base font-bold text-muted-foreground uppercase flex items-center gap-2">
                 <Search className="size-4" /> เพิ่มสินค้า
               </label>
 
-              {/* Combobox ค้นหาสินค้า */}
               <div className="flex items-center gap-4 w-full">
                 <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                   <PopoverTrigger asChild>
@@ -261,21 +259,9 @@ export default function PurchaseOrderFormPage({
                     </Command>
                   </PopoverContent>
                 </Popover>
-
-                {/* ปุ่มเพิ่ม (กรณีเลือกสินค้าแล้ว) */}
-                <Button
-                  variant="default"
-                  onClick={() =>
-                    selectedItemId && handleAddItem(selectedItemId)
-                  }
-                  disabled={!selectedItemId}
-                >
-                  <Plus data-icon="inline-start" /> เพิ่มรายการ
-                </Button>
               </div>
             </div>
 
-            {/* ── ตารางรายการสินค้า ── */}
             <div className="border rounded-md overflow-x-auto">
               <Table>
                 <TableHeader className="bg-muted">
@@ -301,17 +287,14 @@ export default function PurchaseOrderFormPage({
                   ) : (
                     orderItems.map((item, index) => (
                       <TableRow key={item.inventoryItemId}>
-                        {/* ลำดับ */}
                         <TableCell className="text-center text-xs text-muted-foreground">
                           {index + 1}
                         </TableCell>
 
-                        {/* ชื่อสินค้า */}
                         <TableCell className="font-medium">
                           {item.inventoryItemName}
                         </TableCell>
 
-                        {/* จำนวน (editable) */}
                         <TableCell className="text-right">
                           <Input
                             type="number"
@@ -328,36 +311,34 @@ export default function PurchaseOrderFormPage({
                           />
                         </TableCell>
 
-                        {/* ราคา/หน่วย (editable) */}
+                        {/* 7. Input ของราคารองรับค่าว่าง */}
                         <TableCell className="text-right">
                           <Input
                             type="number"
                             className="w-24 text-right ml-auto"
                             min="0"
-                            step="0.01"
+                            step="1"
                             value={item.unitCost}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const val = e.target.value;
                               updateItemField(
                                 item.inventoryItemId,
                                 "unitCost",
-                                Math.max(0, Number(e.target.value)),
-                              )
-                            }
+                                val === "" ? "" : Math.max(0, Number(val)),
+                              );
+                            }}
                           />
                         </TableCell>
 
-                        {/* ยอดรวมแถว */}
                         <TableCell className="text-right font-semibold tabular-nums">
                           ฿
-                          {(item.quantity * item.unitCost).toLocaleString(
-                            "th-TH",
-                            {
-                              minimumFractionDigits: 2,
-                            },
-                          )}
+                          {(
+                            item.quantity * (Number(item.unitCost) || 0)
+                          ).toLocaleString("th-TH", {
+                            minimumFractionDigits: 2,
+                          })}
                         </TableCell>
 
-                        {/* ปุ่มลบแถว */}
                         <TableCell className="text-center">
                           <Button
                             variant="ghost"
@@ -378,10 +359,8 @@ export default function PurchaseOrderFormPage({
             </div>
           </div>
 
-          {/* ── สรุปยอดรวม ── */}
           <div className="pt-4 flex flex-col md:flex-row justify-end gap-10 bg-white">
             <div className="w-full md:w-80 flex flex-col gap-3">
-              {/* ยอดสุทธิ */}
               <div className="flex justify-between items-center">
                 <span className="font-bold text-primary text-lg">
                   ยอดสุทธิรวม
@@ -397,9 +376,7 @@ export default function PurchaseOrderFormPage({
           </div>
         </CardContent>
 
-        {/* ── Footer: ปุ่ม Submit ── */}
         <CardFooter className="flex justify-end border-t py-4">
-          {/* ส่งคำสั่งซื้อ (สถานะ DRAFT → ผู้ใช้อัปเดตเองทีหลัง) */}
           <Button
             variant="default"
             onClick={handleSubmit}
