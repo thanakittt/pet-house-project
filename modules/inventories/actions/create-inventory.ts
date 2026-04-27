@@ -8,6 +8,7 @@ import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { and, eq, isNull } from "drizzle-orm";
 import { INVENTORY_UNITS } from "../constants/units";
+import { validateInventoryNumbers } from "../utils/validation";
 
 export async function createInventory(
   data: InventoryForm,
@@ -38,18 +39,12 @@ export async function createInventory(
       };
     }
 
-    if (data.quantity < 0) {
-      return {
-        success: false,
-        error: "จำนวนสินค้าไม่สามารถติดลบได้",
-      };
-    }
-
-    if (data.reorderLevel < 0) {
-      return {
-        success: false,
-        error: "จุดสั่งซื้อไม่สามารถติดลบได้",
-      };
+    const validationError = validateInventoryNumbers(
+      data.quantity,
+      data.reorderLevel,
+    );
+    if (validationError) {
+      return validationError;
     }
 
     const isValidUnit = INVENTORY_UNITS.some((u) => u.value === data.unit);
@@ -76,10 +71,7 @@ export async function createInventory(
 
       // Step 2: Validate existence
       if (!category) {
-        return {
-          success: false,
-          error: "ไม่พบหมวดหมู่สินค้า หรือถูกลบไปแล้ว",
-        };
+        throw new Error("ไม่พบหมวดหมู่สินค้า หรือถูกลบไปแล้ว");
       }
 
       // Step 3: Insert the inventory item securely
@@ -90,18 +82,19 @@ export async function createInventory(
         reorderLevel: data.reorderLevel,
         inventoryCategoryId: data.inventoryCategoryId,
       });
-
-      return { success: true, data: null };
     });
 
-    // Revalidate cache only if the transaction was successful
-    if (transactionResult.success) {
-      revalidatePath("/inventories");
-    }
-
+    revalidatePath("/inventories");
     return { success: true, data: null };
   } catch (error) {
     console.error("createInventory error:", error);
+
+    if (
+      error instanceof Error &&
+      error.message === "ไม่พบหมวดหมู่สินค้า หรือถูกลบไปแล้ว"
+    ) {
+      return { success: false, error: error.message };
+    }
 
     return {
       success: false,

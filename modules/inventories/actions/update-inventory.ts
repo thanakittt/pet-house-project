@@ -2,11 +2,13 @@
 
 import { db } from "@/db";
 import { InventoryForm } from "../types/inventory";
-import { inventoryItems } from "@/db/schema";
+import { inventoryCategories, inventoryItems } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { and, eq, isNull } from "drizzle-orm";
+import { validateInventoryNumbers } from "../utils/validation";
+import { INVENTORY_UNITS } from "../constants/units";
 
 export async function updateInventory(
   id: string,
@@ -38,31 +40,53 @@ export async function updateInventory(
       };
     }
 
-    if (data.quantity < 0) {
+    const validationError = validateInventoryNumbers(
+      data.quantity,
+      data.reorderLevel,
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    const isValidUnit = INVENTORY_UNITS.some((u) => u.value === data.unit);
+    if (!isValidUnit) {
       return {
         success: false,
-        error: "จำนวนสินค้าไม่สามารถติดลบได้",
+        error: "หน่วยสินค้าไม่ถูกต้อง",
       };
     }
 
-    if (data.reorderLevel < 0) {
-      return {
-        success: false,
-        error: "จุดสั่งซื้อไม่สามารถติดลบได้",
-      };
-    }
+    const result = await db.transaction(async (tx) => {
+      // ตรวจสอบว่าหมวดหมู่มีอยู่จริงและไม่ได้ถูกลบ
+      const [category] = await tx
+        .select({ id: inventoryCategories.id })
+        .from(inventoryCategories)
+        .where(
+          and(
+            eq(inventoryCategories.id, data.inventoryCategoryId),
+            isNull(inventoryCategories.deletedAt),
+          ),
+        )
+        .for("update");
 
-    const result = await db
-      .update(inventoryItems)
-      .set({
-        name: trimmedName,
-        quantity: data.quantity,
-        unit: data.unit,
-        reorderLevel: data.reorderLevel,
-        inventoryCategoryId: data.inventoryCategoryId,
-      })
-      .where(and(eq(inventoryItems.id, id), isNull(inventoryItems.deletedAt)))
-      .returning({ id: inventoryItems.id });
+      if (!category) {
+        throw new Error("หมวดหมู่สินค้าไม่ถูกต้องหรือถูกลบแล้ว");
+      }
+
+      const updated = await tx
+        .update(inventoryItems)
+        .set({
+          name: trimmedName,
+          quantity: data.quantity,
+          unit: data.unit,
+          reorderLevel: data.reorderLevel,
+          inventoryCategoryId: data.inventoryCategoryId,
+        })
+        .where(and(eq(inventoryItems.id, id), isNull(inventoryItems.deletedAt)))
+        .returning({ id: inventoryItems.id });
+
+      return updated;
+    });
 
     if (!result.length) {
       return {
@@ -79,6 +103,13 @@ export async function updateInventory(
     };
   } catch (error) {
     console.error("updateInventory error:", error);
+
+    if (
+      error instanceof Error &&
+      error.message === "หมวดหมู่สินค้าไม่ถูกต้องหรือถูกลบแล้ว"
+    ) {
+      return { success: false, error: error.message };
+    }
 
     return {
       success: false,

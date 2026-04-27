@@ -148,6 +148,7 @@ export function UpdateInventoryCategoryDialog({
             <div className="flex justify-end gap-2">
               <DialogClose asChild>
                 <Button
+                  type="button"
                   variant="outline"
                   className="px-6 py-5 text-sm cursor-pointer"
                 >
