@@ -22,6 +22,7 @@ import {
   ReceiptIcon,
   ListTodoIcon,
   PackageIcon,
+  WalletIcon,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
@@ -72,6 +73,11 @@ const data = {
       title: "จัดการสินค้าคงคลัง",
       url: "/inventories",
       icon: <PackageIcon />,
+    },
+    {
+      title: "จัดการหมวดหมู่ธุรกรรม",
+      url: "/transaction-categories",
+      icon: <WalletIcon />,
     },
   ],
 };

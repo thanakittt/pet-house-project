@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { AppointmentStatus } from "../types/status";
 import { requireStaff } from "@/lib/session";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
+import { recordTransaction } from "@/lib/finance/record-transaction";
 
 export async function updateAppointmentStatus(
   appointmentId: string,
@@ -53,6 +54,15 @@ export async function updateAppointmentStatus(
             paymentDate: new Date(),
             status: "PAID",
             paymentType: "DEPOSIT",
+          });
+
+          // บันทึก transaction รายรับมัดจำลงตาราง transactions
+          await recordTransaction(tx, {
+            amount: APPOINTMENT_DEPOSIT_AMOUNT,
+            transactionDate: new Date(),
+            categoryType: "INCOME",
+            categoryName: "รายรับมัดจำการนัดหมาย",
+            note: `มัดจำนัดหมาย #${appointmentId}`,
           });
         }
       }

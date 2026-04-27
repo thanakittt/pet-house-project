@@ -154,7 +154,6 @@ export const petBreedRelations = relations(petBreeds, ({ many }) => ({
  * appointments → customers (N:1)
  * appointments → appointment_items (1:N)
  * appointments → payments (1:N) — 1 นัดหมายมีได้หลาย payment (เช่น มัดจำ + ส่วนที่เหลือ)
- * appointments → transactions (1:1) — 1 นัดหมายสร้าง 1 transaction รายรับ
  * appointments → reviews (1:1) — 1 นัดหมายมี 1 รีวิว
  */
 export const appointmentRelations = relations(
@@ -169,11 +168,6 @@ export const appointmentRelations = relations(
     items: many(appointmentItems),
     // นัดหมายมีการชำระเงินได้หลายรายการ (เช่น มัดจำ + ชำระส่วนที่เหลือ)
     payments: many(payments),
-    // นัดหมายสร้าง 1 transaction รายรับ (optional)
-    transaction: one(transactions, {
-      fields: [appointments.id],
-      references: [transactions.appointmentId],
-    }),
     // นัดหมายมีรีวิว 1 รายการ (optional)
     review: one(reviews, {
       fields: [appointments.id],
@@ -293,24 +287,13 @@ export const transactionCategoryRelations = relations(
 
 /**
  * transactions → transactionCategories (N:1)
- * transactions → appointments (N:1 optional)
- * transactions → purchaseOrders (N:1 optional)
+ * (transactions ไม่มี FK ไปยัง appointments หรือ purchase_orders แล้ว)
  */
 export const transactionRelations = relations(transactions, ({ one }) => ({
   // transaction จัดอยู่ใน category หนึ่ง (บังคับ)
   category: one(transactionCategories, {
     fields: [transactions.transactionCategoryId],
     references: [transactionCategories.id],
-  }),
-  // transaction อาจเกิดจากนัดหมาย (optional)
-  appointment: one(appointments, {
-    fields: [transactions.appointmentId],
-    references: [appointments.id],
-  }),
-  // transaction อาจเกิดจากใบสั่งซื้อ (optional)
-  purchaseOrder: one(purchaseOrders, {
-    fields: [transactions.purchaseOrderId],
-    references: [purchaseOrders.id],
   }),
 }));
 
@@ -348,7 +331,6 @@ export const inventoryItemRelations = relations(
 
 /**
  * purchaseOrders → purchaseOrderItems (1:N)
- * purchaseOrders → transactions (1:1 optional)
  * (staffId ยังไม่มี FK constraint จริง — relation ใช้งานได้ตอน query)
  */
 export const purchaseOrderRelations = relations(
@@ -356,11 +338,6 @@ export const purchaseOrderRelations = relations(
   ({ many, one }) => ({
     // ใบสั่งซื้อมีรายการสินค้าหลายรายการ
     items: many(purchaseOrderItems),
-    // ใบสั่งซื้อสร้าง 1 transaction รายจ่าย (optional)
-    transaction: one(transactions, {
-      fields: [purchaseOrders.id],
-      references: [transactions.purchaseOrderId],
-    }),
     // ใบสั่งซื้อสร้างโดย staff คนหนึ่ง
     staff: one(staffs, {
       fields: [purchaseOrders.staffId],

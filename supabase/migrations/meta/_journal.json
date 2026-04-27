@@ -64,6 +64,13 @@
       "when": 1776620074100,
       "tag": "0008_flawless_dazzler",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1777287002840,
+      "tag": "0009_clumsy_blade",
+      "breakpoints": true
     }
   ]
 }
