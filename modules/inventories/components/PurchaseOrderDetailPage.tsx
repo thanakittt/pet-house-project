@@ -68,7 +68,7 @@ import { cn } from "@/lib/utils";
 
 // 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่างใน Edit Mode
 interface OrderItemEditState extends Omit<PurchaseOrderItemForm, "unitCost"> {
-  unitCost: number | "";
+  unitCost: number | string;
 }
 
 // ── Helper: format ยอดเงินเป็นบาท ──
@@ -166,7 +166,7 @@ export default function PurchaseOrderDetailPage({
   const updateEditItemField = (
     inventoryItemId: string,
     field: "quantity" | "unitCost",
-    value: number | "",
+    value: number | string,
   ) => {
     setEditItems((prev) =>
       prev.map((item) =>
@@ -203,10 +203,21 @@ export default function PurchaseOrderDetailPage({
       return;
     }
 
+    // ตรวจสอบและป้องกันค่า NaN
+    const hasInvalidCost = editItems.some((item) => {
+      const parsed = parseFloat(String(item.unitCost));
+      return !Number.isFinite(parsed);
+    });
+
+    if (hasInvalidCost) {
+      toast.error("กรุณาระบุราคาต่อหน่วยให้ถูกต้องก่อนบันทึก");
+      return;
+    }
+
     // 6. แปลง State ให้ถูกต้องตาม PurchaseOrderItemForm ก่อนส่ง
     const payload = editItems.map((item) => ({
       ...item,
-      unitCost: Number(item.unitCost) || 0,
+      unitCost: parseFloat(String(item.unitCost)),
     })) as PurchaseOrderItemForm[];
 
     startTransition(async () => {
@@ -513,10 +524,11 @@ export default function PurchaseOrderDetailPage({
                               value={item.unitCost}
                               onChange={(e) => {
                                 const val = e.target.value;
+                                const parsed = parseFloat(val);
                                 updateEditItemField(
                                   item.inventoryItemId,
                                   "unitCost",
-                                  val === "" ? "" : Math.max(0, Number(val)),
+                                  val === "" ? "" : (Number.isFinite(parsed) ? Math.max(0, parsed) : val),
                                 );
                               }}
                             />
@@ -535,6 +547,7 @@ export default function PurchaseOrderDetailPage({
                               onClick={() =>
                                 removeEditItem(item.inventoryItemId)
                               }
+                              aria-label="ลบรายการสินค้า"
                             >
                               <Trash2 size={14} />
                             </Button>
