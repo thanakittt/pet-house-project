@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { transactionCategories, transactions } from "@/db/schema";
-import { requireStaff } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
 
@@ -17,8 +17,7 @@ export async function deleteTransactionCategory({
   id: string;
 }): Promise<ActionResponse<null>> {
   try {
-    // ตรวจสอบสิทธิ์ staff
-    const session = await requireStaff({ redirect: false });
+    const session = await requireOwner({ redirect: false });
 
     if (!session) {
       return {

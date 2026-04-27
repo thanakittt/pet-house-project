@@ -79,6 +79,11 @@ const data = {
       url: "/transaction-categories",
       icon: <WalletIcon />,
     },
+    {
+      title: "จัดการบัญชี",
+      url: "/accounting",
+      icon: <WalletIcon />,
+    },
   ],
 };
 

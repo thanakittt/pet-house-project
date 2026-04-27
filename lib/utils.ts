@@ -14,3 +14,16 @@ export function requiredEnv(key: string): string {
   }
   return value;
 }
+
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+export function formatThaiDate(date: Date, formatStr: string = "d MMM yy"): string {
+  return format(date, formatStr, { locale: th });
+}

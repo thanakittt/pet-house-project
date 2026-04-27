@@ -5,7 +5,7 @@ import { TransactionCategoryForm } from "../types/transaction-category";
 import { transactionCategories } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
-import { requireStaff } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 
 /**
  * แก้ไขข้อมูลหมวดหมู่ธุรกรรม
@@ -20,8 +20,7 @@ export async function updateTransactionCategory({
   data: TransactionCategoryForm;
 }): Promise<ActionResponse<null>> {
   try {
-    // ตรวจสอบสิทธิ์ staff
-    const session = await requireStaff({ redirect: false });
+    const session = await requireOwner({ redirect: false });
 
     if (!session) {
       return {

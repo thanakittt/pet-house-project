@@ -4,7 +4,8 @@ import { db } from "@/db";
 import { TransactionCategoryForm } from "../types/transaction-category";
 import { transactionCategories } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
-import { requireStaff } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
+import { revalidatePath } from "next/cache";
 
 /**
  * สร้างหมวดหมู่ธุรกรรมใหม่
@@ -14,8 +15,7 @@ export async function createTransactionCategory(
   data: TransactionCategoryForm,
 ): Promise<ActionResponse<null>> {
   try {
-    // ตรวจสอบสิทธิ์ staff
-    const session = await requireStaff({ redirect: false });
+    const session = await requireOwner({ redirect: false });
 
     if (!session) {
       return {
@@ -47,6 +47,8 @@ export async function createTransactionCategory(
       name: trimmedName,
       type: data.type,
     });
+
+    revalidatePath("/transaction-categories");
 
     return {
       success: true,

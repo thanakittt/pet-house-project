@@ -3,7 +3,7 @@ import { ActionResponse } from "@/types/action";
 import { TransactionCategory } from "../types/transaction-category";
 import { transactionCategories } from "@/db/schema";
 import { desc, isNull } from "drizzle-orm";
-import { requireStaff } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 
 /**
  * ดึงรายการหมวดหมู่ธุรกรรมทั้งหมดที่ยังไม่ถูกลบ (soft-delete)
@@ -14,7 +14,7 @@ export async function listTransactionCategories(): Promise<
 > {
   try {
     // ตรวจสอบ session ว่าเป็น staff หรือไม่ (ไม่ redirect อัตโนมัติ)
-    const session = await requireStaff({ redirect: false });
+    const session = await requireOwner({ redirect: false });
 
     if (!session) {
       return {

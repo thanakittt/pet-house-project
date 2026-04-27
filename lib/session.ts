@@ -44,10 +44,20 @@ export async function requireStaff(config = { redirect: true }) {
   return session;
 }
 
-export async function requireAdminAndOwner() {
+export async function requireAdminAndOwner(config = { redirect: true }) {
   const session = await requireRole(["admin", "owner"]);
 
-  if (!session) {
+  if (!session && config.redirect) {
+    redirect("/staff-login");
+  }
+
+  return session;
+}
+
+export async function requireOwner(config = { redirect: true }) {
+  const session = await requireRole(["owner"]);
+
+  if (!session && config.redirect) {
     redirect("/staff-login");
   }
 
