@@ -7,8 +7,13 @@
 // ===================================================
 
 import { db } from "@/db";
-import { appointmentItems, serviceVariants, services, appointments } from "@/db/schema";
-import { and, eq, gte, lte, isNull, sql, desc } from "drizzle-orm";
+import {
+  appointmentItems,
+  serviceVariants,
+  services,
+  appointments,
+} from "@/db/schema";
+import { and, eq, gte, lte, isNull, sql, desc, notInArray } from "drizzle-orm";
 import { PopularService, DashboardPeriod } from "../types/dashboard";
 import { getDateRange } from "../utils/date-range";
 
@@ -20,7 +25,7 @@ import { getDateRange } from "../utils/date-range";
  */
 export async function getPopularServices(
   period: DashboardPeriod,
-  limit: number = 5
+  limit: number = 5,
 ): Promise<PopularService[]> {
   const { startDate, endDate } = getDateRange(period);
 
@@ -30,16 +35,18 @@ export async function getPopularServices(
     .select({
       serviceName: services.name,
       count: sql<number>`COUNT(${appointmentItems.id})`.mapWith(Number),
-      revenue: sql<number>`COALESCE(SUM(${appointmentItems.price}), 0)`.mapWith(Number),
+      revenue: sql<number>`COALESCE(SUM(${appointmentItems.price}), 0)`.mapWith(
+        Number,
+      ),
     })
     .from(appointmentItems)
     .innerJoin(
       appointments,
-      eq(appointmentItems.appointmentId, appointments.id)
+      eq(appointmentItems.appointmentId, appointments.id),
     )
     .innerJoin(
       serviceVariants,
-      eq(appointmentItems.serviceVariantId, serviceVariants.id)
+      eq(appointmentItems.serviceVariantId, serviceVariants.id),
     )
     .innerJoin(services, eq(serviceVariants.serviceId, services.id))
     .where(
@@ -47,9 +54,10 @@ export async function getPopularServices(
         isNull(appointmentItems.deletedAt),
         isNull(appointments.deletedAt),
         isNull(services.deletedAt),
+        notInArray(appointments.status, ["CANCELLED", "NO_SHOW"]),
         gte(appointments.appointmentDate, startDate),
-        lte(appointments.appointmentDate, endDate)
-      )
+        lte(appointments.appointmentDate, endDate),
+      ),
     )
     .groupBy(services.id, services.name)
     .orderBy(desc(sql`COUNT(${appointmentItems.id})`))

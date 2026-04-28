@@ -74,7 +74,7 @@ export type RecentReview = {
   comment: string | null;
   /** ชื่อลูกค้า */
   customerName: string;
-  /** วันที่รีวิว (จาก appointment date) */
+  /** วันที่เขียนรีวิว (จาก reviews.createdAt) */
   reviewedAt: Date;
 };
 

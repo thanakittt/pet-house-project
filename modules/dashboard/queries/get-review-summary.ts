@@ -23,12 +23,13 @@ export async function getReviewSummary(
 ): Promise<ReviewSummary> {
   const { startDate, endDate } = getDateRange(period);
 
-  // กรองตาม appointment_date ของนัดหมายที่รีวิว
+  // กรองตาม reviews.createdAt เพื่อให้ period ตรงกับวันที่เขียนรีวิวจริง
+  // (ไม่ใช่ appointmentDate ซึ่งเป็นวันนัดหมาย อาจอยู่คนละช่วงเวลากัน)
   const dateFilter = and(
     isNull(reviews.deletedAt),
     isNull(appointments.deletedAt),
-    gte(appointments.appointmentDate, startDate),
-    lte(appointments.appointmentDate, endDate)
+    gte(reviews.createdAt, startDate),
+    lte(reviews.createdAt, endDate)
   );
 
   // ดึง aggregate stats + distribution พร้อมกัน
@@ -63,7 +64,7 @@ export async function getReviewSummary(
           rating: reviews.rating,
           comment: reviews.comment,
           customerName: customers.nickname, // ใช้ nickname เนื่องจาก customers ไม่มีฟิลด์ name
-          appointmentDate: appointments.appointmentDate,
+          reviewCreatedAt: reviews.createdAt, // วันที่เขียนรีวิวจริง (ไม่ใช่ appointmentDate)
         })
         .from(reviews)
         .innerJoin(appointments, eq(reviews.appointmentId, appointments.id))
@@ -88,13 +89,13 @@ export async function getReviewSummary(
     }
   }
 
-  // แปลง recentReviews
+  // แปลง recentReviews โดยใช้ reviewCreatedAt (วันที่เขียนรีวิวจริง) เป็น reviewedAt
   const recentReviews: RecentReview[] = recentReviewsResult.map((r) => ({
     id: r.id,
     rating: r.rating,
     comment: r.comment,
     customerName: r.customerName,
-    reviewedAt: new Date(r.appointmentDate),
+    reviewedAt: new Date(r.reviewCreatedAt), // มาจาก reviews.createdAt ไม่ใช่ appointmentDate
   }));
 
   const averageRating = statsResult[0]?.averageRating ?? 0;

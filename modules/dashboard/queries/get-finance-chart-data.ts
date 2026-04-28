@@ -3,7 +3,7 @@
 // ===================================================
 // ใช้ Drizzle SQL query + date-fns
 // สร้าง time-series data สำหรับ Bar Chart
-// - DAILY: แสดงรายชั่วโมง (00:00 - 23:00) ของวันนี้
+// - DAILY: แสดงรายวันของช่วงที่เลือก (1 จุดต่อวัน)
 // - MONTHLY: แสดงรายวัน 30 วันล่าสุด
 // - YEARLY: แสดงรายเดือน 12 เดือนของปีนี้
 // ===================================================
@@ -15,11 +15,8 @@ import { FinanceChartData, FinanceChartPoint, DashboardPeriod } from "../types/d
 import { getDateRange } from "../utils/date-range";
 import {
   format,
-  eachHourOfInterval,
   eachDayOfInterval,
   eachMonthOfInterval,
-  startOfHour,
-  endOfHour,
   startOfDay,
   endOfDay,
   startOfMonth,
@@ -71,7 +68,7 @@ async function getTotalsInRange(
 
 /**
  * ดึงข้อมูล time-series สำหรับ Bar Chart
- * - DAILY: ทุก 2 ชั่วโมง (12 จุด) ของวันนี้
+ * - DAILY: รายวัน (1 จุดต่อวัน) ของช่วงที่เลือก
  * - MONTHLY: รายวัน 30 วันล่าสุด
  * - YEARLY: รายเดือน 12 เดือนของปีนี้
  */
@@ -83,17 +80,14 @@ export async function getFinanceChartData(
   let points: FinanceChartPoint[] = [];
 
   if (period === "DAILY") {
-    // แบ่งเป็นช่วงละ 2 ชั่วโมง (00:00, 02:00, ..., 22:00) = 12 จุด
-    const hours = eachHourOfInterval({ start: startDate, end: endDate }).filter(
-      (_, i) => i % 2 === 0 // เอาแค่ทุก 2 ชั่วโมง
-    );
-
-    // ดึง transactions ทั้งวันครั้งเดียว แล้ว bucket ด้วย JS
-    const rawData = await db
+    // DAILY: 1 bucket ต่อวัน — ใช้ transactionDate (date-only) เป็น key
+    // เนื่องจาก transactionDate ไม่มีเวลา การแบ่งเป็น hour bucket จะทำให้ข้อมูลกองอยู่ใน bucket เดียว
+    // จึงเปลี่ยนมาใช้ eachDayOfInterval เหมือน MONTHLY แต่ label แสดงเป็นวัน/เดือน
+    const results = await db
       .select({
         type: transactionCategories.type,
-        amount: transactions.amount,
-        transactionDate: transactions.transactionDate,
+        date: transactions.transactionDate,
+        total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
       })
       .from(transactions)
       .innerJoin(
@@ -107,33 +101,34 @@ export async function getFinanceChartData(
           gte(transactions.transactionDate, startDate),
           lte(transactions.transactionDate, endDate)
         )
-      );
+      )
+      .groupBy(transactionCategories.type, transactions.transactionDate);
 
-    // สำหรับ DAILY ใช้ hour เป็น bucket (เนื่องจาก transactionDate เป็น date ไม่มีเวลา)
-    // จะสร้าง 12 bucket แต่ข้อมูลจะรวมอยู่ใน bucket แรก (เนื่องจาก date only)
-    // ดังนั้นวันนี้จะแสดงใน 00:00 bucket
-    const buckets = new Map<
-      string,
-      { income: number; expense: number }
-    >();
-    for (const h of hours) {
-      buckets.set(format(h, "HH:00"), { income: 0, expense: 0 });
+    // สร้าง map สำหรับทุกวันในช่วง (DAILY = วันเดียว แต่ใช้ pattern เดียวกับ MONTHLY)
+    const days = eachDayOfInterval({ start: startDate, end: endDate });
+    const dayMap = new Map<string, { income: number; expense: number }>();
+    for (const day of days) {
+      dayMap.set(format(day, "yyyy-MM-dd"), { income: 0, expense: 0 });
     }
 
-    // เติมข้อมูลจริง (ทุก transaction ของวันนี้รวมอยู่ใน "00:00" bucket)
-    for (const row of rawData) {
-      const key = "00:00"; // date-only field → ไม่มีเวลา ใส่ใน bucket แรก
-      const bucket = buckets.get(key) ?? { income: 0, expense: 0 };
-      const amount = Number(row.amount);
-      if (row.type === "INCOME") bucket.income += amount;
-      else if (row.type === "EXPENSE") bucket.expense += amount;
-      buckets.set(key, bucket);
+    // เติมข้อมูลจริงโดย map transactionDate → วัน
+    for (const row of results) {
+      const key = format(new Date(row.date), "yyyy-MM-dd");
+      const existing = dayMap.get(key) ?? { income: 0, expense: 0 };
+      if (row.type === "INCOME") existing.income += row.total;
+      else if (row.type === "EXPENSE") existing.expense += row.total;
+      dayMap.set(key, existing);
     }
 
-    points = hours.map((h) => {
-      const key = format(h, "HH:00");
-      const bucket = buckets.get(key) ?? { income: 0, expense: 0 };
-      return { label: key, income: bucket.income, expense: bucket.expense };
+    // แปลง map → points โดย label แสดงเป็น "d MMM" (เช่น "28 เม.ย.")
+    points = days.map((day) => {
+      const key = format(day, "yyyy-MM-dd");
+      const bucket = dayMap.get(key) ?? { income: 0, expense: 0 };
+      return {
+        label: format(day, "d MMM", { locale: th }),
+        income: bucket.income,
+        expense: bucket.expense,
+      };
     });
   } else if (period === "MONTHLY") {
     // รายวัน 30 วันล่าสุด: ดึง aggregate รายวันด้วย SQL GROUP BY date
