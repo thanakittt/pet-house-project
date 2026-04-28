@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { recordTransaction } from "@/lib/finance/record-transaction";
 
 export interface ProcessPaymentInput {
   appointmentId: string;
@@ -60,7 +61,16 @@ export async function processPayment(data: ProcessPaymentInput) {
         appointmentId: data.appointmentId,
       });
 
-      // 2.2 อัปเดตสถานะ Appointment เป็น COMPLETED
+      // 2.2 บันทึก transaction รายรับ (การชำระเงินเต็มจำนวน) ลงตาราง transactions
+      await recordTransaction(tx, {
+        amount: data.amount,
+        transactionDate: new Date(),
+        categoryType: "INCOME",
+        categoryName: "รายรับจากการให้บริการ",
+        note: `รับชำระเงินผ่าน POS (${data.paymentMethod}) นัดหมาย #${data.appointmentId}`,
+      });
+
+      // 2.3 อัปเดตสถานะ Appointment เป็น COMPLETED
       await tx
         .update(appointments)
         .set({ status: "COMPLETED" })

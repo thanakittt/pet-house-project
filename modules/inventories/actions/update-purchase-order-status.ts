@@ -14,6 +14,7 @@ import {
   isValidPurchaseOrderStatus,
   PurchaseOrderStatus,
 } from "../constants/purchase-order-status";
+import { recordTransaction } from "@/lib/finance/record-transaction";
 
 const ALLOWED_TRANSITIONS: Record<PurchaseOrderStatus, PurchaseOrderStatus[]> =
   {
@@ -174,6 +175,36 @@ export async function updatePurchaseOrderStatus(
                   isNull(inventoryItems.deletedAt),
                 ),
               );
+          }
+
+          // 11. คำนวณยอดรวมค่าสินค้าจาก purchaseOrderItems และบันทึก transaction รายจ่าย
+          const orderItems = await tx
+            .select({
+              quantity: purchaseOrderItems.quantity,
+              unitCost: purchaseOrderItems.unitCost,
+            })
+            .from(purchaseOrderItems)
+            .where(
+              and(
+                eq(purchaseOrderItems.purchaseOrderId, id),
+                isNull(purchaseOrderItems.deletedAt),
+              ),
+            );
+
+          // คำนวณยอดรวม: SUM(quantity * unitCost)
+          const totalAmount = orderItems.reduce((sum, item) => {
+            return sum + item.quantity * parseFloat(item.unitCost);
+          }, 0);
+
+          // บันทึก transaction รายจ่ายเฉพาะเมื่อมียอดรวม > 0
+          if (totalAmount > 0) {
+            await recordTransaction(tx, {
+              amount: totalAmount,
+              transactionDate: new Date(),
+              categoryType: "EXPENSE",
+              categoryName: "ค่าสั่งซื้อสินค้าคลัง",
+              note: `รับสินค้าใบสั่งซื้อ #${id}`,
+            });
           }
         }
 
