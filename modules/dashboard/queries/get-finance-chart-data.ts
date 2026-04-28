@@ -10,7 +10,7 @@
 
 import { db } from "@/db";
 import { transactions, transactionCategories } from "@/db/schema";
-import { and, eq, gte, lte, isNull, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { FinanceChartData, FinanceChartPoint, DashboardPeriod } from "../types/dashboard";
 import { getDateRange } from "../utils/date-range";
 import {
@@ -51,8 +51,8 @@ async function getTotalsInRange(
       and(
         isNull(transactions.deletedAt),
         isNull(transactionCategories.deletedAt),
-        gte(transactions.transactionDate, startDate),
-        lte(transactions.transactionDate, endDate)
+        sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
+        sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
       )
     )
     .groupBy(transactionCategories.type);
@@ -98,8 +98,8 @@ export async function getFinanceChartData(
         and(
           isNull(transactions.deletedAt),
           isNull(transactionCategories.deletedAt),
-          gte(transactions.transactionDate, startDate),
-          lte(transactions.transactionDate, endDate)
+          sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
+          sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
         )
       )
       .groupBy(transactionCategories.type, transactions.transactionDate);
@@ -147,8 +147,8 @@ export async function getFinanceChartData(
         and(
           isNull(transactions.deletedAt),
           isNull(transactionCategories.deletedAt),
-          gte(transactions.transactionDate, startDate),
-          lte(transactions.transactionDate, endDate)
+          sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
+          sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
         )
       )
       .groupBy(transactionCategories.type, transactions.transactionDate);
@@ -195,8 +195,8 @@ export async function getFinanceChartData(
         and(
           isNull(transactions.deletedAt),
           isNull(transactionCategories.deletedAt),
-          gte(transactions.transactionDate, startDate),
-          lte(transactions.transactionDate, endDate)
+          sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
+          sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
         )
       )
       .groupBy(transactionCategories.type, transactions.transactionDate);
