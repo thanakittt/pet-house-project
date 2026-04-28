@@ -12,6 +12,8 @@ import {
   startOfDay,
 } from "date-fns";
 
+import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+
 interface GetSlotsParams {
   date: string;
   durationMinutes: number;
@@ -23,6 +25,11 @@ export async function getAvailableSlots({
 }: GetSlotsParams) {
   try {
     const targetDate = parseISO(date);
+
+    if (targetDate.getDay() === SHOP_CLOSED_DAY) {
+      return { success: true, data: [] };
+    }
+
     const startOfTargetDay = startOfDay(targetDate);
     const endOfTargetDay = addMinutes(startOfTargetDay, 24 * 60 - 1);
 

@@ -21,7 +21,7 @@ export default async function CreateAppointmentPage() {
     <div>
       <SiteHeader title="เพิ่มนัดหมายใหม่" />
       <div className="p-6">
-        <BackButton />
+        <BackButton className="mb-4" />
         <CreateAppointmentForm services={servicesWithVariants.data} />
       </div>
     </div>
