@@ -23,12 +23,18 @@ import {
   ListTodoIcon,
   PackageIcon,
   WalletIcon,
+  BarChart3Icon,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 
 const data = {
   navMain: [
+    {
+      title: "ภาพรวมธุรกิจ",
+      url: "/dashboard",
+      icon: <BarChart3Icon />,
+    },
     {
       title: "จัดการผู้ใช้",
       url: "/users",
