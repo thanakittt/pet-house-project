@@ -53,6 +53,7 @@ export async function getPopularServices(
       and(
         isNull(appointmentItems.deletedAt),
         isNull(appointments.deletedAt),
+        isNull(serviceVariants.deletedAt),
         isNull(services.deletedAt),
         notInArray(appointments.status, ["CANCELLED", "NO_SHOW"]),
         gte(appointments.appointmentDate, startDate),

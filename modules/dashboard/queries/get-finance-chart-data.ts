@@ -86,7 +86,7 @@ export async function getFinanceChartData(
     const results = await db
       .select({
         type: transactionCategories.type,
-        date: transactions.transactionDate,
+        dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM-DD')`,
         total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
       })
       .from(transactions)
@@ -113,7 +113,7 @@ export async function getFinanceChartData(
 
     // เติมข้อมูลจริงโดย map transactionDate → วัน
     for (const row of results) {
-      const key = format(new Date(row.date), "yyyy-MM-dd");
+      const key = row.dateString;
       const existing = dayMap.get(key) ?? { income: 0, expense: 0 };
       if (row.type === "INCOME") existing.income += row.total;
       else if (row.type === "EXPENSE") existing.expense += row.total;
@@ -135,7 +135,7 @@ export async function getFinanceChartData(
     const results = await db
       .select({
         type: transactionCategories.type,
-        date: transactions.transactionDate,
+        dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM-DD')`,
         total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
       })
       .from(transactions)
@@ -162,7 +162,7 @@ export async function getFinanceChartData(
 
     // เติมข้อมูลจริง
     for (const row of results) {
-      const key = format(new Date(row.date), "yyyy-MM-dd");
+      const key = row.dateString;
       const existing = dayMap.get(key) ?? { income: 0, expense: 0 };
       if (row.type === "INCOME") existing.income = row.total;
       else if (row.type === "EXPENSE") existing.expense = row.total;
@@ -183,7 +183,7 @@ export async function getFinanceChartData(
     const results = await db
       .select({
         type: transactionCategories.type,
-        date: transactions.transactionDate,
+        dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM')`,
         total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
       })
       .from(transactions)
@@ -210,7 +210,7 @@ export async function getFinanceChartData(
 
     // เติมข้อมูลจริง (aggregate ด้วย JS โดย map date → month)
     for (const row of results) {
-      const key = format(new Date(row.date), "yyyy-MM");
+      const key = row.dateString;
       const existing = monthMap.get(key) ?? { income: 0, expense: 0 };
       if (row.type === "INCOME") existing.income += row.total;
       else if (row.type === "EXPENSE") existing.expense += row.total;
