@@ -19,6 +19,7 @@ import { getAvailableSlots } from "../queries/get-available-slots";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { createAppointment } from "../actions/create-appointment";
+import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
 
 // ----------------------------------------------------------------------
 // AvailableSlots Component
@@ -50,15 +51,27 @@ export function AvailableSlots({
   onSelectSlot,
   error,
 }: AvailableSlotsProps) {
-  const [selectedDate, setSelectedDate] = useState<string>(
-    format(new Date(), "yyyy-MM-dd"),
-  );
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    // กำหนดค่าเริ่มต้น แต่ไม่ใช่วันหยุดร้าน
+    let date = new Date();
+    while (date.getDay() === SHOP_CLOSED_DAY) {
+      date.setDate(date.getDate() + 1);
+    }
+    return format(date, "yyyy-MM-dd");
+  });
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSlots = async () => {
       if (!selectedDate || durationMinutes <= 0) return;
+      
+      const dayOfWeek = new Date(selectedDate).getDay();
+      if (dayOfWeek === SHOP_CLOSED_DAY) {
+        setAvailableSlots([]);
+        return;
+      }
+
       setIsLoading(true);
       onSelectSlot("");
 
@@ -98,7 +111,17 @@ export function AvailableSlots({
             type="date"
             value={selectedDate}
             min={format(new Date(), "yyyy-MM-dd")}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) {
+                const day = new Date(val).getDay();
+                if (day === SHOP_CLOSED_DAY) {
+                  toast.error("ไม่สามารถจองคิวในวันหยุดของร้านได้");
+                  return;
+                }
+              }
+              setSelectedDate(val);
+            }}
             className="w-full sm:w-auto"
           />
         </div>
