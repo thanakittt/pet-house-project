@@ -45,7 +45,7 @@ export async function createAppointment(
     const dateString = data.startTimeIso.split("T")[0]; // "2026-04-28"
     const appointmentDate = new Date(`${dateString}T00:00:00Z`); // บังคับเป็น Date object ตาม UTC
 
-    if (appointmentDate.getDay() === SHOP_CLOSED_DAY) {
+    if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
       return {
         success: false,
         error: "ไม่สามารถจองคิวในวันหยุดของร้านได้",
