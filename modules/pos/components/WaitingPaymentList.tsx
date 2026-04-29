@@ -123,7 +123,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                 </p>
               </div>
               <Button 
-                onClick={() => router.push(`/pos/${apt.id}`)}
+                onClick={() => router.push(`/back-office/pos/${apt.id}`)}
                 className="shadow-sm group-hover:shadow-md transition-all"
               >
                 ทำรายการ 

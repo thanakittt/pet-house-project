@@ -221,7 +221,7 @@ function Column({
               size="sm"
               className="hover:bg-blue-50 h-8 text-blue-600 hover:text-blue-700"
             >
-              <Link href={`/operations/${item.appointmentId}/${item.petId}`}>
+              <Link href={`/back-office/operations/${item.appointmentId}/${item.petId}`}>
                 ดูรายละเอียด
                 <ChevronRight className="ml-1 w-4 h-4" />
               </Link>

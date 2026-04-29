@@ -55,7 +55,7 @@ export function StaffLoginForm() {
 
       // TODO: Check role
       if (resultSignIn.user.role === "admin") {
-        router.push("/users");
+        router.push("/back-office/users");
       } else {
         router.push("/");
       }
@@ -69,7 +69,7 @@ export function StaffLoginForm() {
     <div className="flex justify-center items-center min-h-screen">
       <section className="rounded-lg w-sm">
         <Image
-          className="mb-2 rounded-sm mx-auto"
+          className="mx-auto mb-2 rounded-sm"
           src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}

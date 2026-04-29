@@ -64,7 +64,7 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
                       aria-label="จัดการตัวเลือกบริการ"
                       asChild
                     >
-                      <Link href={`/services/${service.id}/variants`}>
+                      <Link href={`/back-office/services/${service.id}/variants`}>
                         <Settings />
                       </Link>
                     </Button>

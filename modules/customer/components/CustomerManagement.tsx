@@ -71,7 +71,7 @@ export default function CustomerManagement({
                       aria-label="ดูรายละเอียด"
                       asChild
                     >
-                      <Link href={`/customers/${customer.id}`}>
+                      <Link href={`/back-office/customers/${customer.id}`}>
                         <EyeIcon className="size-3.5" />
                       </Link>
                     </Button>

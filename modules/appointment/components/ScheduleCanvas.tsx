@@ -272,7 +272,7 @@ export default function ScheduleCanvas({
         </div>
 
         <Button variant="default" className="shadow-sm" asChild>
-          <Link href="/appointments/create">เพิ่มนัดหมาย</Link>
+          <Link href="/back-office/appointments/create">เพิ่มนัดหมาย</Link>
         </Button>
       </div>
 
@@ -336,7 +336,7 @@ export default function ScheduleCanvas({
             return (
               <Link
                 key={`${appt.id}-${appt.petId}`}
-                href={`/appointments/${appt.id}`}
+                href={`/back-office/appointments/${appt.id}`}
                 className="group right-4 left-2 z-10 hover:z-20 absolute"
                 style={{
                   top: `calc(${top} + ${CANVAS_PADDING_TOP}px)`,

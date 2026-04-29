@@ -170,7 +170,7 @@ export default function PurchaseOrderFormPage({
         }
 
         toast.success("สร้างใบสั่งซื้อเรียบร้อยแล้ว");
-        router.push("/inventories?tab=order");
+        router.push("/back-office/inventories?tab=order");
       } catch {
         toast.error("เกิดข้อผิดพลาดในการสร้างใบสั่งซื้อ");
       }
@@ -180,14 +180,14 @@ export default function PurchaseOrderFormPage({
   return (
     <div className="w-full">
       <Card className="overflow-hidden">
-        <CardHeader className="border-b py-4">
-          <CardTitle className="text-sm font-bold text-muted-foreground uppercase flex items-center gap-2">
+        <CardHeader className="py-4 border-b">
+          <CardTitle className="flex items-center gap-2 font-bold text-muted-foreground text-sm uppercase">
             <FileText size={16} /> ข้อมูลการสั่งซื้อสินค้า
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="px-6 md:px-8 py-2 bg-white">
-          <FieldGroup className="pb-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="bg-white px-6 md:px-8 py-2">
+          <FieldGroup className="gap-6 grid grid-cols-1 md:grid-cols-2 pb-4">
             <Field>
               <FieldLabel className="font-medium text-muted-foreground text-xs md:text-sm uppercase">
                 วันที่สั่งซื้อ
@@ -205,7 +205,7 @@ export default function PurchaseOrderFormPage({
 
           <div className="py-4">
             <div className="flex flex-col gap-2 mb-6">
-              <label className="text-sm md:text-base font-bold text-muted-foreground uppercase flex items-center gap-2">
+              <label className="flex items-center gap-2 font-bold text-muted-foreground text-sm md:text-base uppercase">
                 <Search className="size-4" /> เพิ่มสินค้า
               </label>
 
@@ -216,16 +216,16 @@ export default function PurchaseOrderFormPage({
                       variant="outline"
                       role="combobox"
                       aria-expanded={comboboxOpen}
-                      className="w-full max-w-sm justify-between"
+                      className="justify-between w-full max-w-sm"
                     >
                       {selectedItemId
                         ? inventoryItems.find((i) => i.id === selectedItemId)
                             ?.name
                         : "ค้นหาสินค้า..."}
-                      <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="opacity-50 ml-2 size-4 shrink-0" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-sm p-0">
+                  <PopoverContent className="p-0 w-sm">
                     <Command>
                       <CommandInput placeholder="พิมพ์ชื่อสินค้า..." />
                       <CommandList>
@@ -249,7 +249,7 @@ export default function PurchaseOrderFormPage({
                                 )}
                               />
                               <span>{item.name}</span>
-                              <span className="ml-auto text-xs text-muted-foreground">
+                              <span className="ml-auto text-muted-foreground text-xs">
                                 {item.inventoryCategoryName}
                               </span>
                             </CommandItem>
@@ -279,7 +279,7 @@ export default function PurchaseOrderFormPage({
                     <TableRow>
                       <TableCell
                         colSpan={6}
-                        className="h-32 text-center text-muted-foreground italic"
+                        className="h-32 text-muted-foreground text-center italic"
                       >
                         ยังไม่มีรายการสินค้า — ค้นหาและเพิ่มสินค้าด้านบน
                       </TableCell>
@@ -287,7 +287,7 @@ export default function PurchaseOrderFormPage({
                   ) : (
                     orderItems.map((item, index) => (
                       <TableRow key={item.inventoryItemId}>
-                        <TableCell className="text-center text-xs text-muted-foreground">
+                        <TableCell className="text-muted-foreground text-xs text-center">
                           {index + 1}
                         </TableCell>
 
@@ -298,7 +298,7 @@ export default function PurchaseOrderFormPage({
                         <TableCell className="text-right">
                           <Input
                             type="number"
-                            className="w-20 text-right ml-auto"
+                            className="ml-auto w-20 text-right"
                             min="1"
                             value={item.quantity}
                             onChange={(e) =>
@@ -315,7 +315,7 @@ export default function PurchaseOrderFormPage({
                         <TableCell className="text-right">
                           <Input
                             type="number"
-                            className="w-24 text-right ml-auto"
+                            className="ml-auto w-24 text-right"
                             min="0"
                             step="1"
                             value={item.unitCost}
@@ -330,7 +330,7 @@ export default function PurchaseOrderFormPage({
                           />
                         </TableCell>
 
-                        <TableCell className="text-right font-semibold tabular-nums">
+                        <TableCell className="font-semibold tabular-nums text-right">
                           ฿
                           {(
                             item.quantity * (Number(item.unitCost) || 0)
@@ -359,13 +359,13 @@ export default function PurchaseOrderFormPage({
             </div>
           </div>
 
-          <div className="pt-4 flex flex-col md:flex-row justify-end gap-10 bg-white">
-            <div className="w-full md:w-80 flex flex-col gap-3">
+          <div className="flex md:flex-row flex-col justify-end gap-10 bg-white pt-4">
+            <div className="flex flex-col gap-3 w-full md:w-80">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-primary text-lg">
                   ยอดสุทธิรวม
                 </span>
-                <span className="text-2xl md:text-3xl font-bold text-primary tabular-nums">
+                <span className="font-bold tabular-nums text-primary text-2xl md:text-3xl">
                   ฿
                   {totalAmount.toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
@@ -376,7 +376,7 @@ export default function PurchaseOrderFormPage({
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-end border-t py-4">
+        <CardFooter className="flex justify-end py-4 border-t">
           <Button
             variant="default"
             onClick={handleSubmit}

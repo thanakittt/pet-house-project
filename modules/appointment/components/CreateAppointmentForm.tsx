@@ -322,7 +322,7 @@ export default function CreateAppointmentForm({
         return;
       }
       toast.success("บันทึกการจองสำเร็จ");
-      router.push(`/appointments/${result.data.appointmentId}`);
+      router.push(`/back-office/appointments/${result.data.appointmentId}`);
     } catch (error) {
       toast.error("ไม่สามารถบันทึกการจองได้");
     }

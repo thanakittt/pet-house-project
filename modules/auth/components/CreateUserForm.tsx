@@ -299,7 +299,7 @@ export default function CreateUserPage() {
       <CardFooter>
         <Field orientation="horizontal">
           <Button type="button" variant="outline" asChild>
-            <Link href="/users">กลับ</Link>
+            <Link href="/back-office/users">กลับ</Link>
           </Button>
           <Button
             type="submit"

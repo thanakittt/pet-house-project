@@ -236,7 +236,7 @@ export default function AppointmentStatusManager({
         {/* --- ปุ่มลัดไปหน้า POS (จะโชว์เฉพาะสถานะ READY_FOR_PICKUP) --- */}
         {currentStatus === "READY_FOR_PICKUP" && (
           <Button asChild className="w-full sm:w-auto">
-            <Link href={`/pos/${appointmentId}`}>
+            <Link href={`/back-office/pos/${appointmentId}`}>
               <Receipt className="mr-2 w-4 h-4" />
               ไปหน้ารับชำระเงิน (POS)
             </Link>
@@ -246,7 +246,7 @@ export default function AppointmentStatusManager({
         {/* --- ปุ่มลัดไปหน้าใบเสร็จ (จะโชว์เฉพาะสถานะ COMPLETED) --- */}
         {currentStatus === "COMPLETED" && (
           <Button asChild className="w-full sm:w-auto">
-            <Link href={`/receipt/${appointmentId}`}>
+            <Link href={`/back-office/receipt/${appointmentId}`}>
               <Receipt className="mr-2 w-4 h-4" />
               ดูใบเสร็จ
             </Link>
