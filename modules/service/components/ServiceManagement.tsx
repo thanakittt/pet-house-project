@@ -8,8 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilIcon, Settings, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TableActionLink,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { SERVICE_TYPE_LABELS } from "@/lib/constants/service-type";
 import { CreateServiceDialog } from "./CreateServiceDialog";
@@ -17,7 +20,6 @@ import { Service } from "../types/service";
 import { UpdateServiceDialog } from "./UpdateServiceDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteService } from "../actions/delete-service";
-import Link from "next/link";
 
 interface ServiceManagementProps {
   services: Service[];
@@ -56,44 +58,35 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
                     {SERVICE_TYPE_LABELS[service.serviceType] || "อื่นๆ"}
                   </TableCell>
                   <TableCell>{service.description || "-"}</TableCell>
-                  <TableCell className="space-x-2 text-right">
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
                     {/* จัดการตัวเลือกบริการ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionLink
                       aria-label="จัดการตัวเลือกบริการ"
-                      asChild
-                    >
-                      <Link href={`/back-office/services/${service.id}/variants`}>
-                        <Settings />
-                      </Link>
-                    </Button>
+                      href={`/back-office/services/${service.id}/variants`}
+                      icon={TABLE_ACTION_ICONS.manage}
+                    />
 
                     {/* แก้ไขข้อมูลบริการ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="แก้ไขข้อมูล"
+                      icon={TABLE_ACTION_ICONS.edit}
                       onClick={() => {
                         setSelectedService(service);
                         setIsEditDialogOpen(true);
                       }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                    />
 
                     {/* ลบข้อมูลบริการ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="ลบข้อมูล"
+                      icon={TABLE_ACTION_ICONS.delete}
                       onClick={() => {
                         setSelectedService(service);
                         setIsDeleteDialogOpen(true);
                       }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                    />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

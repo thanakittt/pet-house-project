@@ -1,7 +1,10 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilIcon, TrashIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { InventoryItem } from "../types/inventory";
 import { InventoryCategory } from "@/modules/inventory-category/types/inventory-category";
@@ -192,29 +194,25 @@ export function InventoriesClient({
                   <TableCell className="text-center">
                     {getStatusBadge(product)}
                   </TableCell>
-                  <TableCell className="space-x-2 text-right">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="แก้ไขข้อมูล"
-                      onClick={() => {
-                        setSelectedInventory(product);
-                        setIsUpdateDialogOpen(true);
-                      }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="ลบข้อมูล"
-                      onClick={() => {
-                        setSelectedInventory(product);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        icon={TABLE_ACTION_ICONS.edit}
+                        onClick={() => {
+                          setSelectedInventory(product);
+                          setIsUpdateDialogOpen(true);
+                        }}
+                      />
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        icon={TABLE_ACTION_ICONS.delete}
+                        onClick={() => {
+                          setSelectedInventory(product);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

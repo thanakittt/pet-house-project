@@ -8,8 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { CreateInventoryCategoryDialog } from "./CreateInventoryCategoryDialog";
 import { InventoryCategory } from "../types/inventory-category";
@@ -48,32 +50,28 @@ export function InventoryCategoryManagement({
               inventoryCategories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
-                  <TableCell className="space-x-2 text-right">
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
                     {/* แก้ไขข้อมูลหมวดหมู่ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="แก้ไขข้อมูล"
+                      icon={TABLE_ACTION_ICONS.edit}
                       onClick={() => {
                         setSelectedInventoryCategory(category);
                         setIsUpdateDialogOpen(true);
                       }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                    />
 
                     {/* ลบข้อมูลหมวดหมู่ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="ลบข้อมูล"
+                      icon={TABLE_ACTION_ICONS.delete}
                       onClick={() => {
                         setSelectedInventoryCategory(category);
                         setIsDeleteDialogOpen(true);
                       }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                    />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

@@ -8,15 +8,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { CreateCustomerDialog } from "@/modules/customer/components/CreateCustomerDialog";
 import { Customer } from "../types/customer";
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TableActionLink,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteCustomer } from "../actions/delete-customer";
-import Link from "next/link";
 
 interface CustomerManagementProps {
   customers: Customer[];
@@ -63,44 +65,35 @@ export default function CustomerManagement({
                   <TableCell>
                     {new Date(customer.createdAt).toLocaleDateString("th-TH")}
                   </TableCell>
-                  <TableCell className="space-x-2 text-right">
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
                     {/* ดูรายละเอียดลูกค้า */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionLink
                       aria-label="ดูรายละเอียด"
-                      asChild
-                    >
-                      <Link href={`/back-office/customers/${customer.id}`}>
-                        <EyeIcon className="size-3.5" />
-                      </Link>
-                    </Button>
+                      href={`/back-office/customers/${customer.id}`}
+                      icon={TABLE_ACTION_ICONS.view}
+                    />
 
                     {/* แก้ไขข้อมูลลูกค้า */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="แก้ไขข้อมูล"
+                      icon={TABLE_ACTION_ICONS.edit}
                       onClick={() => {
                         setSelectedCustomer(customer);
                         setIsUpdateDialogOpen(true);
                       }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                    />
 
                     {/* ลบข้อมูลลูกค้า */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="ลบข้อมูล"
+                      icon={TABLE_ACTION_ICONS.delete}
                       onClick={() => {
                         setSelectedCustomer(customer);
                         setIsDeleteDialogOpen(true);
                       }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                    />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

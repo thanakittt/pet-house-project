@@ -9,8 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { CreateTransactionCategoryDialog } from "./CreateTransactionCategoryDialog";
 import {
@@ -67,32 +69,28 @@ export function TransactionCategoryManagement({
                       {TRANSACTION_TYPE_LABELS[category.type]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="space-x-2 text-right">
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
                     {/* ปุ่มแก้ไขข้อมูลหมวดหมู่ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="แก้ไขข้อมูล"
+                      icon={TABLE_ACTION_ICONS.edit}
                       onClick={() => {
                         setSelectedTransactionCategory(category);
                         setIsUpdateDialogOpen(true);
                       }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                    />
 
                     {/* ปุ่มลบข้อมูลหมวดหมู่ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
+                    <TableActionButton
                       aria-label="ลบข้อมูล"
+                      icon={TABLE_ACTION_ICONS.delete}
                       onClick={() => {
                         setSelectedTransactionCategory(category);
                         setIsDeleteDialogOpen(true);
                       }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                    />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

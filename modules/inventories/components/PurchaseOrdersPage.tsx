@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PlusIcon, Trash2, Eye } from "lucide-react";
+import { PlusIcon } from "lucide-react";
+import {
+  TableActionButton,
+  TableActionLink,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import {
   Table,
   TableBody,
@@ -121,32 +126,22 @@ export default function PurchaseOrdersPage({
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-1">
                         {/* ปุ่มดูรายละเอียด */}
-                        <Button
-                          variant="outline"
-                          size="icon"
+                        <TableActionLink
                           aria-label="ดูรายละเอียดใบสั่งซื้อ"
-                          asChild
-                        >
-                          <Link
-                            href={`/back-office/inventories/purchase-orders/${order.id}`}
-                          >
-                            <Eye className="size-3.5" />
-                          </Link>
-                        </Button>
+                          href={`/back-office/inventories/purchase-orders/${order.id}`}
+                          icon={TABLE_ACTION_ICONS.view}
+                        />
 
                         {/* ปุ่มลบ (เฉพาะ DRAFT) */}
                         {order.status === "DRAFT" ? (
-                          <Button
-                            variant="outline"
-                            size="icon"
+                          <TableActionButton
                             aria-label="ลบใบสั่งซื้อ"
+                            icon={TABLE_ACTION_ICONS.delete}
                             onClick={() => {
                               setDeleteTarget(order);
                               setIsDeleteDialogOpen(true);
                             }}
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
+                          />
                         ) : null}
                       </div>
                     </TableCell>

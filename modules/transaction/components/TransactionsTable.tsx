@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/table";
 import { Transaction } from "../types/transaction";
 import { formatCurrency, formatThaiDate } from "@/lib/utils";
-import { Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -64,10 +66,11 @@ export function TransactionsTable({
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center gap-1">
-                  <Button
+                  <TableActionButton
                     variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground"
+                    className="size-8 text-muted-foreground"
+                    aria-label="แก้ไข"
+                    icon={TABLE_ACTION_ICONS.edit}
                     onClick={() => onEdit(tx)}
                     disabled={!tx.isManual}
                     title={
@@ -75,23 +78,18 @@ export function TransactionsTable({
                         ? "ไม่สามารถแก้ไขรายการอัตโนมัติได้"
                         : "แก้ไข"
                     }
-                  >
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">แก้ไข</span>
-                  </Button>
-                  <Button
+                  />
+                  <TableActionButton
                     variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    className="size-8 text-muted-foreground hover:text-destructive"
+                    aria-label="ลบ"
+                    icon={TABLE_ACTION_ICONS.delete}
                     onClick={() => onDelete(tx)}
                     disabled={!tx.isManual}
                     title={
                       !tx.isManual ? "ไม่สามารถลบรายการอัตโนมัติได้" : "ลบ"
                     }
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">ลบ</span>
-                  </Button>
+                  />
                 </div>
               </TableCell>
             </TableRow>

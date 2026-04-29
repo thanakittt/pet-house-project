@@ -1,6 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import {
+  TableActionButton,
+  TABLE_ACTION_ICONS,
+} from "@/components/shared/TableActionButton";
 import {
   Table,
   TableBody,
@@ -12,7 +15,6 @@ import {
 
 import { BannedBadge } from "./BannedBadge";
 import { RoleBadge } from "./RoleBadge";
-import { Ban, CircleCheck, Loader2Icon, PencilIcon } from "lucide-react";
 import { AuthUser, AuthUserWithProfile } from "../types/user";
 
 import BanUserDialog from "./BanUserDialog";
@@ -76,11 +78,8 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
 
   return (
     <>
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreateUserDialog />
-        </div>
+      <div className="flex justify-end mb-5">
+        <CreateUserDialog />
       </div>
 
       <div className="border rounded-md overflow-x-auto">
@@ -111,41 +110,29 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {user.banned ? (
-                        <Button
-                          variant="outline"
-                          size="icon"
+                        <TableActionButton
                           aria-label="ยกเลิกการแบน"
+                          icon={TABLE_ACTION_ICONS.unban}
                           onClick={() => unbanUser(user.id)}
-                        >
-                          <CircleCheck className="size-3.5" />
-                        </Button>
+                        />
                       ) : (
-                        <Button
-                          variant="outline"
-                          size="icon"
+                        <TableActionButton
                           aria-label="แบนผู้ใช้"
+                          icon={TABLE_ACTION_ICONS.ban}
                           onClick={() => {
                             setSelectedUserId(user.id);
                             setIsBanUserDialogOpen(true);
                           }}
-                        >
-                          <Ban className="size-3.5" />
-                        </Button>
+                        />
                       )}
 
-                      <Button
-                        variant="outline"
-                        size="icon"
+                      <TableActionButton
                         aria-label="แก้ไขข้อมูล"
+                        icon={TABLE_ACTION_ICONS.edit}
                         disabled={loadingUserId === user.id}
+                        isLoading={loadingUserId === user.id}
                         onClick={() => handleEditUser(user.id)}
-                      >
-                        {loadingUserId === user.id ? (
-                          <Loader2Icon className="size-3.5 animate-spin" />
-                        ) : (
-                          <PencilIcon className="size-3.5" />
-                        )}
-                      </Button>
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
