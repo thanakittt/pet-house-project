@@ -53,9 +53,7 @@ export function StaffLoginForm() {
         return;
       }
 
-      // Get session to check user role
-      const { data: session } = await authClient.getSession();
-      const userRole = session?.user?.role;
+      const userRole = resultSignIn?.user?.role;
 
       // Redirect based on user role
       if (userRole === "admin" || userRole === "staff" || userRole === "owner") {
