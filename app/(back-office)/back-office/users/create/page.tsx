@@ -1,12 +1,7 @@
 import { requireAdmin } from "@/lib/session";
-import CreateUserForm from "@/modules/auth/components/CreateUserForm";
+import { redirect } from "next/navigation";
 
 export default async function CreateUserPage() {
   await requireAdmin();
-
-  return (
-    <div className="flex justify-center items-center min-h-full">
-      <CreateUserForm />
-    </div>
-  );
+  redirect("/back-office/users");
 }

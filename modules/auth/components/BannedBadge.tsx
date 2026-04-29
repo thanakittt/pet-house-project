@@ -1,4 +1,4 @@
-import { CircleCheck, BanIcon } from "lucide-react";
+import { BanIcon, CircleCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -8,8 +8,8 @@ interface BannedBadgeProps {
 
 export function BannedBadge({ banned }: BannedBadgeProps) {
   const variantMap = {
-    banned: "bg-red-100 text-red-700",
-    active: "bg-green-100 text-green-700",
+    banned: "border-red-200 bg-red-50 text-red-700",
+    active: "border-green-200 bg-green-50 text-green-700",
   };
 
   const status = banned ? "banned" : "active";
@@ -20,7 +20,13 @@ export function BannedBadge({ banned }: BannedBadgeProps) {
       : { label: "ใช้งานปกติ", icon: <CircleCheck /> };
 
   return (
-    <Badge className={cn(variantMap[status], "px-3 rounded-full")}>
+    <Badge
+      variant="outline"
+      className={cn(
+        "flex items-center gap-1 font-medium whitespace-nowrap",
+        variantMap[status],
+      )}
+    >
       {options.icon} {options.label}
     </Badge>
   );

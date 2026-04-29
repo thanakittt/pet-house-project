@@ -42,7 +42,11 @@ export function StaffLoginForm() {
 
       if (error && error.code === "BANNED_USER") {
         toast.error("คุณถูกแบนจากการใช้งานแอปพลิเคชันนี้", {
-          description: "หากคุณเชื่อว่านี่เป็นความผิดพลาด กรุณาติดต่อแอดมิน",
+          description: (
+            <span className="text-muted-foreground">
+              หากคุณเชื่อว่านี่เป็นความผิดพลาด กรุณาติดต่อแอดมิน
+            </span>
+          ),
         });
         return;
       }
