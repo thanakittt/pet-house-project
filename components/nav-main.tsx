@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   SidebarGroup,
@@ -6,21 +6,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { NavItem } from "@/lib/navigation";
 
 export function NavMain({
   items,
 }: {
-  items: {
-    title: string
-    url: string
-    icon?: React.ReactNode
-  }[]
+  items: Pick<NavItem, "title" | "url" | "icon">[];
 }) {
-  const pathname = usePathname()
-  const isActive = (url: string) => pathname === url || pathname.startsWith(url + "/")
+  const pathname = usePathname();
+  const isActive = (url: string) => {
+    if (url === "/back-office") {
+      return pathname === url;
+    }
+    return pathname.startsWith(url + "/") || pathname === url;
+  };
 
   return (
     <SidebarGroup>
@@ -31,7 +33,11 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip={item.title}
                 asChild
-                className={isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : undefined}
+                className={
+                  isActive(item.url)
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : undefined
+                }
               >
                 <Link href={item.url}>
                   {item.icon}
@@ -43,5 +49,5 @@ export function NavMain({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

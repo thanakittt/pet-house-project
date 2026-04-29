@@ -53,12 +53,7 @@ export function StaffLoginForm() {
         return;
       }
 
-      // TODO: Check role
-      if (resultSignIn.user.role === "admin") {
-        router.push("/back-office/users");
-      } else {
-        router.push("/");
-      }
+      router.push("/back-office");
     } catch (error) {
       console.error("Login Error:", error);
       toast.error("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
