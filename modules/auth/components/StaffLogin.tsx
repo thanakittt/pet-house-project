@@ -53,7 +53,17 @@ export function StaffLoginForm() {
         return;
       }
 
-      router.push("/back-office");
+      // Get session to check user role
+      const { data: session } = await authClient.getSession();
+      const userRole = session?.user?.role;
+
+      // Redirect based on user role
+      if (userRole === "admin" || userRole === "staff" || userRole === "owner") {
+        router.push("/back-office");
+      } else {
+        // For customer or other roles, redirect to home page
+        router.push("/");
+      }
     } catch (error) {
       console.error("Login Error:", error);
       toast.error("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
