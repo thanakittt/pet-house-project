@@ -38,7 +38,7 @@ export function CreateUserDialog() {
 
   const form = useForm<UserForm>({
     defaultValues,
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: UserForm) => {
@@ -104,7 +104,7 @@ export function CreateUserDialog() {
               <Button
                 type="submit"
                 form="create-user"
-                disabled={form.formState.isSubmitting || !form.formState.isValid}
+                disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
               </Button>

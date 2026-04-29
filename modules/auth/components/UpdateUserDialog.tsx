@@ -58,7 +58,7 @@ export function UpdateUserDialog({
 
   const form = useForm<UserForm>({
     defaultValues,
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   useEffect(() => {
@@ -151,7 +151,7 @@ export function UpdateUserDialog({
               <Button
                 type="submit"
                 form={`update-user-${user.id}`}
-                disabled={form.formState.isSubmitting || !form.formState.isValid}
+                disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
               </Button>
