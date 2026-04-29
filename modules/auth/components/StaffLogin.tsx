@@ -53,10 +53,13 @@ export function StaffLoginForm() {
         return;
       }
 
-      // TODO: Check role
-      if (resultSignIn.user.role === "admin") {
-        router.push("/back-office/users");
+      const userRole = resultSignIn?.user?.role;
+
+      // Redirect based on user role
+      if (userRole === "admin" || userRole === "staff" || userRole === "owner") {
+        router.push("/back-office");
       } else {
+        // For customer or other roles, redirect to home page
         router.push("/");
       }
     } catch (error) {
