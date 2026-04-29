@@ -342,7 +342,7 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
       <CardFooter>
         <Field orientation="horizontal">
           <Button type="button" variant="outline" asChild>
-            <Link href="/users">กลับ</Link>
+            <Link href="/back-office/users">กลับ</Link>
           </Button>
           <Button
             type="submit"

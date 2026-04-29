@@ -21,7 +21,7 @@ export default function CustomerDetail({
   return (
     <>
       <header className="flex items-center gap-4 mb-6 hover:text-muted-foreground transition-colors cursor-pointer">
-        <Link href="/customers">
+        <Link href="/back-office/customers">
           <div className="flex items-center gap-2">
             <ChevronLeft size={20} />
             <div className="flex flex-col">

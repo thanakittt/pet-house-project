@@ -52,7 +52,7 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
 
         {/* create user button */}
         <Button asChild variant="default" size="default">
-          <Link href="/users/create">สร้างผู้ใช้</Link>
+          <Link href="/back-office/users/create">สร้างผู้ใช้</Link>
         </Button>
       </div>
 
@@ -117,7 +117,7 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                     disabled={false}
                     asChild
                   >
-                    <Link href={`/users/${user.id}/edit`}>
+                    <Link href={`/back-office/users/${user.id}/edit`}>
                       <PencilIcon className="size-3.5" />
                     </Link>
                   </Button>

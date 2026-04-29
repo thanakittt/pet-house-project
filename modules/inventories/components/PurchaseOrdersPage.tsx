@@ -56,7 +56,7 @@ export default function PurchaseOrdersPage({
         {/* ── Header ── */}
         <div className="flex justify-end mb-5">
           <Button asChild>
-            <Link href="/inventories/purchase-orders/create">
+            <Link href="/back-office/inventories/purchase-orders/create">
               <PlusIcon data-icon="inline-start" />
               สร้างใบสั่งซื้อ
             </Link>
@@ -82,7 +82,7 @@ export default function PurchaseOrdersPage({
                 <TableRow>
                   <TableCell
                     colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
+                    className="py-10 text-muted-foreground text-center"
                   >
                     ยังไม่มีใบสั่งซื้อ กดปุ่ม &quot;สร้างใบสั่งซื้อ&quot;
                     เพื่อเริ่มต้น
@@ -105,7 +105,7 @@ export default function PurchaseOrdersPage({
                     <TableCell>{formatDate(order.orderDate)}</TableCell>
 
                     {/* ยอดรวม */}
-                    <TableCell className="text-right font-semibold tabular-nums">
+                    <TableCell className="font-semibold tabular-nums text-right">
                       {formatCurrency(order.totalAmount)}
                     </TableCell>
 
@@ -119,7 +119,7 @@ export default function PurchaseOrdersPage({
 
                     {/* ── ปุ่มจัดการ: ดูรายละเอียด + ลบ (เฉพาะ DRAFT) ── */}
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex justify-end items-center gap-1">
                         {/* ปุ่มดูรายละเอียด */}
                         <Button
                           variant="outline"

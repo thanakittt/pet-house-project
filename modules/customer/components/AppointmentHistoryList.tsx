@@ -119,7 +119,7 @@ export function AppointmentHistoryList({
           return (
             <Link
               key={appointment.id}
-              href={`/appointments/${appointment.id}`}
+              href={`/back-office/appointments/${appointment.id}`}
               className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white shadow-sm hover:shadow-md p-4 border hover:border-gray-300 rounded-xl transition-all cursor-pointer"
             >
               {/* ส่วนซ้าย: วันที่และสถานะ */}

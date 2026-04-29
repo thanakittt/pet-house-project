@@ -59,7 +59,7 @@ export default function NewAppointmentRequests() {
           <div className="flex flex-col items-end gap-2">
             <AppointmentStatus status={item.status} />
             {/* ปุ่มกดดูรายละเอียด */}
-            <Link href={`/appointments/${item.id}`}>
+            <Link href={`/back-office/appointments/${item.id}`}>
               <Button variant="ghost" size="default">
                 ดูรายละเอียด
                 <ChevronRight size={14} />
