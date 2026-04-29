@@ -9,12 +9,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/staff-login", request.url));
   }
 
-  if (sessionCookie && pathname.startsWith("/staff-login")) {
-    return NextResponse.redirect(
-      new URL("/back-office/appointments", request.url),
-    );
-  }
-
   return NextResponse.next();
 }
 

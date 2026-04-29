@@ -5,19 +5,11 @@ import { requireStaff } from "@/lib/session";
 
 export default async function DailyBoardPage() {
   await requireStaff();
-  
+
   const result = await getTodayAppointmentsBoard();
 
   if (!result.success) {
-    return (
-      <>
-        <SiteHeader title="คิวงานประจำวัน" />
-        <div className="p-6 text-red-600">
-          <h2>เกิดข้อผิดพลาดในการดึงข้อมูลคิวงาน</h2>
-          <p>{result.error}</p>
-        </div>
-      </>
-    );
+    throw new Error(result.error || "ไม่สามารถดึงคิวงานได้");
   }
 
   if (!result.data) {

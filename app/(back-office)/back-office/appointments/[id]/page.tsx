@@ -226,7 +226,9 @@ export default async function AppointmentDetailPage({
                                   <Image
                                     src={img.imageUrl}
                                     alt="Before"
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="96px"
+                                    className="object-cover"
                                   />
                                 </ImageLightbox>
                               </div>
@@ -247,10 +249,12 @@ export default async function AppointmentDetailPage({
                                 className="relative border border-slate-200 rounded-md w-24 h-24 overflow-hidden"
                               >
                                 <ImageLightbox src={img.imageUrl} alt="After">
-                                  <img
+                                  <Image
                                     src={img.imageUrl}
                                     alt="After"
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="96px"
+                                    className="object-cover"
                                   />
                                 </ImageLightbox>
                               </div>

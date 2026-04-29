@@ -128,7 +128,7 @@ export default function PurchaseOrdersPage({
                           asChild
                         >
                           <Link
-                            href={`/inventories/purchase-orders/${order.id}`}
+                            href={`/back-office/inventories/purchase-orders/${order.id}`}
                           >
                             <Eye className="size-3.5" />
                           </Link>
