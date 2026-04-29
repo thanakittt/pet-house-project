@@ -26,7 +26,7 @@ export function RoleBadge({ role }: RoleBadgeProps) {
   }
 
   return (
-    <Badge variant="outline" className="bg-muted px-3 rounded-md">
+    <Badge variant="outline" className="bg-muted font-medium whitespace-nowrap">
       {thaiRole}
     </Badge>
   );

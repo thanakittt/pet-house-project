@@ -4,10 +4,10 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  // DialogTrigger ไม่ได้ใช้ — Dialog ถูกควบคุมด้วย isBanUserDialogOpen prop
 } from "@/components/ui/dialog";
 import {
   Field,
@@ -16,22 +16,19 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-// Ban icon ถูกลบออก — ไม่ได้ใช้แสดงในปุ่มหรือ label ใดๆ
 import { Button } from "@/components/ui/button";
 import { Controller, useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-// useState ถูกลบออก — state ถูกจัดการผ่าน prop setIsBanUserDialogOpen
 import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 
 const DAY_TO_SECONDS = 60 * 60 * 24;
 
 type BanUserDialogProps = {
   userId: string;
-  /** สถานะเปิด/ปิดของ Dialog */
   open: boolean;
-  /** callback เมื่อสถานะเปิด/ปิดเปลี่ยน */
   onOpenChange: (open: boolean) => void;
 };
 
@@ -98,12 +95,16 @@ export default function BanUserDialog({
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} id="ban-user-form">
-        <DialogContent className="sm:max-w-sm" aria-describedby={undefined}>
-          <DialogHeader>
+        <DialogContent className="md:max-w-md">
+          <DialogHeader className="px-4 pt-4">
             <DialogTitle>แบนผู้ใช้</DialogTitle>
+            <DialogDescription>
+              กรุณาระบุเหตุผลและระยะเวลาการแบน
+            </DialogDescription>
           </DialogHeader>
-          <FieldGroup>
-            {/* ban reason */}
+          <Separator />
+
+          <FieldGroup className="gap-3 px-4 pb-3">
             <Controller
               name="banReason"
               control={control}
@@ -131,7 +132,6 @@ export default function BanUserDialog({
               )}
             />
 
-            {/* ban expires in */}
             <Controller
               name="banExpiresIn"
               control={control}
@@ -170,16 +170,18 @@ export default function BanUserDialog({
             />
           </FieldGroup>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">ยกเลิก</Button>
-            </DialogClose>
-            <Button
-              type="submit"
-              form="ban-user-form"
-              disabled={isSubmitting || !isValid}
-            >
-              {isSubmitting ? "กำลังแบน..." : "แบน"}
-            </Button>
+            <div className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button variant="outline">ยกเลิก</Button>
+              </DialogClose>
+              <Button
+                type="submit"
+                form="ban-user-form"
+                disabled={isSubmitting || !isValid}
+              >
+                {isSubmitting ? "กำลังแบน..." : "แบน"}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </form>
