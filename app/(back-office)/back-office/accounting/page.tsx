@@ -3,7 +3,7 @@ import { requireOwner } from "@/lib/session";
 import { TransactionPeriod } from "@/modules/transaction/types/transaction";
 import { getTransactionSummary } from "@/modules/transaction/queries/get-transaction-summary";
 import { listTransactions } from "@/modules/transaction/queries/list-transactions";
-import { listTransactionCategories } from "@/modules/transaction-category/queries/list-transaction-categories";
+import { listAllTransactionCategories } from "@/modules/transaction-category/queries/list-transaction-categories";
 import { TransactionFilter } from "@/modules/transaction/components/TransactionFilter";
 import { TransactionSummaryCards } from "@/modules/transaction/components/TransactionSummaryCards";
 import { TransactionsBoard } from "@/modules/transaction/components/TransactionsBoard";
@@ -34,7 +34,7 @@ export default async function AccountingPage(props: {
   const [summary, transactions, categoriesResult] = await Promise.all([
     getTransactionSummary(period, categoryId, date),
     listTransactions(period, categoryId, date),
-    listTransactionCategories(),
+    listAllTransactionCategories(),
   ]);
 
   const categories = categoriesResult.success ? categoriesResult.data : [];

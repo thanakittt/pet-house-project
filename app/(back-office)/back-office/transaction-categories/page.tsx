@@ -1,14 +1,31 @@
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import { TransactionCategoryManagement } from "@/modules/transaction-category/components/TransactionCategoryManagement";
-import { listTransactionCategories } from "@/modules/transaction-category/queries/list-transaction-categories";
+import {
+  listTransactionCategories,
+  parseTransactionCategoryPage,
+  parseTransactionCategoryTypeFilter,
+} from "@/modules/transaction-category/queries/list-transaction-categories";
 
-export default async function TransactionCategoriesPage() {
-  // ป้องกัน route — ต้องเป็น staff เท่านั้น
+type TransactionCategoriesPageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    type?: string;
+  }>;
+};
+
+export default async function TransactionCategoriesPage({
+  searchParams,
+}: TransactionCategoriesPageProps) {
   await requireStaff();
 
-  // ดึงข้อมูลหมวดหมู่ธุรกรรมทั้งหมด
-  const transactionCategories = await listTransactionCategories();
+  const query = await searchParams;
+  const transactionCategories = await listTransactionCategories({
+    page: parseTransactionCategoryPage(query.page),
+    q: query.q,
+    type: parseTransactionCategoryTypeFilter(query.type),
+  });
 
   if (!transactionCategories.success) {
     throw new Error(transactionCategories.error);
@@ -18,9 +35,7 @@ export default async function TransactionCategoriesPage() {
     <>
       <SiteHeader title="จัดการหมวดหมู่ธุรกรรม" />
       <div className="p-6">
-        <TransactionCategoryManagement
-          transactionCategories={transactionCategories.data}
-        />
+        <TransactionCategoryManagement {...transactionCategories.data} />
       </div>
     </>
   );
