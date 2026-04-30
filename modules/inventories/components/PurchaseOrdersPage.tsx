@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import {
@@ -16,13 +21,25 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import StatusUpdate from "@/modules/inventories/components/StatusUpdate";
-import { PurchaseOrderSummary } from "@/modules/inventories/types/purchase-order";
-import { PurchaseOrderStatus } from "@/modules/inventories/constants/purchase-order-status";
+import {
+  PURCHASE_ORDER_STATUS_CONFIG,
+  PURCHASE_ORDER_STATUS_KEYS,
+  PurchaseOrderStatus,
+} from "@/modules/inventories/constants/purchase-order-status";
 import { deletePurchaseOrder } from "@/modules/inventories/actions/delete-purchase-order";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import type { ListPurchaseOrdersResult } from "@/modules/inventories/queries/list-purchase-orders";
+import { PurchaseOrderSummary } from "@/modules/inventories/types/purchase-order";
 import { useState } from "react";
 
-// ── Helper: format ยอดเงินเป็นบาท ──
+const orderStatusOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  ...PURCHASE_ORDER_STATUS_KEYS.map((status) => ({
+    value: status,
+    label: PURCHASE_ORDER_STATUS_CONFIG[status].title,
+  })),
+];
+
 function formatCurrency(value: string): string {
   const num = parseFloat(value);
   if (isNaN(num)) return "฿0.00";
@@ -32,43 +49,54 @@ function formatCurrency(value: string): string {
   })}`;
 }
 
-// ── Helper: format วันที่เป็น dd/mm/yyyy ──
 function formatDate(dateStr: string): string {
   if (!dateStr) return "-";
   const [y, m, d] = dateStr.split("-");
   return `${d}/${m}/${y}`;
 }
 
-/**
- * PurchaseOrdersPage — หน้าแสดงรายการใบสั่งซื้อทั้งหมด
- * รับข้อมูลจาก Server Component parent เป็น prop (ไม่ใช้ mock data)
- */
 export default function PurchaseOrdersPage({
-  orders,
+  orderData,
 }: {
-  orders: PurchaseOrderSummary[];
+  orderData: ListPurchaseOrdersResult;
 }) {
-  // state สำหรับ delete confirmation dialog
   const [deleteTarget, setDeleteTarget] = useState<PurchaseOrderSummary | null>(
     null,
   );
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const rowOffset = (orderData.page - 1) * orderData.pageSize;
 
   return (
     <main>
-      <div className="mx-auto py-5 w-full md:w-5xl">
-        {/* ── Header ── */}
-        <div className="flex justify-end mb-5">
-          <Button asChild>
-            <Link href="/back-office/inventories/purchase-orders/create">
-              <PlusIcon data-icon="inline-start" />
-              สร้างใบสั่งซื้อ
-            </Link>
-          </Button>
-        </div>
+      <div className="mx-auto w-full py-5 md:w-5xl">
+        <ManagementListControls
+          pageParamName="orderPage"
+          search={{
+            ariaLabel: "ค้นหาใบสั่งซื้อ",
+            paramName: "orderQ",
+            placeholder: "ค้นหาพนักงานหรือวันที่สั่งซื้อ",
+            value: orderData.q,
+          }}
+          selectFilters={[
+            {
+              ariaLabel: "กรองสถานะใบสั่งซื้อ",
+              name: "orderStatus",
+              options: orderStatusOptions,
+              placeholder: "สถานะ",
+              value: orderData.status,
+            },
+          ]}
+          createAction={
+            <Button asChild>
+              <Link href="/back-office/inventories/purchase-orders/create">
+                <PlusIcon data-icon="inline-start" />
+                สร้างใบสั่งซื้อ
+              </Link>
+            </Button>
+          }
+        />
 
-        {/* ── ตาราง PO ── */}
-        <div className="border rounded-md overflow-x-auto">
+        <div className="overflow-x-auto rounded-md border">
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>
@@ -81,57 +109,42 @@ export default function PurchaseOrdersPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.length === 0 ? (
-                // ── Empty state ──
+              {orderData.orders.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
-                    className="py-10 text-muted-foreground text-center"
+                    className="py-10 text-center text-muted-foreground"
                   >
-                    ยังไม่มีใบสั่งซื้อ กดปุ่ม &quot;สร้างใบสั่งซื้อ&quot;
-                    เพื่อเริ่มต้น
+                    ไม่พบข้อมูลใบสั่งซื้อ
                   </TableCell>
                 </TableRow>
               ) : (
-                orders.map((order, index) => (
+                orderData.orders.map((order, index) => (
                   <TableRow key={order.id}>
-                    {/* เลขลำดับ */}
-                    <TableCell className="text-muted-foreground text-sm">
-                      {index + 1}
+                    <TableCell className="text-sm text-muted-foreground">
+                      {rowOffset + index + 1}
                     </TableCell>
-
-                    {/* ชื่อพนักงาน */}
                     <TableCell className="font-medium">
                       {order.staffNickname}
                     </TableCell>
-
-                    {/* วันที่สั่งซื้อ */}
                     <TableCell>{formatDate(order.orderDate)}</TableCell>
-
-                    {/* ยอดรวม */}
-                    <TableCell className="font-semibold tabular-nums text-right">
+                    <TableCell className="text-right font-semibold tabular-nums">
                       {formatCurrency(order.totalAmount)}
                     </TableCell>
-
-                    {/* StatusUpdate — เชื่อม server action จริง */}
                     <TableCell>
                       <StatusUpdate
                         orderId={order.id}
                         currentStatus={order.status as PurchaseOrderStatus}
                       />
                     </TableCell>
-
-                    {/* ── ปุ่มจัดการ: ดูรายละเอียด + ลบ (เฉพาะ DRAFT) ── */}
                     <TableCell className="text-right">
-                      <div className="flex justify-end items-center gap-1">
-                        {/* ปุ่มดูรายละเอียด */}
+                      <div className="flex items-center justify-end gap-1">
                         <TableActionLink
                           aria-label="ดูรายละเอียดใบสั่งซื้อ"
                           action="view"
                           href={`/back-office/inventories/purchase-orders/${order.id}`}
                         />
 
-                        {/* ปุ่มลบ (เฉพาะ DRAFT) */}
                         {order.status === "DRAFT" ? (
                           <TableActionButton
                             aria-label="ลบใบสั่งซื้อ"
@@ -150,9 +163,16 @@ export default function PurchaseOrdersPage({
             </TableBody>
           </Table>
         </div>
+
+        <ManagementPagination
+          page={orderData.page}
+          pageParamName="orderPage"
+          pageSize={orderData.pageSize}
+          total={orderData.total}
+          totalPages={orderData.totalPages}
+        />
       </div>
 
-      {/* ── Delete Confirmation Dialog ── */}
       {deleteTarget && (
         <ConfirmDialog
           open={isDeleteDialogOpen}

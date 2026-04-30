@@ -1,16 +1,68 @@
 import { db } from "@/db";
-import { ActionResponse } from "@/types/action";
-import { PurchaseOrderSummary } from "../types/purchase-order";
-import { purchaseOrders, purchaseOrderItems } from "@/db/schema";
+import { purchaseOrderItems, purchaseOrders, staffs } from "@/db/schema";
 import { requireStaff } from "@/lib/session";
-import { desc, eq, isNull, sum, sql } from "drizzle-orm";
+import { ActionResponse } from "@/types/action";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
+import {
+  isValidPurchaseOrderStatus,
+  type PurchaseOrderStatus,
+} from "../constants/purchase-order-status";
+import { PurchaseOrderSummary } from "../types/purchase-order";
 
-/**
- * listPurchaseOrders — ดึงรายการใบสั่งซื้อทั้งหมด
- * เรียงจากใหม่สุดก่อน พร้อมชื่อพนักงานและยอดรวม
- */
-export async function listPurchaseOrders(): Promise<
-  ActionResponse<PurchaseOrderSummary[]>
+export const PURCHASE_ORDER_MANAGEMENT_PAGE_SIZE = 10;
+
+export type PurchaseOrderStatusFilter = "ALL" | PurchaseOrderStatus;
+
+export type ListPurchaseOrdersParams = {
+  page?: number;
+  q?: string;
+  status?: PurchaseOrderStatusFilter;
+};
+
+export type ListPurchaseOrdersResult = {
+  orders: PurchaseOrderSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  q: string;
+  status: PurchaseOrderStatusFilter;
+};
+
+export function parsePurchaseOrderPage(value: unknown): number {
+  const parsedValue =
+    typeof value === "string" ? Number.parseInt(value, 10) : Number(value);
+
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : 1;
+}
+
+export function parsePurchaseOrderStatusFilter(
+  value: unknown,
+): PurchaseOrderStatusFilter {
+  if (typeof value !== "string") {
+    return "ALL";
+  }
+
+  return isValidPurchaseOrderStatus(value) ? value : "ALL";
+}
+
+export async function listPurchaseOrders({
+  page = 1,
+  q = "",
+  status = "ALL",
+}: ListPurchaseOrdersParams = {}): Promise<
+  ActionResponse<ListPurchaseOrdersResult>
 > {
   try {
     const session = await requireStaff({ redirect: false });
@@ -22,44 +74,105 @@ export async function listPurchaseOrders(): Promise<
       };
     }
 
-    // ดึง PO ทั้งหมดพร้อม staff nickname (ผ่าน Relational Query)
-    const rows = await db.query.purchaseOrders.findMany({
-      where: isNull(purchaseOrders.deletedAt),
-      orderBy: desc(purchaseOrders.createdAt),
-      with: {
-        // JOIN staff เพื่อดึง nickname
-        staff: {
-          columns: {
-            nickname: true,
-          },
-        },
-      },
-    });
+    const search = q.trim();
+    const filters: SQL[] = [isNull(purchaseOrders.deletedAt)];
 
-    // คำนวณยอดรวมแยกต่างหากด้วย SQL aggregation
-    const totalsRaw = await db
+    if (search) {
+      const pattern = `%${search}%`;
+      const searchFilter = or(
+        ilike(staffs.nickname, pattern),
+        // ค้นหาด้วยรูปแบบ DD/MM/YYYY (เช่น 27/04/2026)
+        ilike(
+          sql<string>`to_char(${purchaseOrders.orderDate}, 'DD/MM/YYYY')`,
+          pattern,
+        ),
+        // ค้นหาด้วยรูปแบบ YYYY-MM-DD มาตรฐาน (เผื่อกรณีพิมพ์แบบปีขึ้นก่อน)
+        ilike(
+          sql<string>`to_char(${purchaseOrders.orderDate}, 'YYYY-MM-DD')`,
+          pattern,
+        ),
+      );
+
+      if (searchFilter) {
+        filters.push(searchFilter);
+      }
+    }
+
+    if (status !== "ALL") {
+      filters.push(eq(purchaseOrders.status, status));
+    }
+
+    const where = and(...filters);
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(purchaseOrders)
+      .leftJoin(staffs, eq(purchaseOrders.staffId, staffs.id))
+      .where(where);
+
+    const totalPages = Math.ceil(total / PURCHASE_ORDER_MANAGEMENT_PAGE_SIZE);
+    const currentPage =
+      totalPages > 0 ? Math.min(Math.max(page, 1), totalPages) : 1;
+    const offset = (currentPage - 1) * PURCHASE_ORDER_MANAGEMENT_PAGE_SIZE;
+
+    const rows = await db
       .select({
-        purchaseOrderId: purchaseOrderItems.purchaseOrderId,
-        // SUM(quantity * unit_cost) — ต้อง cast เป็น numeric ก่อน
-        totalAmount: sql<string>`COALESCE(SUM(${purchaseOrderItems.quantity}::numeric * ${purchaseOrderItems.unitCost}), 0)`,
+        id: purchaseOrders.id,
+        orderDate: purchaseOrders.orderDate,
+        status: purchaseOrders.status,
+        staffId: purchaseOrders.staffId,
+        createdAt: purchaseOrders.createdAt,
+        updatedAt: purchaseOrders.updatedAt,
+        deletedAt: purchaseOrders.deletedAt,
+        staffNickname: staffs.nickname,
       })
-      .from(purchaseOrderItems)
-      .where(isNull(purchaseOrderItems.deletedAt))
-      .groupBy(purchaseOrderItems.purchaseOrderId);
+      .from(purchaseOrders)
+      .leftJoin(staffs, eq(purchaseOrders.staffId, staffs.id))
+      .where(where)
+      .orderBy(desc(purchaseOrders.createdAt))
+      .limit(PURCHASE_ORDER_MANAGEMENT_PAGE_SIZE)
+      .offset(offset);
 
-    // สร้าง map id → totalAmount เพื่อ lookup O(1)
+    const orderIds = rows.map((order) => order.id);
+    const totalsRaw =
+      orderIds.length > 0
+        ? await db
+            .select({
+              purchaseOrderId: purchaseOrderItems.purchaseOrderId,
+              totalAmount: sql<string>`COALESCE(SUM(${purchaseOrderItems.quantity}::numeric * ${purchaseOrderItems.unitCost}), 0)`,
+            })
+            .from(purchaseOrderItems)
+            .where(
+              and(
+                isNull(purchaseOrderItems.deletedAt),
+                inArray(purchaseOrderItems.purchaseOrderId, orderIds),
+              ),
+            )
+            .groupBy(purchaseOrderItems.purchaseOrderId)
+        : [];
+
     const totalsMap = new Map(
-      totalsRaw.map((t) => [t.purchaseOrderId, t.totalAmount]),
+      totalsRaw.map((item) => [item.purchaseOrderId, item.totalAmount]),
     );
 
-    // รวมข้อมูลทั้งหมดเป็น PurchaseOrderSummary[]
-    const data: PurchaseOrderSummary[] = rows.map(({ staff, ...order }) => ({
+    const orders: PurchaseOrderSummary[] = rows.map((order) => ({
       ...order,
-      staffNickname: staff?.nickname ?? "ไม่ระบุพนักงาน",
+      staffNickname: order.staffNickname ?? "ไม่ระบุพนักงาน",
       totalAmount: totalsMap.get(order.id) ?? "0",
     }));
 
-    return { success: true, data };
+    return {
+      success: true,
+      data: {
+        orders,
+        total,
+        page: currentPage,
+        pageSize: PURCHASE_ORDER_MANAGEMENT_PAGE_SIZE,
+        totalPages,
+        q: search,
+        status,
+      },
+    };
   } catch (error) {
     console.error("listPurchaseOrders error:", error);
     return {

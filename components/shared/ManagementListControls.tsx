@@ -33,6 +33,7 @@ type SelectFilter = {
 
 type ManagementListControlsProps = {
   createAction?: ReactNode;
+  pageParamName?: string;
   search?: {
     ariaLabel: string;
     paramName?: string;
@@ -44,6 +45,7 @@ type ManagementListControlsProps = {
 
 type ManagementPaginationProps = {
   page: number;
+  pageParamName?: string;
   pageSize: number;
   total: number;
   totalPages: number;
@@ -79,6 +81,7 @@ function useUrlParamUpdater() {
 
 export function ManagementListControls({
   createAction,
+  pageParamName = "page",
   search,
   selectFilters = [],
 }: ManagementListControlsProps) {
@@ -95,6 +98,7 @@ export function ManagementListControls({
           key={search.value}
           disabled={isPending}
           hasFilters={hasFilters}
+          pageParamName={pageParamName}
           search={search}
           searchParamName={searchParamName}
           selectFilters={selectFilters}
@@ -109,7 +113,9 @@ export function ManagementListControls({
           <Select
             key={filter.name}
             value={filter.value}
-            onValueChange={(value) => updateUrl({ [filter.name]: value, page: null })}
+            onValueChange={(value) =>
+              updateUrl({ [filter.name]: value, [pageParamName]: null })
+            }
           >
             <SelectTrigger className="w-full sm:w-[160px]" aria-label={filter.ariaLabel}>
               <SelectValue placeholder={filter.placeholder} />
@@ -135,6 +141,7 @@ export function ManagementListControls({
 function ManagementSearchForm({
   disabled,
   hasFilters,
+  pageParamName,
   search,
   searchParamName,
   selectFilters,
@@ -142,6 +149,7 @@ function ManagementSearchForm({
 }: {
   disabled: boolean;
   hasFilters: boolean;
+  pageParamName: string;
   search: NonNullable<ManagementListControlsProps["search"]>;
   searchParamName: string;
   selectFilters: SelectFilter[];
@@ -153,7 +161,10 @@ function ManagementSearchForm({
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        updateUrl({ [searchParamName]: searchValue.trim(), page: null });
+        updateUrl({
+          [searchParamName]: searchValue.trim(),
+          [pageParamName]: null,
+        });
       }}
       className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-2xl"
     >
@@ -183,7 +194,7 @@ function ManagementSearchForm({
               setSearchValue("");
               updateUrl({
                 [searchParamName]: null,
-                page: null,
+                [pageParamName]: null,
                 ...Object.fromEntries(
                   selectFilters.map((filter) => [filter.name, null]),
                 ),
@@ -202,6 +213,7 @@ function ManagementSearchForm({
 
 export function ManagementPagination({
   page,
+  pageParamName = "page",
   pageSize,
   total,
   totalPages,
@@ -228,7 +240,7 @@ export function ManagementPagination({
             variant="outline"
             size="sm"
             disabled={!hasPreviousPage || isPending}
-            onClick={() => updateUrl({ page: String(page - 1) })}
+            onClick={() => updateUrl({ [pageParamName]: String(page - 1) })}
           >
             <ChevronLeftIcon data-icon="inline-start" />
             ก่อนหน้า
@@ -238,7 +250,7 @@ export function ManagementPagination({
             variant="outline"
             size="sm"
             disabled={!hasNextPage || isPending}
-            onClick={() => updateUrl({ page: String(page + 1) })}
+            onClick={() => updateUrl({ [pageParamName]: String(page + 1) })}
           >
             ถัดไป
             <ChevronRightIcon data-icon="inline-end" />

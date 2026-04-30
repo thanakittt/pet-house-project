@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/session";
 import { getPurchaseOrder } from "@/modules/inventories/queries/get-purchase-order";
-import { listInventories } from "@/modules/inventories/queries/list-inventories";
+import { listAllInventories } from "@/modules/inventories/queries/list-inventories";
 import PurchaseOrderDetailPage from "@/modules/inventories/components/PurchaseOrderDetailPage";
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import { SiteHeader } from "@/components/site-header";
@@ -36,7 +36,7 @@ export default async function PurchaseOrderPage({
   let inventoryItems: InventoryItem[] = [];
 
   if (order.status === "DRAFT") {
-    const inventoriesResult = await listInventories();
+    const inventoriesResult = await listAllInventories();
     if (inventoriesResult.success) {
       inventoryItems = inventoriesResult.data;
     }
