@@ -1,12 +1,31 @@
 import { SiteHeader } from "@/components/site-header";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceManagement from "@/modules/service/components/ServiceManagement";
-import { listServices } from "@/modules/service/queries/list-services";
+import {
+  listServices,
+  parseServicePage,
+  parseServiceTypeFilter,
+} from "@/modules/service/queries/list-services";
 
-export default async function ServicesPage() {
+type ServicesPageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    type?: string;
+  }>;
+};
+
+export default async function ServicesPage({
+  searchParams,
+}: ServicesPageProps) {
   await requireAdminAndOwner();
 
-  const services = await listServices();
+  const query = await searchParams;
+  const services = await listServices({
+    page: parseServicePage(query.page),
+    q: query.q,
+    type: parseServiceTypeFilter(query.type),
+  });
 
   if (!services.success) {
     throw new Error(services.error);
@@ -16,7 +35,7 @@ export default async function ServicesPage() {
     <>
       <SiteHeader title="จัดการบริการ" />
       <div className="p-6">
-        <ServiceManagement services={services.data} />
+        <ServiceManagement {...services.data} />
       </div>
     </>
   );

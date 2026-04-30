@@ -1,5 +1,13 @@
 "use client";
 
+import BackButton from "@/components/BackButton";
+import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import {
   Table,
   TableBody,
@@ -8,25 +16,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TableActionButton } from "@/components/shared/TableActionButton";
+import { PET_TYPE_LABELS, PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import {
+  PET_SIZE_LABELS,
+  PET_SIZE_OPTIONS,
+} from "@/lib/constants/service-type";
 import { useState } from "react";
-import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
-import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
-import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
-import { ServiceVariant } from "../types/service-variant";
-import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteServiceVariant } from "../actions/delete-service-variant";
-import BackButton from "@/components/BackButton";
+import type { GetServiceVariantsResult } from "../queries/get-service";
+import { ServiceVariant } from "../types/service-variant";
+import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
+import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
 
-interface ServiceVariantsManagementProps {
+const petTypeOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  ...PET_TYPE_OPTIONS,
+];
+
+const sizeOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  ...PET_SIZE_OPTIONS.filter((option) => option.value !== "ALL"),
+];
+
+type ServiceVariantsManagementProps = GetServiceVariantsResult & {
+  backHref: string;
   serviceId: string;
-  variants: ServiceVariant[];
-}
+};
 
 export default function ServiceVariantsManagement({
+  backHref,
   serviceId,
   variants,
+  total,
+  page,
+  pageSize,
+  totalPages,
+  petType,
+  size,
 }: ServiceVariantsManagementProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -36,11 +62,31 @@ export default function ServiceVariantsManagement({
 
   return (
     <>
-      <div className="flex justify-between items-center gap-3 mb-5">
-        <BackButton />
-        <CreateServiceVariantDialog serviceId={serviceId} />
+      <div className="mb-5">
+        <BackButton href={backHref} />
       </div>
-      <div className="border rounded-md overflow-x-auto">
+
+      <ManagementListControls
+        selectFilters={[
+          {
+            ariaLabel: "กรองประเภทสัตว์เลี้ยง",
+            name: "petType",
+            options: petTypeOptions,
+            placeholder: "สัตว์เลี้ยง",
+            value: petType,
+          },
+          {
+            ariaLabel: "กรองขนาดสัตว์เลี้ยง",
+            name: "size",
+            options: sizeOptions,
+            placeholder: "ขนาด",
+            value: size,
+          },
+        ]}
+        createAction={<CreateServiceVariantDialog serviceId={serviceId} />}
+      />
+
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -52,7 +98,7 @@ export default function ServiceVariantsManagement({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {variants && variants.length > 0 ? (
+            {variants.length > 0 ? (
               variants.map((variant) => (
                 <TableRow key={variant.id}>
                   <TableCell>
@@ -69,25 +115,23 @@ export default function ServiceVariantsManagement({
                   <TableCell>{variant.durationMinutes}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                    {/* แก้ไขข้อมูลตัวเลือกบริการ */}
-                    <TableActionButton
-                      aria-label="แก้ไขข้อมูล"
-                      action="edit"
-                      onClick={() => {
-                        setSelectedVariant(variant);
-                        setIsEditDialogOpen(true);
-                      }}
-                    />
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        action="edit"
+                        onClick={() => {
+                          setSelectedVariant(variant);
+                          setIsEditDialogOpen(true);
+                        }}
+                      />
 
-                    {/* ลบข้อมูลตัวเลือกบริการ */}
-                    <TableActionButton
-                      aria-label="ลบข้อมูล"
-                      action="delete"
-                      onClick={() => {
-                        setSelectedVariant(variant);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    />
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        action="delete"
+                        onClick={() => {
+                          setSelectedVariant(variant);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -95,13 +139,20 @@ export default function ServiceVariantsManagement({
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลตัวเลือกบริการ
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       {selectedVariant && (
         <>
