@@ -2,7 +2,10 @@ import { Metadata } from "next";
 import { requireOwner } from "@/lib/session";
 import { TransactionPeriod } from "@/modules/transaction/types/transaction";
 import { getTransactionSummary } from "@/modules/transaction/queries/get-transaction-summary";
-import { listTransactions } from "@/modules/transaction/queries/list-transactions";
+import {
+  listTransactions,
+  parseTransactionPage,
+} from "@/modules/transaction/queries/list-transactions";
 import { listAllTransactionCategories } from "@/modules/transaction-category/queries/list-transaction-categories";
 import { TransactionFilter } from "@/modules/transaction/components/TransactionFilter";
 import { TransactionSummaryCards } from "@/modules/transaction/components/TransactionSummaryCards";
@@ -21,6 +24,7 @@ export default async function AccountingPage(props: {
     period?: string;
     categoryId?: string;
     date?: string;
+    page?: string;
   }>;
 }) {
   await requireOwner();
@@ -29,11 +33,12 @@ export default async function AccountingPage(props: {
   const period = (searchParams.period as TransactionPeriod) || "MONTHLY";
   const categoryId = searchParams.categoryId;
   const date = searchParams.date;
+  const page = parseTransactionPage(searchParams.page);
 
   // ดึงข้อมูลแบบขนาน
   const [summary, transactions, categoriesResult] = await Promise.all([
     getTransactionSummary(period, categoryId, date),
-    listTransactions(period, categoryId, date),
+    listTransactions(period, categoryId, date, { page }),
     listAllTransactionCategories(),
   ]);
 
@@ -64,7 +69,7 @@ export default async function AccountingPage(props: {
             <CreateTransactionDialog categories={categories} />
           </div>
           <TransactionsBoard
-            transactions={transactions}
+            transactionData={transactions}
             categories={categories}
           />
         </div>

@@ -35,9 +35,14 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
 
   const updateFilters = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
     
     Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === "ALL" || value === "") {
+      if (
+        value === null ||
+        value === "" ||
+        (key !== "period" && value === "ALL")
+      ) {
         params.delete(key);
       } else {
         params.set(key, value);
