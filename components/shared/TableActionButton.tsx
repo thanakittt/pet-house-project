@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   BanIcon,
   CircleCheckIcon,
@@ -14,11 +15,14 @@ import {
 import Link from "next/link";
 import type * as React from "react";
 
+type TableAction = "ban" | "delete" | "edit" | "manage" | "unban" | "view";
+
 type TableActionButtonProps = Omit<
   React.ComponentProps<typeof Button>,
   "children"
 > & {
-  icon: LucideIcon;
+  action: TableAction;
+  icon?: LucideIcon;
   isLoading?: boolean;
 };
 
@@ -26,8 +30,9 @@ type TableActionLinkProps = Omit<
   React.ComponentProps<typeof Button>,
   "asChild" | "children" | "onClick"
 > & {
+  action: TableAction;
   href: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
 };
 
 export const TABLE_ACTION_ICONS = {
@@ -38,6 +43,45 @@ export const TABLE_ACTION_ICONS = {
   unban: CircleCheckIcon,
   view: EyeIcon,
 } as const satisfies Record<string, LucideIcon>;
+
+export const TABLE_ACTION_CONFIG = {
+  ban: {
+    icon: TABLE_ACTION_ICONS.ban,
+    className:
+      "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
+  },
+  delete: {
+    icon: TABLE_ACTION_ICONS.delete,
+    className:
+      "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
+  },
+  edit: {
+    icon: TABLE_ACTION_ICONS.edit,
+    className:
+      "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary focus-visible:border-primary/40 focus-visible:ring-primary/20",
+  },
+  manage: {
+    icon: TABLE_ACTION_ICONS.manage,
+    className:
+      "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:text-secondary-foreground",
+  },
+  unban: {
+    icon: TABLE_ACTION_ICONS.unban,
+    className:
+      "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/20 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/50",
+  },
+  view: {
+    icon: TABLE_ACTION_ICONS.view,
+    className:
+      "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:text-secondary-foreground",
+  },
+} as const satisfies Record<
+  TableAction,
+  {
+    icon: LucideIcon;
+    className: string;
+  }
+>;
 
 function ActionIcon({
   icon: Icon,
@@ -57,30 +101,49 @@ function ActionIcon({
 }
 
 export function TableActionButton({
+  action,
+  className,
   icon,
   isLoading,
   size = "icon",
   variant = "outline",
   ...props
 }: TableActionButtonProps) {
+  const config = TABLE_ACTION_CONFIG[action];
+
   return (
-    <Button variant={variant} size={size} {...props}>
-      <ActionIcon icon={icon} isLoading={isLoading} />
+    <Button
+      variant={variant}
+      size={size}
+      className={cn(config.className, className)}
+      {...props}
+    >
+      <ActionIcon icon={icon ?? config.icon} isLoading={isLoading} />
     </Button>
   );
 }
 
 export function TableActionLink({
+  action,
+  className,
   href,
   icon,
   size = "icon",
   variant = "outline",
   ...props
 }: TableActionLinkProps) {
+  const config = TABLE_ACTION_CONFIG[action];
+
   return (
-    <Button variant={variant} size={size} asChild {...props}>
+    <Button
+      variant={variant}
+      size={size}
+      className={cn(config.className, className)}
+      asChild
+      {...props}
+    >
       <Link href={href}>
-        <ActionIcon icon={icon} />
+        <ActionIcon icon={icon ?? config.icon} />
       </Link>
     </Button>
   );

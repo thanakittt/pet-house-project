@@ -9,10 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { CreateTransactionCategoryDialog } from "./CreateTransactionCategoryDialog";
 import {
@@ -74,7 +71,7 @@ export function TransactionCategoryManagement({
                     {/* ปุ่มแก้ไขข้อมูลหมวดหมู่ */}
                     <TableActionButton
                       aria-label="แก้ไขข้อมูล"
-                      icon={TABLE_ACTION_ICONS.edit}
+                      action="edit"
                       onClick={() => {
                         setSelectedTransactionCategory(category);
                         setIsUpdateDialogOpen(true);
@@ -84,7 +81,7 @@ export function TransactionCategoryManagement({
                     {/* ปุ่มลบข้อมูลหมวดหมู่ */}
                     <TableActionButton
                       aria-label="ลบข้อมูล"
-                      icon={TABLE_ACTION_ICONS.delete}
+                      action="delete"
                       onClick={() => {
                         setSelectedTransactionCategory(category);
                         setIsDeleteDialogOpen(true);

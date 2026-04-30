@@ -1,10 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -198,7 +195,7 @@ export function InventoriesClient({
                     <div className="flex justify-end gap-2">
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
-                        icon={TABLE_ACTION_ICONS.edit}
+                        action="edit"
                         onClick={() => {
                           setSelectedInventory(product);
                           setIsUpdateDialogOpen(true);
@@ -206,7 +203,7 @@ export function InventoriesClient({
                       />
                       <TableActionButton
                         aria-label="ลบข้อมูล"
-                        icon={TABLE_ACTION_ICONS.delete}
+                        action="delete"
                         onClick={() => {
                           setSelectedInventory(product);
                           setIsDeleteDialogOpen(true);

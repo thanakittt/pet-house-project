@@ -8,10 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
@@ -75,7 +72,7 @@ export default function ServiceVariantsManagement({
                     {/* แก้ไขข้อมูลตัวเลือกบริการ */}
                     <TableActionButton
                       aria-label="แก้ไขข้อมูล"
-                      icon={TABLE_ACTION_ICONS.edit}
+                      action="edit"
                       onClick={() => {
                         setSelectedVariant(variant);
                         setIsEditDialogOpen(true);
@@ -85,7 +82,7 @@ export default function ServiceVariantsManagement({
                     {/* ลบข้อมูลตัวเลือกบริการ */}
                     <TableActionButton
                       aria-label="ลบข้อมูล"
-                      icon={TABLE_ACTION_ICONS.delete}
+                      action="delete"
                       onClick={() => {
                         setSelectedVariant(variant);
                         setIsDeleteDialogOpen(true);

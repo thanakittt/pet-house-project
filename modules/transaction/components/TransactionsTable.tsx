@@ -10,10 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Transaction } from "../types/transaction";
 import { formatCurrency, formatThaiDate } from "@/lib/utils";
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -68,9 +65,9 @@ export function TransactionsTable({
                 <div className="flex justify-center gap-1">
                   <TableActionButton
                     variant="ghost"
-                    className="size-8 text-muted-foreground"
+                    className="size-8"
                     aria-label="แก้ไข"
-                    icon={TABLE_ACTION_ICONS.edit}
+                    action="edit"
                     onClick={() => onEdit(tx)}
                     disabled={!tx.isManual}
                     title={
@@ -81,9 +78,9 @@ export function TransactionsTable({
                   />
                   <TableActionButton
                     variant="ghost"
-                    className="size-8 text-muted-foreground hover:text-destructive"
+                    className="size-8"
                     aria-label="ลบ"
-                    icon={TABLE_ACTION_ICONS.delete}
+                    action="delete"
                     onClick={() => onDelete(tx)}
                     disabled={!tx.isManual}
                     title={

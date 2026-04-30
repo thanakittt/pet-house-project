@@ -8,10 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
@@ -57,7 +54,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
                     {/* แก้ไขข้อมูลสายพันธุ์ */}
                     <TableActionButton
                       aria-label="แก้ไขข้อมูล"
-                      icon={TABLE_ACTION_ICONS.edit}
+                      action="edit"
                       onClick={() => {
                         setSelectedPetBreed(petBreed);
                         setIsUpdateDialogOpen(true);
@@ -67,7 +64,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
                     {/* ลบข้อมูลสายพันธุ์ */}
                     <TableActionButton
                       aria-label="ลบข้อมูล"
-                      icon={TABLE_ACTION_ICONS.delete}
+                      action="delete"
                       onClick={() => {
                         setSelectedPetBreed(petBreed);
                         setIsDeleteDialogOpen(true);

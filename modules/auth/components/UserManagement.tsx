@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import {
   Table,
   TableBody,
@@ -112,13 +109,13 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                       {user.banned ? (
                         <TableActionButton
                           aria-label="ยกเลิกการแบน"
-                          icon={TABLE_ACTION_ICONS.unban}
+                          action="unban"
                           onClick={() => unbanUser(user.id)}
                         />
                       ) : (
                         <TableActionButton
                           aria-label="แบนผู้ใช้"
-                          icon={TABLE_ACTION_ICONS.ban}
+                          action="ban"
                           onClick={() => {
                             setSelectedUserId(user.id);
                             setIsBanUserDialogOpen(true);
@@ -128,7 +125,7 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
 
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
-                        icon={TABLE_ACTION_ICONS.edit}
+                        action="edit"
                         disabled={loadingUserId === user.id}
                         isLoading={loadingUserId === user.id}
                         onClick={() => handleEditUser(user.id)}

@@ -8,10 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  TableActionButton,
-  TABLE_ACTION_ICONS,
-} from "@/components/shared/TableActionButton";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { CreateInventoryCategoryDialog } from "./CreateInventoryCategoryDialog";
 import { InventoryCategory } from "../types/inventory-category";
@@ -55,7 +52,7 @@ export function InventoryCategoryManagement({
                     {/* แก้ไขข้อมูลหมวดหมู่ */}
                     <TableActionButton
                       aria-label="แก้ไขข้อมูล"
-                      icon={TABLE_ACTION_ICONS.edit}
+                      action="edit"
                       onClick={() => {
                         setSelectedInventoryCategory(category);
                         setIsUpdateDialogOpen(true);
@@ -65,7 +62,7 @@ export function InventoryCategoryManagement({
                     {/* ลบข้อมูลหมวดหมู่ */}
                     <TableActionButton
                       aria-label="ลบข้อมูล"
-                      icon={TABLE_ACTION_ICONS.delete}
+                      action="delete"
                       onClick={() => {
                         setSelectedInventoryCategory(category);
                         setIsDeleteDialogOpen(true);

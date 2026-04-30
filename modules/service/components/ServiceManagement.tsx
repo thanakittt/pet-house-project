@@ -11,7 +11,6 @@ import {
 import {
   TableActionButton,
   TableActionLink,
-  TABLE_ACTION_ICONS,
 } from "@/components/shared/TableActionButton";
 import { useState } from "react";
 import { SERVICE_TYPE_LABELS } from "@/lib/constants/service-type";
@@ -63,14 +62,14 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
                     {/* จัดการตัวเลือกบริการ */}
                     <TableActionLink
                       aria-label="จัดการตัวเลือกบริการ"
+                      action="manage"
                       href={`/back-office/services/${service.id}/variants`}
-                      icon={TABLE_ACTION_ICONS.manage}
                     />
 
                     {/* แก้ไขข้อมูลบริการ */}
                     <TableActionButton
                       aria-label="แก้ไขข้อมูล"
-                      icon={TABLE_ACTION_ICONS.edit}
+                      action="edit"
                       onClick={() => {
                         setSelectedService(service);
                         setIsEditDialogOpen(true);
@@ -80,7 +79,7 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
                     {/* ลบข้อมูลบริการ */}
                     <TableActionButton
                       aria-label="ลบข้อมูล"
-                      icon={TABLE_ACTION_ICONS.delete}
+                      action="delete"
                       onClick={() => {
                         setSelectedService(service);
                         setIsDeleteDialogOpen(true);

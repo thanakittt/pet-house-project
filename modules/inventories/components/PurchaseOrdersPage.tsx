@@ -5,7 +5,6 @@ import { PlusIcon } from "lucide-react";
 import {
   TableActionButton,
   TableActionLink,
-  TABLE_ACTION_ICONS,
 } from "@/components/shared/TableActionButton";
 import {
   Table,
@@ -128,15 +127,15 @@ export default function PurchaseOrdersPage({
                         {/* ปุ่มดูรายละเอียด */}
                         <TableActionLink
                           aria-label="ดูรายละเอียดใบสั่งซื้อ"
+                          action="view"
                           href={`/back-office/inventories/purchase-orders/${order.id}`}
-                          icon={TABLE_ACTION_ICONS.view}
                         />
 
                         {/* ปุ่มลบ (เฉพาะ DRAFT) */}
                         {order.status === "DRAFT" ? (
                           <TableActionButton
                             aria-label="ลบใบสั่งซื้อ"
-                            icon={TABLE_ACTION_ICONS.delete}
+                            action="delete"
                             onClick={() => {
                               setDeleteTarget(order);
                               setIsDeleteDialogOpen(true);

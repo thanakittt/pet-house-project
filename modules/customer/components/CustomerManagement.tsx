@@ -13,7 +13,6 @@ import { Customer } from "../types/customer";
 import {
   TableActionButton,
   TableActionLink,
-  TABLE_ACTION_ICONS,
 } from "@/components/shared/TableActionButton";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 import { useState } from "react";
@@ -70,14 +69,14 @@ export default function CustomerManagement({
                     {/* ดูรายละเอียดลูกค้า */}
                     <TableActionLink
                       aria-label="ดูรายละเอียด"
+                      action="view"
                       href={`/back-office/customers/${customer.id}`}
-                      icon={TABLE_ACTION_ICONS.view}
                     />
 
                     {/* แก้ไขข้อมูลลูกค้า */}
                     <TableActionButton
                       aria-label="แก้ไขข้อมูล"
-                      icon={TABLE_ACTION_ICONS.edit}
+                      action="edit"
                       onClick={() => {
                         setSelectedCustomer(customer);
                         setIsUpdateDialogOpen(true);
@@ -87,7 +86,7 @@ export default function CustomerManagement({
                     {/* ลบข้อมูลลูกค้า */}
                     <TableActionButton
                       aria-label="ลบข้อมูล"
-                      icon={TABLE_ACTION_ICONS.delete}
+                      action="delete"
                       onClick={() => {
                         setSelectedCustomer(customer);
                         setIsDeleteDialogOpen(true);
