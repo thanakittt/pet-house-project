@@ -1,12 +1,28 @@
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import { InventoryCategoryManagement } from "@/modules/inventory-category/components/InventoryCategoryManagement";
-import { listInventoryCategories } from "@/modules/inventory-category/queries/list-inventory-categories";
+import {
+  listInventoryCategories,
+  parseInventoryCategoryPage,
+} from "@/modules/inventory-category/queries/list-inventory-categories";
 
-export default async function InventoryCategoriesPage() {
+type InventoryCategoriesPageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+  }>;
+};
+
+export default async function InventoryCategoriesPage({
+  searchParams,
+}: InventoryCategoriesPageProps) {
   await requireStaff();
 
-  const inventoryCategories = await listInventoryCategories();
+  const query = await searchParams;
+  const inventoryCategories = await listInventoryCategories({
+    page: parseInventoryCategoryPage(query.page),
+    q: query.q,
+  });
 
   if (!inventoryCategories.success) {
     throw new Error(inventoryCategories.error);
@@ -16,9 +32,7 @@ export default async function InventoryCategoriesPage() {
     <>
       <SiteHeader title="จัดการหมวดหมู่สินค้า" />
       <div className="p-6">
-        <InventoryCategoryManagement
-          inventoryCategories={inventoryCategories.data}
-        />
+        <InventoryCategoryManagement {...inventoryCategories.data} />
       </div>
     </>
   );

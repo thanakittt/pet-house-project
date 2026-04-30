@@ -3,7 +3,7 @@ import PurchaseOrdersPage from "@/modules/inventories/components/PurchaseOrdersP
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InventoriesClient } from "@/modules/inventories/components/InventoriesClient";
 import { listInventories } from "@/modules/inventories/queries/list-inventories";
-import { listInventoryCategories } from "@/modules/inventory-category/queries/list-inventory-categories";
+import { listAllInventoryCategories } from "@/modules/inventory-category/queries/list-inventory-categories";
 import { listPurchaseOrders } from "@/modules/inventories/queries/list-purchase-orders";
 import { SiteHeader } from "@/components/site-header";
 
@@ -24,7 +24,7 @@ export default async function InventoriesPage({
   const [inventoriesResult, categoriesResult, purchaseOrdersResult] =
     await Promise.all([
       listInventories(),
-      listInventoryCategories(),
+      listAllInventoryCategories(),
       listPurchaseOrders(),
     ]);
 

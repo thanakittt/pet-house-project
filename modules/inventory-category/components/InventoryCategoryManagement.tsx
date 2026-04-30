@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  ManagementListControls,
+  ManagementPagination,
+} from "@/components/shared/ManagementListControls";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { TableActionButton } from "@/components/shared/TableActionButton";
+import {
   Table,
   TableBody,
   TableCell,
@@ -8,19 +14,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TableActionButton } from "@/components/shared/TableActionButton";
 import { useState } from "react";
-import { CreateInventoryCategoryDialog } from "./CreateInventoryCategoryDialog";
-import { InventoryCategory } from "../types/inventory-category";
-import { UpdateInventoryCategoryDialog } from "./UpdateInventoryCategoryDialog";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteInventoryCategory } from "../actions/delete-inventory-category";
+import type { ListInventoryCategoriesResult } from "../queries/list-inventory-categories";
+import { InventoryCategory } from "../types/inventory-category";
+import { CreateInventoryCategoryDialog } from "./CreateInventoryCategoryDialog";
+import { UpdateInventoryCategoryDialog } from "./UpdateInventoryCategoryDialog";
 
 export function InventoryCategoryManagement({
   inventoryCategories,
-}: {
-  inventoryCategories: InventoryCategory[];
-}) {
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+}: ListInventoryCategoriesResult) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedInventoryCategory, setSelectedInventoryCategory] =
@@ -28,13 +36,16 @@ export function InventoryCategoryManagement({
 
   return (
     <>
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreateInventoryCategoryDialog />
-        </div>
-      </div>
-      <div className="border rounded-md overflow-x-auto">
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาหมวดหมู่สินค้า",
+          placeholder: "ค้นหาชื่อหมวดหมู่",
+          value: q,
+        }}
+        createAction={<CreateInventoryCategoryDialog />}
+      />
+
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -43,31 +54,29 @@ export function InventoryCategoryManagement({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {inventoryCategories && inventoryCategories.length > 0 ? (
+            {inventoryCategories.length > 0 ? (
               inventoryCategories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                    {/* แก้ไขข้อมูลหมวดหมู่ */}
-                    <TableActionButton
-                      aria-label="แก้ไขข้อมูล"
-                      action="edit"
-                      onClick={() => {
-                        setSelectedInventoryCategory(category);
-                        setIsUpdateDialogOpen(true);
-                      }}
-                    />
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        action="edit"
+                        onClick={() => {
+                          setSelectedInventoryCategory(category);
+                          setIsUpdateDialogOpen(true);
+                        }}
+                      />
 
-                    {/* ลบข้อมูลหมวดหมู่ */}
-                    <TableActionButton
-                      aria-label="ลบข้อมูล"
-                      action="delete"
-                      onClick={() => {
-                        setSelectedInventoryCategory(category);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    />
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        action="delete"
+                        onClick={() => {
+                          setSelectedInventoryCategory(category);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -75,13 +84,20 @@ export function InventoryCategoryManagement({
             ) : (
               <TableRow>
                 <TableCell colSpan={2} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลหมวดหมู่สินค้า
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       {selectedInventoryCategory && (
         <>
