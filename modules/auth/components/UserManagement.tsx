@@ -1,5 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
 import { TableActionButton } from "@/components/shared/TableActionButton";
 import {
   Table,
@@ -9,21 +17,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { BannedBadge } from "./BannedBadge";
 import { RoleBadge } from "./RoleBadge";
-import { AuthUser, AuthUserWithProfile } from "../types/user";
-
+import type { AuthUserWithProfile } from "../types/user";
+import type {
+  ListUsersResult,
+  UserRoleFilter,
+} from "@/modules/auth/queries/list-users";
 import BanUserDialog from "./BanUserDialog";
 import { CreateUserDialog } from "./CreateUserDialog";
 import { UpdateUserDialog } from "./UpdateUserDialog";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { getUserById } from "../queries/get-user";
 
-export default function UserManagement({ users }: { users: AuthUser[] }) {
+const roleOptions: Array<ManagementFilterOption & { value: UserRoleFilter }> = [
+  { value: "ALL", label: "ทั้งหมด" },
+  { value: "admin", label: "ผู้ดูแลระบบ" },
+  { value: "owner", label: "เจ้าของร้าน" },
+  { value: "staff", label: "พนักงาน" },
+  { value: "customer", label: "ลูกค้า" },
+];
+
+export default function UserManagement({
+  users,
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+  role,
+}: ListUsersResult) {
   const router = useRouter();
   const [isBanUserDialogOpen, setIsBanUserDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -75,11 +98,25 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
 
   return (
     <>
-      <div className="flex justify-end mb-5">
-        <CreateUserDialog />
-      </div>
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาผู้ใช้",
+          placeholder: "ค้นหาชื่อ อีเมล หรือเบอร์โทรศัพท์",
+          value: q,
+        }}
+        selectFilters={[
+          {
+            ariaLabel: "กรองบทบาท",
+            name: "role",
+            options: roleOptions,
+            placeholder: "บทบาท",
+            value: role,
+          },
+        ]}
+        createAction={<CreateUserDialog />}
+      />
 
-      <div className="border rounded-md overflow-x-auto">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -137,13 +174,20 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลผู้ใช้
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       <BanUserDialog
         userId={selectedUserId ?? ""}
