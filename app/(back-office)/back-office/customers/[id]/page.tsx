@@ -1,6 +1,6 @@
 import { listPets } from "@/modules/pet/queries/list-pets";
 import CustomerDetail from "@/modules/customer/components/CustomerDetail";
-import { listPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
+import { listAllPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
@@ -20,7 +20,7 @@ export default async function CustomerDetailPage({
     notFound();
   }
 
-  const petBreeds = await listPetBreeds();
+  const petBreeds = await listAllPetBreeds();
 
   if (!petBreeds.success) {
     return (

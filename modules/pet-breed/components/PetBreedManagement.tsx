@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { TableActionButton } from "@/components/shared/TableActionButton";
+import {
   Table,
   TableBody,
   TableCell,
@@ -8,16 +15,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TableActionButton } from "@/components/shared/TableActionButton";
+import { PET_TYPE_LABELS, PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import { useState } from "react";
-import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
-import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
-import { PetBreed } from "../types/pet-breed";
-import { UpdatePetBreedDialog } from "./UpdatePetBreedDialog";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deletePetBreed } from "../actions/delete-pet-breed";
+import type { ListPetBreedsResult } from "../queries/list-pet-breeds";
+import { PetBreed } from "../types/pet-breed";
+import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
+import { UpdatePetBreedDialog } from "./UpdatePetBreedDialog";
 
-export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
+const typeOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  ...PET_TYPE_OPTIONS,
+];
+
+export function PetBreedManagement({
+  petBreeds,
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+  type,
+}: ListPetBreedsResult) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedPetBreed, setSelectedPetBreed] = useState<PetBreed | null>(
@@ -26,13 +45,25 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
 
   return (
     <>
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreatePetBreedDialog />
-        </div>
-      </div>
-      <div className="border rounded-md overflow-x-auto">
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาสายพันธุ์",
+          placeholder: "ค้นหาชื่อสายพันธุ์",
+          value: q,
+        }}
+        selectFilters={[
+          {
+            ariaLabel: "กรองประเภทสัตว์เลี้ยง",
+            name: "type",
+            options: typeOptions,
+            placeholder: "ประเภท",
+            value: type,
+          },
+        ]}
+        createAction={<CreatePetBreedDialog />}
+      />
+
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -42,7 +73,7 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {petBreeds && petBreeds.length > 0 ? (
+            {petBreeds.length > 0 ? (
               petBreeds.map((petBreed) => (
                 <TableRow key={petBreed.id}>
                   <TableCell>{petBreed.name}</TableCell>
@@ -51,25 +82,23 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                    {/* แก้ไขข้อมูลสายพันธุ์ */}
-                    <TableActionButton
-                      aria-label="แก้ไขข้อมูล"
-                      action="edit"
-                      onClick={() => {
-                        setSelectedPetBreed(petBreed);
-                        setIsUpdateDialogOpen(true);
-                      }}
-                    />
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        action="edit"
+                        onClick={() => {
+                          setSelectedPetBreed(petBreed);
+                          setIsUpdateDialogOpen(true);
+                        }}
+                      />
 
-                    {/* ลบข้อมูลสายพันธุ์ */}
-                    <TableActionButton
-                      aria-label="ลบข้อมูล"
-                      action="delete"
-                      onClick={() => {
-                        setSelectedPetBreed(petBreed);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    />
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        action="delete"
+                        onClick={() => {
+                          setSelectedPetBreed(petBreed);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -77,13 +106,20 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลสายพันธุ์สัตว์เลี้ยง
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       {selectedPetBreed && (
         <>
@@ -107,4 +143,3 @@ export function PetBreedManagement({ petBreeds }: { petBreeds: PetBreed[] }) {
     </>
   );
 }
-
