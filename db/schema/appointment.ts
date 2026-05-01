@@ -12,7 +12,7 @@ export const appointments = p
     "appointments",
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
-      appointmentDate: p.date("appointment_date", { mode: "date" }).notNull(),
+      appointmentDate: p.date("appointment_date", { mode: "string" }).notNull(),
       note: p.text("note"),
       status: appointmentStatusEnum("status").notNull(),
       // FK ไปยัง customers (เจ้าของนัดหมาย)

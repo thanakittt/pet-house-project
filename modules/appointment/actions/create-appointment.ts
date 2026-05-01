@@ -3,11 +3,12 @@
 import { db } from "@/db";
 import { appointments, appointmentItems, serviceVariants } from "@/db/schema";
 import { inArray, and, or, lt, gt, eq } from "drizzle-orm";
-import { addMinutes, parseISO, startOfDay } from "date-fns";
+import { addMinutes, parseISO } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import { formatDateOnly } from "@/lib/finance/date";
 
 type PetBookingInput = {
   petId: string;
@@ -45,6 +46,8 @@ export async function createAppointment(
     const dateString = data.startTimeIso.split("T")[0]; // "2026-04-28"
     const appointmentDate = new Date(`${dateString}T00:00:00Z`); // บังคับเป็น Date object ตาม UTC
 
+    const appointmentDateValue = formatDateOnly(appointmentDate);
+
     if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
       return {
         success: false,
@@ -77,7 +80,7 @@ export async function createAppointment(
       const [newAppointment] = await tx
         .insert(appointments)
         .values({
-          appointmentDate: appointmentDate,
+          appointmentDate: appointmentDateValue,
           customerId: data.customerId,
           status: "PENDING_DEPOSIT",
           note: data.note || null,
@@ -159,7 +162,7 @@ export async function createAppointment(
           )
           .where(
             and(
-              eq(appointments.appointmentDate, appointmentDate),
+              eq(appointments.appointmentDate, appointmentDateValue),
               inArray(appointments.status, [
                 "PENDING_DEPOSIT",
                 "PENDING_APPROVAL",
