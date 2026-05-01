@@ -42,11 +42,9 @@ export async function createAppointment(
 
     const initialStartTime = parseISO(data.startTimeIso);
 
-    // ใช้แยกส่วน String แล้วประกอบใหม่ด้วย 'Z' (UTC)
-    const dateString = data.startTimeIso.split("T")[0]; // "2026-04-28"
-    const appointmentDate = new Date(`${dateString}T00:00:00Z`); // บังคับเป็น Date object ตาม UTC
-
-    const appointmentDateValue = formatDateOnly(appointmentDate);
+    const dateString = data.startTimeIso.split("T")[0];
+    const appointmentDate = new Date(`${dateString}T00:00:00Z`); // ใช้เฉพาะตรวจวันหยุด
+    const appointmentDateValue = dateString; // เก็บ/เทียบแบบ date-only โดยตรง
 
     if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
       return {
