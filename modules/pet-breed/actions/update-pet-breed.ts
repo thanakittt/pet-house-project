@@ -14,6 +14,7 @@ export async function updatePetBreed(data: PetBreed): Promise<ActionResponse<nul
       .set({
         name: data.name,
         type: data.type as "DOG" | "CAT",
+        size: data.size as "S" | "M" | "L",
       })
       .where(eq(petBreeds.id, data.id))
       .returning({ id: petBreeds.id });

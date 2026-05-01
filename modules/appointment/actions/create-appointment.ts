@@ -1,26 +1,58 @@
 "use server";
 
 import { db } from "@/db";
-import { appointments, appointmentItems, serviceVariants } from "@/db/schema";
-import { inArray, and, or, lt, gt, eq } from "drizzle-orm";
+import {
+  appointments,
+  appointmentItems,
+  pets,
+  serviceVariants,
+} from "@/db/schema";
+import { inArray, and, or, lt, gt, eq, isNull } from "drizzle-orm";
 import { addMinutes, parseISO } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
-import { formatDateOnly } from "@/lib/finance/date";
 
 type PetBookingInput = {
   petId: string;
-  mainVariantId: string;
-  addOnVariantIds: string[];
+  mainServiceId: string;
+  addOnServiceIds: string[];
 };
+
+type PetWithBreed = {
+  id: string;
+  breed: {
+    type: "DOG" | "CAT";
+    size: "S" | "M" | "L" | "ALL";
+  };
+};
+
+type ServiceVariantRecord = typeof serviceVariants.$inferSelect;
 
 export interface CreateMultipleAppointmentInput {
   customerId: string;
   startTimeIso: string;
   petBookings: PetBookingInput[];
   note?: string;
+}
+
+function findMatchingVariant(
+  variants: ServiceVariantRecord[],
+  serviceId: string,
+  pet: PetWithBreed,
+): ServiceVariantRecord | undefined {
+  const variantsForServiceAndType = variants.filter(
+    (variant) =>
+      variant.serviceId === serviceId && variant.petType === pet.breed.type,
+  );
+
+  // Exact size wins. ALL means the same service variant is valid for S/M/L.
+  return (
+    variantsForServiceAndType.find(
+      (variant) => variant.size === pet.breed.size,
+    ) ?? variantsForServiceAndType.find((variant) => variant.size === "ALL")
+  );
 }
 
 export async function createAppointment(
@@ -30,7 +62,10 @@ export async function createAppointment(
     const session = await requireStaff({ redirect: false });
 
     if (!session) {
-      return { success: false, error: "คุณไม่มีสิทธิ์ในการดำเนินการนี้" };
+      return {
+        success: false,
+        error: "คุณไม่มีสิทธิ์ในการดำเนินการนี้",
+      };
     }
 
     if (!data.petBookings || data.petBookings.length === 0) {
@@ -40,11 +75,19 @@ export async function createAppointment(
       };
     }
 
-    const initialStartTime = parseISO(data.startTimeIso);
+    for (const booking of data.petBookings) {
+      if (!booking.petId || !booking.mainServiceId) {
+        return {
+          success: false,
+          error: "กรุณาเลือกสัตว์เลี้ยงและบริการหลักให้ครบถ้วน",
+        };
+      }
+    }
 
+    const initialStartTime = parseISO(data.startTimeIso);
     const dateString = data.startTimeIso.split("T")[0];
-    const appointmentDate = new Date(`${dateString}T00:00:00Z`); // ใช้เฉพาะตรวจวันหยุด
-    const appointmentDateValue = dateString; // เก็บ/เทียบแบบ date-only โดยตรง
+    const appointmentDate = new Date(`${dateString}T00:00:00Z`);
+    const appointmentDateValue = dateString;
 
     if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
       return {
@@ -53,28 +96,47 @@ export async function createAppointment(
       };
     }
 
-    // 1. รวบรวม ID ของ Service Variant ทั้งหมดที่ถูกเรียกใช้ เพื่อนำไปค้นหาราคา
-    const allVariantIds = new Set<string>();
+    const allPetIds = new Set<string>();
+    const allServiceIds = new Set<string>();
+
     data.petBookings.forEach((booking) => {
-      allVariantIds.add(booking.mainVariantId);
-      booking.addOnVariantIds.forEach((id) => allVariantIds.add(id));
+      allPetIds.add(booking.petId);
+      allServiceIds.add(booking.mainServiceId);
+      (booking.addOnServiceIds || []).forEach((serviceId) => {
+        if (serviceId) allServiceIds.add(serviceId);
+      });
     });
 
     let appointmentId = "";
 
-    // 2. เริ่มต้น Database Transaction
     await db.transaction(async (tx) => {
-      // 2.1 ดึงข้อมูลราคาและระยะเวลาล่าสุดจากฐานข้อมูล (ป้องกัน Client แก้ไขราคา)
-      const selectedVariants = await tx.query.serviceVariants.findMany({
-        where: inArray(serviceVariants.id, Array.from(allVariantIds)),
+      const selectedPets = await tx.query.pets.findMany({
+        where: inArray(pets.id, Array.from(allPetIds)),
+        columns: {
+          id: true,
+        },
+        with: {
+          breed: {
+            columns: {
+              type: true,
+              size: true,
+            },
+          },
+        },
       });
 
-      // ตรวจสอบว่าบริการทั้งหมดมีอยู่จริง
-      if (selectedVariants.length !== allVariantIds.size) {
-        throw new Error("ข้อมูลบริการบางรายการไม่ถูกต้องหรือถูกยกเลิกไปแล้ว");
+      if (selectedPets.length !== allPetIds.size) {
+        throw new Error("ข้อมูลสัตว์เลี้ยงบางรายการไม่ถูกต้อง");
       }
 
-      // 2.2 สร้างหัวบิลการจอง (Appointment Header)
+      // Server resolves variants again because client data is only a hint, not trusted.
+      const selectedVariants = await tx.query.serviceVariants.findMany({
+        where: and(
+          inArray(serviceVariants.serviceId, Array.from(allServiceIds)),
+          isNull(serviceVariants.deletedAt),
+        ),
+      });
+
       const [newAppointment] = await tx
         .insert(appointments)
         .values({
@@ -87,19 +149,25 @@ export async function createAppointment(
 
       appointmentId = newAppointment.id;
 
-      // 2.3 เตรียมรายการบริการ (Appointment Items) ของสัตว์เลี้ยงทุกตัว
       const itemsToInsert = [];
       let currentStartTime = initialStartTime;
 
       for (const booking of data.petBookings) {
-        // จัดการบริการหลัก
-        const mainVariant = selectedVariants.find(
-          (v) => v.id === booking.mainVariantId,
+        const pet = selectedPets.find((item) => item.id === booking.petId);
+        if (!pet) {
+          throw new Error(`ไม่พบสัตว์เลี้ยงรหัส ${booking.petId}`);
+        }
+
+        const mainVariant = findMatchingVariant(
+          selectedVariants,
+          booking.mainServiceId,
+          pet,
         );
-        if (!mainVariant)
+        if (!mainVariant) {
           throw new Error(
-            `ไม่พบบริการหลักสำหรับสัตว์เลี้ยงรหัส ${booking.petId}`,
+            `ไม่พบบริการหลักที่รองรับขนาดสัตว์เลี้ยงรหัส ${booking.petId}`,
           );
+        }
 
         const mainEndTime = addMinutes(
           currentStartTime,
@@ -116,33 +184,36 @@ export async function createAppointment(
 
         currentStartTime = mainEndTime;
 
-        // จัดการบริการเสริม
-        if (booking.addOnVariantIds && booking.addOnVariantIds.length > 0) {
-          for (const addOnId of booking.addOnVariantIds) {
-            const addOnVariant = selectedVariants.find((v) => v.id === addOnId);
-            if (addOnVariant) {
-              const addOnEndTime = addMinutes(
-                currentStartTime,
-                addOnVariant.durationMinutes || 0,
-              );
-              itemsToInsert.push({
-                appointmentId: newAppointment.id,
-                petId: booking.petId,
-                serviceVariantId: addOnVariant.id,
-                price: addOnVariant.minPrice.toString(),
-                startTime: currentStartTime,
-                endTime: addOnEndTime,
-              });
-
-              currentStartTime = addOnEndTime;
-            }
+        for (const addOnServiceId of booking.addOnServiceIds || []) {
+          const addOnVariant = findMatchingVariant(
+            selectedVariants,
+            addOnServiceId,
+            pet,
+          );
+          if (!addOnVariant) {
+            throw new Error(
+              `ไม่พบบริการเสริมที่รองรับขนาดสัตว์เลี้ยงรหัส ${booking.petId}`,
+            );
           }
+
+          const addOnEndTime = addMinutes(
+            currentStartTime,
+            addOnVariant.durationMinutes || 0,
+          );
+          itemsToInsert.push({
+            appointmentId: newAppointment.id,
+            petId: booking.petId,
+            serviceVariantId: addOnVariant.id,
+            price: addOnVariant.minPrice.toString(),
+            startTime: currentStartTime,
+            endTime: addOnEndTime,
+          });
+
+          currentStartTime = addOnEndTime;
         }
       }
 
-      // 2.4 ตรวจสอบ Collision และบันทึกรายการย่อย (Batch Insert)
       if (itemsToInsert.length > 0) {
-        // 2.4.1 สร้างเงื่อนไข Overlap Check (เริ่มก่อนจบ และจบหลังเริ่ม)
         const overlapConditions = itemsToInsert.map((item) =>
           and(
             lt(appointmentItems.startTime, item.endTime),
@@ -150,7 +221,6 @@ export async function createAppointment(
           ),
         );
 
-        // 2.4.2 ดึงข้อมูลและล็อค Row ด้วย FOR UPDATE
         const collisions = await tx
           .select({ id: appointmentItems.id })
           .from(appointmentItems)
@@ -168,25 +238,22 @@ export async function createAppointment(
                 "CHECKED_IN",
                 "IN_PROGRESS",
                 "READY_FOR_PICKUP",
-              ]), // ละเว้นการตรวจจับคิวที่ถูก CANCELLED หรือ NO_SHOW ไปแล้ว
+              ]),
               or(...overlapConditions),
             ),
           )
           .for("update");
 
-        // 2.4.3 หากเจอทับซ้อน ให้โยน Error เพื่อ Rollback ทันที
         if (collisions.length > 0) {
           throw new Error(
             "เกิดข้อผิดพลาด: มีบางช่วงเวลาถูกจองไปแล้วในขณะที่คุณกำลังทำรายการ กรุณารีเฟรชและเลือกเวลาใหม่",
           );
         }
 
-        // 2.4.4 บันทึกลงฐานข้อมูลหากปลอดภัยจากการทับซ้อน
         await tx.insert(appointmentItems).values(itemsToInsert);
       }
     });
 
-    // 3. สั่งล้าง Cache ของระบบเพื่ออัปเดต UI ปฏิทิน
     revalidatePath("/appointments/create");
     revalidatePath("/appointments");
 

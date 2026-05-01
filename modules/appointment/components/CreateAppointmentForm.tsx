@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 import { toast } from "sonner";
@@ -17,13 +17,9 @@ import { CustomerSearchResult } from "@/modules/customer/types/customer";
 import { ServiceWithVariants } from "@/modules/service/types/service";
 import { getAvailableSlots } from "../queries/get-available-slots";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
-import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { createAppointment } from "../actions/create-appointment";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
 
-// ----------------------------------------------------------------------
-// AvailableSlots Component
-// ----------------------------------------------------------------------
 interface AvailableSlotsProps {
   durationMinutes: number;
   selectedTime: string | null;
@@ -52,7 +48,6 @@ export function AvailableSlots({
   error,
 }: AvailableSlotsProps) {
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    // กำหนดค่าเริ่มต้น แต่ไม่ใช่วันหยุดร้าน
     let date = new Date();
     while (date.getDay() === SHOP_CLOSED_DAY) {
       date.setDate(date.getDate() + 1);
@@ -65,7 +60,7 @@ export function AvailableSlots({
   useEffect(() => {
     const fetchSlots = async () => {
       if (!selectedDate || durationMinutes <= 0) return;
-      
+
       const dayOfWeek = new Date(selectedDate).getDay();
       if (dayOfWeek === SHOP_CLOSED_DAY) {
         setAvailableSlots([]);
@@ -164,15 +159,10 @@ export function AvailableSlots({
   );
 }
 
-// ----------------------------------------------------------------------
-// Main Form Component
-// ----------------------------------------------------------------------
-
 type PetBooking = {
   petId: string;
   mainServiceId: string;
-  mainVariantId: string;
-  addOnVariantIds: string[];
+  addOnServiceIds: string[];
 };
 
 type AppointmentFormValues = {
@@ -180,11 +170,31 @@ type AppointmentFormValues = {
   customerId: string;
   petBookings: PetBooking[];
   startTime: string;
-  note: string; // เพิ่มฟิลด์ note
+  note: string;
 };
+
+type PetBreedForVariant = CustomerSearchResult["pets"][number]["breed"];
+type ServiceVariant = ServiceWithVariants["variants"][number];
 
 interface CreateAppointmentFormProps {
   services: ServiceWithVariants[];
+}
+
+function findMatchingVariant(
+  service: ServiceWithVariants | undefined,
+  breed: PetBreedForVariant,
+): ServiceVariant | undefined {
+  if (!service) return undefined;
+
+  const variantsForPetType = service.variants.filter(
+    (variant) => variant.petType === breed.type,
+  );
+
+  // Match the breed's real size first. A variant with ALL is the fallback for S/M/L.
+  return (
+    variantsForPetType.find((variant) => variant.size === breed.size) ??
+    variantsForPetType.find((variant) => variant.size === "ALL")
+  );
 }
 
 export default function CreateAppointmentForm({
@@ -209,7 +219,7 @@ export default function CreateAppointmentForm({
       customerId: "",
       petBookings: [],
       startTime: "",
-      note: "", // กำหนดค่าเริ่มต้น
+      note: "",
     },
     mode: "onSubmit",
   });
@@ -238,40 +248,69 @@ export default function CreateAppointmentForm({
       append({
         petId: selectedCustomer.pets[0].id,
         mainServiceId: "",
-        mainVariantId: "",
-        addOnVariantIds: [],
+        addOnServiceIds: [],
       });
     }
   }, [selectedCustomerId, selectedCustomer, setValue, append]);
 
+  const hasUnmatchedSelectedService = useMemo(() => {
+    if (!selectedCustomer) return false;
+
+    return watchedPetBookings.some((booking) => {
+      const petInfo = selectedCustomer.pets.find((p) => p.id === booking.petId);
+      if (!petInfo) return false;
+
+      const mainService = services.find((s) => s.id === booking.mainServiceId);
+      const isMainServiceMissingVariant =
+        Boolean(mainService) && !findMatchingVariant(mainService, petInfo.breed);
+
+      const isAddOnServiceMissingVariant = (
+        booking.addOnServiceIds || []
+      ).some((serviceId) => {
+        const addOnService = services.find((s) => s.id === serviceId);
+        return (
+          Boolean(addOnService) &&
+          !findMatchingVariant(addOnService, petInfo.breed)
+        );
+      });
+
+      return isMainServiceMissingVariant || isAddOnServiceMissingVariant;
+    });
+  }, [watchedPetBookings, selectedCustomer, services]);
+
   const maxDuration = useMemo(() => {
     let total = 0;
-    if (!watchedPetBookings || watchedPetBookings.length === 0) return total;
+    if (
+      !selectedCustomer ||
+      !watchedPetBookings ||
+      watchedPetBookings.length === 0
+    ) {
+      return total;
+    }
 
     watchedPetBookings.forEach((booking) => {
+      const petInfo = selectedCustomer.pets.find((p) => p.id === booking.petId);
+      if (!petInfo) return;
+
       const mainService = services.find((s) => s.id === booking.mainServiceId);
-      const mainVariant = mainService?.variants.find(
-        (v) => v.id === booking.mainVariantId,
-      );
+      const mainVariant = findMatchingVariant(mainService, petInfo.breed);
 
       if (mainVariant) {
         total += Number(mainVariant.durationMinutes) || 0;
       }
 
-      if (booking.addOnVariantIds && booking.addOnVariantIds.length > 0) {
-        booking.addOnVariantIds.forEach((addOnId) => {
-          services.forEach((s) => {
-            const addOnVar = s.variants.find((v) => v.id === addOnId);
-            if (addOnVar) {
-              total += Number(addOnVar.durationMinutes) || 0;
-            }
-          });
-        });
-      }
+      // The form stores service ids; duration must be derived from the matched variant.
+      (booking.addOnServiceIds || []).forEach((addOnServiceId) => {
+        const addOnService = services.find((s) => s.id === addOnServiceId);
+        const addOnVariant = findMatchingVariant(addOnService, petInfo.breed);
+        if (addOnVariant) {
+          total += Number(addOnVariant.durationMinutes) || 0;
+        }
+      });
     });
 
     return total;
-  }, [watchedPetBookings, services]);
+  }, [watchedPetBookings, selectedCustomer, services]);
 
   useEffect(() => {
     setValue("startTime", "", { shouldValidate: false });
@@ -306,15 +345,21 @@ export default function CreateAppointmentForm({
       toast.error("กรุณาเลือกสัตว์เลี้ยงอย่างน้อย 1 ตัว");
       return;
     }
+
+    if (hasUnmatchedSelectedService) {
+      toast.error("บริการที่เลือกบางรายการไม่รองรับขนาดของสัตว์เลี้ยง");
+      return;
+    }
+
     try {
       const result = await createAppointment({
         customerId: data.customerId,
         startTimeIso: data.startTime,
-        note: data.note.trim() || undefined, // ส่ง note ไปยัง Server Action
-        petBookings: data.petBookings.map((b) => ({
-          petId: b.petId,
-          mainVariantId: b.mainVariantId,
-          addOnVariantIds: b.addOnVariantIds || [],
+        note: data.note.trim() || undefined,
+        petBookings: data.petBookings.map((booking) => ({
+          petId: booking.petId,
+          mainServiceId: booking.mainServiceId,
+          addOnServiceIds: booking.addOnServiceIds || [],
         })),
       });
       if (!result.success) {
@@ -324,13 +369,13 @@ export default function CreateAppointmentForm({
       toast.success("บันทึกการจองสำเร็จ");
       router.push(`/back-office/appointments/${result.data.appointmentId}`);
     } catch (error) {
+      console.error("createAppointment error:", error);
       toast.error("ไม่สามารถบันทึกการจองได้");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
-      {/* 1. ค้นหาลูกค้า */}
       <FieldGroup>
         <div className="flex items-end gap-2">
           <Controller
@@ -366,7 +411,6 @@ export default function CreateAppointmentForm({
         </div>
       </FieldGroup>
 
-      {/* 2. แสดงผลลูกค้า */}
       {searchResults.length > 0 && (
         <div className="space-y-2">
           <FieldLabel>เลือกลูกค้า</FieldLabel>
@@ -380,7 +424,9 @@ export default function CreateAppointmentForm({
                   type="radio"
                   className="hidden"
                   value={customer.id}
-                  {...register("customerId", { required: "กรุณาเลือกลูกค้า" })}
+                  {...register("customerId", {
+                    required: "กรุณาเลือกลูกค้า",
+                  })}
                 />
                 <span className="font-medium">{customer.nickname}</span>
                 <span className="ml-auto text-gray-500 text-sm">
@@ -395,7 +441,6 @@ export default function CreateAppointmentForm({
         </div>
       )}
 
-      {/* 3. ส่วนเลือกสัตว์เลี้ยง */}
       {selectedCustomer && selectedCustomer.pets.length > 0 && (
         <div className="space-y-4">
           <Separator />
@@ -420,14 +465,15 @@ export default function CreateAppointmentForm({
                     className="border-gray-300 rounded focus:ring-primary w-5 h-5 text-primary"
                     checked={isSelected}
                     onChange={(e) => {
-                      if (e.target.checked)
+                      if (e.target.checked) {
                         append({
                           petId: pet.id,
                           mainServiceId: "",
-                          mainVariantId: "",
-                          addOnVariantIds: [],
+                          addOnServiceIds: [],
                         });
-                      else remove(fieldIndex);
+                      } else {
+                        remove(fieldIndex);
+                      }
                     }}
                   />
                   <div>
@@ -444,7 +490,6 @@ export default function CreateAppointmentForm({
         </div>
       )}
 
-      {/* 4. ตั้งค่าบริการ */}
       {fields.length > 0 && (
         <div className="space-y-6">
           <Separator />
@@ -459,8 +504,14 @@ export default function CreateAppointmentForm({
             const currentMainServiceId =
               watchedPetBookings[index]?.mainServiceId;
             const selectedMainService = services.find(
-              (s) => s.id === currentMainServiceId,
+              (service) => service.id === currentMainServiceId,
             );
+            const selectedMainVariant = findMatchingVariant(
+              selectedMainService,
+              petInfo.breed,
+            );
+            const shouldShowMainVariantError =
+              Boolean(selectedMainService) && !selectedMainVariant;
 
             return (
               <div
@@ -479,14 +530,13 @@ export default function CreateAppointmentForm({
                       {...register(`petBookings.${index}.mainServiceId`, {
                         required: "กรุณาเลือกบริการหลัก",
                         onChange: () => {
-                          setValue(`petBookings.${index}.mainVariantId`, "");
                           setValue("startTime", "");
                         },
                       })}
                     >
                       <option value="">-- เลือกบริการหลัก --</option>
                       {services
-                        .filter((s) => s.serviceType === "MAIN")
+                        .filter((service) => service.serviceType === "MAIN")
                         .map((service) => (
                           <option key={service.id} value={service.id}>
                             {service.name}
@@ -498,97 +548,57 @@ export default function CreateAppointmentForm({
                         {errors.petBookings[index]?.mainServiceId?.message}
                       </p>
                     )}
+                    {shouldShowMainVariantError && (
+                      <p className="text-red-500 text-sm">
+                        บริการนี้ไม่รองรับขนาดของสัตว์เลี้ยงตัวนี้
+                      </p>
+                    )}
                   </FieldGroup>
-
-                  {selectedMainService && (
-                    <FieldGroup>
-                      <FieldLabel>รูปแบบบริการ (Size/Type)</FieldLabel>
-                      <select
-                        className="flex bg-background px-3 py-2 border border-input rounded-md w-full h-10 text-sm"
-                        {...register(`petBookings.${index}.mainVariantId`, {
-                          required: "กรุณาเลือกรูปแบบบริการ",
-                          onChange: () => setValue("startTime", ""),
-                        })}
-                      >
-                        <option value="">-- เลือกรูปแบบ --</option>
-                        {selectedMainService.variants
-                          .filter((v) => v.petType === petInfo.breed.type)
-                          .map((variant) => (
-                            <option key={variant.id} value={variant.id}>
-                              {PET_SIZE_LABELS[variant.size] || variant.size}
-                            </option>
-                          ))}
-                      </select>
-                      {errors.petBookings?.[index]?.mainVariantId && (
-                        <p className="text-red-500 text-sm">
-                          {errors.petBookings[index]?.mainVariantId?.message}
-                        </p>
-                      )}
-                    </FieldGroup>
-                  )}
                 </div>
 
                 <FieldGroup>
                   <FieldLabel>บริการเสริม (Add-ons)</FieldLabel>
                   <Controller
-                    name={`petBookings.${index}.addOnVariantIds`}
+                    name={`petBookings.${index}.addOnServiceIds`}
                     control={control}
                     render={({ field }) => (
                       <div className="space-y-2 mt-2">
                         {services
-                          .filter((s) => s.serviceType === "ADDON")
+                          .filter((service) => service.serviceType === "ADDON")
                           .map((service) => {
-                            const compatibleVariants = service.variants.filter(
-                              (v) => v.petType === petInfo.breed.type,
+                            const compatibleVariant = findMatchingVariant(
+                              service,
+                              petInfo.breed,
                             );
-                            if (compatibleVariants.length === 0) return null;
+                            if (!compatibleVariant) return null;
 
                             return (
-                              <div
+                              <label
                                 key={service.id}
-                                className="bg-white p-3 border rounded-md"
+                                className="flex items-center gap-2 bg-white p-3 border rounded-md text-sm cursor-pointer"
                               >
-                                <p className="mb-2 font-medium text-sm">
-                                  {service.name}
-                                </p>
-                                <div className="flex flex-col gap-2">
-                                  {compatibleVariants.map((variant) => {
-                                    const isChecked =
-                                      field.value?.includes(variant.id) ||
-                                      false;
-                                    return (
-                                      <label
-                                        key={variant.id}
-                                        className="flex items-center gap-2 text-sm cursor-pointer"
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          className="border-gray-300 rounded focus:ring-primary text-primary"
-                                          checked={isChecked}
-                                          onChange={(e) => {
-                                            const newValues = e.target.checked
-                                              ? [
-                                                  ...(field.value || []),
-                                                  variant.id,
-                                                ]
-                                              : (field.value || []).filter(
-                                                  (id) => id !== variant.id,
-                                                );
-                                            field.onChange(newValues);
-                                            setValue("startTime", "");
-                                          }}
-                                        />
-                                        <span>
-                                          {PET_SIZE_LABELS[variant.size] ||
-                                            variant.size}{" "}
-                                          (+{variant.minPrice} บาท /{" "}
-                                          {variant.durationMinutes} นาที)
-                                        </span>
-                                      </label>
-                                    );
-                                  })}
-                                </div>
-                              </div>
+                                <input
+                                  type="checkbox"
+                                  className="border-gray-300 rounded focus:ring-primary text-primary"
+                                  checked={
+                                    field.value?.includes(service.id) || false
+                                  }
+                                  onChange={(e) => {
+                                    const newValues = e.target.checked
+                                      ? [...(field.value || []), service.id]
+                                      : (field.value || []).filter(
+                                          (id) => id !== service.id,
+                                        );
+                                    field.onChange(newValues);
+                                    setValue("startTime", "");
+                                  }}
+                                />
+                                <span>
+                                  {service.name} (+{compatibleVariant.minPrice}{" "}
+                                  บาท / {compatibleVariant.durationMinutes}{" "}
+                                  นาที)
+                                </span>
+                              </label>
                             );
                           })}
                       </div>
@@ -601,8 +611,7 @@ export default function CreateAppointmentForm({
         </div>
       )}
 
-      {/* 5. ระบบเลือกเวลาว่าง (แสดงเฉพาะเมื่อตั้งค่าครบและระยะเวลา > 0) */}
-      {fields.length > 0 && maxDuration > 0 ? (
+      {fields.length > 0 && maxDuration > 0 && !hasUnmatchedSelectedService ? (
         <>
           <Separator />
           <Controller
@@ -619,7 +628,6 @@ export default function CreateAppointmentForm({
             )}
           />
 
-          {/* 6. เพิ่มช่องกรอกหมายเหตุ (Note) */}
           <FieldGroup className="pt-4">
             <FieldLabel htmlFor="note">หมายเหตุเพิ่มเติม (ถ้ามี)</FieldLabel>
             <textarea
@@ -632,7 +640,11 @@ export default function CreateAppointmentForm({
           </FieldGroup>
 
           <div className="flex justify-end pt-4">
-            <Button type="submit" size="lg" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isSubmitting || hasUnmatchedSelectedService}
+            >
               {isSubmitting ? "กำลังบันทึก..." : "ยืนยันการจองทั้งหมด"}
             </Button>
           </div>

@@ -10,6 +10,7 @@ export async function createPetBreed(data: PetBreedForm): Promise<ActionResponse
     await db.insert(petBreeds).values({
       name: data.name,
       type: data.type as "DOG" | "CAT",
+      size: data.size as "S" | "M" | "L",
     });
 
     return {

@@ -36,6 +36,7 @@ export async function searchCustomer(
               columns: {
                 name: true,
                 type: true,
+                size: true,
               },
             },
           },

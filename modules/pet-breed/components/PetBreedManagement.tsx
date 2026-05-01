@@ -16,6 +16,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PET_TYPE_LABELS, PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import {
+  PET_SIZE_LABELS,
+  PET_SIZE_OPTIONS,
+} from "@/lib/constants/service-type";
 import { useState } from "react";
 import { deletePetBreed } from "../actions/delete-pet-breed";
 import type { ListPetBreedsResult } from "../queries/list-pet-breeds";
@@ -28,6 +32,11 @@ const typeOptions: ManagementFilterOption[] = [
   ...PET_TYPE_OPTIONS,
 ];
 
+const sizeOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  ...PET_SIZE_OPTIONS.filter((option) => option.value !== "ALL"),
+];
+
 export function PetBreedManagement({
   petBreeds,
   total,
@@ -35,6 +44,7 @@ export function PetBreedManagement({
   pageSize,
   totalPages,
   q,
+  size,
   type,
 }: ListPetBreedsResult) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -59,6 +69,13 @@ export function PetBreedManagement({
             placeholder: "ประเภท",
             value: type,
           },
+          {
+            ariaLabel: "กรองขนาดสัตว์เลี้ยง",
+            name: "size",
+            options: sizeOptions,
+            placeholder: "ขนาด",
+            value: size,
+          },
         ]}
         createAction={<CreatePetBreedDialog />}
       />
@@ -69,6 +86,7 @@ export function PetBreedManagement({
             <TableRow>
               <TableHead>ชื่อสายพันธุ์</TableHead>
               <TableHead>ประเภท</TableHead>
+              <TableHead>ขนาด</TableHead>
               <TableHead className="text-right">จัดการ</TableHead>
             </TableRow>
           </TableHeader>
@@ -79,6 +97,9 @@ export function PetBreedManagement({
                   <TableCell>{petBreed.name}</TableCell>
                   <TableCell>
                     {PET_TYPE_LABELS[petBreed.type] || "อื่นๆ"}
+                  </TableCell>
+                  <TableCell>
+                    {PET_SIZE_LABELS[petBreed.size] || petBreed.size}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -105,7 +126,7 @@ export function PetBreedManagement({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="py-10 text-center">
+                <TableCell colSpan={4} className="py-10 text-center">
                   ไม่พบข้อมูลสายพันธุ์สัตว์เลี้ยง
                 </TableCell>
               </TableRow>

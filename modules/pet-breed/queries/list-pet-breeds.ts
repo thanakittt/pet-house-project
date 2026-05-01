@@ -15,13 +15,16 @@ import { PetBreed } from "../types/pet-breed";
 export const PET_BREED_MANAGEMENT_PAGE_SIZE = 10;
 
 export const PET_BREED_TYPE_FILTERS = ["ALL", "DOG", "CAT"] as const;
+export const PET_BREED_SIZE_FILTERS = ["ALL", "S", "M", "L"] as const;
 
 export type PetBreedTypeFilter = (typeof PET_BREED_TYPE_FILTERS)[number];
+export type PetBreedSizeFilter = (typeof PET_BREED_SIZE_FILTERS)[number];
 
 export type ListPetBreedsParams = {
   page?: number;
   q?: string;
   type?: PetBreedTypeFilter;
+  size?: PetBreedSizeFilter;
 };
 
 export type ListPetBreedsResult = {
@@ -32,12 +35,20 @@ export type ListPetBreedsResult = {
   totalPages: number;
   q: string;
   type: PetBreedTypeFilter;
+  size: PetBreedSizeFilter;
 };
 
 export function parsePetBreedTypeFilter(value: unknown): PetBreedTypeFilter {
   return typeof value === "string" &&
     PET_BREED_TYPE_FILTERS.includes(value as PetBreedTypeFilter)
     ? (value as PetBreedTypeFilter)
+    : "ALL";
+}
+
+export function parsePetBreedSizeFilter(value: unknown): PetBreedSizeFilter {
+  return typeof value === "string" &&
+    PET_BREED_SIZE_FILTERS.includes(value as PetBreedSizeFilter)
+    ? (value as PetBreedSizeFilter)
     : "ALL";
 }
 
@@ -52,6 +63,7 @@ export async function listPetBreeds({
   page = 1,
   q = "",
   type = "ALL",
+  size = "ALL",
 }: ListPetBreedsParams = {}): Promise<ActionResponse<ListPetBreedsResult>> {
   try {
     const search = q.trim();
@@ -63,6 +75,10 @@ export async function listPetBreeds({
 
     if (type !== "ALL") {
       filters.push(eq(petBreeds.type, type));
+    }
+
+    if (size !== "ALL") {
+      filters.push(eq(petBreeds.size, size));
     }
 
     const where = and(...filters);
@@ -82,6 +98,7 @@ export async function listPetBreeds({
         id: petBreeds.id,
         name: petBreeds.name,
         type: petBreeds.type,
+        size: petBreeds.size,
       })
       .from(petBreeds)
       .where(where)
@@ -99,6 +116,7 @@ export async function listPetBreeds({
         totalPages,
         q: search,
         type,
+        size,
       },
     };
   } catch (error) {
@@ -117,6 +135,7 @@ export async function listAllPetBreeds(): Promise<ActionResponse<PetBreed[]>> {
         id: petBreeds.id,
         name: petBreeds.name,
         type: petBreeds.type,
+        size: petBreeds.size,
       })
       .from(petBreeds)
       .where(isNull(petBreeds.deletedAt));

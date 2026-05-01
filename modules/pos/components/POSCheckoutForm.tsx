@@ -76,7 +76,7 @@ interface POSCheckoutProps {
   availablePets: {
     id: string;
     name: string;
-    breed: { type: "DOG" | "CAT" };
+    breed: { type: "DOG" | "CAT"; size: "S" | "M" | "L" | "ALL" };
   }[];
   availableServices: {
     id: string;
@@ -91,6 +91,27 @@ interface POSCheckoutProps {
   }[];
   // [NEW] เพิ่ม Prop สำหรับรับค่ามัดจำจาก Server
   depositAmount?: number;
+}
+
+type AvailableService = POSCheckoutProps["availableServices"][number];
+type AvailablePet = POSCheckoutProps["availablePets"][number];
+type AvailableVariant = AvailableService["variants"][number];
+
+function findMatchingVariant(
+  service: AvailableService | undefined,
+  pet: AvailablePet | undefined,
+): AvailableVariant | undefined {
+  if (!service || !pet) return undefined;
+
+  const variantsForPetType = service.variants.filter(
+    (variant) => variant.petType === pet.breed.type,
+  );
+
+  // เลือกขนาดตรงกับ breed ก่อน ถ้า service ใช้ ALL จะถือว่าใช้ได้ทุก S/M/L
+  return (
+    variantsForPetType.find((variant) => variant.size === pet.breed.size) ??
+    variantsForPetType.find((variant) => variant.size === "ALL")
+  );
 }
 
 export function POSCheckoutForm({
@@ -115,7 +136,6 @@ export function POSCheckoutForm({
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newPetId, setNewPetId] = useState("");
   const [newServiceId, setNewServiceId] = useState("");
-  const [newVariantId, setNewVariantId] = useState("");
   const [newPrice, setNewPrice] = useState("");
 
   // [NEW] 0. คำนวณยอดเงินต่างๆ
@@ -174,22 +194,22 @@ export function POSCheckoutForm({
       if (hasMainService && service.serviceType === "MAIN") {
         return false;
       }
-      return service.variants.some(
-        (v) =>
-          v.petType === selectedPet.breed.type && !existingVariantIds.has(v.id),
-      );
+      const variant = findMatchingVariant(service, selectedPet);
+      return Boolean(variant && !existingVariantIds.has(variant.id));
     });
   }, [selectedPet, availableServices, existingVariantIds, hasMainService]);
 
   // 4. กรอง Variants
-  const filteredVariants = useMemo(() => {
-    const service = availableServices.find((s) => s.id === newServiceId);
-    if (!service || !selectedPet) return [];
-    return service.variants.filter(
-      (v) =>
-        v.petType === selectedPet.breed.type && !existingVariantIds.has(v.id),
-    );
-  }, [newServiceId, selectedPet, availableServices, existingVariantIds]);
+  const selectedService = useMemo(
+    () => availableServices.find((service) => service.id === newServiceId),
+    [newServiceId, availableServices],
+  );
+
+  const selectedVariant = useMemo(
+    () => findMatchingVariant(selectedService, selectedPet),
+    [selectedService, selectedPet],
+  );
+  const filteredVariants = selectedVariant ? [selectedVariant] : [];
 
   useEffect(() => {
     if (editingItemId && inputRef.current) inputRef.current.focus();
@@ -207,7 +227,7 @@ export function POSCheckoutForm({
   };
 
   const handleAddNewItem = () => {
-    if (!newPetId || !newVariantId || !newPrice) return;
+    if (!newPetId || !newServiceId || !selectedVariant || !newPrice) return;
 
     const parsedPrice = Number(newPrice);
     if (isNaN(parsedPrice) || !isFinite(parsedPrice) || parsedPrice <= 0) {
@@ -218,21 +238,22 @@ export function POSCheckoutForm({
       await addAppointmentItem({
         appointmentId: appointment.id,
         petId: newPetId,
-        serviceVariantId: newVariantId,
+        serviceId: newServiceId,
         price: parsedPrice,
       });
       setIsAddingItem(false);
       setNewPetId("");
       setNewServiceId("");
-      setNewVariantId("");
       setNewPrice("");
     });
   };
 
-  const handleVariantSelect = (variantId: string) => {
-    setNewVariantId(variantId);
-    const variant = filteredVariants.find((v) => v.id === variantId);
-    if (variant) setNewPrice(variant.minPrice);
+  const handleServiceSelect = (serviceId: string) => {
+    const service = availableServices.find((item) => item.id === serviceId);
+    const variant = findMatchingVariant(service, selectedPet);
+
+    setNewServiceId(serviceId);
+    setNewPrice(variant?.minPrice ?? "");
   };
 
   return (
@@ -410,13 +431,13 @@ export function POSCheckoutForm({
                       เพิ่มรายการบริการใหม่
                     </p>
 
-                    <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       <Select
                         value={newPetId}
                         onValueChange={(v) => {
                           setNewPetId(v);
                           setNewServiceId("");
-                          setNewVariantId("");
+                          setNewPrice("");
                         }}
                       >
                         <SelectTrigger className="w-full">
@@ -433,10 +454,7 @@ export function POSCheckoutForm({
 
                       <Select
                         value={newServiceId}
-                        onValueChange={(v) => {
-                          setNewServiceId(v);
-                          setNewVariantId("");
-                        }}
+                        onValueChange={handleServiceSelect}
                         disabled={!newPetId || filteredServices.length === 0}
                       >
                         <SelectTrigger className="w-full">
@@ -458,12 +476,11 @@ export function POSCheckoutForm({
                         </SelectContent>
                       </Select>
 
+                      <div className="hidden">
                       <Select
-                        value={newVariantId}
-                        onValueChange={handleVariantSelect}
-                        disabled={
-                          !newServiceId || filteredVariants.length === 0
-                        }
+                        value=""
+                        onValueChange={() => {}}
+                        disabled
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="ขนาด/รูปแบบ" />
@@ -481,6 +498,7 @@ export function POSCheckoutForm({
                           ))}
                         </SelectContent>
                       </Select>
+                      </div>
 
                       <div className="flex gap-2 w-full">
                         <Input
@@ -491,7 +509,7 @@ export function POSCheckoutForm({
                         />
                         <Button
                           onClick={handleAddNewItem}
-                          disabled={isPending || !newVariantId}
+                          disabled={isPending || !newServiceId || !selectedVariant}
                           className="px-4"
                         >
                           เพิ่ม
