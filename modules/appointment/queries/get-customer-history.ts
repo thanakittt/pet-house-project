@@ -69,15 +69,12 @@ export async function getCustomerAppointmentHistory(
       total / CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE,
     );
     const currentPage =
-      totalPages > 0
-        ? Math.min(Math.max(options.page ?? 1, 1), totalPages)
-        : 1;
-    const offset =
-      (currentPage - 1) * CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE;
+      totalPages > 0 ? Math.min(Math.max(options.page ?? 1, 1), totalPages) : 1;
+    const offset = (currentPage - 1) * CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE;
 
     const history = await db.query.appointments.findMany({
       where,
-      orderBy: [desc(appointments.appointmentDate)],
+      orderBy: [desc(appointments.appointmentDate), desc(appointments.id)],
       limit: CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE,
       offset,
       with: {
@@ -94,14 +91,16 @@ export async function getCustomerAppointmentHistory(
       },
     });
 
-    const formattedHistory: CustomerAppointmentHistory[] = history.map((appointment) => ({
-      ...appointment,
-      items: appointment.items.map((item) => ({
-        ...item,
-        startTime: item.startTime.toISOString(),
-        endTime: item.endTime.toISOString(),
-      })),
-    }));
+    const formattedHistory: CustomerAppointmentHistory[] = history.map(
+      (appointment) => ({
+        ...appointment,
+        items: appointment.items.map((item) => ({
+          ...item,
+          startTime: item.startTime.toISOString(),
+          endTime: item.endTime.toISOString(),
+        })),
+      }),
+    );
 
     return {
       success: true,
