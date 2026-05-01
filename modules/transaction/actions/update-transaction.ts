@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { TransactionForm, transactionSchema } from "../types/transaction";
 import { and, eq, isNull } from "drizzle-orm";
 import { isSystemCategory } from "../constants/system-categories";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export async function updateTransaction(
   id: string,
@@ -55,7 +56,7 @@ export async function updateTransaction(
       .update(transactions)
       .set({
         amount: amount.toFixed(2),
-        transactionDate: transactionDate,
+        transactionDate: formatDateOnly(transactionDate),
         note: note || null,
         transactionCategoryId: transactionCategoryId,
       })

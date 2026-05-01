@@ -8,6 +8,7 @@ import { AppointmentStatus } from "../types/status";
 import { requireStaff } from "@/lib/session";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { recordTransaction } from "@/lib/finance/record-transaction";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export async function updateAppointmentStatus(
   appointmentId: string,
@@ -22,6 +23,8 @@ export async function updateAppointmentStatus(
 
     // ใช้ Database Transaction เพื่อรับประกันว่าข้อมูลต้องอัปเดตสำเร็จทั้งคู่
     await db.transaction(async (tx) => {
+      const today = new Date();
+
       // 1. อัปเดตสถานะนัดหมาย
       const result = await tx
         .update(appointments)
@@ -51,7 +54,7 @@ export async function updateAppointmentStatus(
             appointmentId: appointmentId,
             amount: APPOINTMENT_DEPOSIT_AMOUNT.toFixed(2),
             paymentMethod: "TRANSFER",
-            paymentDate: new Date(),
+            paymentDate: formatDateOnly(today),
             status: "PAID",
             paymentType: "DEPOSIT",
           });
@@ -59,7 +62,7 @@ export async function updateAppointmentStatus(
           // บันทึก transaction รายรับมัดจำลงตาราง transactions
           await recordTransaction(tx, {
             amount: APPOINTMENT_DEPOSIT_AMOUNT,
-            transactionDate: new Date(),
+            transactionDate: today,
             categoryType: "INCOME",
             categoryName: "รายรับมัดจำการนัดหมาย",
             note: `มัดจำนัดหมาย #${appointmentId}`,

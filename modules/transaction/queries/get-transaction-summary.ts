@@ -3,6 +3,7 @@ import { transactions, transactionCategories } from "@/db/schema";
 import { and, eq, gte, lte, isNull, sql } from "drizzle-orm";
 import { TransactionPeriod, TransactionSummary } from "../types/transaction";
 import { getDateRangeFromPeriod } from "../utils/date-range";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export async function getTransactionSummary(
   period: TransactionPeriod,
@@ -13,14 +14,14 @@ export async function getTransactionSummary(
 
   if (date) {
     // กรองตามวันที่ระบุตรงๆ
-    dateFilter = eq(transactions.transactionDate, new Date(date));
+    dateFilter = eq(transactions.transactionDate, formatDateOnly(new Date(date)));
   } else {
     // กรองตาม period
     const { startDate, endDate } = getDateRangeFromPeriod(period);
     if (startDate && endDate) {
       dateFilter = and(
-        gte(transactions.transactionDate, startDate),
-        lte(transactions.transactionDate, endDate)
+        gte(transactions.transactionDate, formatDateOnly(startDate)),
+        lte(transactions.transactionDate, formatDateOnly(endDate))
       );
     }
   }

@@ -6,6 +6,7 @@ import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { TransactionForm, transactionSchema } from "../types/transaction";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export async function createTransaction(
   data: TransactionForm,
@@ -26,7 +27,7 @@ export async function createTransaction(
 
     await db.insert(transactions).values({
       amount: amount.toFixed(2),
-      transactionDate: transactionDate,
+      transactionDate: formatDateOnly(transactionDate),
       note: note || null,
       transactionCategoryId: transactionCategoryId,
     });
