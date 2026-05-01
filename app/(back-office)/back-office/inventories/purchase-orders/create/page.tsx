@@ -2,7 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { requireStaff } from "@/lib/session";
 import PurchaseOrderFormPage from "@/modules/inventories/components/PurchaseOrderFormPage";
-import { listInventories } from "@/modules/inventories/queries/list-inventories";
+import { listAllInventories } from "@/modules/inventories/queries/list-inventories";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ import Link from "next/link";
 export default async function CreatePurchaseOrderPage() {
   await requireStaff();
 
-  const inventoriesResult = await listInventories();
+  const inventoriesResult = await listAllInventories();
 
   if (!inventoriesResult.success) {
     throw new Error(inventoriesResult.error);

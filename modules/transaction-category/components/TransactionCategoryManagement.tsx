@@ -1,5 +1,13 @@
 "use client";
 
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
+import { TableActionButton } from "@/components/shared/TableActionButton";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -8,25 +16,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { CreateTransactionCategoryDialog } from "./CreateTransactionCategoryDialog";
+import { deleteTransactionCategory } from "../actions/delete-transaction-category";
+import type { ListTransactionCategoriesResult } from "../queries/list-transaction-categories";
 import {
   TransactionCategory,
   TRANSACTION_TYPE_LABELS,
 } from "../types/transaction-category";
+import { CreateTransactionCategoryDialog } from "./CreateTransactionCategoryDialog";
 import { UpdateTransactionCategoryDialog } from "./UpdateTransactionCategoryDialog";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { deleteTransactionCategory } from "../actions/delete-transaction-category";
+
+const typeOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  { value: "INCOME", label: TRANSACTION_TYPE_LABELS.INCOME },
+  { value: "EXPENSE", label: TRANSACTION_TYPE_LABELS.EXPENSE },
+];
 
 export function TransactionCategoryManagement({
   transactionCategories,
-}: {
-  transactionCategories: TransactionCategory[];
-}) {
-  // state สำหรับควบคุม dialog แก้ไขและลบ
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+  type,
+}: ListTransactionCategoriesResult) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTransactionCategory, setSelectedTransactionCategory] =
@@ -34,16 +48,25 @@ export function TransactionCategoryManagement({
 
   return (
     <>
-      {/* แถบเครื่องมือด้านบน: ปุ่มสร้างหมวดหมู่ใหม่ */}
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreateTransactionCategoryDialog />
-        </div>
-      </div>
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาหมวดหมู่ธุรกรรม",
+          placeholder: "ค้นหาชื่อหมวดหมู่ธุรกรรม",
+          value: q,
+        }}
+        selectFilters={[
+          {
+            ariaLabel: "กรองประเภทธุรกรรม",
+            name: "type",
+            options: typeOptions,
+            placeholder: "ประเภท",
+            value: type,
+          },
+        ]}
+        createAction={<CreateTransactionCategoryDialog />}
+      />
 
-      {/* ตารางแสดงรายการหมวดหมู่ธุรกรรม */}
-      <div className="border rounded-md overflow-x-auto">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -53,12 +76,11 @@ export function TransactionCategoryManagement({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactionCategories && transactionCategories.length > 0 ? (
+            {transactionCategories.length > 0 ? (
               transactionCategories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>
-                    {/* Badge แสดงประเภทธุรกรรมพร้อมสีที่แตกต่างกัน */}
                     <Badge
                       variant={
                         category.type === "INCOME" ? "default" : "secondary"
@@ -67,40 +89,33 @@ export function TransactionCategoryManagement({
                       {TRANSACTION_TYPE_LABELS[category.type]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="space-x-2 text-right">
-                    {/* ปุ่มแก้ไขข้อมูลหมวดหมู่ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="แก้ไขข้อมูล"
-                      onClick={() => {
-                        setSelectedTransactionCategory(category);
-                        setIsUpdateDialogOpen(true);
-                      }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        action="edit"
+                        onClick={() => {
+                          setSelectedTransactionCategory(category);
+                          setIsUpdateDialogOpen(true);
+                        }}
+                      />
 
-                    {/* ปุ่มลบข้อมูลหมวดหมู่ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="ลบข้อมูล"
-                      onClick={() => {
-                        setSelectedTransactionCategory(category);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        action="delete"
+                        onClick={() => {
+                          setSelectedTransactionCategory(category);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
-              // แสดงข้อความเมื่อไม่มีข้อมูล
               <TableRow>
                 <TableCell colSpan={3} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลหมวดหมู่ธุรกรรม
                 </TableCell>
               </TableRow>
             )}
@@ -108,7 +123,13 @@ export function TransactionCategoryManagement({
         </Table>
       </div>
 
-      {/* Dialog แก้ไขและลบ — render เมื่อมี row ที่ถูกเลือกเท่านั้น */}
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
+
       {selectedTransactionCategory && (
         <>
           <UpdateTransactionCategoryDialog

@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { TransactionPeriod } from "../types/transaction";
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { XIcon } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { TransactionCategory } from "@/modules/transaction-category/types/transaction-category";
 import {
   Select,
@@ -27,17 +28,28 @@ const PERIODS: { label: string; value: TransactionPeriod }[] = [
 
 export function TransactionFilter({ categories }: TransactionFilterProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   
   const currentPeriod = (searchParams.get("period") as TransactionPeriod) || "MONTHLY";
   const currentCategoryId = searchParams.get("categoryId") || "ALL";
   const currentDate = searchParams.get("date") || "";
+  const hasActiveFilters =
+    currentDate ||
+    currentPeriod !== "MONTHLY" ||
+    currentCategoryId !== "ALL" ||
+    searchParams.has("page");
 
   const updateFilters = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
     
     Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === "ALL" || value === "") {
+      if (
+        value === null ||
+        value === "" ||
+        (key !== "period" && value === "ALL")
+      ) {
         params.delete(key);
       } else {
         params.set(key, value);
@@ -45,6 +57,10 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
     });
 
     router.push(`?${params.toString()}`);
+  };
+
+  const clearFilters = () => {
+    router.push(pathname);
   };
 
   return (
@@ -102,6 +118,19 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
           ))}
         </SelectContent>
       </Select>
+
+      {hasActiveFilters && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={clearFilters}
+          aria-label="ล้างตัวกรอง"
+        >
+          <XIcon data-icon="inline-start" />
+          ล้าง
+        </Button>
+      )}
     </div>
   );
 }

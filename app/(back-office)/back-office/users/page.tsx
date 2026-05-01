@@ -1,23 +1,35 @@
-import { auth } from "@/lib/auth";
-import { requireAdmin } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
+import { requireAdmin } from "@/lib/session";
 import UserManagement from "@/modules/auth/components/UserManagement";
-import { AuthUser } from "@/modules/auth/types/user";
-import { headers } from "next/headers";
+import {
+  listUsers,
+  parseUserPage,
+  parseUserRoleFilter,
+} from "@/modules/auth/queries/list-users";
 
-export default async function UsersPage() {
+type UsersPageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    role?: string;
+  }>;
+};
+
+export default async function UsersPage({ searchParams }: UsersPageProps) {
   await requireAdmin();
 
-  const { users } = await auth.api.listUsers({
-    query: {},
-    headers: await headers(),
+  const query = await searchParams;
+  const userList = await listUsers({
+    page: parseUserPage(query.page),
+    q: query.q,
+    role: parseUserRoleFilter(query.role),
   });
 
   return (
     <>
       <SiteHeader title="จัดการผู้ใช้" />
       <div className="p-6">
-        <UserManagement users={users as AuthUser[]} />
+        <UserManagement {...userList} />
       </div>
     </>
   );

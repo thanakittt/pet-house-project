@@ -2,6 +2,8 @@ export type Customer = {
   id: string;
   nickname: string;
   walkInPhoneNumber: string | null;
+  userName: string | null;
+  userPhoneNumber: string | null;
   userId: string | null;
   createdAt: Date;
   gender: string | null;

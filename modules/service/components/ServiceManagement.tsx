@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import {
+  TableActionButton,
+  TableActionLink,
+} from "@/components/shared/TableActionButton";
+import {
   Table,
   TableBody,
   TableCell,
@@ -8,36 +18,61 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilIcon, Settings, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  SERVICE_TYPE_LABELS,
+  SERVICE_TYPE_OPTIONS,
+} from "@/lib/constants/service-type";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { SERVICE_TYPE_LABELS } from "@/lib/constants/service-type";
-import { CreateServiceDialog } from "./CreateServiceDialog";
-import { Service } from "../types/service";
-import { UpdateServiceDialog } from "./UpdateServiceDialog";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteService } from "../actions/delete-service";
-import Link from "next/link";
+import type { ListServicesResult } from "../queries/list-services";
+import { Service } from "../types/service";
+import { CreateServiceDialog } from "./CreateServiceDialog";
+import { UpdateServiceDialog } from "./UpdateServiceDialog";
 
-interface ServiceManagementProps {
-  services: Service[];
-}
+const serviceTypeOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  ...SERVICE_TYPE_OPTIONS,
+];
 
-/** คอมโพเนนต์จัดการบริการ — แสดงตาราง + CRUD actions */
-export default function ServiceManagement({ services }: ServiceManagementProps) {
+export default function ServiceManagement({
+  services,
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+  type,
+}: ListServicesResult) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const currentQuery = searchParams.toString();
+  const currentUrl = currentQuery ? `${pathname}?${currentQuery}` : pathname;
 
   return (
     <>
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreateServiceDialog />
-        </div>
-      </div>
-      <div className="border rounded-md overflow-x-auto">
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาบริการ",
+          placeholder: "ค้นหาชื่อบริการหรือคำอธิบาย",
+          value: q,
+        }}
+        selectFilters={[
+          {
+            ariaLabel: "กรองประเภทบริการ",
+            name: "type",
+            options: serviceTypeOptions,
+            placeholder: "ประเภท",
+            value: type,
+          },
+        ]}
+        createAction={<CreateServiceDialog />}
+      />
+
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -48,7 +83,7 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {services && services.length > 0 ? (
+            {services.length > 0 ? (
               services.map((service) => (
                 <TableRow key={service.id}>
                   <TableCell>{service.name}</TableCell>
@@ -56,57 +91,52 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
                     {SERVICE_TYPE_LABELS[service.serviceType] || "อื่นๆ"}
                   </TableCell>
                   <TableCell>{service.description || "-"}</TableCell>
-                  <TableCell className="space-x-2 text-right">
-                    {/* จัดการตัวเลือกบริการ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="จัดการตัวเลือกบริการ"
-                      asChild
-                    >
-                      <Link href={`/back-office/services/${service.id}/variants`}>
-                        <Settings />
-                      </Link>
-                    </Button>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <TableActionLink
+                        aria-label="จัดการตัวเลือกบริการ"
+                        action="manage"
+                        href={`/back-office/services/${service.id}/variants?from=${encodeURIComponent(currentUrl)}`}
+                      />
 
-                    {/* แก้ไขข้อมูลบริการ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="แก้ไขข้อมูล"
-                      onClick={() => {
-                        setSelectedService(service);
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        action="edit"
+                        onClick={() => {
+                          setSelectedService(service);
+                          setIsEditDialogOpen(true);
+                        }}
+                      />
 
-                    {/* ลบข้อมูลบริการ */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="ลบข้อมูล"
-                      onClick={() => {
-                        setSelectedService(service);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        action="delete"
+                        onClick={() => {
+                          setSelectedService(service);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลบริการ
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       {selectedService && (
         <>
@@ -129,4 +159,3 @@ export default function ServiceManagement({ services }: ServiceManagementProps) 
     </>
   );
 }
-

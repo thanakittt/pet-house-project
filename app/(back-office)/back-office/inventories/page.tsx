@@ -1,14 +1,62 @@
+import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import PurchaseOrdersPage from "@/modules/inventories/components/PurchaseOrdersPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InventoriesClient } from "@/modules/inventories/components/InventoriesClient";
-import { listInventories } from "@/modules/inventories/queries/list-inventories";
-import { listInventoryCategories } from "@/modules/inventory-category/queries/list-inventory-categories";
-import { listPurchaseOrders } from "@/modules/inventories/queries/list-purchase-orders";
-import { SiteHeader } from "@/components/site-header";
+import {
+  listInventories,
+  parseInventoryPage,
+  parseInventoryStatusFilter,
+} from "@/modules/inventories/queries/list-inventories";
+import { listAllInventoryCategories } from "@/modules/inventory-category/queries/list-inventory-categories";
+import {
+  listPurchaseOrders,
+  parsePurchaseOrderPage,
+  parsePurchaseOrderStatusFilter,
+} from "@/modules/inventories/queries/list-purchase-orders";
+import Link from "next/link";
+
+type InventoryTab = "inventory" | "order";
 
 interface InventoriesPageProps {
-  searchParams: Promise<{ tab?: "inventory" | "order" }>;
+  searchParams: Promise<{
+    invCategoryId?: string;
+    invPage?: string;
+    invQ?: string;
+    invStatus?: string;
+    orderPage?: string;
+    orderQ?: string;
+    orderStatus?: string;
+    tab?: string;
+  }>;
+}
+
+function parseInventoryTab(value: unknown): InventoryTab {
+  return value === "order" ? "order" : "inventory";
+}
+
+function buildTabHref(
+  query: Awaited<InventoriesPageProps["searchParams"]>,
+  tab: InventoryTab,
+) {
+  const params = new URLSearchParams();
+
+  Object.entries(query).forEach(([key, value]) => {
+    if (typeof value === "string" && value) {
+      params.set(key, value);
+    }
+  });
+
+  if (tab === "inventory") {
+    params.delete("tab");
+  } else {
+    params.set("tab", "order");
+  }
+
+  const queryString = params.toString();
+  return queryString
+    ? `/back-office/inventories?${queryString}`
+    : "/back-office/inventories";
 }
 
 export default async function InventoriesPage({
@@ -16,25 +64,36 @@ export default async function InventoriesPage({
 }: InventoriesPageProps) {
   await requireStaff();
 
-  const { tab } = await searchParams;
+  const query = await searchParams;
+  const defaultTab = parseInventoryTab(query.tab);
 
-  const defaultTab = tab || "inventory";
-
-  // ดึงข้อมูลทั้ง 3 ชุดพร้อมกัน เพื่อหลีกเลี่ยง data waterfall
   const [inventoriesResult, categoriesResult, purchaseOrdersResult] =
     await Promise.all([
-      listInventories(),
-      listInventoryCategories(),
-      listPurchaseOrders(),
+      listInventories({
+        categoryId: query.invCategoryId,
+        page: parseInventoryPage(query.invPage),
+        q: query.invQ,
+        status: parseInventoryStatusFilter(query.invStatus),
+      }),
+      listAllInventoryCategories(),
+      listPurchaseOrders({
+        page: parsePurchaseOrderPage(query.orderPage),
+        q: query.orderQ,
+        status: parsePurchaseOrderStatusFilter(query.orderStatus),
+      }),
     ]);
 
-  const inventories = inventoriesResult.success ? inventoriesResult.data : [];
-  const inventoryCategories = categoriesResult.success
-    ? categoriesResult.data
-    : [];
-  const purchaseOrders = purchaseOrdersResult.success
-    ? purchaseOrdersResult.data
-    : [];
+  if (!inventoriesResult.success) {
+    throw new Error(inventoriesResult.error);
+  }
+
+  if (!categoriesResult.success) {
+    throw new Error(categoriesResult.error);
+  }
+
+  if (!purchaseOrdersResult.success) {
+    throw new Error(purchaseOrdersResult.error);
+  }
 
   return (
     <>
@@ -45,22 +104,26 @@ export default async function InventoriesPage({
           defaultValue={defaultTab}
           className="mx-auto mt-5 w-full md:w-5xl"
         >
-          <TabsList className="py-5 w-full md:w-1/2">
-            <TabsTrigger value="inventory">สินค้าคงคลัง</TabsTrigger>
-            <TabsTrigger value="order">รับ &amp; สั่งสินค้า</TabsTrigger>
+          <TabsList className="w-full py-5 md:w-1/2">
+            <TabsTrigger value="inventory" asChild>
+              <Link href={buildTabHref(query, "inventory")}>สินค้าคงคลัง</Link>
+            </TabsTrigger>
+            <TabsTrigger value="order" asChild>
+              <Link href={buildTabHref(query, "order")}>
+                รับ &amp; สั่งสินค้า
+              </Link>
+            </TabsTrigger>
           </TabsList>
 
-          {/* ── Tab: สินค้าคงคลัง ── */}
           <TabsContent value="inventory">
             <InventoriesClient
-              inventories={inventories}
-              inventoryCategories={inventoryCategories}
+              inventoryData={inventoriesResult.data}
+              inventoryCategories={categoriesResult.data}
             />
           </TabsContent>
 
-          {/* ── Tab: ใบสั่งซื้อ ── */}
           <TabsContent value="order">
-            <PurchaseOrdersPage orders={purchaseOrders} />
+            <PurchaseOrdersPage orderData={purchaseOrdersResult.data} />
           </TabsContent>
         </Tabs>
       </div>

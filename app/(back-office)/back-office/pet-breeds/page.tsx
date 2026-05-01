@@ -1,12 +1,31 @@
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import { PetBreedManagement } from "@/modules/pet-breed/components/PetBreedManagement";
-import { listPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
+import {
+  listPetBreeds,
+  parsePetBreedPage,
+  parsePetBreedTypeFilter,
+} from "@/modules/pet-breed/queries/list-pet-breeds";
 
-export default async function PetBreedsPage() {
+type PetBreedsPageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    type?: string;
+  }>;
+};
+
+export default async function PetBreedsPage({
+  searchParams,
+}: PetBreedsPageProps) {
   await requireStaff();
 
-  const petBreeds = await listPetBreeds();
+  const query = await searchParams;
+  const petBreeds = await listPetBreeds({
+    page: parsePetBreedPage(query.page),
+    q: query.q,
+    type: parsePetBreedTypeFilter(query.type),
+  });
 
   if (!petBreeds.success) {
     throw new Error(petBreeds.error);
@@ -16,7 +35,7 @@ export default async function PetBreedsPage() {
     <>
       <SiteHeader title="จัดการสายพันธุ์สัตว์เลี้ยง" />
       <div className="p-6">
-        <PetBreedManagement petBreeds={petBreeds.data} />
+        <PetBreedManagement {...petBreeds.data} />
       </div>
     </>
   );

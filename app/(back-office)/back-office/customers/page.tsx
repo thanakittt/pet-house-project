@@ -1,13 +1,32 @@
-import CustomerManagement from "@/modules/customer/components/CustomerManagement";
-import { requireStaff } from "@/lib/session";
-import { listCustomers } from "@/modules/customer/queries/list-customer";
-import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
+import { requireStaff } from "@/lib/session";
+import CustomerManagement from "@/modules/customer/components/CustomerManagement";
+import {
+  listCustomers,
+  parseCustomerChannelFilter,
+  parseCustomerPage,
+} from "@/modules/customer/queries/list-customer";
+import { notFound } from "next/navigation";
 
-export default async function CustomerManagementPage() {
+type CustomerManagementPageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    channel?: string;
+  }>;
+};
+
+export default async function CustomerManagementPage({
+  searchParams,
+}: CustomerManagementPageProps) {
   await requireStaff();
 
-  const customers = await listCustomers();
+  const query = await searchParams;
+  const customers = await listCustomers({
+    page: parseCustomerPage(query.page),
+    q: query.q,
+    channel: parseCustomerChannelFilter(query.channel),
+  });
 
   if (!customers.success) {
     throw new Error(customers.error);
@@ -21,7 +40,7 @@ export default async function CustomerManagementPage() {
     <>
       <SiteHeader title="จัดการลูกค้า" />
       <div className="p-6">
-        <CustomerManagement customers={customers.data} />
+        <CustomerManagement {...customers.data} />
       </div>
     </>
   );

@@ -1,18 +1,27 @@
 import { listPets } from "@/modules/pet/queries/list-pets";
 import CustomerDetail from "@/modules/customer/components/CustomerDetail";
-import { listPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
+import { listAllPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
+import {
+  getCustomerAppointmentHistory,
+  parseCustomerAppointmentHistoryPage,
+} from "@/modules/appointment/queries/get-customer-history";
 
 interface CustomerDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    historyPage?: string;
+  }>;
 }
 
 export default async function CustomerDetailPage({
   params,
+  searchParams,
 }: CustomerDetailPageProps) {
   const { id } = await params;
+  const query = await searchParams;
 
   await requireStaff();
 
@@ -20,7 +29,12 @@ export default async function CustomerDetailPage({
     notFound();
   }
 
-  const petBreeds = await listPetBreeds();
+  const historyPage = parseCustomerAppointmentHistoryPage(query.historyPage);
+
+  const [petBreeds, appointmentHistory] = await Promise.all([
+    listAllPetBreeds(),
+    getCustomerAppointmentHistory(id, { page: historyPage }),
+  ]);
 
   if (!petBreeds.success) {
     return (
@@ -57,6 +71,7 @@ export default async function CustomerDetailPage({
       <SiteHeader title="รายละเอียดลูกค้า" />
       <div className="p-6">
         <CustomerDetail
+          appointmentHistory={appointmentHistory}
           petBreeds={petBreeds.data}
           customerId={id}
           pets={pets.data}

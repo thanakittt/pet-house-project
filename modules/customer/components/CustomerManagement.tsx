@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
+import {
+  TableActionButton,
+  TableActionLink,
+} from "@/components/shared/TableActionButton";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -8,23 +18,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { CreateCustomerDialog } from "@/modules/customer/components/CreateCustomerDialog";
-import { Customer } from "../types/customer";
-import { Button } from "@/components/ui/button";
-import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteCustomer } from "../actions/delete-customer";
-import Link from "next/link";
+import type { ListCustomersResult } from "../queries/list-customer";
+import { Customer } from "../types/customer";
+import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 
-interface CustomerManagementProps {
-  customers: Customer[];
-}
+const channelOptions: ManagementFilterOption[] = [
+  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ONLINE", label: "Online" },
+  { value: "WALK_IN", label: "Walk-in" },
+];
 
 export default function CustomerManagement({
   customers,
-}: CustomerManagementProps) {
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+  channel,
+}: ListCustomersResult) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -33,12 +48,24 @@ export default function CustomerManagement({
 
   return (
     <>
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreateCustomerDialog />
-        </div>
-      </div>
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาลูกค้า",
+          placeholder: "ค้นหาชื่อลูกค้า หรือเบอร์โทร",
+          value: q,
+        }}
+        selectFilters={[
+          {
+            ariaLabel: "กรองช่องทางลูกค้า",
+            name: "channel",
+            options: channelOptions,
+            placeholder: "ช่องทาง",
+            value: channel,
+          },
+        ]}
+        createAction={<CreateCustomerDialog />}
+      />
+
       <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
@@ -55,65 +82,64 @@ export default function CustomerManagement({
             {customers.length > 0 ? (
               customers.map((customer) => (
                 <TableRow key={customer.id}>
-                  <TableCell>{customer.nickname}</TableCell>
+                  <TableCell>{customer.userName ?? customer.nickname}</TableCell>
                   <TableCell>
                     {customer.userId === null ? "Walk-in" : "Online"}
                   </TableCell>
-                  <TableCell>{customer.walkInPhoneNumber}</TableCell>
+                  <TableCell>
+                    {customer.userPhoneNumber ??
+                      customer.walkInPhoneNumber ??
+                      "-"}
+                  </TableCell>
                   <TableCell>
                     {new Date(customer.createdAt).toLocaleDateString("th-TH")}
                   </TableCell>
-                  <TableCell className="space-x-2 text-right">
-                    {/* ดูรายละเอียดลูกค้า */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="ดูรายละเอียด"
-                      asChild
-                    >
-                      <Link href={`/back-office/customers/${customer.id}`}>
-                        <EyeIcon className="size-3.5" />
-                      </Link>
-                    </Button>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <TableActionLink
+                        aria-label="ดูรายละเอียด"
+                        action="view"
+                        href={`/back-office/customers/${customer.id}`}
+                      />
 
-                    {/* แก้ไขข้อมูลลูกค้า */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="แก้ไขข้อมูล"
-                      onClick={() => {
-                        setSelectedCustomer(customer);
-                        setIsUpdateDialogOpen(true);
-                      }}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
+                      <TableActionButton
+                        aria-label="แก้ไขข้อมูล"
+                        action="edit"
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setIsUpdateDialogOpen(true);
+                        }}
+                      />
 
-                    {/* ลบข้อมูลลูกค้า */}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label="ลบข้อมูล"
-                      onClick={() => {
-                        setSelectedCustomer(customer);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <TrashIcon className="size-3.5" />
-                    </Button>
+                      <TableActionButton
+                        aria-label="ลบข้อมูล"
+                        action="delete"
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลลูกค้า
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       {selectedCustomer && (
         <>

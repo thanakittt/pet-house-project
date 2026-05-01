@@ -1,6 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  ManagementListControls,
+  ManagementPagination,
+  type ManagementFilterOption,
+} from "@/components/shared/ManagementListControls";
+import { TableActionButton } from "@/components/shared/TableActionButton";
 import {
   Table,
   TableBody,
@@ -9,22 +17,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { BannedBadge } from "./BannedBadge";
 import { RoleBadge } from "./RoleBadge";
-import { Ban, CircleCheck, Loader2Icon, PencilIcon } from "lucide-react";
-import { AuthUser, AuthUserWithProfile } from "../types/user";
-
+import type { AuthUserWithProfile } from "../types/user";
+import type {
+  ListUsersResult,
+  UserRoleFilter,
+} from "@/modules/auth/queries/list-users";
 import BanUserDialog from "./BanUserDialog";
 import { CreateUserDialog } from "./CreateUserDialog";
 import { UpdateUserDialog } from "./UpdateUserDialog";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { getUserById } from "../queries/get-user";
 
-export default function UserManagement({ users }: { users: AuthUser[] }) {
+const roleOptions: Array<ManagementFilterOption & { value: UserRoleFilter }> = [
+  { value: "ALL", label: "ทั้งหมด" },
+  { value: "admin", label: "ผู้ดูแลระบบ" },
+  { value: "owner", label: "เจ้าของร้าน" },
+  { value: "staff", label: "พนักงาน" },
+  { value: "customer", label: "ลูกค้า" },
+];
+
+export default function UserManagement({
+  users,
+  total,
+  page,
+  pageSize,
+  totalPages,
+  q,
+  role,
+}: ListUsersResult) {
   const router = useRouter();
   const [isBanUserDialogOpen, setIsBanUserDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -76,14 +98,25 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
 
   return (
     <>
-      <div className="justify-between items-center gap-3 grid grid-cols-2 mb-5">
-        <div className="flex items-center gap-3"></div>
-        <div className="flex justify-end">
-          <CreateUserDialog />
-        </div>
-      </div>
+      <ManagementListControls
+        search={{
+          ariaLabel: "ค้นหาผู้ใช้",
+          placeholder: "ค้นหาชื่อ อีเมล หรือเบอร์โทรศัพท์",
+          value: q,
+        }}
+        selectFilters={[
+          {
+            ariaLabel: "กรองบทบาท",
+            name: "role",
+            options: roleOptions,
+            placeholder: "บทบาท",
+            value: role,
+          },
+        ]}
+        createAction={<CreateUserDialog />}
+      />
 
-      <div className="border rounded-md overflow-x-auto">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -111,41 +144,29 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {user.banned ? (
-                        <Button
-                          variant="outline"
-                          size="icon"
+                        <TableActionButton
                           aria-label="ยกเลิกการแบน"
+                          action="unban"
                           onClick={() => unbanUser(user.id)}
-                        >
-                          <CircleCheck className="size-3.5" />
-                        </Button>
+                        />
                       ) : (
-                        <Button
-                          variant="outline"
-                          size="icon"
+                        <TableActionButton
                           aria-label="แบนผู้ใช้"
+                          action="ban"
                           onClick={() => {
                             setSelectedUserId(user.id);
                             setIsBanUserDialogOpen(true);
                           }}
-                        >
-                          <Ban className="size-3.5" />
-                        </Button>
+                        />
                       )}
 
-                      <Button
-                        variant="outline"
-                        size="icon"
+                      <TableActionButton
                         aria-label="แก้ไขข้อมูล"
+                        action="edit"
                         disabled={loadingUserId === user.id}
+                        isLoading={loadingUserId === user.id}
                         onClick={() => handleEditUser(user.id)}
-                      >
-                        {loadingUserId === user.id ? (
-                          <Loader2Icon className="size-3.5 animate-spin" />
-                        ) : (
-                          <PencilIcon className="size-3.5" />
-                        )}
-                      </Button>
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -153,13 +174,20 @@ export default function UserManagement({ users }: { users: AuthUser[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center">
-                  ไม่มีข้อมูล
+                  ไม่พบข้อมูลผู้ใช้
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <ManagementPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
 
       <BanUserDialog
         userId={selectedUserId ?? ""}
