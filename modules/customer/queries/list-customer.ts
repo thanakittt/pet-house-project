@@ -102,6 +102,8 @@ export async function listCustomers({
         id: customers.id,
         nickname: customers.nickname,
         walkInPhoneNumber: customers.walkInPhoneNumber,
+        userName: users.name,
+        userPhoneNumber: users.phoneNumber,
         userId: customers.userId,
         createdAt: customers.createdAt,
         gender: customers.gender,

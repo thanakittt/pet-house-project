@@ -82,11 +82,15 @@ export default function CustomerManagement({
             {customers.length > 0 ? (
               customers.map((customer) => (
                 <TableRow key={customer.id}>
-                  <TableCell>{customer.nickname}</TableCell>
+                  <TableCell>{customer.userName ?? customer.nickname}</TableCell>
                   <TableCell>
                     {customer.userId === null ? "Walk-in" : "Online"}
                   </TableCell>
-                  <TableCell>{customer.walkInPhoneNumber ?? "-"}</TableCell>
+                  <TableCell>
+                    {customer.userPhoneNumber ??
+                      customer.walkInPhoneNumber ??
+                      "-"}
+                  </TableCell>
                   <TableCell>
                     {new Date(customer.createdAt).toLocaleDateString("th-TH")}
                   </TableCell>
