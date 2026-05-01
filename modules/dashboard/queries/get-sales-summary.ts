@@ -11,6 +11,7 @@ import { payments } from "@/db/schema";
 import { and, eq, gte, lte, isNull, sql } from "drizzle-orm";
 import { SalesSummary, DashboardPeriod } from "../types/dashboard";
 import { getDateRange, getPreviousDateRange } from "../utils/date-range";
+import { formatDateOnly } from "@/lib/finance/date";
 
 /**
  * ดึงสรุปยอดขายจากตาราง payments
@@ -39,8 +40,8 @@ export async function getSalesSummary(
         and(
           eq(payments.status, "PAID"),
           isNull(payments.deletedAt),
-          gte(payments.paymentDate, startDate),
-          lte(payments.paymentDate, endDate)
+          gte(payments.paymentDate, formatDateOnly(startDate)),
+          lte(payments.paymentDate, formatDateOnly(endDate))
         )
       ),
 
@@ -55,8 +56,8 @@ export async function getSalesSummary(
         and(
           eq(payments.status, "PAID"),
           isNull(payments.deletedAt),
-          gte(payments.paymentDate, prevStart),
-          lte(payments.paymentDate, prevEnd)
+          gte(payments.paymentDate, formatDateOnly(prevStart)),
+          lte(payments.paymentDate, formatDateOnly(prevEnd))
         )
       ),
   ]);

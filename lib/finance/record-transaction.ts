@@ -1,5 +1,6 @@
 import { transactions, transactionCategories } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
+import { formatDateOnly } from "./date";
 
 /**
  * ประเภทของ Drizzle Transaction Context ที่ส่งเข้ามาจาก db.transaction()
@@ -79,7 +80,7 @@ export async function recordTransaction(
   // 3. Insert รายการ transaction (ไม่มี FK ไปยัง appointment/purchase_order แล้ว)
   await tx.insert(transactions).values({
     amount: input.amount.toFixed(2),
-    transactionDate: input.transactionDate,
+    transactionDate: formatDateOnly(input.transactionDate),
     note: input.note ?? null,
     transactionCategoryId: category.id,
   });

@@ -2,9 +2,9 @@
 
 import { db } from "@/db";
 import { appointments } from "@/db/schema";
-import { eq, and, gte, lt, notInArray } from "drizzle-orm";
-import { startOfDay, endOfDay } from "date-fns";
+import { eq, and, notInArray } from "drizzle-orm";
 import { requireStaff } from "@/lib/session";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export async function getTodayAppointmentsBoard() {
   try {
@@ -16,14 +16,11 @@ export async function getTodayAppointmentsBoard() {
       };
     }
 
-    const today = new Date();
-    const start = startOfDay(today);
-    const end = endOfDay(today);
+    const today = formatDateOnly(new Date());
 
     const data = await db.query.appointments.findMany({
       where: and(
-        gte(appointments.appointmentDate, start),
-        lt(appointments.appointmentDate, end),
+        eq(appointments.appointmentDate, today),
         // ตัดสถานะที่ไม่ใช่ Operation ของวันนี้ออกไป
         notInArray(appointments.status, [
           "CANCELLED",

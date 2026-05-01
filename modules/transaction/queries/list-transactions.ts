@@ -4,6 +4,7 @@ import { and, count, desc, eq, gte, isNull, lte } from "drizzle-orm";
 import { isSystemCategory } from "../constants/system-categories";
 import { Transaction, TransactionPeriod } from "../types/transaction";
 import { getDateRangeFromPeriod } from "../utils/date-range";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export const TRANSACTION_MANAGEMENT_PAGE_SIZE = 10;
 
@@ -31,13 +32,13 @@ export async function listTransactions(
   let dateFilter = undefined;
 
   if (date) {
-    dateFilter = eq(transactions.transactionDate, new Date(date));
+    dateFilter = eq(transactions.transactionDate, formatDateOnly(new Date(date)));
   } else {
     const { startDate, endDate } = getDateRangeFromPeriod(period);
     if (startDate && endDate) {
       dateFilter = and(
-        gte(transactions.transactionDate, startDate),
-        lte(transactions.transactionDate, endDate),
+        gte(transactions.transactionDate, formatDateOnly(startDate)),
+        lte(transactions.transactionDate, formatDateOnly(endDate)),
       );
     }
   }

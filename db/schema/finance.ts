@@ -19,7 +19,7 @@ export const payments = p
       id: p.uuid("id").defaultRandom().primaryKey(),
       amount: p.numeric("amount", { precision: 8, scale: 2 }).notNull(),
       paymentMethod: paymentMethodTypeEnum("payment_method").notNull(),
-      paymentDate: p.date("payment_date", { mode: "date" }).notNull(),
+      paymentDate: p.date("payment_date", { mode: "string" }).notNull(),
       status: paymentStatusEnum("status").notNull(),
       paymentType: paymentTypeEnum("payment_type")
         .notNull()
@@ -61,7 +61,7 @@ export const transactions = p
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       amount: p.numeric("amount", { precision: 8, scale: 2 }).notNull(),
-      transactionDate: p.date("transaction_date", { mode: "date" }).notNull(),
+      transactionDate: p.date("transaction_date", { mode: "string" }).notNull(),
       note: p.text("note"),
       // FK ไปยัง transaction_categories (บังคับ)
       transactionCategoryId: p.uuid("transaction_category_id").notNull(),

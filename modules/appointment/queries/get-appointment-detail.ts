@@ -91,7 +91,7 @@ export async function getAppointmentDetail(appointmentId: string) {
     // 3. ส่งข้อมูลที่จัดรูปแบบแล้ว
     const formattedData = {
       id: appointmentData.id,
-      date: appointmentData.appointmentDate,
+      date: new Date(appointmentData.appointmentDate),
       status: appointmentData.status as AppointmentStatus,
       note: appointmentData.note,
       customer: {

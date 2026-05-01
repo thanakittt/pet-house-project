@@ -7,9 +7,10 @@
 
 import { db } from "@/db";
 import { appointments } from "@/db/schema";
-import { and, gte, lte, isNull, sql, inArray, notInArray } from "drizzle-orm";
+import { and, gte, lte, isNull, sql } from "drizzle-orm";
 import { AppointmentSummary, DashboardPeriod } from "../types/dashboard";
 import { getDateRange } from "../utils/date-range";
+import { formatDateOnly } from "@/lib/finance/date";
 
 /**
  * ดึงสรุปจำนวนการจองคิวแยกตาม status
@@ -21,6 +22,8 @@ export async function getAppointmentSummary(
   period: DashboardPeriod,
 ): Promise<AppointmentSummary> {
   const { startDate, endDate } = getDateRange(period);
+  const startDateValue = formatDateOnly(startDate);
+  const endDateValue = formatDateOnly(endDate);
 
   // ดึงจำนวนนัดหมายแยกตาม status ใน 1 query
   const results = await db
@@ -32,8 +35,8 @@ export async function getAppointmentSummary(
     .where(
       and(
         isNull(appointments.deletedAt),
-        gte(appointments.appointmentDate, startDate),
-        lte(appointments.appointmentDate, endDate),
+        gte(appointments.appointmentDate, startDateValue),
+        lte(appointments.appointmentDate, endDateValue),
       ),
     )
     .groupBy(appointments.status);

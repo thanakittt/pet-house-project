@@ -246,7 +246,7 @@ export default function AppointmentStatusManager({
         {/* --- ปุ่มลัดไปหน้าใบเสร็จ (จะโชว์เฉพาะสถานะ COMPLETED) --- */}
         {currentStatus === "COMPLETED" && (
           <Button asChild className="w-full sm:w-auto">
-            <Link href={`/back-office/receipt/${appointmentId}`}>
+            <Link href={`/receipt/${appointmentId}`}>
               <Receipt className="mr-2 w-4 h-4" />
               ดูใบเสร็จ
             </Link>

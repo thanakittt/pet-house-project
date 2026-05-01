@@ -648,7 +648,7 @@ export function POSCheckoutForm({
         }
         successMessage="ชำระเงินเรียบร้อย"
         errorMessage="เกิดข้อผิดพลาดในการดำเนินการ"
-        redirectPath={`/appointments/${appointment.id}`}
+        redirectPath={`/back-office/appointments/${appointment.id}`}
       />
     </div>
   );

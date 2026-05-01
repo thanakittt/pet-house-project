@@ -94,6 +94,7 @@ export async function getCustomerAppointmentHistory(
     const formattedHistory: CustomerAppointmentHistory[] = history.map(
       (appointment) => ({
         ...appointment,
+        appointmentDate: new Date(appointment.appointmentDate),
         items: appointment.items.map((item) => ({
           ...item,
           startTime: item.startTime.toISOString(),

@@ -63,7 +63,13 @@ export async function getWaitingPayments(): Promise<
       },
     });
 
-    return { success: true, data };
+    return {
+      success: true,
+      data: data.map((appointment) => ({
+        ...appointment,
+        appointmentDate: new Date(appointment.appointmentDate),
+      })),
+    };
   } catch (error) {
     console.error("[getWaitingPayments] Error:", error);
     return { success: false, error: "ไม่สามารถดึงข้อมูลรายการรอชำระเงินได้" };

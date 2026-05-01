@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { recordTransaction } from "@/lib/finance/record-transaction";
+import { formatDateOnly } from "@/lib/finance/date";
 
 export interface ProcessPaymentInput {
   appointmentId: string;
@@ -44,6 +45,8 @@ export async function processPayment(data: ProcessPaymentInput) {
 
     // 2. ดำเนินการ Database Transaction
     await db.transaction(async (tx) => {
+      const today = new Date();
+
       const existingAppointments = await tx
         .select()
         .from(appointments)
@@ -56,7 +59,7 @@ export async function processPayment(data: ProcessPaymentInput) {
       await tx.insert(payments).values({
         amount: data.amount.toString(),
         paymentMethod: data.paymentMethod,
-        paymentDate: new Date(),
+        paymentDate: formatDateOnly(today),
         status: "PAID", // สมมติว่าชำระสำเร็จทันที (ถ้า PromptPay อาจต้องรอ Verify Slip)
         appointmentId: data.appointmentId,
       });
@@ -64,7 +67,7 @@ export async function processPayment(data: ProcessPaymentInput) {
       // 2.2 บันทึก transaction รายรับ (การชำระเงินเต็มจำนวน) ลงตาราง transactions
       await recordTransaction(tx, {
         amount: data.amount,
-        transactionDate: new Date(),
+        transactionDate: today,
         categoryType: "INCOME",
         categoryName: "รายรับจากการให้บริการ",
         note: `รับชำระเงินผ่าน POS (${data.paymentMethod}) นัดหมาย #${data.appointmentId}`,
