@@ -71,6 +71,13 @@
       "when": 1777287002840,
       "tag": "0009_clumsy_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1777635484907,
+      "tag": "0010_certain_karen_page",
+      "breakpoints": true
     }
   ]
 }
