@@ -1,11 +1,50 @@
-"use server";
-
 import { db } from "@/db";
 import { appointments } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
 import { requireStaff } from "@/lib/session";
+import { type ActionResponse } from "@/types/action";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
+import { type AppointmentStatus } from "../types/status";
 
-export async function getCustomerAppointmentHistory(customerId: string) {
+export const CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE = 10;
+
+export type CustomerAppointmentHistory = {
+  id: string;
+  appointmentDate: Date;
+  status: AppointmentStatus;
+  items: {
+    price: string;
+    startTime: string;
+    endTime: string;
+    pet: {
+      name: string;
+    } | null;
+    serviceVariant: {
+      service: {
+        name: string;
+      };
+    };
+  }[];
+};
+
+export type CustomerAppointmentHistoryResult = {
+  appointments: CustomerAppointmentHistory[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+export function parseCustomerAppointmentHistoryPage(value: unknown): number {
+  const parsedValue =
+    typeof value === "string" ? Number.parseInt(value, 10) : Number(value);
+
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : 1;
+}
+
+export async function getCustomerAppointmentHistory(
+  customerId: string,
+  options: { page?: number } = {},
+): Promise<ActionResponse<CustomerAppointmentHistoryResult>> {
   const session = await requireStaff({ redirect: false });
 
   if (!session) {
@@ -15,11 +54,32 @@ export async function getCustomerAppointmentHistory(customerId: string) {
     };
   }
 
-  try {    
-    // 2. ดึงข้อมูลประวัติการจอง พร้อม Relational Data
+  try {
+    const where = and(
+      eq(appointments.customerId, customerId),
+      isNull(appointments.deletedAt),
+    );
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(appointments)
+      .where(where);
+
+    const totalPages = Math.ceil(
+      total / CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE,
+    );
+    const currentPage =
+      totalPages > 0
+        ? Math.min(Math.max(options.page ?? 1, 1), totalPages)
+        : 1;
+    const offset =
+      (currentPage - 1) * CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE;
+
     const history = await db.query.appointments.findMany({
-      where: eq(appointments.customerId, customerId),
+      where,
       orderBy: [desc(appointments.appointmentDate)],
+      limit: CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE,
+      offset,
       with: {
         items: {
           with: {
@@ -34,8 +94,7 @@ export async function getCustomerAppointmentHistory(customerId: string) {
       },
     });
 
-    // 3. แปลงเวลาเป็น ISO String สำหรับการส่งต่อไปยัง Client Component
-    const formattedHistory = history.map((appointment) => ({
+    const formattedHistory: CustomerAppointmentHistory[] = history.map((appointment) => ({
       ...appointment,
       items: appointment.items.map((item) => ({
         ...item,
@@ -44,7 +103,16 @@ export async function getCustomerAppointmentHistory(customerId: string) {
       })),
     }));
 
-    return { success: true, data: formattedHistory };
+    return {
+      success: true,
+      data: {
+        appointments: formattedHistory,
+        total,
+        page: currentPage,
+        pageSize: CUSTOMER_APPOINTMENT_HISTORY_PAGE_SIZE,
+        totalPages,
+      },
+    };
   } catch (error) {
     console.error("Error fetching appointment history:", error);
     return {
@@ -53,8 +121,3 @@ export async function getCustomerAppointmentHistory(customerId: string) {
     };
   }
 }
-
-// สร้าง Type Inference สำหรับนำไปใช้ใน Client Component
-export type CustomerAppointmentHistory = NonNullable<
-  Awaited<ReturnType<typeof getCustomerAppointmentHistory>>["data"]
->[number];
