@@ -40,16 +40,27 @@ export default function StatusUpdate({
     setLocalStatus(newStatus);
 
     startTransition(async () => {
-      const result = await updatePurchaseOrderStatus(orderId, newStatus);
+      try {
+        const result = await updatePurchaseOrderStatus(orderId, newStatus);
 
-      if (!result.success) {
+        if (!result.success) {
+          // กรณี API return success: false
+          setLocalStatus(prevStatus);
+          toast.error(result.error || "ไม่สามารถอัปเดตสถานะได้");
+          router.refresh();
+          return;
+        }
+
+        toast.success("อัปเดตสถานะใบสั่งซื้อเรียบร้อย");
+        router.refresh();
+      } catch (error) {
+        // กรณีเกิด Exception อื่นๆ เช่น Network Error
         setLocalStatus(prevStatus);
-        toast.error(result.error);
-        return;
+        const errorMessage =
+          error instanceof Error ? error.message : "เกิดข้อผิดพลาดที่ไม่รู้จัก";
+        toast.error(`เกิดข้อผิดพลาด: ${errorMessage}`);
+        router.refresh();
       }
-
-      toast.success("อัปเดตสถานะใบสั่งซื้อเรียบร้อย");
-      router.refresh();
     });
   };
 
@@ -79,7 +90,7 @@ export default function StatusUpdate({
 
         <DropdownMenuContent
           align="start"
-          className="z-50 w-56 rounded-xl border-slate-200 bg-white p-2 shadow-xl"
+          className="z-50 bg-white shadow-xl p-2 border-slate-200 rounded-xl w-56"
         >
           {groups.map((group) => {
             const groupItems = PURCHASE_ORDER_STATUS_KEYS.filter(
@@ -91,7 +102,7 @@ export default function StatusUpdate({
             return (
               <div key={group} className="mb-2 last:mb-0">
                 <div className="flex items-center px-2 py-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <span className="font-bold text-[10px] text-muted-foreground uppercase tracking-wider">
                     {group}
                   </span>
                 </div>
