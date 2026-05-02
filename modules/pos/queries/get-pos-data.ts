@@ -70,6 +70,7 @@ export async function getPOSCheckoutData(appointmentId: string) {
         breed: {
           columns: {
             type: true,
+            size: true,
           },
         },
       },

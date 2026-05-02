@@ -1,7 +1,7 @@
 import { pgTable, index } from "drizzle-orm/pg-core";
 import { timestamps } from "./column.helper";
 import { users } from "./auth";
-import { genderEnum, petTypeEnum } from "./enum";
+import { genderEnum, petSizeEnum, petTypeEnum } from "./enum";
 import * as p from "drizzle-orm/pg-core";
 
 // ตาราง customers: เก็บข้อมูลลูกค้าของร้าน
@@ -25,6 +25,7 @@ export const petBreeds = pgTable("pet_breeds", {
   id: p.uuid("id").defaultRandom().primaryKey(),
   name: p.text("name").notNull(),
   type: petTypeEnum("type").notNull(),
+  size: petSizeEnum("size").notNull().default("M"),
   ...timestamps,
 }).enableRLS();
 

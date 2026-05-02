@@ -18,6 +18,7 @@ export type CustomerSearchResult = {
     breed: {
       name: string;
       type: string;
+      size: string;
     };
   }[];
 };

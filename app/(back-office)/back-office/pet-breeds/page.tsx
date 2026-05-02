@@ -4,6 +4,7 @@ import { PetBreedManagement } from "@/modules/pet-breed/components/PetBreedManag
 import {
   listPetBreeds,
   parsePetBreedPage,
+  parsePetBreedSizeFilter,
   parsePetBreedTypeFilter,
 } from "@/modules/pet-breed/queries/list-pet-breeds";
 
@@ -11,6 +12,7 @@ type PetBreedsPageProps = {
   searchParams: Promise<{
     page?: string;
     q?: string;
+    size?: string;
     type?: string;
   }>;
 };
@@ -24,6 +26,7 @@ export default async function PetBreedsPage({
   const petBreeds = await listPetBreeds({
     page: parsePetBreedPage(query.page),
     q: query.q,
+    size: parsePetBreedSizeFilter(query.size),
     type: parsePetBreedTypeFilter(query.type),
   });
 

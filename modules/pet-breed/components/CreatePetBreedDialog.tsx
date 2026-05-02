@@ -24,6 +24,7 @@ import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,10 @@ import { useRouter } from "next/navigation";
 import { PetBreedForm } from "../types/pet-breed";
 import { createPetBreed } from "../actions/create-pet-breed";
 
+const petSizeOptions = PET_SIZE_OPTIONS.filter(
+  (option) => option.value !== "ALL",
+);
+
 export function CreatePetBreedDialog() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -45,6 +50,7 @@ export function CreatePetBreedDialog() {
     defaultValues: {
       name: "",
       type: "",
+      size: "",
     },
     mode: "onBlur",
   });
@@ -151,6 +157,37 @@ export function CreatePetBreedDialog() {
                     </SelectTrigger>
                     <SelectContent>
                       {PET_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            {/* Pet Size Field */}
+            <Controller
+              name="size"
+              control={form.control}
+              rules={{
+                required: "กรุณาระบุขนาดสัตว์เลี้ยง",
+              }}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    ขนาดสัตว์เลี้ยง
+                  </FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={field.name}>
+                      <SelectValue placeholder="เลือกขนาด" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {petSizeOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>
