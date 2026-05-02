@@ -25,7 +25,7 @@ export const petBreeds = pgTable("pet_breeds", {
   id: p.uuid("id").defaultRandom().primaryKey(),
   name: p.text("name").notNull(),
   type: petTypeEnum("type").notNull(),
-  size: petSizeEnum("size").notNull().default("ALL"),
+  size: petSizeEnum("size").notNull().default("M"),
   ...timestamps,
 }).enableRLS();
 
