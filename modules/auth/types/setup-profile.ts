@@ -3,5 +3,4 @@ export type SetupProfileData = {
   walkInPhoneNumber: string;
   gender: "MALE" | "FEMALE" | "UNSPECIFIED";
   birthDate?: string;
-  userId: string;
 };

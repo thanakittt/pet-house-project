@@ -61,7 +61,6 @@ export function SetupProfileForm({ userId, name }: SetupProfileFormProps) {
         walkInPhoneNumber: data.phoneNumbers,
         gender: data.gender as "MALE" | "FEMALE" | "UNSPECIFIED",
         birthDate: data.birthDate || undefined,
-        userId: userId,
       });
       if (!result.success) {
         setServerError(result.error);

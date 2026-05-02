@@ -8,16 +8,24 @@ import { DatabaseError } from "pg";
 import { SetupProfileData } from "../types/setup-profile";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { requireCustomer } from "@/lib/session";
 
 export async function setupProfile(
   data: SetupProfileData,
 ): Promise<ActionResponse<null>> {
   try {
+    const session = await requireCustomer({ redirect: false });
+    const userId = session?.user.id;
+    if (!userId) {
+      return { success: false, error: "ไม่พบข้อมูลผู้ใช้" };
+    }
+
     await db.insert(customers).values({
       nickname: data.nickname,
       walkInPhoneNumber: data.walkInPhoneNumber,
       gender: data.gender,
-      userId: data.userId,
+      userId: userId,
+      birthDate: data.birthDate || null,
     });
 
     try {
@@ -28,7 +36,7 @@ export async function setupProfile(
         headers: await headers(),
       });
     } catch (updateError) {
-      await db.delete(customers).where(eq(customers.userId, data.userId));
+      await db.delete(customers).where(eq(customers.userId, userId));
       throw updateError;
     }
 

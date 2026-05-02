@@ -12,6 +12,7 @@ import { eq } from "drizzle-orm";
 export async function signUpCustomer(
   data: Omit<SignUpFormData, "confirmPassword">,
 ): Promise<ActionResponse<null>> {
+  let createUserId: string | null = null;
   try {
     const isPhoneNumberExistsResult = await isPhoneNumberExists(data.phone);
 
@@ -36,6 +37,8 @@ export async function signUpCustomer(
       throw new Error("Failed to create user");
     }
 
+    createUserId = signUpResult.user.id;
+
     const [customer] = await db
       .insert(customers)
       .values({
@@ -46,20 +49,20 @@ export async function signUpCustomer(
       })
       .returning({ id: customers.id });
 
-    if (!customer?.id) {
+    return { success: true, data: null };
+  } catch (error) {
+    // Rollback user creation if customer creation failed
+    if (createUserId) {
       try {
-        await db.delete(users).where(eq(users.id, signUpResult.user.id));
+        await db.delete(users).where(eq(users.id, createUserId));
       } catch (cleanupError) {
         console.error(
-          `[signUpCustomer] Rollback failed – ลบ user id=${signUpResult.user.id} ไม่สำเร็จ:`,
+          `[signUpCustomer] Rollback failed – ลบ user id=${createUserId} ไม่สำเร็จ:`,
           cleanupError,
         );
       }
-      throw new Error("Failed to create customer");
     }
 
-    return { success: true, data: null };
-  } catch (error) {
     console.error("[signUpCustomer] Error:", error);
 
     if (
