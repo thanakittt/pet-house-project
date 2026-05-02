@@ -7,7 +7,8 @@ import { ActionResponse } from "@/types/action";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { customers, users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { DrizzleQueryError, eq } from "drizzle-orm";
+import { DatabaseError } from "pg";
 
 export async function signUpCustomer(
   data: Omit<SignUpFormData, "confirmPassword">,
@@ -39,7 +40,7 @@ export async function signUpCustomer(
 
     createUserId = signUpResult.user.id;
 
-    const [customer] = await db
+    await db
       .insert(customers)
       .values({
         userId: signUpResult.user.id,
@@ -70,6 +71,15 @@ export async function signUpCustomer(
       error.body?.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
     ) {
       return { success: false, error: "อีเมลนี้ถูกใช้งานแล้ว" };
+    }
+
+    if (
+      error instanceof DrizzleQueryError &&
+      error.cause instanceof DatabaseError &&
+      error.cause.code === "23505" &&
+      error.cause.constraint?.includes("walk_in_phone_number")
+    ) {
+      return { success: false, error: "เบอร์โทรศัพท์นี้มีอยู่แล้ว" };
     }
 
     return {

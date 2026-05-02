@@ -36,7 +36,11 @@ export async function setupProfile(
         headers: await headers(),
       });
     } catch (updateError) {
-      await db.delete(customers).where(eq(customers.userId, userId));
+      try {
+        await db.delete(customers).where(eq(customers.userId, userId));
+      } catch (rollbackError) {
+        console.error("SetupProfile rollback failed:", rollbackError);
+      }
       throw updateError;
     }
 
