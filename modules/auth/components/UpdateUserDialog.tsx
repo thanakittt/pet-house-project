@@ -82,7 +82,10 @@ export function UpdateUserDialog({
         gender: data.gender === (user.gender ?? "") ? undefined : data.gender,
         birthDate:
           data.birthDate === (user.birthDate ?? "") ? undefined : data.birthDate,
-        role: data.role === user.role ? undefined : data.role,
+        role:
+          data.role === user.role && user.role !== "customer"
+            ? undefined
+            : data.role,
       };
 
       if (
