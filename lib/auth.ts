@@ -11,7 +11,7 @@ export const auth = betterAuth({
     provider: "pg",
   }),
   baseURL: requiredEnv("BETTER_AUTH_URL"),
-  emailAndPassword: { enabled: true },
+  emailAndPassword: { enabled: true, autoSignIn: false },
   socialProviders: {
     google: {
       clientId: requiredEnv("GOOGLE_CLIENT_ID"),

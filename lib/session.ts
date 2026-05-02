@@ -24,6 +24,16 @@ export async function requireRole(roles: string[]) {
   return session;
 }
 
+export async function requireCustomer(config = { redirect: true }) {
+  const session = await requireRole(["customer"]);
+
+  if (!session && config.redirect) {
+    redirect("/sign-in");
+  }
+
+  return session;
+}
+
 export async function requireAdmin() {
   const session = await requireRole(["admin"]);
 
