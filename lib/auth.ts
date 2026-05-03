@@ -5,14 +5,23 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin } from "better-auth/plugins";
 import { ac, owner, staff, customer, admin as adminRole } from "./permissions";
 import { requiredEnv } from "./utils";
-import { sendVerificationEmail } from "./mail";
+import { sendPasswordResetEmail, sendVerificationEmail } from "./mail";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
   baseURL: requiredEnv("BETTER_AUTH_URL"),
-  emailAndPassword: { enabled: true, autoSignIn: false },
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    async sendResetPassword({ user, url }) {
+      await sendPasswordResetEmail({
+        to: user.email,
+        url,
+      });
+    },
+  },
   socialProviders: {
     google: {
       clientId: requiredEnv("GOOGLE_CLIENT_ID"),
