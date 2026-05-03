@@ -132,7 +132,7 @@ export function AddOnServicesForm({ services, type = "all" }: AddOnProps) {
     type === "all" ? petGroups : petGroups.filter((group) => group.type === type);
 
   return (
-    <main className="font-noto-thai">
+    <section className="font-noto-thai">
       <div
         className={
           filteredGroups.length > 1
@@ -173,6 +173,6 @@ export function AddOnServicesForm({ services, type = "all" }: AddOnProps) {
           );
         })}
       </div>
-    </main>
+    </section>
   );
 }

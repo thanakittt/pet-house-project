@@ -166,7 +166,7 @@ export function MainServicesForm({
       : petGroups.filter((group) => group.type === type);
 
   return (
-    <main className="font-noto-thai">
+    <section className="font-noto-thai">
       <div
         className={
           filteredGroups.length > 1
@@ -201,6 +201,6 @@ export function MainServicesForm({
           );
         })}
       </div>
-    </main>
+    </section>
   );
 }
