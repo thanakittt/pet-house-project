@@ -59,7 +59,7 @@ function formatVariantPrice(variant: ServiceVariant) {
     return formatPrice(variant.minPrice);
   }
 
-  if (variant.minPrice === variant.maxPrice) {
+  if (Number(variant.minPrice) === Number(variant.maxPrice)) {
     return formatPrice(variant.minPrice);
   }
 
