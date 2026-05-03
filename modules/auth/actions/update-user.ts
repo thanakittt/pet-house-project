@@ -3,9 +3,12 @@
 import { auth } from "@/lib/auth";
 import { UpdateUserForm } from "../types/create-user-form";
 import { headers } from "next/headers";
-import { DrizzleQueryError } from "drizzle-orm";
+import { DrizzleQueryError, eq } from "drizzle-orm";
 import { DatabaseError } from "pg";
 import { updateStaff } from "@/modules/staff/actions/update-staff";
+import { updateCustomer } from "@/modules/customer/actions/update-customer";
+import { db } from "@/db";
+import { customers } from "@/db/schema";
 
 export async function updateUser(data: UpdateUserForm) {
   try {
@@ -48,8 +51,18 @@ export async function updateUser(data: UpdateUserForm) {
       }
     }
 
-    if ((data.gender || data.birthDate) && data.role === "customer") {
-      return { success: false, error: "ระบบยังไม่รองรับการแก้ไขข้อมูลลูกค้า" };
+    // ตรวจสอบว่ามีฟิลด์ที่ต้องซิงค์ลง customers หรือไม่
+    // รวม nickname ด้วย เพื่อให้การเปลี่ยนชื่ออย่างเดียวก็ซิงค์ได้
+    if ((data.nickname || data.gender || data.birthDate || data.phoneNumber) && data.role === "customer") {
+       await db
+        .update(customers)
+        .set({
+          nickname: data.nickname,
+          walkInPhoneNumber: data.phoneNumber,
+          gender: data.gender as "MALE" | "FEMALE" | "UNSPECIFIED",
+          birthDate: data.birthDate,
+        })
+        .where(eq(customers.userId, data.userId));
     }
 
     return { success: true, data: null };

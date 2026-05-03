@@ -5,6 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin } from "better-auth/plugins";
 import { ac, owner, staff, customer, admin as adminRole } from "./permissions";
 import { requiredEnv } from "./utils";
+import { sendVerificationEmail } from "./mail";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -25,6 +26,9 @@ export const auth = betterAuth({
 
   user: {
     modelName: "users",
+    changeEmail: {
+      enabled: true,
+    },
     additionalFields: {
       phoneNumber: {
         type: "string",
@@ -41,6 +45,15 @@ export const auth = betterAuth({
   },
   verification: {
     modelName: "verifications",
+  },
+  emailVerification: {
+    async sendVerificationEmail({ user, url }) {
+      await sendVerificationEmail({
+        to: user.email,
+        url,
+        type: "change-email",
+      });
+    },
   },
   plugins: [
     admin({

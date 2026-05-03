@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { staffs, users } from "@/db/schema";
+import { customers, staffs, users } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { ActionResponse } from "@/types/action";
 import { isAPIError } from "better-auth/api";
@@ -62,7 +62,13 @@ export async function getUserById(
     }
 
     if (user.role === "customer") {
-      // TODO: get customer profile
+      profile = await db.query.customers.findFirst({
+        columns: {
+          gender: true,
+          birthDate: true,
+        },
+        where: eq(customers.userId, user.id),
+      });
     }
 
     return { success: true, data: { ...(user as AuthUser), ...profile } };
