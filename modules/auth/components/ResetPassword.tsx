@@ -66,7 +66,7 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
       }
 
       toast.success("รีเซ็ตรหัสผ่านเรียบร้อยแล้ว", {
-        description: "กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่",
+        description: <span className="text-muted-foreground">กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่</span>,
       });
       router.push("/sign-in");
     } catch (error) {
@@ -77,8 +77,8 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
 
   if (hasInvalidToken) {
     return (
-      <div className="flex min-h-svh items-center justify-center px-4">
-        <section className="flex w-full max-w-sm flex-col items-center rounded-lg text-center">
+      <div className="flex justify-center items-center px-4 min-h-svh">
+        <section className="flex flex-col items-center rounded-lg w-full max-w-sm text-center">
           <Image
             className="mb-2 rounded-sm"
             src="/images/logo/1.png"
@@ -87,12 +87,12 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
             height={60}
             priority
           />
-          <h1 className="mb-2 text-2xl font-bold">Pet House</h1>
-          <h2 className="mb-2 text-lg font-semibold">ลิงก์ไม่พร้อมใช้งาน</h2>
-          <p className="mb-5 text-sm text-muted-foreground">
+          <h1 className="mb-2 font-bold text-2xl">Pet House</h1>
+          <h2 className="mb-2 font-semibold text-lg">ลิงก์ไม่พร้อมใช้งาน</h2>
+          <p className="mb-5 text-muted-foreground text-sm">
             {invalidTokenMessage} กรุณาขอลิงก์ใหม่อีกครั้ง
           </p>
-          <div className="flex w-full flex-col gap-3">
+          <div className="flex flex-col gap-3 w-full">
             <Button asChild>
               <Link href="/forgot-password">ขอลิงก์ใหม่</Link>
             </Button>
@@ -106,8 +106,8 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center px-4">
-      <section className="flex w-full max-w-sm flex-col items-center rounded-lg">
+    <div className="flex justify-center items-center px-4 min-h-svh">
+      <section className="flex flex-col items-center rounded-lg w-full max-w-sm">
         <Image
           className="mb-2 rounded-sm"
           src="/images/logo/1.png"
@@ -116,11 +116,11 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
           height={60}
           priority
         />
-        <h1 className="mb-2 text-center text-2xl font-bold">Pet House</h1>
-        <h2 className="mb-2 text-center text-lg font-semibold">
+        <h1 className="mb-2 font-bold text-2xl text-center">Pet House</h1>
+        <h2 className="mb-2 font-semibold text-lg text-center">
           ตั้งรหัสผ่านใหม่
         </h2>
-        <p className="mb-5 text-center text-sm text-muted-foreground">
+        <p className="mb-5 text-muted-foreground text-sm text-center">
           กรอกรหัสผ่านใหม่สำหรับบัญชี Pet House ของคุณ
         </p>
 
