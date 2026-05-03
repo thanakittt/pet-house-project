@@ -13,6 +13,7 @@ import {
   Boxes,
   Tags,
   CircleDollarSign,
+  Megaphone,
 } from "lucide-react";
 
 export type UserRole = "owner" | "admin" | "staff" | "customer" | "guest";
@@ -78,6 +79,12 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     url: "/back-office/pos",
     icon: <Store className="size-5" />,
     allowedUserRoles: ["owner", "admin", "staff"],
+  },
+  {
+    title: "จัดการประกาศ",
+    url: "/back-office/announcements",
+    icon: <Megaphone className="size-5" />,
+    allowedUserRoles: ["owner", "admin"],
   },
   {
     title: "จัดการหมวดหมู่สินค้า",
