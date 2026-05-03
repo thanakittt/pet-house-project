@@ -3,6 +3,7 @@ import { services, serviceVariants } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -154,11 +155,32 @@ export async function listServicesWithVariants(): Promise<
   try {
     const result = await db.query.services.findMany({
       where: isNull(services.deletedAt),
+      columns: {
+        id: true,
+        name: true,
+        description: true,
+        serviceType: true,
+      },
       with: {
         variants: {
           where: isNull(serviceVariants.deletedAt),
+          columns: {
+            id: true,
+            size: true,
+            minPrice: true,
+            maxPrice: true,
+            isStartingPriceOnly: true,
+            petType: true,
+            durationMinutes: true,
+          },
+          orderBy: [
+            asc(serviceVariants.petType),
+            asc(serviceVariants.size),
+            asc(serviceVariants.minPrice),
+          ],
         },
       },
+      orderBy: [desc(services.createdAt)],
     });
 
     return {
