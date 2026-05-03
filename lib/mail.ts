@@ -23,6 +23,11 @@ type VerificationEmailOptions = {
   type?: "email-verification" | "change-email";
 };
 
+type PasswordResetEmailOptions = {
+  to: string;
+  url: string;
+};
+
 export const sendVerificationEmail = async ({
   to,
   url,
@@ -48,7 +53,26 @@ export const sendVerificationEmail = async ({
       text,
       html,
     });
-  } catch (error) {
+  } catch {
     throw new Error("Failed to send verification email");
+  }
+};
+
+export const sendPasswordResetEmail = async ({
+  to,
+  url,
+}: PasswordResetEmailOptions) => {
+  const transporter = createTransporter();
+
+  try {
+    await transporter.sendMail({
+      from: gmailUser,
+      to,
+      subject: "Reset your Pet House password",
+      text: `Click this link to reset your Pet House password: ${url}`,
+      html: `<p>Click this link to reset your Pet House password: <a href="${url}">Reset Password</a></p>`,
+    });
+  } catch {
+    throw new Error("Failed to send password reset email");
   }
 };

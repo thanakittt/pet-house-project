@@ -5,14 +5,28 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin } from "better-auth/plugins";
 import { ac, owner, staff, customer, admin as adminRole } from "./permissions";
 import { requiredEnv } from "./utils";
-import { sendVerificationEmail } from "./mail";
+import { sendPasswordResetEmail, sendVerificationEmail } from "./mail";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
   baseURL: requiredEnv("BETTER_AUTH_URL"),
-  emailAndPassword: { enabled: true, autoSignIn: false },
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    // ยกเลิก session อื่นๆ ทั้งหมดเมื่อผู้ใช้รีเซ็ตรหัสผ่านสำเร็จ
+    // เพื่อป้องกันไม่ให้ session ที่ถูกขโมยไปก่อนหน้ายังใช้งานได้
+    revokeSessionsOnPasswordReset: true,
+    // ใช้ void แทน await เพื่อป้องกัน timing side-channel leak
+    // หากใช้ await ผู้โจมตีอาจวัดเวลา response และเดาได้ว่า email มีอยู่จริงหรือไม่
+    async sendResetPassword({ user, url }) {
+      void sendPasswordResetEmail({
+        to: user.email,
+        url,
+      });
+    },
+  },
   socialProviders: {
     google: {
       clientId: requiredEnv("GOOGLE_CLIENT_ID"),
