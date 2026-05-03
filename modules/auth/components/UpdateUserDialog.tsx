@@ -81,7 +81,9 @@ export function UpdateUserDialog({
         password: data.password === "" ? undefined : data.password,
         gender: data.gender === (user.gender ?? "") ? undefined : data.gender,
         birthDate:
-          data.birthDate === (user.birthDate ?? "") ? undefined : data.birthDate,
+          data.birthDate === (user.birthDate ?? "")
+            ? undefined
+            : data.birthDate,
         role:
           data.role === user.role && user.role !== "customer"
             ? undefined
@@ -129,7 +131,10 @@ export function UpdateUserDialog({
         onOpenChange(value);
       }}
     >
-      <form onSubmit={form.handleSubmit(onSubmit)} id={`update-user-${user.id}`}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        id={`update-user-${user.id}`}
+      >
         <DialogContent className="md:max-w-md">
           <DialogHeader className="px-4 pt-4">
             <DialogTitle className="font-bold text-lg">

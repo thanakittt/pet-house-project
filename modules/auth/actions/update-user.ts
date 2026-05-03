@@ -51,7 +51,9 @@ export async function updateUser(data: UpdateUserForm) {
       }
     }
 
-    if ((data.gender || data.birthDate || data.phoneNumber) && data.role === "customer") {
+    // ตรวจสอบว่ามีฟิลด์ที่ต้องซิงค์ลง customers หรือไม่
+    // รวม nickname ด้วย เพื่อให้การเปลี่ยนชื่ออย่างเดียวก็ซิงค์ได้
+    if ((data.nickname || data.gender || data.birthDate || data.phoneNumber) && data.role === "customer") {
        await db
         .update(customers)
         .set({

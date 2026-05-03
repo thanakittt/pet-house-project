@@ -122,12 +122,16 @@ export async function updateCustomerProfile(
       return { success: false, error: "เบอร์โทรศัพท์นี้มีอยู่แล้ว" };
     }
 
-    await auth.api.updateUser({
-      body: {
-        name,
-        phoneNumber,
+    // อัปเดต DB ก่อนเพื่อให้สามารถ rollback ได้ง่ายกว่า auth
+    // หาก auth.api.updateUser ล้มเหลว ให้ compensate ด้วยการ revert DB กลับค่าเดิม
+    const previousCustomer = await db.query.customers.findFirst({
+      columns: {
+        nickname: true,
+        walkInPhoneNumber: true,
+        birthDate: true,
+        gender: true,
       },
-      headers: await headers(),
+      where: eq(customers.id, customer.id),
     });
 
     await db
@@ -139,6 +143,31 @@ export async function updateCustomerProfile(
         gender: data.gender,
       })
       .where(eq(customers.id, customer.id));
+
+    try {
+      // อัปเดต auth หลังจาก DB commit สำเร็จแล้ว
+      await auth.api.updateUser({
+        body: {
+          name,
+          phoneNumber,
+        },
+        headers: await headers(),
+      });
+    } catch (authError) {
+      // หาก auth ล้มเหลว ให้ revert DB กลับค่าเดิมเพื่อป้องกัน partial update
+      if (previousCustomer) {
+        await db
+          .update(customers)
+          .set({
+            nickname: previousCustomer.nickname,
+            walkInPhoneNumber: previousCustomer.walkInPhoneNumber,
+            birthDate: previousCustomer.birthDate,
+            gender: previousCustomer.gender,
+          })
+          .where(eq(customers.id, customer.id));
+      }
+      throw authError;
+    }
 
     return { success: true, data: null };
   } catch (error) {
