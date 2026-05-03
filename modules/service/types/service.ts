@@ -8,12 +8,13 @@ export type Service = {
   id: string;
   name: string;
   serviceType: string;
-  description: string;
+  description: string | null;
 };
 
 export type ServiceWithVariants = {
   id: string;
   name: string;
+  description: string | null;
   serviceType: "MAIN" | "ADDON";
   variants: {
     id: string;
