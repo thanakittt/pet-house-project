@@ -7,7 +7,6 @@ export type AnnouncementType = (typeof ANNOUNCEMENT_TYPES)[number];
 export type AnnouncementForm = {
   title: string;
   content: string;
-  imageUrl: string;
   type: AnnouncementType;
   startDisplayAt: string;
   endDisplayAt: string;
@@ -38,7 +37,6 @@ type NormalizedAnnouncementInput =
       data: {
         title: string;
         content: string;
-        imageUrl: string | null;
         type: AnnouncementType;
         startDisplayAt: Date;
         endDisplayAt: Date | null;
@@ -92,7 +90,6 @@ export function normalizeAnnouncementInput(
 ): NormalizedAnnouncementInput {
   const title = data.title.trim();
   const content = data.content.trim();
-  const imageUrl = data.imageUrl.trim() || null;
   const startDisplayAt = parseISO(data.startDisplayAt);
   const endDisplayAt = data.endDisplayAt ? parseISO(data.endDisplayAt) : null;
 
@@ -129,7 +126,6 @@ export function normalizeAnnouncementInput(
     data: {
       title,
       content,
-      imageUrl,
       type: data.type,
       startDisplayAt,
       endDisplayAt,
@@ -144,4 +140,30 @@ export function toDateTimeLocalValue(date: Date | null): string {
   }
 
   return format(date, "yyyy-MM-dd'T'HH:mm");
+}
+
+export function announcementFormFromFormData(
+  formData: FormData,
+): AnnouncementForm {
+  return {
+    title: String(formData.get("title") ?? ""),
+    content: String(formData.get("content") ?? ""),
+    type: String(formData.get("type") ?? "") as AnnouncementType,
+    startDisplayAt: String(formData.get("startDisplayAt") ?? ""),
+    endDisplayAt: String(formData.get("endDisplayAt") ?? ""),
+    isActive: formData.get("isActive") === "true",
+  };
+}
+
+export function announcementFormToFormData(data: AnnouncementForm): FormData {
+  const formData = new FormData();
+
+  formData.set("title", data.title);
+  formData.set("content", data.content);
+  formData.set("type", data.type);
+  formData.set("startDisplayAt", data.startDisplayAt);
+  formData.set("endDisplayAt", data.endDisplayAt);
+  formData.set("isActive", String(data.isActive));
+
+  return formData;
 }

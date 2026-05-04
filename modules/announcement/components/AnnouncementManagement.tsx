@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import Image from "next/image";
 import { useState } from "react";
 import { deleteAnnouncement } from "../actions/delete-announcement";
 import type { ListAnnouncementsResult } from "../queries/list-announcements";
@@ -106,7 +107,7 @@ export function AnnouncementManagement({
         createAction={<CreateAnnouncementDialog />}
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -127,11 +128,27 @@ export function AnnouncementManagement({
                 return (
                   <TableRow key={announcement.id}>
                     <TableCell className="max-w-[260px]">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium">{announcement.title}</span>
-                        <span className="line-clamp-2 text-sm text-muted-foreground">
-                          {announcement.content}
-                        </span>
+                      <div className="flex items-start gap-3">
+                        {announcement.imageUrl && (
+                          <div className="relative bg-muted/40 border rounded-md size-14 overflow-hidden shrink-0">
+                            <Image
+                              src={announcement.imageUrl}
+                              alt=""
+                              fill
+                              sizes="56px"
+                              className="object-contain p-0.5"
+                              unoptimized
+                            />
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <span className="font-medium">
+                            {announcement.title}
+                          </span>
+                          <span className="text-muted-foreground text-sm line-clamp-2">
+                            {announcement.content}
+                          </span>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>

@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { updateAnnouncement } from "../actions/update-announcement";
 import {
+  announcementFormToFormData,
   toDateTimeLocalValue,
   type Announcement,
   type AnnouncementForm,
@@ -33,7 +34,6 @@ function getDefaultValues(announcement: Announcement): AnnouncementForm {
   return {
     title: announcement.title,
     content: announcement.content,
-    imageUrl: announcement.imageUrl ?? "",
     type: announcement.type,
     startDisplayAt: toDateTimeLocalValue(announcement.startDisplayAt),
     endDisplayAt: toDateTimeLocalValue(announcement.endDisplayAt),
@@ -48,6 +48,9 @@ export function UpdateAnnouncementDialog({
 }: UpdateAnnouncementDialogProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   const form = useForm<AnnouncementForm>({
     defaultValues: getDefaultValues(announcement),
@@ -55,7 +58,14 @@ export function UpdateAnnouncementDialog({
   });
 
   const resetForm = () => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
     form.reset(getDefaultValues(announcement));
+    setImageFile(null);
+    setImagePreviewUrl(null);
+    setRemoveImage(false);
     setServerError(null);
   };
 
@@ -65,13 +75,43 @@ export function UpdateAnnouncementDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [announcement]);
 
+  const handleImageFileChange = (file: File | null) => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
+    setImageFile(file);
+    setImagePreviewUrl(file ? URL.createObjectURL(file) : null);
+    setRemoveImage(false);
+  };
+
+  const handleRemoveImage = () => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
+    setImageFile(null);
+    setImagePreviewUrl(null);
+    setRemoveImage(true);
+  };
+
   const onSubmit = async (data: AnnouncementForm) => {
     try {
       setServerError(null);
 
+      const formData = announcementFormToFormData(data);
+
+      if (imageFile) {
+        formData.set("imageFile", imageFile);
+      }
+
+      if (removeImage) {
+        formData.set("removeImage", "true");
+      }
+
       const result = await updateAnnouncement({
         id: announcement.id,
-        data,
+        formData,
       });
 
       if (!result.success) {
@@ -79,6 +119,7 @@ export function UpdateAnnouncementDialog({
         return;
       }
 
+      resetForm();
       onOpenChange(false);
       toast.success("แก้ไขประกาศสำเร็จ");
       router.refresh();
@@ -104,8 +145,12 @@ export function UpdateAnnouncementDialog({
       >
         <DialogContent className="md:max-w-2xl">
           <DialogHeader className="px-4 pt-4">
-            <DialogTitle className="font-bold text-lg">แก้ไขประกาศ</DialogTitle>
-            <DialogDescription>แก้ไขข้อมูลประกาศที่เลือก</DialogDescription>
+            <DialogTitle className="font-bold text-lg">
+              แก้ไขประกาศ
+            </DialogTitle>
+            <DialogDescription>
+              แก้ไขข้อมูลประกาศที่เลือก
+            </DialogDescription>
             {serverError && (
               <DialogDescription className="text-destructive">
                 {serverError}
@@ -117,6 +162,12 @@ export function UpdateAnnouncementDialog({
           <AnnouncementFormFields
             control={form.control}
             idPrefix={`update-announcement-${announcement.id}`}
+            currentImageUrl={announcement.imageUrl}
+            imagePreviewUrl={imagePreviewUrl}
+            isImageMarkedForRemoval={removeImage}
+            selectedImageName={imageFile?.name ?? null}
+            onImageFileChange={handleImageFileChange}
+            onRemoveImage={handleRemoveImage}
           />
 
           <DialogFooter>

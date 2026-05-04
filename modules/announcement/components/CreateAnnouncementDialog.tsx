@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createAnnouncement } from "../actions/create-announcement";
 import {
+  announcementFormToFormData,
   toDateTimeLocalValue,
   type AnnouncementForm,
 } from "../types/announcement";
@@ -28,7 +29,6 @@ function getDefaultValues(): AnnouncementForm {
   return {
     title: "",
     content: "",
-    imageUrl: "",
     type: "NEWS",
     startDisplayAt: toDateTimeLocalValue(new Date()),
     endDisplayAt: "",
@@ -40,6 +40,8 @@ export function CreateAnnouncementDialog() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   const form = useForm<AnnouncementForm>({
     defaultValues: getDefaultValues(),
@@ -47,15 +49,36 @@ export function CreateAnnouncementDialog() {
   });
 
   const resetForm = () => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
     form.reset(getDefaultValues());
+    setImageFile(null);
+    setImagePreviewUrl(null);
     setServerError(null);
+  };
+
+  const handleImageFileChange = (file: File | null) => {
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
+    setImageFile(file);
+    setImagePreviewUrl(file ? URL.createObjectURL(file) : null);
   };
 
   const onSubmit = async (data: AnnouncementForm) => {
     try {
       setServerError(null);
 
-      const result = await createAnnouncement(data);
+      const formData = announcementFormToFormData(data);
+
+      if (imageFile) {
+        formData.set("imageFile", imageFile);
+      }
+
+      const result = await createAnnouncement(formData);
 
       if (!result.success) {
         setServerError(result.error);
@@ -103,6 +126,10 @@ export function CreateAnnouncementDialog() {
           <AnnouncementFormFields
             control={form.control}
             idPrefix="create-announcement"
+            imagePreviewUrl={imagePreviewUrl}
+            selectedImageName={imageFile?.name ?? null}
+            onImageFileChange={handleImageFileChange}
+            onRemoveImage={() => handleImageFileChange(null)}
           />
 
           <DialogFooter>
