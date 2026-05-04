@@ -3,8 +3,22 @@ import "server-only";
 import { db } from "@/db";
 import { announcements } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
-import { and, desc, eq, gte, isNull, lte, or } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNull, lte, or } from "drizzle-orm";
 import { type Announcement } from "../types/announcement";
+
+export const PUBLIC_ANNOUNCEMENT_PAGE_SIZE = 5;
+
+export type ListPublicAnnouncementsParams = {
+  page?: number;
+};
+
+export type ListPublicAnnouncementsResult = {
+  announcements: Announcement[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
 
 function buildPublicAnnouncementWhere(now: Date, id?: string) {
   const filters = [
@@ -24,11 +38,34 @@ function buildPublicAnnouncementWhere(now: Date, id?: string) {
   return and(...filters);
 }
 
-export async function listPublicAnnouncements(): Promise<
-  ActionResponse<Announcement[]>
+export function parsePublicAnnouncementPage(value: unknown): number {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  const parsedValue =
+    typeof rawValue === "string"
+      ? Number.parseInt(rawValue, 10)
+      : Number(rawValue);
+
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : 1;
+}
+
+export async function listPublicAnnouncements({
+  page = 1,
+}: ListPublicAnnouncementsParams = {}): Promise<
+  ActionResponse<ListPublicAnnouncementsResult>
 > {
   try {
     const now = new Date();
+    const where = buildPublicAnnouncementWhere(now);
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(announcements)
+      .where(where);
+
+    const totalPages = Math.ceil(total / PUBLIC_ANNOUNCEMENT_PAGE_SIZE);
+    const currentPage =
+      totalPages > 0 ? Math.min(Math.max(page, 1), totalPages) : 1;
+    const offset = (currentPage - 1) * PUBLIC_ANNOUNCEMENT_PAGE_SIZE;
 
     // หน้า front-store ต้องเห็นเฉพาะประกาศที่เปิดใช้งานและอยู่ในช่วงเวลาแสดงผลจริง
     const data = await db
@@ -44,12 +81,20 @@ export async function listPublicAnnouncements(): Promise<
         createdAt: announcements.createdAt,
       })
       .from(announcements)
-      .where(buildPublicAnnouncementWhere(now))
-      .orderBy(desc(announcements.startDisplayAt), desc(announcements.createdAt));
+      .where(where)
+      .orderBy(desc(announcements.startDisplayAt), desc(announcements.createdAt))
+      .limit(PUBLIC_ANNOUNCEMENT_PAGE_SIZE)
+      .offset(offset);
 
     return {
       success: true,
-      data,
+      data: {
+        announcements: data,
+        total,
+        page: currentPage,
+        pageSize: PUBLIC_ANNOUNCEMENT_PAGE_SIZE,
+        totalPages,
+      },
     };
   } catch (error) {
     console.error("listPublicAnnouncements error:", error);
