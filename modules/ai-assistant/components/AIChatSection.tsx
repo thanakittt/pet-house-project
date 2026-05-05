@@ -17,7 +17,7 @@ const ERROR_MESSAGE = "ขออภัยครับ ระบบตอบค�
 const QUICK_SUGGESTIONS = [
     "ขอดูราคา",
     "แมวอาบน้ำเท่าไหร่",
-    "หมาไซส์ใหญ่ราคาเท่าไหร่",
+    "สุนัขไซส์ใหญ่ราคาเท่าไหร่",
     "อาบน้ำตัดขนเริ่มต้นเท่าไหร่",
     "มีบริการเสริมอะไรบ้าง",
     "แปรงฟันราคาเท่าไหร่",
@@ -94,7 +94,7 @@ export default function AIChatSection() {
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes
 
             const response = await fetch("/api/assistant", {
                 method: "POST",
