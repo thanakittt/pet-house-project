@@ -13,6 +13,12 @@
       "skillPath": "better-auth/create-auth/SKILL.md",
       "computedHash": "393e8d2d795fa5797c9a4e0665f29183ea2e140233db59746d510340a10456e6"
     },
+    "gemini-api-dev": {
+      "source": "google-gemini/gemini-skills",
+      "sourceType": "github",
+      "skillPath": "skills/gemini-api-dev/SKILL.md",
+      "computedHash": "2ca262894d6e040e5c3b5fbe296e8f36d1680aead0bd1176584b3fbf9b2cf56a"
+    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",
