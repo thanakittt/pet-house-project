@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceVariantsManagement from "@/modules/service/components/ServiceVariantManagement";
@@ -7,6 +8,11 @@ import {
   parseServiceVariantPetTypeFilter,
   parseServiceVariantSizeFilter,
 } from "@/modules/service/queries/get-service";
+
+export const metadata: Metadata = {
+  title: "จัดการตัวเลือกบริการ",
+  description: "จัดการตัวเลือก ราคา และรายละเอียดของบริการ",
+};
 
 interface ServiceVariantsPageProps {
   params: Promise<{

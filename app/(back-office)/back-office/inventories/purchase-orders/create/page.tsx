@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { requireStaff } from "@/lib/session";
@@ -5,6 +6,11 @@ import PurchaseOrderFormPage from "@/modules/inventories/components/PurchaseOrde
 import { listAllInventories } from "@/modules/inventories/queries/list-inventories";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "สร้างใบสั่งซื้อใหม่",
+  description: "สร้างใบสั่งซื้อสินค้าคงคลังสำหรับร้าน",
+};
 
 /**
  * CreatePurchaseOrderPage — Server Component

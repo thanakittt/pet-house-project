@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
@@ -12,6 +13,11 @@ import { Camera, AlertTriangle, ClipboardList } from "lucide-react"; // [NEW] �
 import BackButton from "@/components/BackButton";
 import ImageLightbox from "@/modules/operation/components/ImageLightbox";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "รายละเอียดการจอง",
+  description: "ดูรายละเอียดนัดหมาย สัตว์เลี้ยง และสถานะการจอง",
+};
 
 // [NEW] เพิ่ม Type สำหรับรายงานสุขภาพ
 type HealthReport = {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceManagement from "@/modules/service/components/ServiceManagement";
@@ -6,6 +7,11 @@ import {
   parseServicePage,
   parseServiceTypeFilter,
 } from "@/modules/service/queries/list-services";
+
+export const metadata: Metadata = {
+  title: "จัดการบริการ",
+  description: "เพิ่ม แก้ไข และจัดการบริการของร้าน Pet House",
+};
 
 type ServicesPageProps = {
   searchParams: Promise<{

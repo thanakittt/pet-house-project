@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireAdmin } from "@/lib/session";
 import UserManagement from "@/modules/auth/components/UserManagement";
@@ -6,6 +7,11 @@ import {
   parseUserPage,
   parseUserRoleFilter,
 } from "@/modules/auth/queries/list-users";
+
+export const metadata: Metadata = {
+  title: "จัดการผู้ใช้",
+  description: "จัดการบัญชีผู้ใช้และสิทธิ์การเข้าถึงระบบหลังร้าน",
+};
 
 type UsersPageProps = {
   searchParams: Promise<{

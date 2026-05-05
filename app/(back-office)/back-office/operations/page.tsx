@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { getTodayAppointmentsBoard } from "@/modules/operation/queries/get-today-appointments";
 import DailyAppointmentsBoard from "@/modules/operation/components/DailyAppointmentsBoard";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
+
+export const metadata: Metadata = {
+  title: "คิวงานประจำวัน",
+  description: "ติดตามสถานะคิวงานบริการสัตว์เลี้ยงประจำวัน",
+};
 
 export default async function DailyBoardPage() {
   await requireStaff();

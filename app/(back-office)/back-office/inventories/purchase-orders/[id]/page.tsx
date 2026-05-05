@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/session";
 import { getPurchaseOrder } from "@/modules/inventories/queries/get-purchase-order";
@@ -8,6 +9,11 @@ import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "รายละเอียดใบสั่งซื้อ",
+  description: "ดูรายละเอียดและสถานะใบสั่งซื้อสินค้าคงคลัง",
+};
 
 /**
  * PurchaseOrderPage — Server Component

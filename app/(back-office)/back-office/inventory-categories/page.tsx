@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import { InventoryCategoryManagement } from "@/modules/inventory-category/components/InventoryCategoryManagement";
@@ -5,6 +6,11 @@ import {
   listInventoryCategories,
   parseInventoryCategoryPage,
 } from "@/modules/inventory-category/queries/list-inventory-categories";
+
+export const metadata: Metadata = {
+  title: "จัดการหมวดหมู่สินค้า",
+  description: "เพิ่ม แก้ไข และจัดหมวดหมู่สินค้าคงคลัง",
+};
 
 type InventoryCategoriesPageProps = {
   searchParams: Promise<{

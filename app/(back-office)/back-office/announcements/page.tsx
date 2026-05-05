@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireAdminAndOwner } from "@/lib/session";
 import { AnnouncementManagement } from "@/modules/announcement/components/AnnouncementManagement";
@@ -7,6 +8,11 @@ import {
   parseAnnouncementStatusFilter,
   parseAnnouncementTypeFilter,
 } from "@/modules/announcement/queries/list-announcements";
+
+export const metadata: Metadata = {
+  title: "จัดการประกาศ",
+  description: "สร้าง แก้ไข และจัดการประกาศข่าวสารของร้าน",
+};
 
 type AnnouncementsPageProps = {
   searchParams: Promise<{

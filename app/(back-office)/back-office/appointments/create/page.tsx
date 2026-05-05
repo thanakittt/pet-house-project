@@ -1,11 +1,17 @@
+import type { Metadata } from "next";
 import BackButton from "@/components/BackButton";
 import { SiteHeader } from "@/components/site-header";
 import CreateAppointmentForm from "@/modules/appointment/components/CreateAppointmentForm";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { requireStaff } from "@/lib/session";
 
+export const metadata: Metadata = {
+  title: "เพิ่มนัดหมายใหม่",
+  description: "สร้างนัดหมายบริการใหม่สำหรับลูกค้าและสัตว์เลี้ยง",
+};
+
 export default async function CreateAppointmentPage() {
-  const session = await requireStaff();
+  await requireStaff();
 
   const servicesWithVariants = await listServicesWithVariants();
 
