@@ -93,13 +93,18 @@ export default function AIChatSection() {
         setIsLoading(true);
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             const response = await fetch("/api/assistant", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                signal: controller.signal,
                 body: JSON.stringify({ messages: nextMessages }),
             });
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 

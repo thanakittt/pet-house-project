@@ -85,7 +85,10 @@ export async function POST(request: Request) {
     const messages = normalizeMessages(body?.messages);
 
     if (!messages) {
-      return Response.json({ error: "รูปแบบข้อความไม่ถูกต้อง" }, { status: 400 });
+      return Response.json(
+        { error: "รูปแบบข้อความไม่ถูกต้อง" },
+        { status: 400 },
+      );
     }
 
     const ai = new GoogleGenAI({ apiKey: requiredEnv("GEMINI_KEY") });
