@@ -48,6 +48,9 @@ export function parsePublicAnnouncementPage(value: unknown): number {
   return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : 1;
 }
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function listPublicAnnouncements({
   page = 1,
 }: ListPublicAnnouncementsParams = {}): Promise<
@@ -82,7 +85,10 @@ export async function listPublicAnnouncements({
       })
       .from(announcements)
       .where(where)
-      .orderBy(desc(announcements.startDisplayAt), desc(announcements.createdAt))
+      .orderBy(
+        desc(announcements.startDisplayAt),
+        desc(announcements.createdAt),
+      )
       .limit(PUBLIC_ANNOUNCEMENT_PAGE_SIZE)
       .offset(offset);
 
@@ -110,6 +116,13 @@ export async function getPublicAnnouncement(
   id: string,
 ): Promise<ActionResponse<Announcement | null>> {
   try {
+    if (!UUID_PATTERN.test(id)) {
+      return {
+        success: true,
+        data: null,
+      };
+    }
+
     const now = new Date();
 
     // ใช้เงื่อนไขเดียวกับหน้า list เพื่อไม่ให้เปิด URL ตรงไปเจอประกาศที่ยังไม่ควรแสดง
