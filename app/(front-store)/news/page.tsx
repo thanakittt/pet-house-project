@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import AnnouncementList from "@/modules/announcement/components/AnnouncementList";
 import {
@@ -9,6 +10,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "ข่าวสาร",
+  description: "ติดตามข่าวสาร โปรโมชั่น และประกาศจาก Pet House",
+};
 
 type NewsPageProps = {
   searchParams: Promise<{

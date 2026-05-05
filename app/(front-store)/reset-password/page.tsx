@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ResetPassword } from "@/modules/auth/components/ResetPassword";
 
 export const metadata: Metadata = {
-  title: "รีเซ็ตรหัสผ่าน | Pet House",
+  title: "รีเซ็ตรหัสผ่าน",
   description: "ตั้งรหัสผ่านใหม่สำหรับบัญชี Pet House",
 };
 

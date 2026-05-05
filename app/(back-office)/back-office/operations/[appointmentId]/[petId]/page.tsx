@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { getPetOperationDetail } from "@/modules/operation/queries/get-pet-operation-detail";
 import OperationDetailClient from "@/modules/operation/components/OperationDetailClient";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import BackButton from "@/components/BackButton";
 import { requireStaff } from "@/lib/session";
+
+export const metadata: Metadata = {
+  title: "รายละเอียดคิวงาน",
+  description: "ดูรายละเอียดการให้บริการและรายงานสุขภาพของสัตว์เลี้ยง",
+};
 
 interface PageProps {
   params: Promise<{

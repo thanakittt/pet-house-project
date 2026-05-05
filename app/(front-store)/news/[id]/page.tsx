@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import {
   ANNOUNCEMENT_TYPE_LABELS,
@@ -25,6 +26,11 @@ type NewsDetailPageProps = {
 };
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "รายละเอียดข่าว",
+  description: "รายละเอียดข่าวสาร โปรโมชั่น หรือประกาศจาก Pet House",
+};
 
 function formatAnnouncementDate(announcement: Announcement): string {
   const startDate = format(announcement.startDisplayAt, "d MMMM yyyy HH:mm", {

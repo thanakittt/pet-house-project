@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { listPets } from "@/modules/pet/queries/list-pets";
 import CustomerDetail from "@/modules/customer/components/CustomerDetail";
 import { listAllPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
@@ -8,6 +9,11 @@ import {
   getCustomerAppointmentHistory,
   parseCustomerAppointmentHistoryPage,
 } from "@/modules/appointment/queries/get-customer-history";
+
+export const metadata: Metadata = {
+  title: "รายละเอียดลูกค้า",
+  description: "ดูข้อมูลลูกค้า สัตว์เลี้ยง และประวัติการนัดหมาย",
+};
 
 interface CustomerDetailPageProps {
   params: Promise<{ id: string }>;

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import CustomerManagement from "@/modules/customer/components/CustomerManagement";
@@ -7,6 +8,11 @@ import {
   parseCustomerPage,
 } from "@/modules/customer/queries/list-customer";
 import { notFound } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "จัดการลูกค้า",
+  description: "ค้นหาและจัดการข้อมูลลูกค้าและสัตว์เลี้ยง",
+};
 
 type CustomerManagementPageProps = {
   searchParams: Promise<{

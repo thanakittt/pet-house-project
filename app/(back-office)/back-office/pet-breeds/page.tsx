@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import { PetBreedManagement } from "@/modules/pet-breed/components/PetBreedManagement";
@@ -7,6 +8,11 @@ import {
   parsePetBreedSizeFilter,
   parsePetBreedTypeFilter,
 } from "@/modules/pet-breed/queries/list-pet-breeds";
+
+export const metadata: Metadata = {
+  title: "จัดการสายพันธุ์สัตว์เลี้ยง",
+  description: "ดูแลข้อมูลสายพันธุ์สัตว์เลี้ยงที่ใช้ในระบบ",
+};
 
 type PetBreedsPageProps = {
   searchParams: Promise<{

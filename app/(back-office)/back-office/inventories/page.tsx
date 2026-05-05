@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import PurchaseOrdersPage from "@/modules/inventories/components/PurchaseOrdersPage";
@@ -15,6 +16,11 @@ import {
   parsePurchaseOrderStatusFilter,
 } from "@/modules/inventories/queries/list-purchase-orders";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "จัดการสินค้าคงคลัง",
+  description: "ติดตามสินค้า คลังคงเหลือ และใบสั่งซื้อของร้าน",
+};
 
 type InventoryTab = "inventory" | "order";
 

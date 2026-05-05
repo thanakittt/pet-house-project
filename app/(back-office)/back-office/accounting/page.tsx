@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { requireOwner } from "@/lib/session";
 import { TransactionPeriod } from "@/modules/transaction/types/transaction";
 import { getTransactionSummary } from "@/modules/transaction/queries/get-transaction-summary";

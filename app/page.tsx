@@ -1,32 +1,11 @@
-"use client";
+import type { Metadata } from "next";
+import { HomeClient } from "@/app/home-client";
 
-import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
+export const metadata: Metadata = {
+  title: "หน้าหลัก",
+  description: "เข้าสู่หน้าหลักของ Pet House",
+};
 
 export default function HomePage() {
-  const { data: session } = authClient.useSession();
-
-  return (
-    <div className="flex flex-col justify-center items-center min-h-screen">
-      {session ? (
-        <div className="space-y-4">
-          <p>Welcome, {session.user.name}</p>
-          <p>User ID: {session.user.id}</p>
-          <Button
-            size="lg"
-            onClick={async () => {
-              await authClient.signOut();
-            }}
-          >
-            Logout
-          </Button>
-        </div>
-      ) : (
-        <Button size="lg" asChild>
-          <Link href="/staff-login">Login</Link>
-        </Button>
-      )}
-    </div>
-  );
+  return <HomeClient />;
 }

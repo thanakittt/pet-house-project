@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 import { TransactionCategoryManagement } from "@/modules/transaction-category/components/TransactionCategoryManagement";
@@ -6,6 +7,11 @@ import {
   parseTransactionCategoryPage,
   parseTransactionCategoryTypeFilter,
 } from "@/modules/transaction-category/queries/list-transaction-categories";
+
+export const metadata: Metadata = {
+  title: "จัดการหมวดหมู่ธุรกรรม",
+  description: "จัดการหมวดหมู่รายรับและรายจ่ายของร้าน",
+};
 
 type TransactionCategoriesPageProps = {
   searchParams: Promise<{

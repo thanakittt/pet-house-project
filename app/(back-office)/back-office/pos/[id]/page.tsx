@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { requireStaff } from "@/lib/session";
 import { getPOSCheckoutData } from "@/modules/pos/queries/get-pos-data";
 import { POSCheckoutForm } from "@/modules/pos/components/POSCheckoutForm";
 import { SiteHeader } from "@/components/site-header";
 import BackButton from "@/components/BackButton";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
+
+export const metadata: Metadata = {
+  title: "ชำระเงิน",
+  description: "ดำเนินการชำระเงินและออกใบเสร็จสำหรับรายการบริการ",
+};
 
 interface POSPageProps {
   params: Promise<{

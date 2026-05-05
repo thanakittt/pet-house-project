@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { requireStaff } from "@/lib/session"; // ปรับ path ให้ตรงกับที่เก็บ function ของคุณ
 import { NAVIGATION_ITEMS, UserRole } from "@/lib/navigation";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
+
+export const metadata: Metadata = {
+  title: "หน้าหลักหลังร้าน",
+  description: "ศูนย์รวมเมนูจัดการร้าน Pet House สำหรับทีมงาน",
+};
 
 export default async function BackOfficeHomePage() {
   // ดึงข้อมูล Session บน Server ฝั่งเพื่อทำ RBAC

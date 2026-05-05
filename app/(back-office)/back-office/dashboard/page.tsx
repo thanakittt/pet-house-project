@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { requireOwner } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
@@ -22,7 +22,7 @@ import { FinanceOverviewChart } from "@/modules/dashboard/components/FinanceOver
 import { DashboardPeriod } from "@/modules/dashboard/types/dashboard";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  title: "ภาพรวมธุรกิจ",
   description: "ภาพรวมธุรกิจ — ยอดขาย การจองคิว บริการยอดนิยม รีวิว และการเงิน",
 };
 

@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import AppointmentManagement from "@/modules/appointment/components/appointmentManagement";
 
 import { format } from "date-fns";
 import { getScheduleByDate } from "@/modules/appointment/queries/get-schedule";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
+
+export const metadata: Metadata = {
+  title: "จัดการนัดหมาย",
+  description: "ดูและจัดการตารางนัดหมายของลูกค้า Pet House",
+};
 
 export default async function AppointmentsPage({
   searchParams,
