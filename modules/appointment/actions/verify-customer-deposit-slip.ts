@@ -407,6 +407,14 @@ export async function verifyCustomerDepositSlip(
       };
     }
 
+    if (appointment.status === "CANCELLED") {
+      return {
+        success: false,
+        error:
+          "การจองนี้ถูกยกเลิกแล้ว เพราะไม่ได้อัปโหลดสลิปภายใน 15 นาที กรุณาจองคิวใหม่อีกครั้ง",
+      };
+    }
+
     if (appointment.status !== "PENDING_DEPOSIT") {
       return {
         success: false,

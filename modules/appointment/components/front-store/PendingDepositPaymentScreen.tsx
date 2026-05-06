@@ -7,8 +7,10 @@ import DepositSlipUpload from "./DepositSlipUpload";
 
 export default function PendingDepositPaymentScreen({
   appointmentId,
+  appointmentCreatedAt,
 }: {
   appointmentId: string;
+  appointmentCreatedAt: string;
 }) {
   // เมื่อ verify slip ผ่านแล้ว DepositSlipUpload จะส่ง transRef กลับมา
   // component นี้ใช้ state นี้เพื่อสลับจากหน้ารอจ่ายเงินเป็นหน้าสถานะยืนยันคิวแล้วทันที
@@ -62,6 +64,7 @@ export default function PendingDepositPaymentScreen({
           {/* Reuse component เดิม เพื่อให้ logic เลือกไฟล์, เรียก Thunder และ toast อยู่จุดเดียว */}
           <DepositSlipUpload
             appointmentId={appointmentId}
+            appointmentCreatedAt={appointmentCreatedAt}
             onVerified={(transRef) => setVerifiedSlipTransRef(transRef || "-")}
           />
         </>

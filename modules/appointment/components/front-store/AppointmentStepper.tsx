@@ -42,6 +42,7 @@ export default function AppointmentStepper({
   const [formData, setFormData] =
     useState<FrontStoreFormData>(initialFormData);
   const [createdAppointmentId, setCreatedAppointmentId] = useState("");
+  const [createdAppointmentTime, setCreatedAppointmentTime] = useState("");
   // หลังลูกค้าจองสำเร็จแล้ว component เดิมจะเปลี่ยนเป็นหน้าจ่ายมัดจำ
   // state นี้ใช้จำเลขอ้างอิงสลิปเมื่อ Thunder verify ผ่าน เพื่อสลับเป็นหน้าสถานะยืนยันคิวแล้ว
   const [verifiedSlipTransRef, setVerifiedSlipTransRef] = useState("");
@@ -163,6 +164,7 @@ export default function AppointmentStepper({
       }
 
       setCreatedAppointmentId(result.data.appointmentId);
+      setCreatedAppointmentTime(result.data.appointmentCreatedAt);
       toast.success("จองคิวสำเร็จ");
     });
   };
@@ -242,6 +244,7 @@ export default function AppointmentStepper({
           // ใช้ component เดียวกับหน้าค้างมัดจำ เพื่อให้ flow upload และ Thunder verification อยู่จุดเดียว
           <DepositSlipUpload
             appointmentId={createdAppointmentId}
+            appointmentCreatedAt={createdAppointmentTime}
             onVerified={(transRef) => setVerifiedSlipTransRef(transRef || "-")}
           />
         )}

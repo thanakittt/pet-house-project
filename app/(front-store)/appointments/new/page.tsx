@@ -40,7 +40,10 @@ export default async function Page() {
 
   if (pendingDeposit.data) {
     return (
-      <PendingDepositPaymentScreen appointmentId={pendingDeposit.data.id} />
+      <PendingDepositPaymentScreen
+        appointmentId={pendingDeposit.data.id}
+        appointmentCreatedAt={pendingDeposit.data.createdAt.toISOString()}
+      />
     );
   }
 

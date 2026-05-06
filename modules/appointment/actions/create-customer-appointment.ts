@@ -58,7 +58,7 @@ function findMatchingVariant(
 
 export async function createCustomerAppointment(
   data: CreateCustomerAppointmentInput,
-): Promise<ActionResponse<{ appointmentId: string }>> {
+): Promise<ActionResponse<{ appointmentId: string; appointmentCreatedAt: string }>> {
   try {
     // action นี้เป็น customer-facing จึงใช้ requireCustomer แทน requireStaff
     // และต้องตรวจ owner ของ pet ทุกตัวใน server อีกครั้ง
@@ -143,6 +143,7 @@ export async function createCustomerAppointment(
     });
 
     let appointmentId = "";
+    let appointmentCreatedAt = "";
 
     await db.transaction(async (tx) => {
       // ดึงเฉพาะ pet ที่เป็นของ customer คนนี้เท่านั้น
@@ -189,9 +190,13 @@ export async function createCustomerAppointment(
           status: "PENDING_DEPOSIT",
           note: data.note?.trim() || null,
         })
-        .returning({ id: appointments.id });
+        .returning({
+          id: appointments.id,
+          createdAt: appointments.createdAt,
+        });
 
       appointmentId = newAppointment.id;
+      appointmentCreatedAt = newAppointment.createdAt.toISOString();
 
       const itemsToInsert = [];
       let currentStartTime = initialStartTime;
@@ -305,7 +310,7 @@ export async function createCustomerAppointment(
     revalidatePath("/appointments/new");
     revalidatePath("/back-office/appointments");
 
-    return { success: true, data: { appointmentId } };
+    return { success: true, data: { appointmentId, appointmentCreatedAt } };
   } catch (error) {
     console.error("createCustomerAppointment error:", error);
 
