@@ -37,6 +37,8 @@ export interface CreateCustomerAppointmentInput {
   note?: string;
 }
 
+// หา variant ที่เหมาะกับสัตว์เลี้ยงตัวนั้นจาก service ที่ลูกค้าเลือก
+// priority คือ match ขนาดจริงของพันธุ์ก่อน ถ้าไม่มีจึง fallback ไป size = ALL
 function findMatchingVariant(
   variants: ServiceVariantRecord[],
   serviceId: string,
@@ -58,6 +60,8 @@ export async function createCustomerAppointment(
   data: CreateCustomerAppointmentInput,
 ): Promise<ActionResponse<{ appointmentId: string }>> {
   try {
+    // action นี้เป็น customer-facing จึงใช้ requireCustomer แทน requireStaff
+    // และต้องตรวจ owner ของ pet ทุกตัวใน server อีกครั้ง
     const session = await requireCustomer({ redirect: false });
 
     if (!session) {
@@ -116,6 +120,8 @@ export async function createCustomerAppointment(
     const dateString = data.startTimeIso.split("T")[0];
     const appointmentDate = new Date(`${dateString}T00:00:00Z`);
 
+    // ใช้ค่ากลาง SHOP_CLOSED_DAY เพื่อให้ UI และ server ปิดวันเดียวกัน
+    // server check สำคัญเพราะ user อาจ bypass UI แล้วเรียก action ตรง ๆ
     if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
       return {
         success: false,
@@ -126,6 +132,8 @@ export async function createCustomerAppointment(
     const allPetIds = new Set<string>();
     const allServiceIds = new Set<string>();
 
+    // รวม petId/serviceId ทั้งหมดก่อนเข้า transaction เพื่อ query ข้อมูลครั้งเดียว
+    // ลด N+1 query และทำให้ validation ทุกอย่างอยู่ใน transaction เดียวกัน
     data.petBookings.forEach((booking) => {
       allPetIds.add(booking.petId);
       allServiceIds.add(booking.mainServiceId);
@@ -137,6 +145,8 @@ export async function createCustomerAppointment(
     let appointmentId = "";
 
     await db.transaction(async (tx) => {
+      // ดึงเฉพาะ pet ที่เป็นของ customer คนนี้เท่านั้น
+      // ถ้าลูกค้าส่ง petId ของคนอื่นมา selectedPets.length จะไม่ครบและ action จะ reject
       const selectedPets = await tx.query.pets.findMany({
         where: and(
           inArray(pets.id, Array.from(allPetIds)),
@@ -160,6 +170,8 @@ export async function createCustomerAppointment(
         throw new Error("ข้อมูลสัตว์เลี้ยงบางรายการไม่ถูกต้อง");
       }
 
+      // ดึง variants จาก service ทั้งหมดที่เลือก แล้วค่อย match type/size ใน memory
+      // วิธีนี้ช่วยให้ main service และ add-on ใช้ logic เดียวกัน
       const selectedVariants = await tx.query.serviceVariants.findMany({
         where: and(
           inArray(serviceVariants.serviceId, Array.from(allServiceIds)),
@@ -167,6 +179,8 @@ export async function createCustomerAppointment(
         ),
       });
 
+      // จองจากหน้าลูกค้าจะเริ่มที่ PENDING_DEPOSIT เสมอ
+      // หลัง upload slip และ Thunder verify ผ่าน จึงเปลี่ยนเป็น CONFIRMED
       const [newAppointment] = await tx
         .insert(appointments)
         .values({
@@ -182,6 +196,8 @@ export async function createCustomerAppointment(
       const itemsToInsert = [];
       let currentStartTime = initialStartTime;
 
+      // แตก booking ของสัตว์แต่ละตัวเป็น appointment_items ต่อเนื่องกันตามเวลา
+      // main service มาก่อน จากนั้นตามด้วย add-on ของสัตว์ตัวเดียวกัน
       for (const booking of data.petBookings) {
         const pet = selectedPets.find((item) => item.id === booking.petId);
 
@@ -251,6 +267,8 @@ export async function createCustomerAppointment(
         ),
       );
 
+      // ตรวจ slot collision ใน transaction และ lock แถวที่ชน
+      // ทำให้เคสลูกค้ากดจองเวลาเดียวกันพร้อมกัน มีเพียงคนเดียวที่ผ่าน
       const collisions = await tx
         .select({ id: appointmentItems.id })
         .from(appointmentItems)
@@ -280,6 +298,7 @@ export async function createCustomerAppointment(
         );
       }
 
+      // insert items หลังจากผ่าน validation และ collision check ทั้งหมดแล้วเท่านั้น
       await tx.insert(appointmentItems).values(itemsToInsert);
     });
 

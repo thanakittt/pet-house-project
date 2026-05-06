@@ -32,6 +32,16 @@ export const paymentTypeEnum = pgEnum("payment_type", [
   "DEPOSIT",
   "FULL_PAYMENT",
 ]);
+
+// สถานะผลการตรวจสลิปจาก provider:
+// VERIFIED = ผ่านและนำไปสร้าง payment แล้ว
+// REJECTED = provider ตอบกลับได้ แต่สลิปไม่ผ่านเงื่อนไข เช่น ยอดผิด/ซ้ำ/บัญชีไม่ตรง
+// ERROR = ระบบเรียก provider หรือบันทึกผลไม่สำเร็จ ใช้สำหรับ debug/ตรวจย้อนหลัง
+export const slipVerificationStatusEnum = pgEnum("slip_verification_status", [
+  "VERIFIED",
+  "REJECTED",
+  "ERROR",
+]);
 export const announcementTypeEnum = pgEnum("announcement_type", [
   "NEWS",
   "PROMOTION",

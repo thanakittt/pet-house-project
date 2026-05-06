@@ -28,6 +28,7 @@ import { services, serviceVariants } from "./service";
 // --- Finance ---
 import {
   payments,
+  paymentSlipVerifications,
   transactions,
   transactionCategories,
 } from "./finance";
@@ -168,6 +169,8 @@ export const appointmentRelations = relations(
     items: many(appointmentItems),
     // นัดหมายมีการชำระเงินได้หลายรายการ (เช่น มัดจำ + ชำระส่วนที่เหลือ)
     payments: many(payments),
+    // appointment หนึ่งอาจมีหลาย verification attempt เช่น upload ผิดรูปก่อน แล้วค่อย upload ถูก
+    slipVerifications: many(paymentSlipVerifications),
     // นัดหมายมีรีวิว 1 รายการ (optional)
     review: one(reviews, {
       fields: [appointments.id],
@@ -267,12 +270,33 @@ export const serviceVariantRelations = relations(
  * payments → appointments (N:1)
  * การชำระเงินแต่ละรายการเป็นของนัดหมายหนึ่ง
  */
-export const paymentRelations = relations(payments, ({ one }) => ({
+export const paymentRelations = relations(payments, ({ one, many }) => ({
   appointment: one(appointments, {
     fields: [payments.appointmentId],
     references: [appointments.id],
   }),
+  // payment หนึ่งอาจถูกอ้างอิงจาก verification ที่ผ่านแล้ว โดยทั่วไปจะมี 1 รายการ
+  slipVerifications: many(paymentSlipVerifications),
 }));
+
+/**
+ * paymentSlipVerifications → appointments/payments
+ * verification ทุกครั้งผูกกับ appointment เสมอ แต่ payment เป็น optional
+ * เพราะสลิปที่ REJECTED หรือ ERROR ยังไม่สร้าง payment จริง
+ */
+export const paymentSlipVerificationRelations = relations(
+  paymentSlipVerifications,
+  ({ one }) => ({
+    appointment: one(appointments, {
+      fields: [paymentSlipVerifications.appointmentId],
+      references: [appointments.id],
+    }),
+    payment: one(payments, {
+      fields: [paymentSlipVerifications.paymentId],
+      references: [payments.id],
+    }),
+  }),
+);
 
 /**
  * transactionCategories → transactions (1:N)

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { createCustomerAppointment } from "@/modules/appointment/actions/create-customer-appointment";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -15,6 +15,7 @@ import {
   type FrontStoreBooking,
   type FrontStoreFormData,
 } from "./booking-utils";
+import DepositSlipUpload from "./DepositSlipUpload";
 import Step1PetSelection from "./Step1PetSelection";
 import Step2MainService from "./Step2MainService";
 import Step3AddOnService from "./Step3AddOnService";
@@ -41,6 +42,9 @@ export default function AppointmentStepper({
   const [formData, setFormData] =
     useState<FrontStoreFormData>(initialFormData);
   const [createdAppointmentId, setCreatedAppointmentId] = useState("");
+  // หลังลูกค้าจองสำเร็จแล้ว component เดิมจะเปลี่ยนเป็นหน้าจ่ายมัดจำ
+  // state นี้ใช้จำเลขอ้างอิงสลิปเมื่อ Thunder verify ผ่าน เพื่อสลับเป็นหน้าสถานะยืนยันคิวแล้ว
+  const [verifiedSlipTransRef, setVerifiedSlipTransRef] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const totalSteps = 5;
@@ -204,23 +208,43 @@ export default function AppointmentStepper({
   };
 
   if (createdAppointmentId) {
+    // เมื่อสร้าง appointment แล้ว ไม่กลับไปแสดง stepper อีกใน session นี้
+    // ลูกค้าจะเห็น QR/upload slip ต่อทันที เพราะ appointment อยู่สถานะ PENDING_DEPOSIT
     return (
       <div className="mx-auto my-4 flex h-auto w-full max-w-5xl flex-col items-center gap-6 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
         <div className="flex size-16 items-center justify-center rounded-full bg-green-100 text-green-700">
-          <CheckCircle2 className="size-8" />
+          {verifiedSlipTransRef ? (
+            <ShieldCheck className="size-8" />
+          ) : (
+            <CheckCircle2 className="size-8" />
+          )}
         </div>
         <div>
           <h1 className="mb-2 text-2xl font-bold text-slate-900">
-            จองคิวสำเร็จ
+            {verifiedSlipTransRef ? "ยืนยันคิวแล้ว" : "จองคิวสำเร็จ"}
           </h1>
           <p className="text-sm text-muted-foreground">
             รหัสการจอง #{createdAppointmentId.split("-")[0].toUpperCase()}
           </p>
         </div>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left text-sm text-amber-900">
-          สถานะปัจจุบัน: รอชำระมัดจำ {APPOINTMENT_DEPOSIT_AMOUNT} บาท
-          กรุณาชำระมัดจำตามช่องทางของร้านเพื่อให้พนักงานยืนยันคิวต่อไป
-        </div>
+        {verifiedSlipTransRef ? (
+          // verify ผ่านแล้ว appointment ถูกเปลี่ยนเป็น CONFIRMED ฝั่ง server
+          <div className="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
+            <p className="font-semibold">สถานะปัจจุบัน: ยืนยันคิวแล้ว</p>
+            <p className="mt-1">
+              ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT} บาทเรียบร้อยแล้ว
+            </p>
+            <p className="mt-2 text-xs text-green-800">
+              เลขอ้างอิงสลิป: {verifiedSlipTransRef}
+            </p>
+          </div>
+        ) : (
+          // ใช้ component เดียวกับหน้าค้างมัดจำ เพื่อให้ flow upload และ Thunder verification อยู่จุดเดียว
+          <DepositSlipUpload
+            appointmentId={createdAppointmentId}
+            onVerified={(transRef) => setVerifiedSlipTransRef(transRef || "-")}
+          />
+        )}
       </div>
     );
   }
