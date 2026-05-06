@@ -266,20 +266,6 @@ Avoid:
 
 ---
 
-# Local Command Rules
-
-- Do not use `pnpm` directly in this environment; it may not be available in PATH.
-- When running TypeScript checks, use:
-  - `npm.cmd exec tsc -- --noEmit`
-- Do not use `npm exec ...` through PowerShell because `npm.ps1` may be blocked by the execution policy.
-- Prefer `npm.cmd ...` over `npm ...` for npm commands in PowerShell.
-- Git commands that modify `.git` state may require elevated permission.
-- In PowerShell, always quote paths that contain special characters such as parentheses.
-- Full-project lint may fail because of pre-existing issues outside the current task.
-- When verifying scoped changes, prefer running ESLint only against changed files/directories.
-
----
-
 # Validation Workflow
 
 Before finishing a task:
