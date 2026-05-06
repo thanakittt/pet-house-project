@@ -21,6 +21,7 @@ export type Pet = {
     name: string;
     id: string;
     type: "DOG" | "CAT";
+    size: "S" | "M" | "L" | "ALL";
   };
 };
 
