@@ -15,6 +15,7 @@ export async function listPets(customerId: string): Promise<ActionResponse<Pet[]
             name: true,
             id: true,
             type: true,
+            size: true,
           },
         },
       },
