@@ -1,32 +1,53 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PetCard } from "./PetCard";
-import { CreatePetDialog } from "./CreatePetDialog";
-import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
-import { Pet } from "../types/pet";
-import { useState } from "react";
-import { UpdatePetDialog } from "./UpdatePetDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
+import { useState } from "react";
+import { deleteCustomerPet } from "../actions/customer-pet";
 import { deletePet } from "../actions/delete-pet";
+import { Pet } from "../types/pet";
+import { CreatePetDialog } from "./CreatePetDialog";
+import { PetCard } from "./PetCard";
+import { UpdatePetDialog } from "./UpdatePetDialog";
+
+type PetActionMode = "staff" | "customer";
 
 interface PetInfoFormProps {
   pets: Pet[];
   petBreeds: PetBreed[];
   customerId: string;
+  actionMode?: PetActionMode;
 }
 
-export function PetInfoForm({ pets, petBreeds, customerId }: PetInfoFormProps) {
+export function PetInfoForm({
+  pets,
+  petBreeds,
+  customerId,
+  actionMode = "staff",
+}: PetInfoFormProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+
+  const emptyStateMessage =
+    actionMode === "customer"
+      ? "ยังไม่มีข้อมูลสัตว์เลี้ยงในโปรไฟล์ของคุณ"
+      : "ยังไม่มีข้อมูลสัตว์เลี้ยงในระบบ";
+  const shouldShowHeaderCreateButton = pets.length > 0 || actionMode === "staff";
 
   return (
     <>
       <Card className="shadow-sm rounded-xl overflow-hidden">
         <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>ข้อมูลสัตว์เลี้ยง</CardTitle>
-          <CreatePetDialog petBreeds={petBreeds} customerId={customerId} />
+          {shouldShowHeaderCreateButton && (
+            <CreatePetDialog
+              petBreeds={petBreeds}
+              customerId={customerId}
+              actionMode={actionMode}
+            />
+          )}
         </CardHeader>
 
         <CardContent className="p-6">
@@ -48,10 +69,15 @@ export function PetInfoForm({ pets, petBreeds, customerId }: PetInfoFormProps) {
               ))}
             </div>
           ) : (
-            <div className="py-12 border-2 border-dashed rounded-xl text-center">
-              <p className="text-muted-foreground">
-                ยังไม่มีข้อมูลสัตว์เลี้ยงในระบบ
-              </p>
+            <div className="flex flex-col items-center gap-4 py-12 border-2 border-dashed rounded-xl text-center">
+              <p className="text-muted-foreground">{emptyStateMessage}</p>
+              {actionMode === "customer" && (
+                <CreatePetDialog
+                  petBreeds={petBreeds}
+                  customerId={customerId}
+                  actionMode={actionMode}
+                />
+              )}
             </div>
           )}
         </CardContent>
@@ -64,13 +90,18 @@ export function PetInfoForm({ pets, petBreeds, customerId }: PetInfoFormProps) {
             open={isEditOpen}
             onOpenChange={setIsEditOpen}
             pet={selectedPet}
+            actionMode={actionMode}
           />
           <ConfirmDialog
             open={isDeleteOpen}
             onOpenChange={setIsDeleteOpen}
             title="ยืนยันการลบข้อมูลสัตว์เลี้ยง"
             description={`คุณต้องการลบข้อมูลสัตว์เลี้ยง "${selectedPet.name}" หรือไม่?`}
-            onConfirm={() => deletePet({ id: selectedPet.id })}
+            onConfirm={() =>
+              actionMode === "customer"
+                ? deleteCustomerPet({ id: selectedPet.id })
+                : deletePet({ id: selectedPet.id })
+            }
             successMessage="ลบข้อมูลสัตว์เลี้ยงเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสัตว์เลี้ยง"
           />

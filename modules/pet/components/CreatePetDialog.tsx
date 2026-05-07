@@ -21,7 +21,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   Select,
@@ -36,15 +36,20 @@ import { CreatePetForm } from "@/modules/pet/types/pet";
 import { Textarea } from "@/components/ui/textarea";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { createPet } from "../actions/create-pet";
+import { createCustomerPet } from "../actions/customer-pet";
+
+type PetActionMode = "staff" | "customer";
 
 interface CreatePetDialogProps {
   petBreeds: PetBreed[];
   customerId: string;
+  actionMode?: PetActionMode;
 }
 
 export function CreatePetDialog({
   petBreeds,
   customerId,
+  actionMode = "staff",
 }: CreatePetDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -59,17 +64,24 @@ export function CreatePetDialog({
     },
     mode: "onBlur",
   });
+  const selectedPetType = useWatch({
+    control: form.control,
+    name: "petType",
+  });
 
   const onSubmit = async (data: CreatePetForm) => {
     try {
       setServerError(null);
 
-      const result = await createPet({
-        name: data.name,
-        medicalNotes: data.medicalNotes,
-        petBreedId: data.petBreedId,
-        customerId,
-      });
+      const result =
+        actionMode === "customer"
+          ? await createCustomerPet(data)
+          : await createPet({
+              name: data.name,
+              medicalNotes: data.medicalNotes,
+              petBreedId: data.petBreedId,
+              customerId,
+            });
 
       if (!result.success) {
         setServerError(result.error);
@@ -213,7 +225,7 @@ export function CreatePetDialog({
                     </SelectTrigger>
                     <SelectContent>
                       {petBreeds
-                        .filter((breed) => breed.type === form.watch("petType"))
+                        .filter((breed) => breed.type === selectedPetType)
                         .map((breed) => (
                           <SelectItem key={breed.id} value={breed.id}>
                             {breed.name}
