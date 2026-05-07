@@ -113,7 +113,7 @@ export default function Step4Summary({
                   size="icon"
                   className="hover:bg-primary/5 rounded-full text-muted-foreground hover:text-primary transition-all"
                   onClick={() => handleEdit(index)}
-                  title="แก้ไขรายการนี้"
+                  title={`แก้ไขรายการของ ${pet.name}`}
                 >
                   <Edit2 className="size-4" />
                 </Button>
@@ -122,7 +122,7 @@ export default function Step4Summary({
                   size="icon"
                   className="hover:bg-red-50 rounded-full text-muted-foreground hover:text-red-500 transition-all"
                   onClick={() => handleRemove(index)}
-                  title="ลบรายการนี้"
+                  title={`ลบรายการของ ${pet.name}`}
                 >
                   <X className="size-5" />
                 </Button>
@@ -150,7 +150,9 @@ export default function Step4Summary({
                       {details.mainService.name}
                     </span>
                     <p className="text-muted-foreground text-xs">
-                      {formatDurationMinutes(details.mainVariant.durationMinutes)}
+                      {formatDurationMinutes(
+                        details.mainVariant.durationMinutes,
+                      )}
                     </p>
                   </div>
                   <span className="font-semibold">
@@ -164,11 +166,10 @@ export default function Step4Summary({
                     className="flex justify-between items-center pl-4 border-primary/15 border-l-2 text-muted-foreground text-sm"
                   >
                     <span className="font-normal text-sm">
-                      {service.name} · {formatDurationMinutes(variant.durationMinutes)}
+                      {service.name} ·{" "}
+                      {formatDurationMinutes(variant.durationMinutes)}
                     </span>
-                    <span>
-                      {formatPrice(Number(variant.minPrice || 0))}
-                    </span>
+                    <span>{formatPrice(Number(variant.minPrice || 0))}</span>
                   </div>
                 ))}
 
@@ -176,9 +177,7 @@ export default function Step4Summary({
 
                 <div className="flex justify-between items-center font-bold text-primary text-xl">
                   <span className="text-base">ยอดรวม {pet.name}</span>
-                  <span>
-                    {formatPrice(details.subtotal)}
-                  </span>
+                  <span>{formatPrice(details.subtotal)}</span>
                 </div>
               </div>
             </div>

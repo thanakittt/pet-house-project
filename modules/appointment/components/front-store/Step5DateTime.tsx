@@ -63,15 +63,35 @@ export default function Step5DateTime({
 
       setIsLoading(true);
 
-      const result = await getAvailableSlots({
-        date: selectedDate,
-        durationMinutes,
-      });
+      try {
+        // ดึงข้อมูล slot ที่ว่างจาก server action
+        const result = await getAvailableSlots({
+          date: selectedDate,
+          durationMinutes,
+        });
 
-      if (!isCurrent) return;
+        // ถ้า effect นี้ถูกยกเลิกแล้ว (เช่น user เปลี่ยนวันก่อนผลลัพธ์กลับมา)
+        // ไม่ต้องอัปเดต state ของ effect เก่า
+        if (!isCurrent) return;
 
-      setAvailableSlots(result.success && result.data ? result.data : []);
-      setIsLoading(false);
+        // อัปเดต slot ที่ว่าง — ถ้า API สำเร็จและมีข้อมูล ให้ใช้ข้อมูลนั้น
+        // ถ้าไม่สำเร็จหรือไม่มีข้อมูล ให้ set เป็น array ว่าง
+        setAvailableSlots(result.success && result.data ? result.data : []);
+      } catch (error) {
+        // กรณี getAvailableSlots throw error (เช่น network error)
+        // log ไว้เพื่อ debug และ reset slots เป็นค่าว่าง
+        console.error("[Step5DateTime] ดึงข้อมูล slot ไม่สำเร็จ:", error);
+
+        if (!isCurrent) return;
+
+        setAvailableSlots([]);
+      } finally {
+        // finally จะรันเสมอไม่ว่าจะสำเร็จหรือ error
+        // ทำให้ isLoading กลับเป็น false ทุกกรณี
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      }
     }
 
     loadSlots();

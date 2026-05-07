@@ -21,6 +21,10 @@ const SLIP_STORAGE_BUCKET = "images";
 const SLIP_STORAGE_FOLDER = "deposit-slips";
 const MAX_SLIP_SIZE_BYTES = 4 * 1024 * 1024;
 
+// timeout สำหรับการเรียก Thunder API
+// ถ้า provider ไม่ตอบกลับภายใน 60 วินาที จะยกเลิก request และแจ้ง error ที่ retryable ได้
+const THUNDER_REQUEST_TIMEOUT_MS = 60_000;
+
 // MIME type ที่ Thunder รองรับตามเอกสาร และใช้ซ้ำทั้ง validation กับการเลือกนามสกุลไฟล์
 const ALLOWED_SLIP_IMAGE_TYPES = [
   "image/jpeg",
@@ -34,8 +38,8 @@ type AllowedSlipImageType = (typeof ALLOWED_SLIP_IMAGE_TYPES)[number];
 // shape ของ matchedAccount ที่ Thunder คืนมา (บางฟิลด์อาจไม่มี)
 // ใช้เพื่อ extract ข้อมูล minimal สำหรับ audit เท่านั้น — ไม่เก็บทั้งก้อน
 type ThunderMatchedAccount = {
-  name?: string;        // ชื่อเจ้าของบัญชีผู้โอน
-  account?: string;     // เลขบัญชีผู้โอน (อาจมีทั้งหมด)
+  name?: string; // ชื่อเจ้าของบัญชีผู้โอน
+  account?: string; // เลขบัญชีผู้โอน (อาจมีทั้งหมด)
   [key: string]: unknown;
 } | null;
 
@@ -158,13 +162,41 @@ async function verifySlipWithThunder({
   formData.append("matchAmount", APPOINTMENT_DEPOSIT_AMOUNT.toString());
   formData.append("checkDuplicate", "true");
 
-  const response = await fetch(THUNDER_VERIFY_BANK_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: formData,
-  });
+  // สร้าง AbortController เพื่อใช้ยกเลิก request ถ้า Thunder ไม่ตอบภายใน timeout
+  // วิธีทำงาน: setTimeout จะ call controller.abort() หลัง THUNDER_REQUEST_TIMEOUT_MS ms
+  // แล้ว clearTimeout ทันทีที่ได้ response เพื่อไม่ให้ timer ยิงหลัง response มาแล้ว
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, THUNDER_REQUEST_TIMEOUT_MS);
+
+  let response: Response;
+
+  try {
+    response = await fetch(THUNDER_VERIFY_BANK_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: formData,
+      // ส่ง signal เข้า fetch เพื่อให้ abort ได้เมื่อ controller.abort() ถูกเรียก
+      signal: controller.signal,
+    });
+  } catch (fetchError) {
+    // ถ้า error เป็น AbortError แสดงว่า request หมด timeout
+    // โยน error ที่ caller (verifyCustomerDepositSlip) จะ catch และ record เป็น ERROR
+    // พร้อม error message ที่บอกชัดว่า "retryable" — ไม่ใช่ reject จาก provider
+    if (fetchError instanceof Error && fetchError.name === "AbortError") {
+      throw new Error(
+        "ระบบตรวจสลิปใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง (timeout)",
+      );
+    }
+    // network error อื่นๆ โยนต่อตามเดิม
+    throw fetchError;
+  } finally {
+    // ล้าง timer ทุกกรณี (สำเร็จหรือ error) เพื่อป้องกัน memory leak
+    clearTimeout(timeoutId);
+  }
 
   const responseText = await response.text();
   let payload: ThunderVerifyBankResponse;
@@ -277,7 +309,9 @@ async function finalizeVerifiedDeposit({
         status: appointments.status,
       })
       .from(appointments)
-      .where(and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)))
+      .where(
+        and(eq(appointments.id, appointmentId), isNull(appointments.deletedAt)),
+      )
       .for("update")
       .limit(1);
 
@@ -356,9 +390,7 @@ async function finalizeVerifiedDeposit({
   });
 }
 
-export async function verifyCustomerDepositSlip(
-  formData: FormData,
-): Promise<
+export async function verifyCustomerDepositSlip(formData: FormData): Promise<
   ActionResponse<{
     appointmentId: string;
     paymentId: string;
@@ -412,7 +444,10 @@ export async function verifyCustomerDepositSlip(
 
     const customer = await db.query.customers.findFirst({
       columns: { id: true },
-      where: and(eq(customers.userId, session.user.id), isNull(customers.deletedAt)),
+      where: and(
+        eq(customers.userId, session.user.id),
+        isNull(customers.deletedAt),
+      ),
     });
 
     if (!customer) {
@@ -426,6 +461,9 @@ export async function verifyCustomerDepositSlip(
       columns: {
         id: true,
         status: true,
+        // เพิ่ม createdAt เพื่อตรวจ TTL 15 นาทีฝั่ง server
+        // ป้องกันกรณีที่ appointment ยังสถานะ PENDING_DEPOSIT แต่เลยเวลาแล้ว
+        createdAt: true,
       },
       where: and(
         eq(appointments.id, appointmentId),
@@ -443,6 +481,22 @@ export async function verifyCustomerDepositSlip(
     }
 
     if (appointment.status === "CANCELLED") {
+      return {
+        success: false,
+        error:
+          "การจองนี้ถูกยกเลิกแล้ว เพราะไม่ได้อัปโหลดสลิปภายใน 15 นาที กรุณาจองคิวใหม่อีกครั้ง",
+      };
+    }
+
+    // ─── TTL check: ตรวจอายุการจองฝั่ง server ────────────────────────────────
+    // แม้ appointment ยังเป็น PENDING_DEPOSIT แต่ถ้าเลย 15 นาทีจาก createdAt
+    // จะถือว่าหมดอายุและปฏิเสธการอัปโหลดสลิปทันที
+    // ใช้ error message เดียวกับ CANCELLED เพื่อ UX ที่สม่ำเสมอ
+    const APPOINTMENT_DEPOSIT_TTL_MS = 15 * 60 * 1000; // 15 นาที ในหน่วย ms
+    const nowMs = Date.now();
+    const createdAtMs = new Date(appointment.createdAt).getTime();
+
+    if (nowMs - createdAtMs > APPOINTMENT_DEPOSIT_TTL_MS) {
       return {
         success: false,
         error:
@@ -550,9 +604,7 @@ export async function verifyCustomerDepositSlip(
       });
     } catch (error) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "บันทึกผลตรวจสลิปไม่สำเร็จ";
+        error instanceof Error ? error.message : "บันทึกผลตรวจสลิปไม่สำเร็จ";
 
       await recordSlipVerificationAttempt("ERROR", {
         ...baseVerificationValues,

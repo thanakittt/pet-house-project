@@ -6,6 +6,7 @@ import {
   appointments,
   customers,
   pets,
+  services,
   serviceVariants,
 } from "@/db/schema";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
@@ -120,6 +121,16 @@ export async function createCustomerAppointment(
     const dateString = data.startTimeIso.split("T")[0];
     const appointmentDate = new Date(`${dateString}T00:00:00Z`);
 
+    // ตรวจ server-side ว่าเวลานัดหมายต้องไม่ผ่านมาแล้ว
+    // ทำหลัง isNaN check เพราะต้องแน่ใจว่า initialStartTime อ่านได้ก่อน
+    // ป้องกัน user ที่ bypass UI date-picker แล้วส่ง ISO ในอดีตมาตรง ๆ
+    if (initialStartTime.getTime() <= Date.now()) {
+      return {
+        success: false,
+        error: "ไม่สามารถจองคิวในเวลาที่ผ่านมาแล้วได้",
+      };
+    }
+
     // ใช้ค่ากลาง SHOP_CLOSED_DAY เพื่อให้ UI และ server ปิดวันเดียวกัน
     // server check สำคัญเพราะ user อาจ bypass UI แล้วเรียก action ตรง ๆ
     if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
@@ -171,6 +182,53 @@ export async function createCustomerAppointment(
         throw new Error("ข้อมูลสัตว์เลี้ยงบางรายการไม่ถูกต้อง");
       }
 
+      // ── ตรวจ service type ก่อน query variants ─────────────────────────────────────
+      // ป้องกัน payload ที่ส่ง mainServiceId เป็น ADDON หรือ addOnServiceId เป็น MAIN
+      // ซึ่ง UI ป้องกันอยู่แล้ว แต่ server ต้องตรวจซ้ำเพราะ action เรียกได้โดยตรง
+      const selectedServices = await tx.query.services.findMany({
+        where: and(
+          inArray(services.id, Array.from(allServiceIds)),
+          isNull(services.deletedAt),
+        ),
+        columns: { id: true, serviceType: true },
+      });
+
+      // สร้าง map id → serviceType เพื่อค้นหาเร็วใน loop ด้านล่าง
+      const serviceTypeMap = new Map(
+        selectedServices.map((s) => [s.id, s.serviceType]),
+      );
+
+      // ตรวจแต่ละ booking: main ต้อง MAIN, add-on ต้อง ADDON, ไม่ซ้ำกัน
+      for (const booking of data.petBookings) {
+        // 1) mainServiceId ต้องเป็น MAIN
+        if (serviceTypeMap.get(booking.mainServiceId) !== "MAIN") {
+          throw new Error(
+            "บริการหลักที่เลือกไม่ถูกต้อง กรุณาเลือกใหม่",
+          );
+        }
+
+        // 2) add-on แต่ละรายการต้องเป็น ADDON และต้องไม่ใช่ mainServiceId
+        const seenAddOnIds = new Set<string>();
+        for (const addOnId of booking.addOnServiceIds || []) {
+          if (addOnId === booking.mainServiceId) {
+            throw new Error(
+              "บริการเสริมต้องไม่ซ้ำกับบริการหลัก กรุณาเลือกใหม่",
+            );
+          }
+          if (seenAddOnIds.has(addOnId)) {
+            throw new Error(
+              "บริการเสริมซ้ำกัน กรุณาตรวจสอบรายการที่เลือก",
+            );
+          }
+          if (serviceTypeMap.get(addOnId) !== "ADDON") {
+            throw new Error(
+              "บริการเสริมที่เลือกไม่ถูกต้อง กรุณาเลือกใหม่",
+            );
+          }
+          seenAddOnIds.add(addOnId);
+        }
+      }
+
       // ดึง variants จาก service ทั้งหมดที่เลือก แล้วค่อย match type/size ใน memory
       // วิธีนี้ช่วยให้ main service และ add-on ใช้ logic เดียวกัน
       const selectedVariants = await tx.query.serviceVariants.findMany({
@@ -179,6 +237,29 @@ export async function createCustomerAppointment(
           isNull(serviceVariants.deletedAt),
         ),
       });
+
+      // ตรวจว่าลูกค้าคนนี้มีการจองที่อยู่ในสถานะ PENDING_DEPOSIT อยู่แล้วหรือไม่
+      // ทำภายใน transaction เพื่อให้การอ่านและการ insert อยู่ใน unit เดียวกัน
+      // ป้องกันลูกค้าสร้างการจองซ้อนโดยกด submit หลายครั้งหรือเปิด tab หลายหน้าต่าง
+      //
+      // หมายเหตุ: แนะนำให้เพิ่ม unique partial index ระดับ DB เป็น safeguard เพิ่มเติม
+      // เช่น: CREATE UNIQUE INDEX ON appointments (customer_id)
+      //        WHERE status = 'PENDING_DEPOSIT' AND deleted_at IS NULL;
+      // ซึ่งจะปิดช่องว่าง race condition ที่เกิดขึ้นระหว่าง check นี้กับ insert ด้านล่าง
+      const existingPendingDeposit = await tx.query.appointments.findFirst({
+        columns: { id: true },
+        where: and(
+          eq(appointments.customerId, customer.id),
+          eq(appointments.status, "PENDING_DEPOSIT"),
+          isNull(appointments.deletedAt),
+        ),
+      });
+
+      if (existingPendingDeposit) {
+        throw new Error(
+          "คุณมีการจองที่รอชำระมัดจำอยู่แล้ว กรุณาชำระมัดจำหรือรอให้การจองก่อนหน้าหมดอายุก่อน",
+        );
+      }
 
       // จองจากหน้าลูกค้าจะเริ่มที่ PENDING_DEPOSIT เสมอ
       // หลัง upload slip และ Thunder verify ผ่าน จึงเปลี่ยนเป็น CONFIRMED
