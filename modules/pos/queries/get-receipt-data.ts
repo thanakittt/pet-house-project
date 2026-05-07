@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { appointments, payments } from "@/db/schema"; // นำเข้า payments สำหรับใช้ desc()
 import { eq, desc } from "drizzle-orm"; // นำเข้า desc
-import { requireStaff } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { ActionResponse } from "@/types/action";
 
 export interface ReceiptData {
@@ -30,8 +30,9 @@ export async function getReceiptData(
   appointmentId: string,
 ): Promise<ActionResponse<ReceiptData | null>> {
   try {
-    // 1. Verify RBAC
-    const session = await requireStaff({ redirect: false });
+    // 1. Verify RBAC. Staff can view every receipt, but customers can only
+    // view receipts for appointments that belong to their own customer profile.
+    const session = await getSession();
     if (!session) {
       return { success: false, error: "ไม่มีสิทธิ์ดำเนินการ" };
     }
@@ -40,7 +41,7 @@ export async function getReceiptData(
       where: eq(appointments.id, appointmentId),
       with: {
         customer: {
-          columns: { nickname: true, walkInPhoneNumber: true },
+          columns: { nickname: true, walkInPhoneNumber: true, userId: true },
         },
         // ปรับแก้: ดึงเฉพาะ Payment ล่าสุด 1 รายการจาก Database โดยตรง
         payments: {
@@ -74,6 +75,17 @@ export async function getReceiptData(
     }
 
     // เนื่องจากเรา limit: 1 มาแล้ว latestPayment จะอยู่ index 0 เสมอ
+    const userRole = session.user.role;
+    const isStaffUser =
+      userRole === "admin" || userRole === "staff" || userRole === "owner";
+    const isReceiptOwner =
+      userRole === "customer" &&
+      appointmentData.customer.userId === session.user.id;
+
+    if (!isStaffUser && !isReceiptOwner) {
+      return { success: false, error: "ไม่มีสิทธิ์ดูใบเสร็จนี้" };
+    }
+
     const latestPayment = appointmentData.payments[0];
 
     // 3. Map Data to Interface
@@ -84,7 +96,9 @@ export async function getReceiptData(
         paymentDate: latestPayment.createdAt,
         paymentMethod: latestPayment.paymentMethod,
         totalAmount: Number(latestPayment.amount),
-        cashierName: session.user.name || "เจ้าหน้าที่ร้าน",
+        cashierName: isStaffUser
+          ? session.user.name || "เจ้าหน้าที่ร้าน"
+          : "Pet House",
         customer: {
           nickname: appointmentData.customer.nickname,
           phone: appointmentData.customer.walkInPhoneNumber,
