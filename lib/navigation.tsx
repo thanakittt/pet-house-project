@@ -14,6 +14,7 @@ import {
   Tags,
   CircleDollarSign,
   Megaphone,
+  ReceiptText,
 } from "lucide-react";
 
 export type UserRole = "owner" | "admin" | "staff" | "customer" | "guest";
@@ -108,6 +109,12 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     title: "จัดการบัญชี",
     url: "/back-office/accounting",
     icon: <CircleDollarSign className="size-5" />,
+    allowedUserRoles: ["owner"],
+  },
+  {
+    title: "ตรวจสลิปโอนเงิน",
+    url: "/back-office/payment-slip-verifications",
+    icon: <ReceiptText className="size-5" />,
     allowedUserRoles: ["owner"],
   },
 ];
