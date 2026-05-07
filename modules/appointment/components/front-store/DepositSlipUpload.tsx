@@ -14,16 +14,20 @@ import { verifyCustomerDepositSlip } from "@/modules/appointment/actions/verify-
 import {
   CheckCircle2,
   Clock3,
+  ImageIcon,
   Loader2,
   RefreshCw,
   UploadCloud,
+  XIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  ChangeEvent,
   CSSProperties,
   FormEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
@@ -85,6 +89,7 @@ export default function DepositSlipUpload({
 
   // เก็บไฟล์ที่ user เลือกไว้ก่อน submit เพื่อ validate ขนาดและส่งเข้า Server Action
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState("");
 
   // ถ้า asset QR หายหรือโหลดไม่ได้ UI ยังต้องใช้งาน upload slip ต่อได้
   const [isQrImageError, setIsQrImageError] = useState(false);
@@ -94,6 +99,14 @@ export default function DepositSlipUpload({
   const isDepositExpired = remainingSeconds === 0;
   const countdownText =
     remainingSeconds === null ? "--:--" : formatCountdownTime(remainingSeconds);
+  const previewUrl = useMemo(() => {
+    if (!selectedFile) {
+      return null;
+    }
+
+    // สร้าง URL ชั่วคราวจากไฟล์ในเครื่อง เพื่อ preview ก่อนอัปโหลดจริง
+    return URL.createObjectURL(selectedFile);
+  }, [selectedFile]);
 
   useEffect(() => {
     function updateRemainingTime() {
@@ -121,6 +134,46 @@ export default function DepositSlipUpload({
     return () => window.clearInterval(intervalId);
   }, [appointmentCreatedAt]);
 
+  useEffect(() => {
+    if (!previewUrl) {
+      return;
+    }
+
+    return () => {
+      // คืนหน่วยความจำให้ browser เมื่อเปลี่ยนไฟล์หรือ component ถูกปิด
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    setFileError("");
+
+    if (!file) {
+      setSelectedFile(null);
+      event.target.value = "";
+      return;
+    }
+
+    // เช็กขนาดทันทีหลังเลือกรูป เพื่อให้ลูกค้ารู้ปัญหาก่อนกดส่ง
+    if (file.size > MAX_SLIP_SIZE_BYTES) {
+      const errorMessage = "ขนาดรูปสลิปต้องไม่เกิน 4MB";
+      setSelectedFile(null);
+      setFileError(errorMessage);
+      toast.error(errorMessage);
+      event.target.value = "";
+      return;
+    }
+
+    setSelectedFile(file);
+    event.target.value = "";
+  };
+
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    setFileError("");
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -132,12 +185,16 @@ export default function DepositSlipUpload({
     // Validate ฝั่ง client เพื่อให้ user ได้ feedback ทันที
     // ฝั่ง server ยัง validate ซ้ำอีกครั้งเพราะ client validation เชื่อถือไม่ได้ 100%
     if (!selectedFile) {
-      toast.error("กรุณาเลือกรูปสลิป");
+      const errorMessage = "กรุณาเลือกรูปสลิป";
+      setFileError(errorMessage);
+      toast.error(errorMessage);
       return;
     }
 
     if (selectedFile.size > MAX_SLIP_SIZE_BYTES) {
-      toast.error("ขนาดรูปสลิปต้องไม่เกิน 4MB");
+      const errorMessage = "ขนาดรูปสลิปต้องไม่เกิน 4MB";
+      setFileError(errorMessage);
+      toast.error(errorMessage);
       return;
     }
 
@@ -221,7 +278,7 @@ export default function DepositSlipUpload({
           "--deposit-qr-size": `${DEPOSIT_QR_IMAGE_SIZE_PX}px`,
         } as CSSProperties}
       >
-        <div className="flex flex-col gap-3 bg-white/80 p-3 border border-amber-200 rounded-xl text-center">
+        <div className="flex flex-col gap-4 bg-white/90 p-4 border border-amber-200 rounded-xl text-center">
           <div
             className="relative bg-white mx-auto border border-amber-100 rounded-lg w-full aspect-square overflow-hidden"
             style={{ maxWidth: DEPOSIT_QR_IMAGE_SIZE_PX }}
@@ -250,44 +307,123 @@ export default function DepositSlipUpload({
               ชำระ {APPOINTMENT_DEPOSIT_AMOUNT} บาท ก่อนอัปโหลดสลิป
             </p>
           </div>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-left text-xs text-amber-900">
+            <p className="font-medium">ขั้นตอนสั้น ๆ</p>
+            <p className="mt-1">
+              1. สแกน QR Code 2. บันทึกรูปสลิป 3. เลือกรูปแล้วกดตรวจสอบ
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-white/90 p-4">
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="deposit-slip">
-                รูปสลิปโอนเงิน
-              </FieldLabel>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <FieldLabel htmlFor="deposit-slip">
+                    รูปสลิปโอนเงิน
+                  </FieldLabel>
+                  <FieldDescription>
+                    รองรับ JPG, PNG, GIF, WebP ขนาดไม่เกิน 4MB
+                  </FieldDescription>
+                </div>
+                {selectedFile ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                    disabled={isPending || isDepositExpired}
+                    onClick={handleClearFile}
+                  >
+                    <XIcon data-icon="inline-start" />
+                    ล้างรูป
+                  </Button>
+                ) : null}
+              </div>
+
+              <FieldDescription>
+                เลือกรูปให้ชัด เห็นยอดเงิน วันที่ เวลา และเลขอ้างอิงครบถ้วน
+              </FieldDescription>
+
               <Input
                 id="deposit-slip"
                 type="file"
                 accept={ACCEPTED_SLIP_TYPES}
                 disabled={isPending || isDepositExpired}
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  setSelectedFile(file);
-                }}
+                onChange={handleFileChange}
+                className="sr-only"
               />
-              <FieldDescription>
-                รองรับ JPG, PNG, GIF, WebP ขนาดไม่เกิน 4MB
-              </FieldDescription>
             </Field>
           </FieldGroup>
 
-          {selectedFile ? (
-            <div className="flex justify-between items-center gap-3 bg-white/80 px-3 py-2 border border-amber-200 rounded-lg text-sm">
-              <span className="text-amber-950 truncate">
-                {selectedFile.name}
-              </span>
-              <span className="text-amber-800 shrink-0">
-                {formatFileSize(selectedFile.size)}
-              </span>
-            </div>
+          <label
+            htmlFor="deposit-slip"
+            aria-disabled={isPending || isDepositExpired}
+            className={
+              isPending || isDepositExpired
+                ? "flex min-h-72 cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-amber-200 bg-amber-50/60 p-4 text-center opacity-70"
+                : "flex min-h-72 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 p-4 text-center transition-colors hover:border-amber-400 hover:bg-amber-100/60"
+            }
+          >
+            {previewUrl ? (
+              <>
+                <div className="flex w-full justify-between gap-3 rounded-lg border border-amber-200 bg-white px-3 py-2 text-left text-sm">
+                  <span className="min-w-0 truncate font-medium text-amber-950">
+                    {selectedFile?.name}
+                  </span>
+                  <span className="shrink-0 text-amber-800">
+                    {selectedFile ? formatFileSize(selectedFile.size) : ""}
+                  </span>
+                </div>
+                <div className="flex w-full justify-center items-center bg-white border border-amber-100 rounded-lg max-h-80 overflow-hidden">
+                  {/* ใช้ img ธรรมดาเพราะ previewUrl เป็น blob URL จากเครื่องลูกค้า ไม่ใช่รูป static ของ Next.js */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={previewUrl}
+                    alt={`ตัวอย่างรูปสลิป ${selectedFile?.name ?? ""}`}
+                    className="w-full max-h-80 object-contain"
+                  />
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-amber-900 text-xs">
+                  <UploadCloud className="size-3.5" />
+                  คลิกเพื่อเปลี่ยนรูปสลิป
+                </span>
+              </>
+            ) : (
+              <>
+                <div className="flex size-14 items-center justify-center rounded-full bg-white text-amber-700 ring-1 ring-amber-200">
+                  <ImageIcon className="size-6" />
+                </div>
+                <div>
+                  <p className="font-semibold text-amber-950 text-sm">
+                    เลือกรูปสลิปเพื่อแสดงตัวอย่าง
+                  </p>
+                  <p className="mt-1 text-amber-800 text-xs">
+                    แตะที่กล่องนี้เพื่อเลือกรูปจากเครื่องของคุณ
+                  </p>
+                </div>
+                <span className="inline-flex min-h-8 items-center justify-center rounded-lg bg-white px-3 text-amber-900 text-xs font-medium ring-1 ring-amber-200">
+                  เลือกรูปสลิป
+                </span>
+              </>
+            )}
+          </label>
+
+          {fileError ? (
+            <p aria-live="polite" className="text-red-700 text-sm">
+              {fileError}
+            </p>
           ) : null}
 
           <Button
             type="submit"
-            disabled={!selectedFile || isPending || isDepositExpired}
+            disabled={
+              !selectedFile ||
+              Boolean(fileError) ||
+              isPending ||
+              isDepositExpired
+            }
             className="bg-green-600 hover:bg-green-700 shadow-none w-full"
           >
             {isPending ? (
