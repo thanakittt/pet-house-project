@@ -31,12 +31,21 @@ const ALLOWED_SLIP_IMAGE_TYPES = [
 
 type AllowedSlipImageType = (typeof ALLOWED_SLIP_IMAGE_TYPES)[number];
 
+// shape ของ matchedAccount ที่ Thunder คืนมา (บางฟิลด์อาจไม่มี)
+// ใช้เพื่อ extract ข้อมูล minimal สำหรับ audit เท่านั้น — ไม่เก็บทั้งก้อน
+type ThunderMatchedAccount = {
+  name?: string;        // ชื่อเจ้าของบัญชีผู้โอน
+  account?: string;     // เลขบัญชีผู้โอน (อาจมีทั้งหมด)
+  [key: string]: unknown;
+} | null;
+
 type ThunderVerifyBankSuccess = {
   success: true;
   data: {
     remark?: string;
     isDuplicate: boolean;
-    matchedAccount: unknown | null;
+    // matchedAccount คือข้อมูลบัญชีผู้โอน null = บัญชีไม่ตรง
+    matchedAccount: ThunderMatchedAccount;
     amountInOrder?: number;
     amountInSlip: number;
     isAmountMatched?: boolean;
@@ -181,6 +190,24 @@ async function recordSlipVerificationAttempt(
   });
 }
 
+// ─── helper: ตัดชื่อกลาง/นามสกุลออก เก็บเฉพาะคำแรก + "***" ──────────────────
+// เพื่อไม่เก็บชื่อเต็มซึ่งเป็น PII โดยตรง แต่ยังพอ audit ได้
+function redactName(fullName?: string): string | null {
+  if (!fullName || typeof fullName !== "string") return null;
+  // แยกชื่อโดยใช้ช่องว่าง แล้วเก็บแค่คำแรก
+  const firstPart = fullName.trim().split(" ")[0] ?? "";
+  return firstPart ? `${firstPart} ***` : null;
+}
+
+// ─── helper: ดึงเลข 4 หลักสุดท้ายของบัญชีผู้โอน ──────────────────────────────
+// ป้องกันการเก็บเลขบัญชีเต็มซึ่งเป็น PII
+function extractAccountLast4(account?: string): string | null {
+  if (!account || typeof account !== "string") return null;
+  // ลบเครื่องหมายขีด เว้นวรรค ฯลฯ แล้วเอา 4 ตัวท้าย
+  const digits = account.replace(/\D/g, "");
+  return digits.length >= 4 ? digits.slice(-4) : null;
+}
+
 function buildBaseVerificationValues({
   appointmentId,
   slipImageUrl,
@@ -193,22 +220,28 @@ function buildBaseVerificationValues({
   payload: ThunderVerifyBankResponse;
 }): Omit<SlipVerificationInsert, "status" | "provider"> {
   // function นี้ normalize response จาก Thunder ให้เป็น shape ของตารางเรา
-  // ใช้ทั้งเคสสำเร็จและไม่สำเร็จ เพื่อลดการ map field ซ้ำหลายจุด
+  // สำคัญ: ไม่เก็บ JSON เต็ม (matchedAccount, rawSlip, providerResponse)
+  // แต่ extract เฉพาะฟิลด์ minimal ที่จำเป็นสำหรับ audit
+
   if (!payload.success) {
+    // กรณี error: เก็บแค่ error code/message ซึ่งไม่มี PII
     return {
       appointmentId,
       slipImageUrl,
       remark,
-      providerResponse: payload,
       providerErrorCode: payload.error?.code ?? null,
       providerErrorMessage: payload.error?.message ?? payload.message ?? null,
     };
   }
 
+  // กรณีสำเร็จ/rejected: extract เฉพาะข้อมูล minimal จาก response
+  const matchedAccount = payload.data.matchedAccount;
+
   return {
     appointmentId,
     slipImageUrl,
     remark: payload.data.remark ?? remark,
+    // transRef ใช้อ้างอิงกับ provider ภายหลัง ไม่ใช่ PII
     transRef: payload.data.rawSlip.transRef ?? null,
     amountInSlip: payload.data.amountInSlip.toFixed(2),
     amountInOrder:
@@ -217,9 +250,11 @@ function buildBaseVerificationValues({
         : APPOINTMENT_DEPOSIT_AMOUNT.toFixed(2),
     isAmountMatched: payload.data.isAmountMatched ?? null,
     isDuplicate: payload.data.isDuplicate,
-    matchedAccount: payload.data.matchedAccount,
-    rawSlip: payload.data.rawSlip,
-    providerResponse: payload,
+    // แทนที่จะเก็บ matchedAccount JSON เต็ม → เก็บแค่ชื่อ redacted + 4 หลักท้ายบัญชี
+    payerNameRedacted: redactName(matchedAccount?.name),
+    payerAccountLast4: extractAccountLast4(matchedAccount?.account),
+    // providerReference = transRef เดียวกัน ใช้ยืนยันกับ Thunder support กรณีมีข้อพิพาท
+    providerReference: payload.data.rawSlip.transRef ?? null,
   };
 }
 

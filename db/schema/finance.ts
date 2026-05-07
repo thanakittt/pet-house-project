@@ -75,12 +75,20 @@ export const paymentSlipVerifications = p
       }),
       isAmountMatched: p.boolean("is_amount_matched"),
       isDuplicate: p.boolean("is_duplicate").notNull().default(false),
-      // matchedAccount/rawSlip/providerResponse เก็บเป็น JSON เพราะ shape มาจาก provider และอาจเปลี่ยนได้
-      matchedAccount: p.jsonb("matched_account"),
-      rawSlip: p.jsonb("raw_slip"),
-      providerResponse: p.jsonb("provider_response"),
+      // ── ข้อมูล audit แบบ minimal (ไม่เก็บ JSON เต็มเพื่อหลีกเลี่ยง PII) ──────────────
+      // payerNameRedacted: ชื่อผู้โอน ตัดชื่อกลาง/นามสกุลออก เก็บเฉพาะส่วนแรก เพื่อ audit
+      // เช่น "สมชาย ***"
+      payerNameRedacted: p.text("payer_name_redacted"),
+      // payerAccountLast4: เลข 4 หลักสุดท้ายของบัญชีผู้โอน เช่น "1234"
+      payerAccountLast4: p.text("payer_account_last4"),
+      // providerReference: transaction reference / trans_ref จาก provider ใช้ยืนยัน/ติดตามกรณีมีปัญหา
+      providerReference: p.text("provider_reference"),
+      // providerErrorCode / providerErrorMessage: error จาก provider (ไม่มี PII)
       providerErrorCode: p.text("provider_error_code"),
       providerErrorMessage: p.text("provider_error_message"),
+      // redactedAt: timestamp ที่ลบข้อมูลดิบออก (null = ยังไม่ได้ลบ)
+      // ใช้สำหรับ retention policy — ดู lib/finance/redact-payment-data.ts
+      redactedAt: p.timestamp("redacted_at", { withTimezone: true }),
       ...timestamps,
     },
     (table) => [
