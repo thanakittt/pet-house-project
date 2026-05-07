@@ -2,10 +2,20 @@
 
 import { db } from "@/db";
 import { pets } from "@/db/schema";
+import { requireStaff } from "@/lib/session";
 import { and, eq, isNull } from "drizzle-orm";
 
 export async function deletePet({ id }: { id: string }) {
   try {
+    const session = await requireStaff({ redirect: false });
+
+    if (!session) {
+      return {
+        success: false,
+        error: "ไม่มีสิทธิ์ลบข้อมูลสัตว์เลี้ยง",
+      };
+    }
+
     const result = await db
       .update(pets)
       .set({ deletedAt: new Date() })

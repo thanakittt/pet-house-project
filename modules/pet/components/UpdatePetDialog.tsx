@@ -22,7 +22,7 @@ import {
 // PencilIcon ถูกลบออก — ไม่ได้ใช้ภายใน UpdatePetDialog (trigger อยู่ที่ parent component)
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   Select,
@@ -38,12 +38,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { Pet } from "../types/pet";
 import { updatePet } from "../actions/update-pet";
+import { updateCustomerPet } from "../actions/customer-pet";
+
+type PetActionMode = "staff" | "customer";
 
 interface UpdatePetDialogProps {
   petBreeds: PetBreed[];
   pet: Pet;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  actionMode?: PetActionMode;
 }
 
 export function UpdatePetDialog({
@@ -51,6 +55,7 @@ export function UpdatePetDialog({
   pet,
   open,
   onOpenChange,
+  actionMode = "staff",
 }: UpdatePetDialogProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -63,6 +68,10 @@ export function UpdatePetDialog({
       petBreedId: "",
     },
     mode: "onBlur",
+  });
+  const selectedPetType = useWatch({
+    control: form.control,
+    name: "petType",
   });
 
   useEffect(() => {
@@ -80,12 +89,17 @@ export function UpdatePetDialog({
     try {
       setServerError(null);
 
-      const result = await updatePet({
+      const payload = {
         petId: pet.id,
         name: data.name,
         petBreedId: data.petBreedId,
         medicalNotes: data.medicalNotes,
-      });
+      };
+
+      const result =
+        actionMode === "customer"
+          ? await updateCustomerPet(payload)
+          : await updatePet(payload);
 
       if (!result.success) {
         setServerError(result.error);
@@ -223,7 +237,7 @@ export function UpdatePetDialog({
                     </SelectTrigger>
                     <SelectContent>
                       {petBreeds
-                        .filter((breed) => breed.type === form.watch("petType"))
+                        .filter((breed) => breed.type === selectedPetType)
                         .map((breed) => (
                           <SelectItem key={breed.id} value={breed.id}>
                             {breed.name}
