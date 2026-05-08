@@ -29,8 +29,11 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
         } else {
           liff.login();
         }
-      } catch (error: any) {
-        console.error("LIFF init failed", error.message);
+      } catch (error) {
+        console.error(
+          "LIFF init failed",
+          error instanceof Error ? error.message : "An unknown error occurred",
+        );
       }
     };
     initLiff();

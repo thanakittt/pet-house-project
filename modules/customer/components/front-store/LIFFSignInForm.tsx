@@ -64,7 +64,7 @@ export function LIFFSignInForm() {
       await authClient.signIn.social(
         {
           provider,
-          callbackURL: "/",
+          callbackURL: "/connect-line",
           newUserCallbackURL: "/setup-profile",
         },
         {
