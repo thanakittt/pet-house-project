@@ -3,6 +3,7 @@ import AppointmentManagement from "@/modules/appointment/components/appointmentM
 
 import { format } from "date-fns";
 import { getScheduleByDate } from "@/modules/appointment/queries/get-schedule";
+import { getConfirmedAppointmentRequests } from "@/modules/appointment/queries/get-confirmed-appointment-requests";
 import { SiteHeader } from "@/components/site-header";
 import { requireStaff } from "@/lib/session";
 
@@ -22,9 +23,17 @@ export default async function AppointmentsPage({
   const targetDate =
     (await searchParams).date || format(new Date(), "yyyy-MM-dd");
 
-  // เรียก Query โดยตรงบนฝั่ง Server
-  const result = await getScheduleByDate(targetDate);
-  const appointments = result.success && result.data ? result.data : [];
+  // เรียกข้อมูลทั้งสองแท็บพร้อมกัน เพื่อลดเวลารอของหน้า appointments
+  const [scheduleResult, newRequestsResult] = await Promise.all([
+    getScheduleByDate(targetDate),
+    getConfirmedAppointmentRequests(),
+  ]);
+
+  const appointments =
+    scheduleResult.success && scheduleResult.data ? scheduleResult.data : [];
+  const newAppointmentRequests = newRequestsResult.success
+    ? newRequestsResult.data
+    : [];
 
   return (
     <>
@@ -33,6 +42,7 @@ export default async function AppointmentsPage({
         <AppointmentManagement
           initialDate={targetDate}
           appointments={appointments}
+          newAppointmentRequests={newAppointmentRequests}
         />
       </div>
     </>
