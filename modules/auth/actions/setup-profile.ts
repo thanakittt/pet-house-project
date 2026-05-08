@@ -52,7 +52,8 @@ export async function setupProfile(
       error instanceof DrizzleQueryError &&
       error.cause instanceof DatabaseError &&
       error.cause.code === "23505" &&
-      error.cause.constraint?.includes("walk_in_phone_number")
+      (error.cause.constraint?.includes("walk_in_phone_number") ||
+        error.cause.constraint?.includes("phone_number"))
     ) {
       return { success: false, error: "เบอร์โทรศัพท์นี้มีอยู่แล้ว" };
     }

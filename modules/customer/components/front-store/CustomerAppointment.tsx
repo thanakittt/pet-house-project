@@ -22,6 +22,7 @@ import type {
   CustomerAppointmentsResult,
 } from "@/modules/appointment/queries/get-customer-appointments";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
+import LineNotificationAlert from "./LineNotificationAlert";
 import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 import {
@@ -207,6 +208,8 @@ export default function CustomerAppointment({
           ประวัติการใช้บริการ
         </h1>
       </div>
+
+      {!appointmentData.hasLineConnection ? <LineNotificationAlert /> : null}
 
       {appointments.length === 0 ? (
         <div className="bg-white shadow-sm p-10 border border-slate-200 border-dashed rounded-3xl text-center">

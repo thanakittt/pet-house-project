@@ -1,13 +1,15 @@
 "use server";
 
 import { db } from "@/db";
-import { appointments, payments } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { requireStaff } from "@/lib/session";
-import { redirect } from "next/navigation";
-import { recordTransaction } from "@/lib/finance/record-transaction";
+import { payments } from "@/db/schema";
 import { formatDateOnly } from "@/lib/finance/date";
+import { recordTransaction } from "@/lib/finance/record-transaction";
+import { requireStaff } from "@/lib/session";
+import {
+  notifyCustomerAppointmentStatusChange,
+  updateAppointmentStatusInTransaction,
+} from "@/modules/appointment/actions/status-workflow";
+import { revalidatePath } from "next/cache";
 
 export interface ProcessPaymentInput {
   appointmentId: string;
@@ -18,6 +20,7 @@ export interface ProcessPaymentInput {
 export async function processPayment(data: ProcessPaymentInput) {
   try {
     const session = await requireStaff({ redirect: false });
+
     if (!session) {
       return { success: false, error: "ไม่มีสิทธิ์ดำเนินการ" };
     }
@@ -29,6 +32,7 @@ export async function processPayment(data: ProcessPaymentInput) {
     ) {
       return { success: false, error: "รหัสการจองไม่ถูกต้อง" };
     }
+
     if (
       typeof data.amount !== "number" ||
       isNaN(data.amount) ||
@@ -36,6 +40,7 @@ export async function processPayment(data: ProcessPaymentInput) {
     ) {
       return { success: false, error: "จำนวนเงินไม่ถูกต้อง" };
     }
+
     if (
       !data.paymentMethod ||
       !["CASH", "TRANSFER"].includes(data.paymentMethod)
@@ -43,28 +48,28 @@ export async function processPayment(data: ProcessPaymentInput) {
       return { success: false, error: "วิธีการชำระเงินไม่ถูกต้อง" };
     }
 
-    // 2. ดำเนินการ Database Transaction
+    let statusChanged = false;
+
     await db.transaction(async (tx) => {
       const today = new Date();
 
-      const existingAppointments = await tx
-        .select()
-        .from(appointments)
-        .where(eq(appointments.id, data.appointmentId));
-      if (existingAppointments.length === 0) {
-        throw new Error("ไม่พบข้อมูลการจอง");
-      }
+      // อัปเดตสถานะผ่าน helper กลางตั้งแต่ใน transaction
+      // ถ้า appointment ไม่ถูกต้อง helper จะ throw และ rollback ทั้งหมดทันที
+      const statusResult = await updateAppointmentStatusInTransaction(
+        tx,
+        data.appointmentId,
+        "COMPLETED",
+      );
+      statusChanged = statusResult.statusChanged;
 
-      // 2.1 บันทึกข้อมูลการชำระเงินลงตาราง payments
       await tx.insert(payments).values({
         amount: data.amount.toString(),
         paymentMethod: data.paymentMethod,
         paymentDate: formatDateOnly(today),
-        status: "PAID", // สมมติว่าชำระสำเร็จทันที (ถ้า PromptPay อาจต้องรอ Verify Slip)
+        status: "PAID",
         appointmentId: data.appointmentId,
       });
 
-      // 2.2 บันทึก transaction รายรับ (การชำระเงินเต็มจำนวน) ลงตาราง transactions
       await recordTransaction(tx, {
         amount: data.amount,
         transactionDate: today,
@@ -72,15 +77,15 @@ export async function processPayment(data: ProcessPaymentInput) {
         categoryName: "รายรับจากการให้บริการ",
         note: `รับชำระเงินผ่าน POS (${data.paymentMethod}) นัดหมาย #${data.appointmentId}`,
       });
-
-      // 2.3 อัปเดตสถานะ Appointment เป็น COMPLETED
-      await tx
-        .update(appointments)
-        .set({ status: "COMPLETED" })
-        .where(eq(appointments.id, data.appointmentId));
     });
 
-    // 3. สั่ง Revalidate Cache เพื่ออัปเดต UI
+    // ส่ง LINE หลัง transaction สำเร็จเท่านั้น และไม่ให้ LINE failure ทำให้ POS fail
+    await notifyCustomerAppointmentStatusChange({
+      appointmentId: data.appointmentId,
+      newStatus: "COMPLETED",
+      statusChanged,
+    });
+
     revalidatePath("/pos");
     revalidatePath("/appointments");
     revalidatePath(`/appointments/${data.appointmentId}`);
@@ -88,6 +93,7 @@ export async function processPayment(data: ProcessPaymentInput) {
     return { success: true, data: null };
   } catch (error) {
     console.error("Payment processing error:", error);
+
     return {
       success: false,
       error: "เกิดข้อผิดพลาดในการชำระเงิน",

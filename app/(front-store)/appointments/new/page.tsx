@@ -3,6 +3,7 @@ import PendingDepositPaymentScreen from "@/modules/appointment/components/front-
 import { getLatestPendingDepositAppointment } from "@/modules/appointment/queries/get-latest-pending-deposit-appointment";
 import { requireCustomer } from "@/lib/session";
 import { getCustomerProfile } from "@/modules/customer/queries/get-profile";
+import LineNotificationAlert from "@/modules/customer/components/front-store/LineNotificationAlert";
 import { listPets } from "@/modules/pet/queries/list-pets";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { redirect } from "next/navigation";
@@ -40,10 +41,13 @@ export default async function Page() {
 
   if (pendingDeposit.data) {
     return (
-      <PendingDepositPaymentScreen
-        appointmentId={pendingDeposit.data.id}
-        appointmentCreatedAt={pendingDeposit.data.createdAt.toISOString()}
-      />
+      <div className="mx-auto my-4 flex w-full max-w-5xl flex-col gap-4 px-4">
+        {!profile.data.hasLineConnection ? <LineNotificationAlert /> : null}
+        <PendingDepositPaymentScreen
+          appointmentId={pendingDeposit.data.id}
+          appointmentCreatedAt={pendingDeposit.data.createdAt.toISOString()}
+        />
+      </div>
     );
   }
 
@@ -62,9 +66,12 @@ export default async function Page() {
   }
 
   return (
-    <AppointmentStepper
-      pets={pets.data}
-      services={services.data}
-    />
+    <div className="mx-auto my-4 flex w-full max-w-5xl flex-col gap-4 px-4">
+      {!profile.data.hasLineConnection ? <LineNotificationAlert /> : null}
+      <AppointmentStepper
+        pets={pets.data}
+        services={services.data}
+      />
+    </div>
   );
 }
