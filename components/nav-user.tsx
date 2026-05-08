@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -106,9 +107,11 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>
-                <CircleUserRoundIcon />
-                ข้อมูลส่วนตัว
+              <DropdownMenuItem asChild>
+                <Link href="/back-office/profile">
+                  <CircleUserRoundIcon />
+                  ข้อมูลส่วนตัว
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
