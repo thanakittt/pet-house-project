@@ -1,14 +1,18 @@
 "use server";
 
 import { db } from "@/db";
-import { appointments, payments } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { payments } from "@/db/schema";
+import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
+import { formatDateOnly } from "@/lib/finance/date";
+import { recordTransaction } from "@/lib/finance/record-transaction";
+import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { AppointmentStatus } from "../types/status";
-import { requireStaff } from "@/lib/session";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
-import { recordTransaction } from "@/lib/finance/record-transaction";
-import { formatDateOnly } from "@/lib/finance/date";
+import {
+  APPOINTMENT_NOT_FOUND_ERROR,
+  notifyCustomerAppointmentStatusChange,
+  updateAppointmentStatusInTransaction,
+} from "./status-workflow";
 
 export async function updateAppointmentStatus(
   appointmentId: string,
@@ -21,34 +25,29 @@ export async function updateAppointmentStatus(
       return { success: false, error: "คุณไม่มีสิทธิ์ในการดำเนินการนี้" };
     }
 
-    // ใช้ Database Transaction เพื่อรับประกันว่าข้อมูลต้องอัปเดตสำเร็จทั้งคู่
+    let statusChanged = false;
+
     await db.transaction(async (tx) => {
       const today = new Date();
 
-      // 1. อัปเดตสถานะนัดหมาย
-      const result = await tx
-        .update(appointments)
-        .set({ status: newStatus })
-        .where(eq(appointments.id, appointmentId))
-        .returning({ id: appointments.id });
+      // อัปเดตสถานะผ่าน helper กลาง เพื่อกัน logic ซ้ำกับ flow อื่น เช่น POS
+      const statusResult = await updateAppointmentStatusInTransaction(
+        tx,
+        appointmentId,
+        newStatus,
+      );
+      statusChanged = statusResult.statusChanged;
 
-      // หากไม่พบข้อมูล ให้โยน Error ออกไปเพื่อให้ Transaction ทำการ Rollback ทันที
-      if (result.length === 0) {
-        throw new Error("ไม่พบข้อมูลการจอง");
-      }
-
-      // 2. สร้างบิลมัดจำ 100 บาท หากสถานะเปลี่ยนเป็น CONFIRMED
+      // สถานะ CONFIRMED ยังต้องสร้างบิลมัดจำตาม behavior เดิมของระบบ
       if (newStatus === "CONFIRMED") {
-        // เช็คก่อนว่ามีค่ามัดจำบิลนี้หรือยัง ป้องกันการสร้างข้อมูลซ้ำซ้อน
         const existingDeposit = await tx.query.payments.findFirst({
-          where: (p, { and, eq }) =>
+          where: (paymentTable, { and, eq }) =>
             and(
-              eq(p.appointmentId, appointmentId),
-              eq(p.paymentType, "DEPOSIT"),
+              eq(paymentTable.appointmentId, appointmentId),
+              eq(paymentTable.paymentType, "DEPOSIT"),
             ),
         });
 
-        // หากยังไม่มีมัดจำ ให้ Insert ข้อมูลใหม่
         if (!existingDeposit) {
           await tx.insert(payments).values({
             appointmentId: appointmentId,
@@ -59,7 +58,6 @@ export async function updateAppointmentStatus(
             paymentType: "DEPOSIT",
           });
 
-          // บันทึก transaction รายรับมัดจำลงตาราง transactions
           await recordTransaction(tx, {
             amount: APPOINTMENT_DEPOSIT_AMOUNT,
             transactionDate: today,
@@ -71,7 +69,13 @@ export async function updateAppointmentStatus(
       }
     });
 
-    // ล้างแคชหน้า Detail และหน้า Schedule เพื่อให้เห็นสถานะใหม่ทันที
+    // ส่ง LINE หลัง transaction สำเร็จเท่านั้น เพื่อไม่แจ้งสถานะที่ถูก rollback
+    await notifyCustomerAppointmentStatusChange({
+      appointmentId,
+      newStatus,
+      statusChanged,
+    });
+
     revalidatePath(`/appointments/${appointmentId}`);
     revalidatePath("/appointments");
 
@@ -79,10 +83,10 @@ export async function updateAppointmentStatus(
   } catch (error) {
     console.error("updateAppointmentStatus error:", error);
 
-    // จัดการ Error Message ให้สื่อสารกับ Client ได้ชัดเจนขึ้น
-    if (error instanceof Error && error.message === "ไม่พบข้อมูลการจอง") {
+    if (error instanceof Error && error.message === APPOINTMENT_NOT_FOUND_ERROR) {
       return { success: false, error: error.message };
     }
+
     return { success: false, error: "ไม่สามารถเปลี่ยนสถานะได้" };
   }
 }

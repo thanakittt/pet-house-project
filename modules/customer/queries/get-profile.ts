@@ -11,6 +11,7 @@ export type CustomerProfile = {
   birthDate: string | null;
   gender: "MALE" | "FEMALE" | "UNSPECIFIED";
   hasPassword: boolean;
+  hasLineConnection: boolean;
 };
 
 export async function getCustomerProfile(
@@ -27,6 +28,7 @@ export async function getCustomerProfile(
         id: true,
         birthDate: true,
         gender: true,
+        lineUserId: true,
       },
       where: eq(customers.userId, user.id),
     });
@@ -57,6 +59,7 @@ export async function getCustomerProfile(
         birthDate: customer.birthDate,
         gender: customer.gender,
         hasPassword: Boolean(credentialAccount),
+        hasLineConnection: Boolean(customer.lineUserId),
       },
     };
   } catch (error) {

@@ -26,6 +26,7 @@ export type CustomerAppointmentListItem = {
 
 export type CustomerAppointmentsResult = {
   appointments: CustomerAppointmentListItem[];
+  hasLineConnection: boolean;
   total: number;
   page: number;
   pageSize: number;
@@ -161,6 +162,7 @@ export async function getCustomerAppointments(
       success: true,
       data: {
         appointments: formattedAppointments,
+        hasLineConnection: profile.data.hasLineConnection,
         total,
         page: currentPage,
         pageSize: CUSTOMER_APPOINTMENTS_PAGE_SIZE,

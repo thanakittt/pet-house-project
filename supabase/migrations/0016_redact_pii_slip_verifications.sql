@@ -1,4 +1,4 @@
--- Migration: 0014_redact_pii_slip_verifications
+-- Migration: 0016_redact_pii_slip_verifications
 --
 -- เปลี่ยนแปลง payment_slip_verifications:
 --   - ลบคอลัมน์ jsonb ที่เก็บ payload เต็มจาก provider (matched_account, raw_slip, provider_response)

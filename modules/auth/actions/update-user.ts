@@ -25,6 +25,8 @@ export async function updateUser(data: UpdateUserForm) {
       headers: await headers(),
     });
 
+    console.log("data.role", data.role);
+
     if (data.password) {
       await auth.api.setUserPassword({
         body: {

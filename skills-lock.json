@@ -19,6 +19,12 @@
       "skillPath": "skills/gemini-api-dev/SKILL.md",
       "computedHash": "2ca262894d6e040e5c3b5fbe296e8f36d1680aead0bd1176584b3fbf9b2cf56a"
     },
+    "messaging-api": {
+      "source": "abgne/line-dev",
+      "sourceType": "github",
+      "skillPath": "skills/messaging-api/SKILL.md",
+      "computedHash": "30b576a7b7a462b94dfc4740a3c505ad81b306d8b1756cee5f6102cc7fd63be3"
+    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",
