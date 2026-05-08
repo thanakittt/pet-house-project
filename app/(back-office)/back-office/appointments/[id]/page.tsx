@@ -235,6 +235,7 @@ export default async function AppointmentDetailPage({
                                     fill
                                     sizes="96px"
                                     className="object-cover"
+                                    unoptimized
                                   />
                                 </ImageLightbox>
                               </div>
@@ -261,6 +262,7 @@ export default async function AppointmentDetailPage({
                                     fill
                                     sizes="96px"
                                     className="object-cover"
+                                    unoptimized
                                   />
                                 </ImageLightbox>
                               </div>
