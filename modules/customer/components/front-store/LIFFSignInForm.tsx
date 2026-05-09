@@ -26,7 +26,7 @@ export function LIFFSignInForm() {
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       email: "",
@@ -73,7 +73,7 @@ export function LIFFSignInForm() {
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error(`ไม่สามารถเข้าสู่ระบบด้วย ${provider} ได้`);
     }
   };

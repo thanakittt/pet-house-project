@@ -48,7 +48,7 @@ export function AvailableSlots({
   error,
 }: AvailableSlotsProps) {
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    let date = new Date();
+    const date = new Date();
     while (date.getDay() === SHOP_CLOSED_DAY) {
       date.setDate(date.getDate() + 1);
     }
@@ -229,7 +229,11 @@ export default function CreateAppointmentForm({
     name: "petBookings",
   });
 
-  const watchedPetBookings = useWatch({ control, name: "petBookings" }) || [];
+  const watchedPetBookingsValue = useWatch({ control, name: "petBookings" });
+  const watchedPetBookings = useMemo(
+    () => watchedPetBookingsValue || [],
+    [watchedPetBookingsValue],
+  );
 
   const searchQuery = watch("searchQuery");
   const selectedCustomerId = watch("customerId");

@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import {
-  ArrowLeft,
   Package,
   User,
   Calendar,
@@ -12,7 +10,6 @@ import {
   Pencil,
   Check,
   X,
-  Plus,
   Trash2,
   ChevronsUpDown,
   Save,
@@ -24,7 +21,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";

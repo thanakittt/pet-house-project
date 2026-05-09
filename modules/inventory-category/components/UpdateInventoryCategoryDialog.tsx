@@ -53,7 +53,7 @@ export function UpdateInventoryCategoryDialog({
     form.reset({
       name: inventoryCategory.name,
     });
-  }, [inventoryCategory]);
+  }, [inventoryCategory, form]);
 
   const onSubmit = async (data: InventoryCategoryForm) => {
     try {

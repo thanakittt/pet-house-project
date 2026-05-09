@@ -13,7 +13,6 @@ import {
   CartesianGrid,
   XAxis,
   YAxis,
-  ResponsiveContainer,
 } from "recharts";
 import {
   Card,
@@ -30,7 +29,7 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { FinanceChartData, DashboardPeriod } from "../types/dashboard";
 import { formatCurrency } from "@/lib/utils";
 

@@ -26,7 +26,7 @@ export function SignInForm() {
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       email: "",
@@ -74,7 +74,7 @@ export function SignInForm() {
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error(`ไม่สามารถเข้าสู่ระบบด้วย ${provider} ได้`);
     }
   };

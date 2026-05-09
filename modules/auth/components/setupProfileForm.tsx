@@ -39,7 +39,7 @@ interface SetupProfileFormProps {
   name: string;
 }
 
-export function SetupProfileForm({ userId, name }: SetupProfileFormProps) {
+export function SetupProfileForm({ name }: SetupProfileFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 

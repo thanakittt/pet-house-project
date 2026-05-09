@@ -7,7 +7,7 @@
 
 import { db } from "@/db";
 import { reviews, customers, appointments } from "@/db/schema";
-import { and, eq, gte, lte, isNull, sql, desc, avg, count } from "drizzle-orm";
+import { and, eq, gte, lte, isNull, sql, desc } from "drizzle-orm";
 import { ReviewSummary, RecentReview, DashboardPeriod } from "../types/dashboard";
 import { getDateRange } from "../utils/date-range";
 

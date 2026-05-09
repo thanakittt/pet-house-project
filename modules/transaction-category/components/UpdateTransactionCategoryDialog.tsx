@@ -64,7 +64,7 @@ export function UpdateTransactionCategoryDialog({
       name: transactionCategory.name,
       type: transactionCategory.type,
     });
-  }, [transactionCategory]);
+  }, [transactionCategory, form]);
 
   // จัดการ submit ฟอร์ม
   const onSubmit = async (data: TransactionCategoryForm) => {

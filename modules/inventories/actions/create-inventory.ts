@@ -56,7 +56,7 @@ export async function createInventory(
     }
 
     // Wrap the check and insert inside a single database transaction
-    const transactionResult = await db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       // Step 1: Select and lock the category row using FOR UPDATE
       const [category] = await tx
         .select({ id: inventoryCategories.id })

@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import Link from "next/link";
 import { SignUpFormData } from "../types/sign-up";
 import { signUpCustomer } from "../actions/sign-up-customer";
@@ -23,7 +23,6 @@ export function SignUpForm() {
   const {
     handleSubmit,
     control,
-    watch,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
@@ -35,6 +34,7 @@ export function SignUpForm() {
     },
     mode: "onBlur",
   });
+  const passwordValue = useWatch({ control, name: "password" });
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
@@ -82,7 +82,7 @@ export function SignUpForm() {
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error(`ไม่สามารถเชื่อมต่อ ${provider} ได้ในขณะนี้`);
     }
   };
@@ -235,7 +235,7 @@ export function SignUpForm() {
                 rules={{
                   required: "กรุณายืนยันรหัสผ่าน",
                   validate: (value) =>
-                    value === watch("password") || "รหัสผ่านไม่ตรงกัน",
+                    value === passwordValue || "รหัสผ่านไม่ตรงกัน",
                 }}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="w-full">
