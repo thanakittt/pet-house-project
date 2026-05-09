@@ -5,6 +5,7 @@ import { POSCheckoutForm } from "@/modules/pos/components/POSCheckoutForm";
 import { SiteHeader } from "@/components/site-header";
 import BackButton from "@/components/BackButton";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "ชำระเงิน",
@@ -37,6 +38,10 @@ export default async function POSPage({ params }: POSPageProps) {
         </div>
       </div>
     );
+  }
+
+  if (result.data.appointment.status !== "READY_FOR_PICKUP") {
+    redirect(`/back-office/appointments`);
   }
 
   // 4. ส่งผ่านข้อมูลที่ดึงมาจาก Database (Source of Truth) ไปยัง Form
