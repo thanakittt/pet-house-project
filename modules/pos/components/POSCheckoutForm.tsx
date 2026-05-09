@@ -18,7 +18,6 @@ import {
   removeAppointmentItem,
 } from "../actions/manage-pos-items";
 import {
-  Receipt,
   Banknote,
   QrCode,
   CheckCircle2,
@@ -123,7 +122,7 @@ export function POSCheckoutForm({
   const [isPending, startTransition] = useTransition();
   const [paymentMethod, setPaymentMethod] =
     useState<ProcessPaymentInput["paymentMethod"]>("CASH");
-  const [error, setError] = useState<string | null>(null);
+  const error: string | null = null;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
 
@@ -159,7 +158,7 @@ export function POSCheckoutForm({
       groups[item.pet.id].items.push(item);
     });
     return Object.entries(groups);
-  }, [appointment.items]);
+  }, [appointment]);
 
   const selectedPet = useMemo(
     () => availablePets.find((p) => p.id === newPetId),

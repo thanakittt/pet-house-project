@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { PlusIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { supabase } from "@/lib/supabase"; // ปรับ path ตามโปรเจกต์ของคุณ
 import { uploadServiceImages } from "../actions/upload-service-images"; // ปรับ path ตามโปรเจกต์ของคุณ
@@ -269,10 +270,13 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                       key={i}
                       className="group relative shadow-sm border rounded-md w-20 h-20 overflow-hidden"
                     >
-                      <img
+                      <Image
                         src={preview.url}
                         alt="Preview"
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                        unoptimized
                       />
                       {/* ปุ่มกากบาทเพื่อลบรูปที่ไม่ต้องการ */}
                       <button

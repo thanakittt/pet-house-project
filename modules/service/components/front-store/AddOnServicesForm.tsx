@@ -2,7 +2,6 @@
 
 import type { ServiceWithVariants } from "@/modules/service/types/service";
 import { Card, CardContent } from "@/components/ui/card";
-import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CatIcon, Clock, DogIcon } from "lucide-react";
 
 type PetViewType = "dog" | "cat" | "all";

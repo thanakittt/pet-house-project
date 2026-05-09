@@ -168,7 +168,6 @@ function SummaryCard({
 }
 
 function Column({
-  title,
   items,
   borderColor,
 }: {

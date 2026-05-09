@@ -17,54 +17,12 @@ import {
   format,
   eachDayOfInterval,
   eachMonthOfInterval,
-  startOfDay,
-  endOfDay,
-  startOfMonth,
-  endOfMonth,
 } from "date-fns";
 import { th } from "date-fns/locale";
 
 // ===================================================
 // Helper: ดึงข้อมูล income/expense รวมในช่วงเวลาหนึ่ง
 // ===================================================
-
-type PeriodTotals = {
-  income: number;
-  expense: number;
-};
-
-async function getTotalsInRange(
-  startDate: Date,
-  endDate: Date
-): Promise<PeriodTotals> {
-  const results = await db
-    .select({
-      type: transactionCategories.type,
-      total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
-    })
-    .from(transactions)
-    .innerJoin(
-      transactionCategories,
-      eq(transactions.transactionCategoryId, transactionCategories.id)
-    )
-    .where(
-      and(
-        isNull(transactions.deletedAt),
-        isNull(transactionCategories.deletedAt),
-        sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
-        sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
-      )
-    )
-    .groupBy(transactionCategories.type);
-
-  let income = 0;
-  let expense = 0;
-  for (const row of results) {
-    if (row.type === "INCOME") income = row.total;
-    else if (row.type === "EXPENSE") expense = row.total;
-  }
-  return { income, expense };
-}
 
 /**
  * ดึงข้อมูล time-series สำหรับ Bar Chart

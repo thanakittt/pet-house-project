@@ -24,7 +24,6 @@ export function ServiceCategorySection({
     dogContent,
     catContent,
     desktopContent,
-    activeTabColor = "data-[state=active]:text-primary"
 }: ServiceCategorySectionProps) {
     return (
         <section className="space-y-6">

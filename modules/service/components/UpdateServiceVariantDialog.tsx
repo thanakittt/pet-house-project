@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/field";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
 import {
@@ -58,6 +58,14 @@ export function UpdateServiceVariantDialog({
       durationMinutes: "",
     },
     mode: "onBlur",
+  });
+  const isStartingPriceOnlyValue = useWatch({
+    control: form.control,
+    name: "isStartingPriceOnly",
+  });
+  const minPriceValue = useWatch({
+    control: form.control,
+    name: "minPrice",
   });
 
   useEffect(() => {
@@ -258,7 +266,7 @@ export function UpdateServiceVariantDialog({
               rules={{
                 validate: (value) => {
                   const isStartingPriceOnly =
-                    form.watch("isStartingPriceOnly") === "true";
+                    isStartingPriceOnlyValue === "true";
                   if (isStartingPriceOnly) {
                     return true;
                   }
@@ -269,7 +277,7 @@ export function UpdateServiceVariantDialog({
 
                   const maxPriceNum = parseFloat(String(value)) || 0;
                   const minPriceNum =
-                    parseFloat(String(form.watch("minPrice"))) || 0;
+                    parseFloat(String(minPriceValue)) || 0;
                   return (
                     maxPriceNum >= minPriceNum ||
                     "ราคาสูงสุดต้องมากกว่าหรือเท่ากับราคาขั้นต่ำ"
@@ -282,7 +290,7 @@ export function UpdateServiceVariantDialog({
                   <Input
                     type="number"
                     placeholder="0.00"
-                    disabled={form.watch("isStartingPriceOnly") === "true"}
+                    disabled={isStartingPriceOnlyValue === "true"}
                     {...field}
                     onChange={field.onChange}
                   />

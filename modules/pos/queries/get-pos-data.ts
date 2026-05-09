@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { appointments, pets, services, serviceVariants } from "@/db/schema";
 import { requireStaff } from "@/lib/session";
-import { and, eq, isNotNull, isNull } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 
 export async function getPOSCheckoutData(appointmentId: string) {
   try {

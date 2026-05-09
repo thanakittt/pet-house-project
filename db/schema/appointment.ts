@@ -3,7 +3,6 @@ import { appointmentStatusEnum, serviceImageTypeEnum } from "./enum";
 import { customers, pets } from "./customer";
 import { timestamps } from "./column.helper";
 import { serviceVariants } from "./service";
-import { sql } from "drizzle-orm";
 
 // ตาราง appointments: เก็บข้อมูลการนัดหมาย
 // index บน customer_id และ appointment_date เพื่อเร่งการค้นหาในหน้า calendar และประวัติลูกค้า

@@ -33,7 +33,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Plus,
   Trash2,
   Send,
   FileText,
@@ -41,7 +40,6 @@ import {
   ChevronsUpDown,
   Check,
 } from "lucide-react";
-import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { InventoryItem } from "@/modules/inventories/types/inventory";

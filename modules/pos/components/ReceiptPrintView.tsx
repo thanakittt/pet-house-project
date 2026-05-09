@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, Fragment } from "react"; // นำเข้า Fragment จาก react โดยตรง
-import { Printer, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Printer, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useRouter } from "next/navigation";
 import { ReceiptData } from "@/modules/pos/queries/get-receipt-data";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { format } from "date-fns";
@@ -16,8 +15,6 @@ interface ReceiptPrintViewProps {
 }
 
 export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
-  const router = useRouter();
-
   // จัดกลุ่มข้อมูล item ตาม ID สัตว์เลี้ยงเพื่อป้องกันชื่อซ้ำ
   const groupedItems = useMemo(() => {
     return data.items.reduce(
@@ -34,7 +31,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
       },
       {} as Record<string, { petName: string; items: typeof data.items }>,
     );
-  }, [data.items]);
+  }, [data]);
 
   // [NEW] คำนวณยอดเงินสำหรับแสดงผล
   const subTotal = useMemo(() => {

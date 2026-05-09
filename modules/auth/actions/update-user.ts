@@ -6,7 +6,6 @@ import { headers } from "next/headers";
 import { DrizzleQueryError, eq } from "drizzle-orm";
 import { DatabaseError } from "pg";
 import { updateStaff } from "@/modules/staff/actions/update-staff";
-import { updateCustomer } from "@/modules/customer/actions/update-customer";
 import { db } from "@/db";
 import { customers } from "@/db/schema";
 

@@ -284,10 +284,13 @@ export default async function AppointmentDetailPage({
                                 className="relative border border-red-200 rounded-md w-24 h-24 overflow-hidden"
                               >
                                 <ImageLightbox src={img.imageUrl} alt="Issue">
-                                  <img
+                                  <Image
                                     src={img.imageUrl}
                                     alt="Issue"
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="96px"
+                                    className="object-cover"
+                                    unoptimized
                                   />
                                 </ImageLightbox>
                               </div>

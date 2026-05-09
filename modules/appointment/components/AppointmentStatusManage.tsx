@@ -68,7 +68,7 @@ export default function AppointmentStatusManager({
       } else {
         toast.error(result.error);
       }
-    } catch (error) {
+    } catch {
       toast.error("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
     } finally {
       setIsLoading(false);
@@ -112,7 +112,7 @@ export default function AppointmentStatusManager({
         } else {
           toast.error(result.error || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
         }
-      } catch (error) {
+      } catch {
         toast.error("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
       }
     });
