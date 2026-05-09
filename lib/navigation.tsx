@@ -14,6 +14,7 @@ import {
   Tags,
   CircleDollarSign,
   Megaphone,
+  MessageCircle,
   ReceiptText,
 } from "lucide-react";
 
@@ -85,6 +86,12 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     title: "จัดการประกาศ",
     url: "/back-office/announcements",
     icon: <Megaphone className="size-5" />,
+    allowedUserRoles: ["owner", "admin"],
+  },
+  {
+    title: "จัดการ LINE OA",
+    url: "/back-office/line-oa",
+    icon: <MessageCircle className="size-5" />,
     allowedUserRoles: ["owner", "admin"],
   },
   {

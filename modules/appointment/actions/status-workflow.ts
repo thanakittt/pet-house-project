@@ -1,6 +1,14 @@
 import { db } from "@/db";
-import { appointments } from "@/db/schema";
+import { appointments, lineAppointmentStatusTemplates } from "@/db/schema";
 import { pushLineTextMessage } from "@/lib/line/messaging";
+import {
+  DEFAULT_LINE_APPOINTMENT_STATUS_TEMPLATES,
+  DEFAULT_LINE_STATUS_ACTIVE,
+  LINE_STATUS_LABELS,
+  isLineAppointmentStatusTemplateStatus,
+  renderLineAppointmentStatusTemplate,
+  type LineNotifiableAppointmentStatus,
+} from "@/modules/line-oa/types/appointment-status-template";
 import { eq } from "drizzle-orm";
 import type { AppointmentStatus } from "../types/status";
 
@@ -10,35 +18,14 @@ type AppointmentStatusTransaction = Parameters<
   Parameters<typeof db.transaction>[0]
 >[0];
 
-type LineNotifiableAppointmentStatus = Extract<
-  AppointmentStatus,
-  "CHECKED_IN" | "IN_PROGRESS" | "READY_FOR_PICKUP" | "COMPLETED"
->;
-
-const LINE_NOTIFIABLE_APPOINTMENT_STATUSES: LineNotifiableAppointmentStatus[] = [
-  "CHECKED_IN",
-  "IN_PROGRESS",
-  "READY_FOR_PICKUP",
-  "COMPLETED",
-];
-
-const LINE_STATUS_LABELS: Record<LineNotifiableAppointmentStatus, string> = {
-  CHECKED_IN: "รับฝากแล้ว",
-  IN_PROGRESS: "กำลังดำเนินการ",
-  READY_FOR_PICKUP: "พร้อมรับกลับ",
-  COMPLETED: "เสร็จสมบูรณ์",
-};
-
-const LINE_STATUS_MESSAGES: Record<LineNotifiableAppointmentStatus, string> = {
-  CHECKED_IN: "เราได้รับน้องเข้ารับบริการเรียบร้อยแล้ว ✅",
-  IN_PROGRESS: "ทีมงานกำลังดูแลน้องตามรายการบริการ 📋",
-  READY_FOR_PICKUP: "น้องพร้อมให้มารับกลับแล้ว 🚗",
-  COMPLETED: "🎉 การนัดหมายเสร็จสมบูรณ์ ขอบคุณที่ใช้บริการ Pet House 🙏",
-};
-
 export type AppointmentStatusUpdateResult = {
   statusChanged: boolean;
   previousStatus: AppointmentStatus;
+};
+
+type NotificationTemplateResult = {
+  messageTemplate: string;
+  isActive: boolean;
 };
 
 export async function updateAppointmentStatusInTransaction(
@@ -84,7 +71,10 @@ export async function notifyCustomerAppointmentStatusChange(input: {
   statusChanged: boolean;
 }) {
   try {
-    if (!input.statusChanged || !isLineNotifiableStatus(input.newStatus)) {
+    if (
+      !input.statusChanged ||
+      !isLineAppointmentStatusTemplateStatus(input.newStatus)
+    ) {
       return;
     }
 
@@ -127,14 +117,28 @@ export async function notifyCustomerAppointmentStatusChange(input: {
       return;
     }
 
-    const message = buildAppointmentStatusLineMessage({
-      appointmentDate: appointment.appointmentDate,
-      petNames: appointment.items.map((item) => item.pet.name),
-      serviceNames: appointment.items.map(
-        (item) => item.serviceVariant.service.name,
-      ),
-      status: input.newStatus,
-    });
+    const notificationTemplate = await getNotificationTemplate(input.newStatus);
+
+    if (!notificationTemplate.isActive) {
+      return;
+    }
+
+    const message = renderLineAppointmentStatusTemplate(
+      notificationTemplate.messageTemplate,
+      {
+        appointmentDate: formatThaiAppointmentDate(
+          appointment.appointmentDate,
+        ),
+        petNames:
+          summarizeUniqueValues(appointment.items.map((item) => item.pet.name)) ||
+          "-",
+        serviceNames:
+          summarizeUniqueValues(
+            appointment.items.map((item) => item.serviceVariant.service.name),
+          ) || "-",
+        statusLabel: LINE_STATUS_LABELS[input.newStatus],
+      },
+    );
 
     await pushLineTextMessage(lineUserId, message);
   } catch (error) {
@@ -142,31 +146,35 @@ export async function notifyCustomerAppointmentStatusChange(input: {
   }
 }
 
-function isLineNotifiableStatus(
-  status: AppointmentStatus,
-): status is LineNotifiableAppointmentStatus {
-  return LINE_NOTIFIABLE_APPOINTMENT_STATUSES.includes(
-    status as LineNotifiableAppointmentStatus,
-  );
-}
+async function getNotificationTemplate(
+  status: LineNotifiableAppointmentStatus,
+): Promise<NotificationTemplateResult> {
+  const defaultTemplate: NotificationTemplateResult = {
+    messageTemplate: DEFAULT_LINE_APPOINTMENT_STATUS_TEMPLATES[status],
+    isActive: DEFAULT_LINE_STATUS_ACTIVE[status],
+  };
 
-function buildAppointmentStatusLineMessage(input: {
-  appointmentDate: string;
-  petNames: string[];
-  serviceNames: string[];
-  status: LineNotifiableAppointmentStatus;
-}) {
-  const petSummary = summarizeUniqueValues(input.petNames);
-  const serviceSummary = summarizeUniqueValues(input.serviceNames);
+  try {
+    const [storedTemplate] = await db
+      .select({
+        messageTemplate: lineAppointmentStatusTemplates.messageTemplate,
+        isActive: lineAppointmentStatusTemplates.isActive,
+      })
+      .from(lineAppointmentStatusTemplates)
+      .where(eq(lineAppointmentStatusTemplates.status, status))
+      .limit(1);
 
-  return [
-    `📌 สถานะนัดหมาย: ${LINE_STATUS_LABELS[input.status]}`,
-    `📅 วันที่: ${formatThaiAppointmentDate(input.appointmentDate)}`,
-    `🐾 สัตว์เลี้ยง: ${petSummary || "-"}`,
-    `🛁 บริการ: ${serviceSummary || "-"}`,
-    "",
-    LINE_STATUS_MESSAGES[input.status],
-  ].join("\n");
+    if (!storedTemplate) {
+      return defaultTemplate;
+    }
+
+    return storedTemplate;
+  } catch (error) {
+    console.error("getNotificationTemplate error:", error);
+
+    // ถ้ายังไม่ได้ migrate ตาราง template ให้ยังส่งข้อความ default เดิมได้
+    return defaultTemplate;
+  }
 }
 
 function summarizeUniqueValues(values: string[]) {

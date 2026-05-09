@@ -1,0 +1,28 @@
+import * as p from "drizzle-orm/pg-core";
+import { timestamps } from "./column.helper";
+import { appointmentStatusEnum } from "./enum";
+
+// ตารางนี้เก็บ template ข้อความ LINE OA แยกตามสถานะนัดหมาย
+// ผู้ใช้จะเป็นคน generate และ apply migration เอง จึงเพิ่มเฉพาะ schema ฝั่ง Drizzle
+export const lineAppointmentStatusTemplates = p
+  .pgTable(
+    "line_appointment_status_templates",
+    {
+      id: p.uuid("id").defaultRandom().primaryKey(),
+      status: appointmentStatusEnum("status").notNull(),
+      messageTemplate: p.text("message_template").notNull(),
+      isActive: p.boolean("is_active").default(true).notNull(),
+      ...timestamps,
+    },
+    (table) => [
+      p
+        .uniqueIndex("line_appointment_status_templates_status_unique")
+        .on(table.status),
+    ],
+  )
+  .enableRLS();
+
+export type LineAppointmentStatusTemplate =
+  typeof lineAppointmentStatusTemplates.$inferSelect;
+export type LineAppointmentStatusTemplateMutation =
+  typeof lineAppointmentStatusTemplates.$inferInsert;
