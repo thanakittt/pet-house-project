@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        {children}
+          {children}
       </SidebarInset>
     </SidebarProvider>
   );

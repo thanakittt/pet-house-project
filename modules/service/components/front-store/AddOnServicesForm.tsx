@@ -49,7 +49,7 @@ function formatPrice(value: string) {
 
 function formatVariantPrice(variant: ServiceVariant) {
   if (variant.isStartingPriceOnly) {
-    return `เริ่มต้น ${formatPrice(variant.minPrice)}`;
+    return `${formatPrice(variant.minPrice)}`;
   }
 
   if (variant.minPrice === variant.maxPrice) {

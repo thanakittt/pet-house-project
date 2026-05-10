@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import AppointmentStepper from "@/modules/appointment/components/front-store/AppointmentStepper";
 import PendingDepositPaymentScreen from "@/modules/appointment/components/front-store/PendingDepositPaymentScreen";
 import { getLatestPendingDepositAppointment } from "@/modules/appointment/queries/get-latest-pending-deposit-appointment";
@@ -7,6 +8,11 @@ import LineNotificationAlert from "@/modules/customer/components/front-store/Lin
 import { listPets } from "@/modules/pet/queries/list-pets";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "จองคิว",
+  description: "จองคิวอาบน้ำ ตัดขน และบริการดูแลสัตว์เลี้ยงกับ Pet House",
+};
 
 export default async function Page() {
   // หน้านี้เป็น Server Component จึงตรวจ session และอ่าน DB ได้ก่อนส่ง UI ไปให้ browser
