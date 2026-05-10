@@ -88,7 +88,7 @@ function formatAnnouncementDate(announcement: Announcement): string {
 }
 
 function formatReviewCount(totalReviews: number): string {
-  return `เธเธฒเธเธ—เธฑเนเธเธซเธกเธ” ${totalReviews} เธฃเธตเธงเธดเธง`;
+  return `จากทั้งหมด ${totalReviews} รีวิว`;
 }
 
 export default function HomeClient({
