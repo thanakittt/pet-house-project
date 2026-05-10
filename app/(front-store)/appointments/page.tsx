@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import CustomerAppointment from "@/modules/customer/components/front-store/CustomerAppointment";
 import {
   getCustomerAppointments,
@@ -5,6 +6,11 @@ import {
 } from "@/modules/appointment/queries/get-customer-appointments";
 import React from "react";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "ประวัติการจอง",
+  description: "ดูประวัติการจองและการใช้บริการของลูกค้า Pet House",
+};
 
 export default async function CustomerAppointmentPage({
   searchParams,

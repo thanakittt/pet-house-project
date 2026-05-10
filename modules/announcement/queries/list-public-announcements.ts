@@ -20,6 +20,10 @@ export type ListPublicAnnouncementsResult = {
   totalPages: number;
 };
 
+export type ListLatestPublicAnnouncementsParams = {
+  limit?: number;
+};
+
 function buildPublicAnnouncementWhere(now: Date, id?: string) {
   const filters = [
     isNull(announcements.deletedAt),
@@ -50,6 +54,49 @@ export function parsePublicAnnouncementPage(value: unknown): number {
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function listLatestPublicAnnouncements({
+  limit = 3,
+}: ListLatestPublicAnnouncementsParams = {}): Promise<
+  ActionResponse<Announcement[]>
+> {
+  try {
+    const now = new Date();
+
+    // หน้าแรกใช้เงื่อนไขเดียวกับหน้า /news เพื่อให้ประกาศที่แสดงต่อหน้าร้านตรงกันเสมอ
+    const data = await db
+      .select({
+        id: announcements.id,
+        title: announcements.title,
+        content: announcements.content,
+        imageUrl: announcements.imageUrl,
+        type: announcements.type,
+        startDisplayAt: announcements.startDisplayAt,
+        endDisplayAt: announcements.endDisplayAt,
+        isActive: announcements.isActive,
+        createdAt: announcements.createdAt,
+      })
+      .from(announcements)
+      .where(buildPublicAnnouncementWhere(now))
+      .orderBy(
+        desc(announcements.startDisplayAt),
+        desc(announcements.createdAt),
+      )
+      .limit(limit);
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error("listLatestPublicAnnouncements error:", error);
+
+    return {
+      success: false,
+      error: "เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เนเธเธเธฒเธฃเธ”เธถเธเธเนเธญเธกเธนเธฅเธเธฃเธฐเธเธฒเธจ",
+    };
+  }
+}
 
 export async function listPublicAnnouncements({
   page = 1,
