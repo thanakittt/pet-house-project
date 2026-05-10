@@ -93,7 +93,7 @@ export async function listLatestPublicAnnouncements({
 
     return {
       success: false,
-      error: "เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เนเธเธเธฒเธฃเธ”เธถเธเธเนเธญเธกเธนเธฅเธเธฃเธฐเธเธฒเธจ",
+      error: "เกิดข้อผิดพลาดในการดึงประกาศล่าสุด",
     };
   }
 }
