@@ -54,7 +54,6 @@ export default function ImageLightbox({
               alt={alt}
               fill
               className="shadow-2xl rounded-lg object-contain"
-              unoptimized
             />
           </div>
         </DialogContent>

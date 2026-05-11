@@ -81,7 +81,6 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
               className="p-2 object-contain"
               sizes="(max-width: 768px) 100vw, 960px"
               priority
-              unoptimized
             />
           </div>
         ) : null}

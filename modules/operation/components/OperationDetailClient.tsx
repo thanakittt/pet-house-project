@@ -284,7 +284,6 @@ export default function OperationDetailClient({
                           alt="Before"
                           fill
                           className="object-cover"
-                          unoptimized
                         />
                       </ImageLightbox>
                       <DeleteImageButton
@@ -320,7 +319,6 @@ export default function OperationDetailClient({
                           alt="After"
                           fill
                           className="object-cover"
-                          unoptimized
                         />
                       </ImageLightbox>
                       <DeleteImageButton

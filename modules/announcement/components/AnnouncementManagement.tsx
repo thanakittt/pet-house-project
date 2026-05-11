@@ -136,8 +136,7 @@ export function AnnouncementManagement({
                               alt=""
                               fill
                               sizes="56px"
-                              className="object-contain p-0.5"
-                              unoptimized
+                              className="p-0.5 object-contain"
                             />
                           </div>
                         )}

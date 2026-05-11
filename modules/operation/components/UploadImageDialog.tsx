@@ -244,7 +244,6 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                         fill
                         sizes="80px"
                         className="object-cover"
-                        unoptimized
                       />
                       {/* ปุ่มกากบาทเพื่อลบรูปที่ไม่ต้องการ */}
                       <button

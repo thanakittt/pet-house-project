@@ -159,8 +159,6 @@ export function AnnouncementFormFields({
                 fill
                 sizes="150"
                 className="p-1 object-contain"
-                // unoptimized={visibleImageUrl.startsWith("blob:")}
-                unoptimized
               />
             </div>
           ) : (
