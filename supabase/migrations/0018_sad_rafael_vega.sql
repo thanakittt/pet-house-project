@@ -1,0 +1,1 @@
+ALTER TABLE "service_images" ADD COLUMN "image_storage_key" text;

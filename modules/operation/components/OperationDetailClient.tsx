@@ -289,7 +289,6 @@ export default function OperationDetailClient({
                       </ImageLightbox>
                       <DeleteImageButton
                         imageId={img.id}
-                        imageUrl={img.imageUrl}
                         appointmentId={operation.appointmentId}
                         petId={operation.petId}
                       />
@@ -326,7 +325,6 @@ export default function OperationDetailClient({
                       </ImageLightbox>
                       <DeleteImageButton
                         imageId={img.id}
-                        imageUrl={img.imageUrl}
                         appointmentId={operation.appointmentId}
                         petId={operation.petId}
                       />

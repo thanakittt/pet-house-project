@@ -4,12 +4,14 @@ import { db } from "@/db";
 import { appointmentItems, serviceImages } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { supabase } from "@/lib/supabase"; // ปรับ path ตามจริง
 import { requireStaff } from "@/lib/session";
+import {
+  getServiceImageStorageKeyFromUrl,
+  removeServiceImagesFromStorage,
+} from "../utils/service-image-storage";
 
 export async function deleteServiceImage(
   imageId: string,
-  imageUrl: string,
   appointmentId: string,
   petId: string,
 ) {
@@ -33,7 +35,10 @@ export async function deleteServiceImage(
 
     // 1. ตรวจสอบและดึงข้อมูลจาก Database เพื่อความปลอดภัย
     const [imageRecord] = await db
-      .select({ imageUrl: serviceImages.imageUrl })
+      .select({
+        imageUrl: serviceImages.imageUrl,
+        imageStorageKey: serviceImages.imageStorageKey,
+      })
       .from(serviceImages)
       .innerJoin(
         appointmentItems,
@@ -52,29 +57,16 @@ export async function deleteServiceImage(
       return { success: false, error: "ไม่พบรูปภาพหรือไม่มีสิทธิ์ลบ" };
     }
 
-    // 2. ดึง full storage key (relative path ภายใน bucket) จาก URL ใน DB
-    // ตัวอย่าง URL: https://xxx.supabase.co/storage/v1/object/public/images/subfolder/file.jpg
-    // เราต้องดึงเฉพาะส่วน "subfolder/file.jpg" (path หลัง /object/public/images/)
-    const dbImageUrl = imageRecord.imageUrl;
-    const urlObj = new URL(dbImageUrl);
-    // pathname จะเป็น /storage/v1/object/public/images/subfolder/file.jpg
-    // หา prefix ของ bucket แล้วตัดออกเพื่อให้ได้ path ภายใน bucket
-    const bucketPrefix = "/storage/v1/object/public/images/";
-    const pathnameAfterBucket = urlObj.pathname.startsWith(bucketPrefix)
-      ? urlObj.pathname.slice(bucketPrefix.length)
-      : urlObj.pathname.split("/").pop() ?? ""; // fallback กรณี URL format ต่างออกไป
-    const storageKey = decodeURIComponent(pathnameAfterBucket);
+    // CODEMAP: delete storage file
+    // input: storageKey ที่บันทึกใน DB สำหรับรูปใหม่ หรือ imageUrl สำหรับ row เก่า
+    // processing: ใช้ key ใน DB ก่อนเพราะแม่นยำกว่า แล้วค่อย fallback ไป parse จาก public URL
+    // output: ลบ object ใน Supabase ก่อนลบ row ใน database
+    const storageKey =
+      imageRecord.imageStorageKey ??
+      getServiceImageStorageKeyFromUrl(imageRecord.imageUrl);
 
     if (storageKey) {
-      // 3. ลบไฟล์ใน Supabase Storage โดยใช้ full relative path (รองรับ subfolder)
-      const { error: storageError } = await supabase.storage
-        .from("images") // ระบุชื่อ bucket ให้ถูกต้อง
-        .remove([storageKey]);
-
-      if (storageError) {
-        console.error("Storage delete error:", storageError);
-        // ถึงแม้จะลบใน Storage ไม่สำเร็จ (เช่น ไฟล์หายไปแล้ว) เราก็ควรลบใน DB ต่อไป
-      }
+      await removeServiceImagesFromStorage([storageKey]);
     }
 
     // 4. ลบ Record ใน Database

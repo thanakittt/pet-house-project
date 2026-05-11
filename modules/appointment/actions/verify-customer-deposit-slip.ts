@@ -118,7 +118,7 @@ async function uploadDepositSlip({
 }) {
   // แยก path ตาม appointmentId เพื่อให้ trace ย้อนหลังง่าย และใช้ randomUUID กันชื่อไฟล์ชนกัน
   const extension = extensionByMimeType[imageFile.type as AllowedSlipImageType];
-  const storageKey = `${SLIP_STORAGE_FOLDER}/${appointmentId}/${crypto.randomUUID()}.${extension}`;
+  const storageKey = `appointments/${appointmentId}/${SLIP_STORAGE_FOLDER}/${crypto.randomUUID()}.${extension}`;
 
   const { error } = await supabaseServer.storage
     .from(SLIP_STORAGE_BUCKET)

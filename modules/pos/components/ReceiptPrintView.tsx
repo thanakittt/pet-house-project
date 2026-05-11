@@ -20,7 +20,8 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
     return data.items.reduce(
       (groups, item) => {
         // เพิ่ม petId ใน type ของ item หากมีการเรียกใช้
-        const key = item.petId || item.petName;        if (!groups[key]) {
+        const key = item.petId || item.petName;
+        if (!groups[key]) {
           groups[key] = {
             petName: item.petName,
             items: [],
@@ -37,7 +38,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
   const subTotal = useMemo(() => {
     return data.items.reduce((sum, item) => sum + Number(item.price), 0);
   }, [data.items]);
-  
+
   const netTotal = data.totalAmount;
   // ส่วนต่างระหว่างราคาสินค้าจริง กับเงินที่จ่ายหน้าเคาน์เตอร์ คือค่ามัดจำที่หักออกไป
   const depositAmount = Math.max(0, subTotal - netTotal);
@@ -65,8 +66,8 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
           </div>
           <h1 className="mb-1 font-bold text-xl">PET HOUSE</h1>
           <p className="text-muted-foreground print:text-black text-xs">
-            เลขที่ 181/262 หมู่ 3 ถนนโพธาราม ตำบลช้างเผือก อำเภอเมืองเชียงใหม่
-            จังหวัดเชียงใหม่
+            181/262 ม.3 ถ.โพธาราม ต.ช้างเผือก
+            <br />อ.เมืองเชียงใหม่ จ.เชียงใหม่ 50300
           </p>
           <p className="text-muted-foreground print:text-black text-xs">
             โทร: 086-429-5361
@@ -156,7 +157,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
             <span>ยอดรวมบริการ</span>
             <span>฿{subTotal.toLocaleString()}</span>
           </div>
-          
+
           {/* แสดงบรรทัดหักมัดจำเฉพาะกรณีที่มีมัดจำเท่านั้น */}
           {depositAmount > 0 && (
             <div className="flex justify-between items-center text-emerald-600 print:text-black">
@@ -169,7 +170,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
             <span>ยอดชำระสุทธิ</span>
             <span>฿{netTotal.toLocaleString()}</span>
           </div>
-          
+
           <div className="flex justify-between items-center pt-1 text-muted-foreground print:text-black text-xs">
             <span>วิธีชำระเงิน</span>
             <span>{data.paymentMethod === "CASH" ? "เงินสด" : "โอนเงิน"}</span>

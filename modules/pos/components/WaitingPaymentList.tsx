@@ -41,7 +41,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
   }
 
   return (
-    <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {appointments.map((apt) => {
         const totalAmount = apt.items.reduce((sum, item) => sum + Number(item.price), 0);
         const uniquePets = Array.from(new Set(apt.items.map((item) => item.pet.name)));
