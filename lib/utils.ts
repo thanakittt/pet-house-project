@@ -24,6 +24,23 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+export function formatPhoneNumber(
+  value: string | null | undefined,
+  fallback: string = "-",
+): string {
+  const phoneNumber = value?.trim();
+
+  if (!phoneNumber) {
+    return fallback;
+  }
+
+  if (!/^0[0-9]{9}$/.test(phoneNumber)) {
+    return phoneNumber;
+  }
+
+  return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+}
+
 export function formatThaiDate(date: Date, formatStr: string = "d MMM yy"): string {
   return format(date, formatStr, { locale: th });
 }

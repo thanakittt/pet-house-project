@@ -10,6 +10,7 @@ import {
   TableActionLink,
 } from "@/components/shared/TableActionButton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { formatPhoneNumber } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -87,9 +88,9 @@ export default function CustomerManagement({
                     {customer.userId === null ? "Walk-in" : "Online"}
                   </TableCell>
                   <TableCell>
-                    {customer.userPhoneNumber ??
-                      customer.walkInPhoneNumber ??
-                      "-"}
+                    {formatPhoneNumber(
+                      customer.userPhoneNumber ?? customer.walkInPhoneNumber,
+                    )}
                   </TableCell>
                   <TableCell>
                     {new Date(customer.createdAt).toLocaleDateString("th-TH")}

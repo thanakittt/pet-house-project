@@ -29,6 +29,7 @@ import { CreateUserDialog } from "./CreateUserDialog";
 import { UpdateUserDialog } from "./UpdateUserDialog";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "../queries/get-user";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const roleOptions: Array<ManagementFilterOption & { value: UserRoleFilter }> = [
   { value: "ALL", label: "ทุกบทบาท" },
@@ -134,7 +135,7 @@ export default function UserManagement({
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phoneNumber ?? "—"}</TableCell>
+                  <TableCell>{formatPhoneNumber(user.phoneNumber, "—")}</TableCell>
                   <TableCell>
                     <RoleBadge role={user.role} />
                   </TableCell>

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatPhoneNumber } from "@/lib/utils";
 
 interface WaitingPaymentListProps {
   appointments: WaitingPaymentAppointment[];
@@ -83,7 +84,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                     {apt.customer.walkInPhoneNumber ? (
                       <p className="flex items-center mt-1 font-medium text-muted-foreground text-xs truncate">
                         <Phone size={12} className="mr-1.5 shrink-0" /> 
-                        {apt.customer.walkInPhoneNumber}
+                        {formatPhoneNumber(apt.customer.walkInPhoneNumber)}
                       </p>
                     ) : (
                       <p className="mt-1 text-muted-foreground/50 text-xs italic">

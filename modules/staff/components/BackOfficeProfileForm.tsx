@@ -2,6 +2,7 @@
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber } from "@/lib/utils";
 import {
   Card,
   CardAction,
@@ -677,7 +678,7 @@ export default function BackOfficeProfileForm({
               />
               <ProfileRow
                 label="เบอร์โทรศัพท์"
-                value={displayValue(profile.phoneNumber)}
+                value={formatPhoneNumber(profile.phoneNumber)}
               />
               <ProfileRow
                 label="วันเกิด"

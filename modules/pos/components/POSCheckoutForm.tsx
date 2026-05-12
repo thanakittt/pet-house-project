@@ -29,7 +29,7 @@ import {
   User,
   Phone,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatPhoneNumber } from "@/lib/utils";
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
@@ -281,7 +281,7 @@ export function POSCheckoutForm({
                 <div className="flex items-center gap-2 sm:pl-6 sm:border-l text-muted-foreground">
                   <Phone size={16} />
                   <span className="font-medium">
-                    {appointment.customer.walkInPhoneNumber}
+                    {formatPhoneNumber(appointment.customer.walkInPhoneNumber)}
                   </span>
                 </div>
               )}

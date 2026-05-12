@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ReceiptData } from "@/modules/pos/queries/get-receipt-data";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
+import { formatPhoneNumber } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import BackButton from "@/components/BackButton";
@@ -98,7 +99,8 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
             <span>ลูกค้า:</span>
             <span>
               {data.customer.nickname}{" "}
-              {data.customer.phone && `(${data.customer.phone})`}
+              {data.customer.phone &&
+                `(${formatPhoneNumber(data.customer.phone)})`}
             </span>
           </div>
         </div>

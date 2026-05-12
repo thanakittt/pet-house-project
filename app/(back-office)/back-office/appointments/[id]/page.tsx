@@ -6,6 +6,7 @@ import { getAppointmentDetail } from "@/modules/appointment/queries/get-appointm
 import AppointmentStatusManager from "@/modules/appointment/components/AppointmentStatusManage";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
+import { formatPhoneNumber } from "@/lib/utils";
 
 import { requireStaff } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
@@ -116,7 +117,7 @@ export default async function AppointmentDetailPage({
               <div>
                 <p className="mb-1 text-slate-500 text-sm">เบอร์โทรศัพท์</p>
                 <p className="font-medium">
-                  {appointment.customer.walkInPhoneNumber || "-"}
+                  {formatPhoneNumber(appointment.customer.walkInPhoneNumber)}
                 </p>
               </div>
               {appointment.note && (
