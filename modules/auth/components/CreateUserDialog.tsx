@@ -94,7 +94,11 @@ export function CreateUserDialog() {
           </DialogHeader>
           <Separator />
 
-          <UserFormFields control={form.control} passwordRequired />
+          <UserFormFields
+            control={form.control}
+            passwordRequired
+            requireProfileFields
+          />
 
           <DialogFooter>
             <div className="flex justify-end gap-2">

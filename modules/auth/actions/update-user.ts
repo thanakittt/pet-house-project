@@ -11,20 +11,51 @@ import { customers } from "@/db/schema";
 
 export async function updateUser(data: UpdateUserForm) {
   try {
+    const name = data.name?.trim();
+    const nickname = data.nickname?.trim();
+    const email = data.email?.trim();
+    const phoneNumber = data.phoneNumber?.trim();
+    const gender = data.gender?.trim();
+    const birthDate = data.birthDate?.trim();
+    const role = data.role?.trim();
+
+    const hasBlankRequiredValue = [
+      data.name,
+      data.nickname,
+      data.email,
+      data.phoneNumber,
+      data.gender,
+      data.birthDate,
+      data.role,
+    ].some((value) => value !== undefined && value.trim().length === 0);
+
+    if (hasBlankRequiredValue) {
+      return { success: false, error: "กรุณากรอกข้อมูลให้ครบทุกช่อง" };
+    }
+
+    if (
+      data.password !== undefined &&
+      data.password.length > 0 &&
+      data.password.length < 8
+    ) {
+      return {
+        success: false,
+        error: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+      };
+    }
+
     await auth.api.adminUpdateUser({
       body: {
         userId: data.userId,
         data: {
-          name: data.name,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          role: data.role,
+          name,
+          email,
+          phoneNumber,
+          role,
         },
       },
       headers: await headers(),
     });
-
-    console.log("data.role", data.role);
 
     if (data.password) {
       await auth.api.setUserPassword({
@@ -37,14 +68,14 @@ export async function updateUser(data: UpdateUserForm) {
     }
 
     if (
-      (data.gender || data.birthDate) &&
-      (data.role === "staff" || data.role === "admin" || data.role === "owner")
+      (gender || birthDate) &&
+      (role === "staff" || role === "admin" || role === "owner")
     ) {
       const updateStaffResult = await updateStaff({
         userId: data.userId,
-        gender: data.gender,
-        birthDate: data.birthDate,
-        nickname: data.nickname,
+        gender,
+        birthDate,
+        nickname,
       });
 
       if (!updateStaffResult.success) {
@@ -54,14 +85,14 @@ export async function updateUser(data: UpdateUserForm) {
 
     // ตรวจสอบว่ามีฟิลด์ที่ต้องซิงค์ลง customers หรือไม่
     // รวม nickname ด้วย เพื่อให้การเปลี่ยนชื่ออย่างเดียวก็ซิงค์ได้
-    if ((data.nickname || data.gender || data.birthDate || data.phoneNumber) && data.role === "customer") {
-       await db
+    if ((nickname || gender || birthDate || phoneNumber) && role === "customer") {
+      await db
         .update(customers)
         .set({
-          nickname: data.nickname,
-          walkInPhoneNumber: data.phoneNumber,
-          gender: data.gender as "MALE" | "FEMALE" | "UNSPECIFIED",
-          birthDate: data.birthDate,
+          nickname,
+          walkInPhoneNumber: phoneNumber,
+          gender: gender as "MALE" | "FEMALE" | "UNSPECIFIED",
+          birthDate,
         })
         .where(eq(customers.userId, data.userId));
     }

@@ -21,6 +21,7 @@ import { UserForm } from "@/modules/auth/types/create-user-form";
 type UserFormFieldsProps = {
   control: Control<UserForm>;
   passwordRequired?: boolean;
+  requireProfileFields?: boolean;
   roleOptions?: Array<{ value: string; label: string }>;
 };
 
@@ -33,6 +34,7 @@ const defaultRoleOptions = [
 export function UserFormFields({
   control,
   passwordRequired = false,
+  requireProfileFields = false,
   roleOptions = defaultRoleOptions,
 }: UserFormFieldsProps) {
   return (
@@ -158,12 +160,19 @@ export function UserFormFields({
         <Controller
           name="gender"
           control={control}
+          rules={{
+            required: requireProfileFields
+              ? "กรุณาเลือกเพศ"
+              : false,
+          }}
           render={({ field, fieldState }) => (
             <Field orientation="responsive" data-invalid={fieldState.invalid}>
               <FieldContent>
                 <FieldLabel htmlFor={field.name}>
                   <span>เพศ</span>
-                  <span className="text-muted-foreground">(ไม่บังคับ)</span>
+                  {!requireProfileFields && (
+                    <span className="text-muted-foreground">(ไม่บังคับ)</span>
+                  )}
                 </FieldLabel>
               </FieldContent>
               <Select
@@ -192,11 +201,18 @@ export function UserFormFields({
         <Controller
           name="birthDate"
           control={control}
+          rules={{
+            required: requireProfileFields
+              ? "กรุณาระบุวันเกิด"
+              : false,
+          }}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>
                 <span>วันเกิด</span>
-                <span className="text-muted-foreground">(ไม่บังคับ)</span>
+                {!requireProfileFields && (
+                  <span className="text-muted-foreground">(ไม่บังคับ)</span>
+                )}
               </FieldLabel>
               <Input
                 {...field}

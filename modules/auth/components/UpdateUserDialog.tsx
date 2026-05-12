@@ -71,34 +71,15 @@ export function UpdateUserDialog({
 
       const dataUpdate = {
         userId: user.id,
-        name: data.name === user.name ? undefined : data.name,
+        name: data.name,
         nickname: data.name,
-        email: data.email === user.email ? undefined : data.email,
-        phoneNumber:
-          data.phoneNumber === (user.phoneNumber ?? "")
-            ? undefined
-            : data.phoneNumber,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
         password: data.password === "" ? undefined : data.password,
-        gender: data.gender === (user.gender ?? "") ? undefined : data.gender,
-        birthDate:
-          data.birthDate === (user.birthDate ?? "")
-            ? undefined
-            : data.birthDate,
+        gender: data.gender,
+        birthDate: data.birthDate,
         role: data.role,
       };
-
-      if (
-        dataUpdate.name === undefined &&
-        dataUpdate.email === undefined &&
-        dataUpdate.phoneNumber === undefined &&
-        dataUpdate.password === undefined &&
-        dataUpdate.gender === undefined &&
-        dataUpdate.birthDate === undefined &&
-        dataUpdate.role === undefined
-      ) {
-        setServerError("กรุณาระบุข้อมูลที่ต้องการแก้ไข");
-        return;
-      }
 
       const result = await updateUser(dataUpdate);
 
@@ -146,7 +127,11 @@ export function UpdateUserDialog({
           </DialogHeader>
           <Separator />
 
-          <UserFormFields control={form.control} roleOptions={roleOptions} />
+          <UserFormFields
+            control={form.control}
+            requireProfileFields
+            roleOptions={roleOptions}
+          />
 
           <DialogFooter>
             <div className="flex justify-end gap-2">
