@@ -7,6 +7,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -260,16 +261,17 @@ export function SignUpForm() {
           </FieldGroup>
 
           <div className="flex justify-center items-center pt-5 w-full">
-            <Button
+            <LoadingButton
               className="py-5 w-full"
               size="default"
               variant="default"
               type="submit"
               form="sign-up-form"
-              disabled={isSubmitting}
+              isLoading={isSubmitting}
+              loadingText="กำลังดำเนินการ..."
             >
-              {isSubmitting ? "กำลังดำเนินการ..." : "สมัครสมาชิก"}
-            </Button>
+              สมัครสมาชิก
+            </LoadingButton>
           </div>
         </form>
 

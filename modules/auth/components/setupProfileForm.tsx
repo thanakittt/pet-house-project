@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Input } from "@/components/ui/input";
 import {
   Field,
@@ -188,14 +188,15 @@ export function SetupProfileForm({ name }: SetupProfileFormProps) {
               )}
             />
 
-            <Button
+            <LoadingButton
               type="submit"
               form="setup-profile-form"
               className="mt-4 py-5 w-full"
-              disabled={form.formState.isSubmitting}
+              isLoading={form.formState.isSubmitting}
+              loadingText="กำลังบันทึก..."
             >
-              {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-            </Button>
+              บันทึกข้อมูล
+            </LoadingButton>
           </FieldGroup>
         </form>
       </section>

@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,6 @@ import {
   CheckCircle2,
   Clock3,
   ImageIcon,
-  Loader2,
   RefreshCw,
   UploadCloud,
   XIcon,
@@ -416,27 +416,22 @@ export default function DepositSlipUpload({
             </p>
           ) : null}
 
-          <Button
+          <LoadingButton
             type="submit"
             disabled={
               !selectedFile ||
               Boolean(fileError) ||
-              isPending ||
               isDepositExpired
             }
+            isLoading={isPending}
+            loadingText="กำลังตรวจสอบสลิป..."
             className="bg-green-600 hover:bg-green-700 shadow-none w-full"
           >
-            {isPending ? (
-              <Loader2 data-icon="inline-start" className="animate-spin" />
-            ) : (
-              <UploadCloud data-icon="inline-start" />
-            )}
+            <UploadCloud data-icon="inline-start" />
             {isDepositExpired
               ? "หมดเวลาอัปโหลดสลิป"
-              : isPending
-                ? "กำลังตรวจสอบสลิป..."
-                : "อัปโหลดและตรวจสอบสลิป"}
-          </Button>
+              : "อัปโหลดและตรวจสอบสลิป"}
+          </LoadingButton>
 
           <div className="flex items-start gap-2 text-amber-900 text-xs">
             <CheckCircle2 className="mt-0.5 size-4 shrink-0" />

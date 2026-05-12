@@ -7,6 +7,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -162,13 +163,14 @@ export function SignInForm() {
               )}
             />
 
-            <Button
+            <LoadingButton
               className="mt-2 w-full"
               type="submit"
-              disabled={isSubmitting}
+              isLoading={isSubmitting}
+              loadingText="กำลังเข้าสู่ระบบ..."
             >
-              {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-            </Button>
+              เข้าสู่ระบบ
+            </LoadingButton>
           </FieldGroup>
         </form>
 

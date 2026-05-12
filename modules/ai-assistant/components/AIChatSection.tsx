@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Send, Bot, Sparkles, User, Loader2 } from "lucide-react"
+import { LoadingButton } from "@/components/shared/LoadingButton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area" // ใช้ ScrollArea จาก shadcn
@@ -172,15 +173,17 @@ export default function AIChatSection() {
                             placeholder="ถามเรื่องการดูแลน้องๆ ได้ที่นี่..."
                             className="flex-1 bg-muted/50 border-muted-foreground/20 rounded-2xl focus-visible:ring-primary h-10"
                         />
-                        <Button
+                        <LoadingButton
                             size="default"
                             onClick={handleSendMessage}
-                            disabled={isLoading || !input.trim()}
+                            disabled={!input.trim()}
+                            isLoading={isLoading}
+                            loadingText={<span className="hidden md:inline ml-2">กำลังส่ง...</span>}
                             className="shadow-lg shadow-primary/10 active:scale-95 transition-all"
                         >
-                            {isLoading ? <Loader2 className="animate-spin" /> : <Send size={18} />}
+                            <Send data-icon="inline-start" />
                             <span className="hidden md:inline ml-2">ส่งข้อความ</span>
-                        </Button>
+                        </LoadingButton>
                     </div>
 
                     {/* Quick Suggestions */}

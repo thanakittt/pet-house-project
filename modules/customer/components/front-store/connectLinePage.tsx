@@ -2,7 +2,7 @@
 
 import { useEffect, useTransition, useState } from "react";
 import liff from "@line/liff";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { toast } from "sonner";
 import {
   connectLine,
@@ -95,18 +95,28 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
         {isConnected ? (
           <div>
             <p className="mb-4 text-gray-600">คุณได้เชื่อมต่อกับ LINE แล้ว</p>
-            <Button size="lg" onClick={handleDisconnect} disabled={isPending}>
-              {isPending ? "กำลังยกเลิก..." : "ยกเลิกการเชื่อมต่อ"}
-            </Button>
+            <LoadingButton
+              size="lg"
+              onClick={handleDisconnect}
+              isLoading={isPending}
+              loadingText="กำลังยกเลิก..."
+            >
+              ยกเลิกการเชื่อมต่อ
+            </LoadingButton>
           </div>
         ) : (
           <div>
             <p className="mb-4 text-gray-600">
               กรุณาคลิกที่ปุ่มด้านล่างเพื่อเชื่อมต่อกับ LINE
             </p>
-            <Button size="lg" onClick={handleConnect} disabled={isPending}>
-              {isPending ? "กำลังเชื่อมต่อ..." : "เชื่อมต่อ"}
-            </Button>
+            <LoadingButton
+              size="lg"
+              onClick={handleConnect}
+              isLoading={isPending}
+              loadingText="กำลังเชื่อมต่อ..."
+            >
+              เชื่อมต่อ
+            </LoadingButton>
           </div>
         )}
       </div>

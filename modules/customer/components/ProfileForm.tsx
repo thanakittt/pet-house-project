@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -305,13 +306,14 @@ function ProfileDetailsDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="profile-details-form"
-              disabled={form.formState.isSubmitting}
+              isLoading={form.formState.isSubmitting}
+              loadingText="กำลังบันทึก..."
             >
-              {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-            </Button>
+              บันทึก
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>
@@ -423,13 +425,14 @@ function EmailDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="profile-email-form"
-              disabled={form.formState.isSubmitting}
+              isLoading={form.formState.isSubmitting}
+              loadingText="กำลังส่ง..."
             >
-              {form.formState.isSubmitting ? "กำลังส่ง..." : "ส่งลิงก์ยืนยัน"}
-            </Button>
+              ส่งลิงก์ยืนยัน
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>
@@ -611,17 +614,14 @@ function PasswordDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="profile-password-form"
-              disabled={form.formState.isSubmitting}
+              isLoading={form.formState.isSubmitting}
+              loadingText="กำลังบันทึก..."
             >
-              {form.formState.isSubmitting
-                ? "กำลังบันทึก..."
-                : hasPassword
-                  ? "เปลี่ยนรหัสผ่าน"
-                  : "ตั้งรหัสผ่าน"}
-            </Button>
+              {hasPassword ? "เปลี่ยนรหัสผ่าน" : "ตั้งรหัสผ่าน"}
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>

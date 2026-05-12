@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -184,9 +185,14 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
               )}
             />
 
-            <Button className="mt-2 w-full" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "กำลังรีเซ็ตรหัสผ่าน..." : "รีเซ็ตรหัสผ่าน"}
-            </Button>
+            <LoadingButton
+              className="mt-2 w-full"
+              type="submit"
+              isLoading={isSubmitting}
+              loadingText="กำลังรีเซ็ตรหัสผ่าน..."
+            >
+              รีเซ็ตรหัสผ่าน
+            </LoadingButton>
           </FieldGroup>
         </form>
       </section>

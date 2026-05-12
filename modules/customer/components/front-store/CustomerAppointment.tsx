@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -183,9 +184,14 @@ function CustomerReviewDialog({
           >
             ยกเลิก
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={isPending}>
-            {isPending ? "กำลังบันทึก..." : "ส่งรีวิว"}
-          </Button>
+          <LoadingButton
+            type="button"
+            onClick={handleSubmit}
+            isLoading={isPending}
+            loadingText="กำลังบันทึก..."
+          >
+            ส่งรีวิว
+          </LoadingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { cn } from "@/lib/utils";
@@ -336,28 +337,25 @@ export default function AppointmentStepper({
           {step > 1 && "ย้อนกลับ"}
         </Button>
 
-        <Button
+        <LoadingButton
           onClick={nextStep}
           disabled={
-            isPending ||
             (step === 1 && (!formData.petId || pets.length === 0)) ||
             (step === 2 && !formData.mainServiceId) ||
             (step === 4 && allBookings.length === 0) ||
             (step === 5 && !formData.startTimeIso)
           }
+          isLoading={isPending}
+          loadingText="กำลังบันทึก..."
           className={cn(
             "px-8 shadow-none transition-colors",
             step === totalSteps
               ? "bg-green-600 hover:bg-green-700"
-              : "bg-primary hover:bg-primary/80",
+            : "bg-primary hover:bg-primary/80",
           )}
         >
-          {isPending
-            ? "กำลังบันทึก..."
-            : step === totalSteps
-              ? "ยืนยันการจอง"
-              : "ถัดไป"}
-        </Button>
+          {step === totalSteps ? "ยืนยันการจอง" : "ถัดไป"}
+        </LoadingButton>
       </div>
     </div>
   );

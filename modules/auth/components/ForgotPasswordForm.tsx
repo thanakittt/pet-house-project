@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import {
   Field,
   FieldError,
@@ -122,17 +122,17 @@ export function ForgotPasswordForm() {
               )}
             />
 
-            <Button
+            <LoadingButton
               className="mt-2 w-full"
               type="submit"
-              disabled={isSubmitting || countdown > 0}
+              disabled={countdown > 0}
+              isLoading={isSubmitting}
+              loadingText="กำลังส่ง..."
             >
-              {isSubmitting
-                ? "กำลังส่ง..."
-                : countdown > 0
-                  ? `ส่งอีกครั้งใน ${countdown} วินาที`
-                  : "ส่งลิงก์รีเซ็ตรหัสผ่าน"}
-            </Button>
+              {countdown > 0
+                ? `ส่งอีกครั้งใน ${countdown} วินาที`
+                : "ส่งลิงก์รีเซ็ตรหัสผ่าน"}
+            </LoadingButton>
           </FieldGroup>
         </form>
 
