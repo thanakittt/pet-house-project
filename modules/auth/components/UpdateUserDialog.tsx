@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -138,13 +139,11 @@ export function UpdateUserDialog({
               <DialogClose asChild>
                 <Button variant="outline">ยกเลิก</Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form={`update-user-${user.id}`}
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

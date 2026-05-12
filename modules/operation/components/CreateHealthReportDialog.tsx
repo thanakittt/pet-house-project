@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -180,14 +181,12 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-health-report"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

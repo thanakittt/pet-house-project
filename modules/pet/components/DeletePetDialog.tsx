@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButtonContent } from "@/components/shared/LoadingButton";
 import {  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -38,7 +39,7 @@ export function DeletePetDialog({
     startTransition(async () => {
       try {
         const result = await deletePet({ id: pet.id });
-        
+
         if (!result.success) {
           toast.error(result.error);
           return;
@@ -69,7 +70,7 @@ export function DeletePetDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-            {isPending ? "กำลังลบ..." : "ยืนยัน"}
+            <LoadingButtonContent isLoading={isPending} loadingText="กำลังลบ...">ยืนยัน</LoadingButtonContent>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

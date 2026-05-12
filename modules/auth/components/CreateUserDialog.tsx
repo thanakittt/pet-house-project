@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlusIcon } from "lucide-react";
@@ -105,13 +106,11 @@ export function CreateUserDialog() {
               <DialogClose asChild>
                 <Button variant="outline">ยกเลิก</Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-user"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

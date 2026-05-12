@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -610,10 +611,12 @@ export function POSCheckoutForm({
             </CardContent>
 
             <CardFooter className="bg-muted/10 mt-4 px-6 pt-2 pb-6 border-t">
-              <Button
+              <LoadingButton
                 size="lg"
                 onClick={() => setIsConfirmDialogOpen(true)}
                 disabled={isPending || appointment.items.length === 0}
+                isLoading={isPending}
+                loadingText="กำลังบันทึก..."
                 className={cn(
                   "shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
                   paymentMethod === "CASH"
@@ -621,14 +624,9 @@ export function POSCheckoutForm({
                     : "bg-indigo-600 hover:bg-indigo-700 text-white",
                 )}
               >
-                {isPending ? (
-                  "กำลังบันทึก..."
-                ) : (
-                  <>
-                    <CheckCircle2 size={24} className="mr-2" /> ยืนยันชำระเงิน
-                  </>
-                )}
-              </Button>
+                <CheckCircle2 data-icon="inline-start" />
+                ยืนยันชำระเงิน
+              </LoadingButton>
             </CardFooter>
           </Card>
         </div>

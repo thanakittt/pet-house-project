@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -155,14 +156,12 @@ export function UpdateInventoryCategoryDialog({
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="update-inventory-category"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

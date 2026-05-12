@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButtonContent } from "@/components/shared/LoadingButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -105,7 +106,7 @@ export function ConfirmDialog({
             }}
             disabled={isPending}
           >
-            {isPending ? "กำลังดำเนินการ..." : "ยืนยัน"}
+            <LoadingButtonContent isLoading={isPending} loadingText="กำลังดำเนินการ...">ยืนยัน</LoadingButtonContent>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

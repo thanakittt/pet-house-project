@@ -6,14 +6,13 @@ import {
   Camera,
   ClipboardList,
   Info,
-  Loader2,
   AlertCircle,
   StickyNote, // เพิ่ม StickyNote
 } from "lucide-react";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { AppointmentStatusBadge } from "@/components/StatusBadge";
 import HealthReportModal from "./CreateHealthReportDialog";
@@ -209,45 +208,36 @@ export default function OperationDetailClient({
 
             <div className="flex flex-wrap gap-2 pt-4 border-t">
               {currentStatus === "CONFIRMED" && (
-                <Button
+                <LoadingButton
                   onClick={() => handleUpdateStatus("CHECKED_IN")}
-                  disabled={isPendingStatus}
+                  isLoading={isPendingStatus}
                   variant="outline"
                   className="hover:bg-orange-50 border-orange-200 text-orange-700"
                 >
-                  {isPendingStatus ? (
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  ) : null}
                   เช็คอิน (ถึงร้านแล้ว)
-                </Button>
+                </LoadingButton>
               )}
 
               {currentStatus === "CHECKED_IN" && (
-                <Button
+                <LoadingButton
                   onClick={() => handleUpdateStatus("IN_PROGRESS")}
-                  disabled={isPendingStatus}
+                  isLoading={isPendingStatus}
                   variant="outline"
                   className="hover:bg-blue-50 border-blue-200 text-blue-700"
                 >
-                  {isPendingStatus ? (
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  ) : null}
                   เริ่มให้บริการ
-                </Button>
+                </LoadingButton>
               )}
 
               {currentStatus === "IN_PROGRESS" && (
-                <Button
+                <LoadingButton
                   onClick={() => handleUpdateStatus("READY_FOR_PICKUP")}
-                  disabled={isPendingStatus}
+                  isLoading={isPendingStatus}
                   variant="outline"
                   className="hover:bg-teal-50 border-teal-200 text-teal-700"
                 >
-                  {isPendingStatus ? (
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  ) : null}
                   รอรับกลับ
-                </Button>
+                </LoadingButton>
               )}
             </div>
           </CardContent>

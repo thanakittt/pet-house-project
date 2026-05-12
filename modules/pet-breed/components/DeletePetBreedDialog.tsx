@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButtonContent } from "@/components/shared/LoadingButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,7 +71,7 @@ export function DeletePetBreedDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-            {isPending ? "กำลังลบ..." : "ยืนยัน"}
+            <LoadingButtonContent isLoading={isPending} loadingText="กำลังลบ...">ยืนยัน</LoadingButtonContent>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

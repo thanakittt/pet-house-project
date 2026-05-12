@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import {
   BanIcon,
   CircleCheckIcon,
   EyeIcon,
-  Loader2Icon,
   PencilIcon,
   SettingsIcon,
   TrashIcon,
@@ -90,14 +90,11 @@ function ActionIcon({
   icon: LucideIcon;
   isLoading?: boolean;
 }) {
-  const IconComponent = isLoading ? Loader2Icon : Icon;
+  if (isLoading) {
+    return <Spinner data-icon="inline-start" />;
+  }
 
-  return (
-    <IconComponent
-      data-icon="inline-start"
-      className={isLoading ? "animate-spin" : undefined}
-    />
-  );
+  return <Icon data-icon="inline-start" />;
 }
 
 export function TableActionButton({
@@ -117,6 +114,8 @@ export function TableActionButton({
       size={size}
       className={cn(config.className, className)}
       {...props}
+      aria-busy={isLoading}
+      disabled={props.disabled || isLoading}
     >
       <ActionIcon icon={icon ?? config.icon} isLoading={isLoading} />
     </Button>

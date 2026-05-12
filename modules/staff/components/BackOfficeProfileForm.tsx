@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -318,13 +319,11 @@ function ProfileDetailsDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="back-office-profile-details-form"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-            </Button>
+
+             isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>
@@ -436,13 +435,11 @@ function EmailDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="back-office-profile-email-form"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "กำลังส่ง..." : "ส่งลิงก์ยืนยัน"}
-            </Button>
+
+             isLoading={form.formState.isSubmitting} loadingText="กำลังส่ง...">ส่งลิงก์ยืนยัน</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>

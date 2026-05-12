@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButtonContent } from "@/components/shared/LoadingButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,7 +72,7 @@ export function DeleteTransactionDialog({
             disabled={isDeleting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isDeleting ? "กำลังลบ..." : "ลบข้อมูล"}
+            <LoadingButtonContent isLoading={isDeleting} loadingText="กำลังลบ...">ลบข้อมูล</LoadingButtonContent>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

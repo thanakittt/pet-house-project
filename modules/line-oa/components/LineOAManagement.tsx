@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  LoadingButton,
+  LoadingButtonContent,
+} from "@/components/shared/LoadingButton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -210,7 +214,7 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
                 <Button
                   type="submit"
                   form="line-oa-broadcast-form"
-                  disabled={isPending}
+
                 >
                   <SendIcon data-icon="inline-start" />
                   ตรวจสอบและส่ง
@@ -332,8 +336,8 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
               }}
               disabled={isPending}
             >
-              {isPending ? "กำลังส่ง..." : "ยืนยันส่ง Broadcast"}
-            </AlertDialogAction>
+            <LoadingButtonContent isLoading={isPending} loadingText="กำลังส่ง...">ยืนยันส่ง Broadcast</LoadingButtonContent>
+          </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -538,14 +542,15 @@ function UpdateTemplateDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form={`line-template-${template.status}`}
-              disabled={isPending}
+              isLoading={isPending}
+              loadingText="กำลังบันทึก..."
             >
               <SaveIcon data-icon="inline-start" />
-              {isPending ? "กำลังบันทึก..." : "บันทึก"}
-            </Button>
+              บันทึก
+            </LoadingButton>
           </div>
         </DialogFooter>
       </DialogContent>

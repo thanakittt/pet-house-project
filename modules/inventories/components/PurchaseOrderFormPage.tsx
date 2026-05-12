@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -375,14 +376,16 @@ export default function PurchaseOrderFormPage({
         </CardContent>
 
         <CardFooter className="flex justify-end py-4 border-t">
-          <Button
+          <LoadingButton
             variant="default"
             onClick={handleSubmit}
             disabled={isPending || orderItems.length === 0}
+            isLoading={isPending}
+            loadingText="กำลังส่ง..."
           >
             <Send data-icon="inline-start" />
-            {isPending ? "กำลังส่ง..." : "สร้างใบสั่งซื้อ"}
-          </Button>
+            สร้างใบสั่งซื้อ
+          </LoadingButton>
         </CardFooter>
       </Card>
     </div>

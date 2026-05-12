@@ -17,10 +17,10 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
   Clock,
-  Loader2,
   StickyNote, // เพิ่ม Icon สำหรับโน้ต
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { ScheduleRecord } from "@/modules/appointment/types/schedule";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { toast } from "sonner";
@@ -140,7 +140,7 @@ const InteractiveStatusSelect = ({
 
       <div className="top-1/2 right-3 absolute flex items-center -translate-y-1/2 pointer-events-none">
         {isPending ? (
-          <Loader2 size={14} className="opacity-70 text-current animate-spin" />
+          <Spinner className="opacity-70 text-current" />
         ) : (
           <svg
             width="12"

@@ -14,6 +14,7 @@ import {
   ChevronsUpDown,
   Save,
 } from "lucide-react";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -364,21 +365,23 @@ export default function PurchaseOrderDetailPage({
                         size="sm"
                         variant="ghost"
                         className="gap-1 h-8 text-slate-500 hover:text-slate-900"
-                        disabled={isPending}
+
                         onClick={handleCancelEdit}
                       >
                         <X size={13} />
                         ยกเลิก
                       </Button>
-                      <Button
+                      <LoadingButton
                         size="sm"
                         className="gap-1.5 h-8 bg-slate-900 hover:bg-slate-700 text-white"
                         disabled={isPending || editItems.length === 0}
+                        isLoading={isPending}
+                        loadingText="กำลังบันทึก..."
                         onClick={handleSaveEdit}
                       >
-                        <Save size={13} />
-                        {isPending ? "กำลังบันทึก..." : "บันทึก"}
-                      </Button>
+                        <Save data-icon="inline-start" />
+                        บันทึก
+                      </LoadingButton>
                     </div>
                   )}
                 </div>

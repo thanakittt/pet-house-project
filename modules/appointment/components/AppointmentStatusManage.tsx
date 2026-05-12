@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Loader2, Receipt } from "lucide-react"; // เพิ่ม Receipt icon
+import { Receipt } from "lucide-react"; // เพิ่ม Receipt icon
 import Link from "next/link"; // เพิ่ม Link
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { AppointmentStatus } from "@/modules/appointment/types/status";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 import { updateAppointmentStatus } from "../actions/update-appointment";
@@ -176,10 +178,7 @@ export default function AppointmentStatusManager({
 
           <div className="top-1/2 right-3 absolute flex items-center -translate-y-1/2 pointer-events-none">
             {isPending ? (
-              <Loader2
-                size={14}
-                className="opacity-70 text-current animate-spin"
-              />
+              <Spinner className="opacity-70 text-current" />
             ) : (
               <svg
                 width="12"
@@ -254,21 +253,18 @@ export default function AppointmentStatusManager({
         )}
 
         {nextStatus && (
-          <Button
+          <LoadingButton
             variant={
               currentStatus === "READY_FOR_PICKUP" ? "outline" : "default"
             }
             disabled={isWorking}
+            isLoading={isLoading}
+            loadingText="กำลังอัปเดต..."
             onClick={() => handleUpdateStatus(nextStatus)}
             className="flex-1 sm:flex-none min-w-[180px]"
           >
-            {isLoading ? (
-              <Loader2 size={16} className="mr-2 animate-spin" />
-            ) : null}
-            {isLoading
-              ? "กำลังอัปเดต..."
-              : `เปลี่ยนเป็น: ${STATUS_CONFIG[nextStatus].label}`}
-          </Button>
+            {`เปลี่ยนเป็น: ${STATUS_CONFIG[nextStatus].label}`}
+          </LoadingButton>
         )}
       </div>
     </div>

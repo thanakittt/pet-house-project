@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { format, parseISO } from "date-fns";
@@ -644,13 +645,11 @@ export default function CreateAppointmentForm({
           </FieldGroup>
 
           <div className="flex justify-end pt-4">
-            <Button
+            <LoadingButton
               type="submit"
               size="lg"
-              disabled={isSubmitting || hasUnmatchedSelectedService}
-            >
-              {isSubmitting ? "กำลังบันทึก..." : "ยืนยันการจองทั้งหมด"}
-            </Button>
+              disabled={hasUnmatchedSelectedService}
+             isLoading={isSubmitting} loadingText="กำลังบันทึก...">ยืนยันการจองทั้งหมด</LoadingButton>
           </div>
         </>
       ) : null}

@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { PlusIcon, Loader2 } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { uploadServiceImages } from "../actions/upload-service-images"; // ปรับ path ตามโปรเจกต์ของคุณ
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -222,7 +223,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                 accept="image/png, image/jpeg, image/webp"
                 onChange={handleSelectFiles}
                 disabled={isUploading || form.formState.isSubmitting}
-                className="cursor-pointer" 
+                className="cursor-pointer"
               />
             </Field>
 
@@ -271,21 +272,16 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="upload-image-form"
                 className="px-6 py-5 text-sm cursor-pointer"
                 disabled={isUploading || previews.length === 0}
+                isLoading={isUploading}
+                loadingText="กำลังอัปโหลด..."
               >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />{" "}
-                    กำลังอัปโหลด...
-                  </>
-                ) : (
-                  "อัปโหลดและบันทึก"
-                )}
-              </Button>
+                อัปโหลดและบันทึก
+              </LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

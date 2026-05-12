@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import {
   Dialog,
   DialogClose,
@@ -174,13 +175,11 @@ export default function BanUserDialog({
               <DialogClose asChild>
                 <Button variant="outline">ยกเลิก</Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="ban-user-form"
-                disabled={isSubmitting || !isValid}
-              >
-                {isSubmitting ? "กำลังแบน..." : "แบน"}
-              </Button>
+                disabled={!isValid}
+               isLoading={isSubmitting} loadingText="กำลังแบน...">แบน</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>
