@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
@@ -123,7 +122,6 @@ export function CreateServiceVariantDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Pet Type Field */}

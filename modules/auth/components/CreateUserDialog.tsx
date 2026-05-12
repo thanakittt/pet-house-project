@@ -17,7 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { createUser } from "@/modules/auth/actions/create-user";
 import { UserForm } from "@/modules/auth/types/create-user-form";
 import { UserFormFields } from "./UserFormFields";
@@ -93,7 +92,6 @@ export function CreateUserDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <UserFormFields
             control={form.control}

@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
@@ -129,8 +128,6 @@ export function CreatePetDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Name Field */}

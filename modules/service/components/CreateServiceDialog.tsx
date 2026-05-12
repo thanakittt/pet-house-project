@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import {
@@ -105,7 +104,6 @@ export function CreateServiceDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Service Name Field */}

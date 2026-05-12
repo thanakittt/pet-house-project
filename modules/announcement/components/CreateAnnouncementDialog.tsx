@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -122,7 +121,6 @@ export function CreateAnnouncementDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <AnnouncementFormFields
             control={form.control}

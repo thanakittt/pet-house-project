@@ -11,7 +11,6 @@ import { addHealthReport } from "@/modules/operation/actions/create-health-repor
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogClose,
@@ -110,7 +109,6 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-4 px-4 pt-2 pb-3">
             {/* Topic Field */}

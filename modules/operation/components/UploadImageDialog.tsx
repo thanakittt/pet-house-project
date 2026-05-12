@@ -12,7 +12,6 @@ import { uploadServiceImages } from "../actions/upload-service-images"; // à¸›à¸
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -181,7 +180,6 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-4 px-4 pt-2 pb-3">
             <Controller

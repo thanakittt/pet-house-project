@@ -20,7 +20,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
@@ -127,7 +126,6 @@ export function UpdatePetBreedDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Pet Breed Name Field */}

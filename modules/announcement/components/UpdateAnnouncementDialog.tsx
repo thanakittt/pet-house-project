@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -158,7 +157,6 @@ export function UpdateAnnouncementDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <AnnouncementFormFields
             control={form.control}

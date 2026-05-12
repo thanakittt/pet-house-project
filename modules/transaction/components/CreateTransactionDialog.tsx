@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -99,7 +98,6 @@ export function CreateTransactionDialog({ categories }: CreateTransactionDialogP
             <DialogDescription>บันทึกรายรับหรือรายจ่ายแบบ Manual</DialogDescription>
             {serverError && <DialogDescription className="text-destructive">{serverError}</DialogDescription>}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             <Controller

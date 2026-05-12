@@ -23,7 +23,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Separator } from "@/components/ui/separator";
 
 const DAY_TO_SECONDS = 60 * 60 * 24;
 
@@ -103,7 +102,6 @@ export default function BanUserDialog({
               กรุณาระบุเหตุผลและระยะเวลาการแบน
             </DialogDescription>
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             <Controller

@@ -33,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { INVENTORY_UNITS } from "../constants/units";
 
@@ -104,7 +103,6 @@ export function CreateInventoryDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             <Controller

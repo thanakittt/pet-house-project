@@ -19,7 +19,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import {
@@ -114,7 +113,6 @@ export function UpdateServiceDialog({ service, open, onOpenChange }: UpdateServi
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Service Name Field */}

@@ -26,7 +26,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -109,7 +108,6 @@ export function UpdateTransactionDialog({
             <DialogDescription>แก้ไขข้อมูลรายรับหรือรายจ่าย</DialogDescription>
             {serverError && <DialogDescription className="text-destructive">{serverError}</DialogDescription>}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             <Controller

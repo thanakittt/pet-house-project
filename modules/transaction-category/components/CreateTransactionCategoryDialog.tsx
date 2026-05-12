@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -108,7 +107,6 @@ export function CreateTransactionCategoryDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* ชื่อหมวดหมู่ */}

@@ -42,7 +42,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -442,8 +441,6 @@ function UpdateTemplateDialog({
             </DialogDescription>
           ) : null}
         </DialogHeader>
-
-        <Separator />
 
         <form
           id={`line-template-${template.status}`}

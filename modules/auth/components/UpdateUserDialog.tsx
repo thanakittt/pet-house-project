@@ -15,7 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { updateUser } from "@/modules/auth/actions/update-user";
 import { UserForm } from "@/modules/auth/types/create-user-form";
 import { AuthUserWithProfile } from "@/modules/auth/types/user";
@@ -126,7 +125,6 @@ export function UpdateUserDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <UserFormFields
             control={form.control}
