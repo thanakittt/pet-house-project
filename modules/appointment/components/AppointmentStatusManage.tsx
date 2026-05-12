@@ -248,7 +248,7 @@ export default function AppointmentStatusManager({
           <Button asChild className="w-full sm:w-auto">
             <Link href={`/receipt/${appointmentId}`}>
               <Receipt className="mr-2 w-4 h-4" />
-              ดูใบเสร็จ
+              ใบเสร็จ
             </Link>
           </Button>
         )}

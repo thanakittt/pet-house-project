@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,9 +17,9 @@ export default function BackButton({
 
   if (href) {
     return (
-      <Button variant="outline" className={className} asChild>
+      <Button variant="outline" className={cn("mb-5 w-fit", className)} asChild>
         <Link href={href}>
-          <ChevronLeft className="mr-2 h-4 w-4" />
+          <ChevronLeft className="mr-2 w-4 h-4" />
           กลับ
         </Link>
       </Button>
@@ -28,10 +29,10 @@ export default function BackButton({
   return (
     <Button
       variant="outline"
-      className={className}
+      className={cn("mb-5 w-fit", className)}
       onClick={() => router.back()}
     >
-      <ChevronLeft className="mr-2 h-4 w-4" />
+      <ChevronLeft className="mr-2 w-4 h-4" />
       กลับ
     </Button>
   );

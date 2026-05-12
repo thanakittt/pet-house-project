@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireAdminAndOwner } from "@/lib/session";
 import { AnnouncementManagement } from "@/modules/announcement/components/AnnouncementManagement";
 import {
@@ -43,9 +44,9 @@ export default async function AnnouncementsPage({
   return (
     <>
       <SiteHeader title="จัดการประกาศ" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <AnnouncementManagement {...announcements.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

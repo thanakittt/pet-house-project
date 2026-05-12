@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import CustomerManagement from "@/modules/customer/components/CustomerManagement";
 import {
@@ -45,9 +46,9 @@ export default async function CustomerManagementPage({
   return (
     <>
       <SiteHeader title="จัดการลูกค้า" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <CustomerManagement {...customers.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

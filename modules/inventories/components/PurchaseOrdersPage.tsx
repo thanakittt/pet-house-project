@@ -67,8 +67,8 @@ export default function PurchaseOrdersPage({
   const rowOffset = (orderData.page - 1) * orderData.pageSize;
 
   return (
-    <main>
-      <div className="mx-auto w-full py-5 md:w-5xl">
+    <>
+      <div>
         <ManagementListControls
           pageParamName="orderPage"
           search={{
@@ -96,7 +96,7 @@ export default function PurchaseOrdersPage({
           }
         />
 
-        <div className="overflow-x-auto rounded-md border">
+        <div className="border rounded-md overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>
@@ -113,7 +113,7 @@ export default function PurchaseOrdersPage({
                 <TableRow>
                   <TableCell
                     colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
+                    className="py-10 text-muted-foreground text-center"
                   >
                     ไม่พบข้อมูลใบสั่งซื้อ
                   </TableCell>
@@ -121,14 +121,14 @@ export default function PurchaseOrdersPage({
               ) : (
                 orderData.orders.map((order, index) => (
                   <TableRow key={order.id}>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       {rowOffset + index + 1}
                     </TableCell>
                     <TableCell className="font-medium">
                       {order.staffNickname}
                     </TableCell>
                     <TableCell>{formatDate(order.orderDate)}</TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
+                    <TableCell className="font-semibold tabular-nums text-right">
                       {formatCurrency(order.totalAmount)}
                     </TableCell>
                     <TableCell>
@@ -138,7 +138,7 @@ export default function PurchaseOrdersPage({
                       />
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex justify-end items-center gap-1">
                         <TableActionLink
                           aria-label="ดูรายละเอียดใบสั่งซื้อ"
                           action="view"
@@ -184,6 +184,6 @@ export default function PurchaseOrdersPage({
           errorMessage="เกิดข้อผิดพลาดในการลบใบสั่งซื้อ"
         />
       )}
-    </main>
+    </>
   );
 }

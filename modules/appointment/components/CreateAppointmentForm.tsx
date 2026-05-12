@@ -561,7 +561,7 @@ export default function CreateAppointmentForm({
                 </div>
 
                 <FieldGroup>
-                  <FieldLabel>บริการเสริม (Add-ons)</FieldLabel>
+                  <FieldLabel>บริการเสริม</FieldLabel>
                   <Controller
                     name={`petBookings.${index}.addOnServiceIds`}
                     control={control}

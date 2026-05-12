@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BackButton from "@/components/BackButton";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import CreateAppointmentForm from "@/modules/appointment/components/CreateAppointmentForm";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { requireStaff } from "@/lib/session";
@@ -24,10 +25,10 @@ export default async function CreateAppointmentPage() {
   return (
     <div>
       <SiteHeader title="เพิ่มนัดหมายใหม่" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <BackButton className="mb-4" />
         <CreateAppointmentForm services={servicesWithVariants.data} />
-      </div>
+      </BackOfficeContainer>
     </div>
   );
 }

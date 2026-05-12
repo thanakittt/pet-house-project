@@ -256,7 +256,7 @@ export function POSCheckoutForm({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <>
       <div className="gap-6 grid grid-cols-1 lg:grid-cols-12">
         {/* --- ฝั่งซ้าย --- */}
         <div className="space-y-6 lg:col-span-8">
@@ -476,27 +476,23 @@ export function POSCheckoutForm({
                       </Select>
 
                       <div className="hidden">
-                      <Select
-                        value=""
-                        onValueChange={() => {}}
-                        disabled
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="ขนาด/รูปแบบ" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredVariants.map((v) => (
-                            <SelectItem key={v.id} value={v.id}>
-                              {
-                                PET_SIZE_LABELS[
-                                  v.size as keyof typeof PET_SIZE_LABELS
-                                ]
-                              }{" "}
-                              (฿{Number(v.minPrice).toLocaleString()})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <Select value="" onValueChange={() => {}} disabled>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="ขนาด/รูปแบบ" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filteredVariants.map((v) => (
+                              <SelectItem key={v.id} value={v.id}>
+                                {
+                                  PET_SIZE_LABELS[
+                                    v.size as keyof typeof PET_SIZE_LABELS
+                                  ]
+                                }{" "}
+                                (฿{Number(v.minPrice).toLocaleString()})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="flex gap-2 w-full">
@@ -508,7 +504,9 @@ export function POSCheckoutForm({
                         />
                         <Button
                           onClick={handleAddNewItem}
-                          disabled={isPending || !newServiceId || !selectedVariant}
+                          disabled={
+                            isPending || !newServiceId || !selectedVariant
+                          }
                           className="px-4"
                         >
                           เพิ่ม
@@ -667,6 +665,6 @@ export function POSCheckoutForm({
         errorMessage="เกิดข้อผิดพลาดในการดำเนินการ"
         redirectPath={`/back-office/appointments/${appointment.id}`}
       />
-    </div>
+    </>
   );
 }

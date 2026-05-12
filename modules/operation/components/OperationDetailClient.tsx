@@ -284,12 +284,10 @@ export default function OperationDetailClient({
                           alt="Before"
                           fill
                           className="object-cover"
-                          unoptimized
                         />
                       </ImageLightbox>
                       <DeleteImageButton
                         imageId={img.id}
-                        imageUrl={img.imageUrl}
                         appointmentId={operation.appointmentId}
                         petId={operation.petId}
                       />
@@ -321,12 +319,10 @@ export default function OperationDetailClient({
                           alt="After"
                           fill
                           className="object-cover"
-                          unoptimized
                         />
                       </ImageLightbox>
                       <DeleteImageButton
                         imageId={img.id}
-                        imageUrl={img.imageUrl}
                         appointmentId={operation.appointmentId}
                         petId={operation.petId}
                       />

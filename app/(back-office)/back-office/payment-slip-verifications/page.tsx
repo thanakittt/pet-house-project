@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { PaymentSlipVerificationManagement } from "@/modules/payment-slip-verification/components/PaymentSlipVerificationManagement";
 import {
   listPaymentSlipVerifications,
@@ -37,9 +38,9 @@ export default async function PaymentSlipVerificationsPage({
   return (
     <>
       <SiteHeader title="จัดการการตรวจสลิป" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <PaymentSlipVerificationManagement {...result.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

@@ -7,21 +7,19 @@ import { deleteServiceImage } from "../actions/delete-service-image";
 
 interface Props {
   imageId: string;
-  imageUrl: string;
   appointmentId: string;
   petId: string;
 }
 
 export default function DeleteImageButton({
   imageId,
-  imageUrl,
   appointmentId,
   petId,
 }: Props) {
   const [open, setOpen] = useState(false);
 
   const handleDelete = async () => {
-    return await deleteServiceImage(imageId, imageUrl, appointmentId, petId);
+    return await deleteServiceImage(imageId, appointmentId, petId);
   };
 
   return (

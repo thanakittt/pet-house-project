@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { Button } from "@/components/ui/button";
 import { requireStaff } from "@/lib/session";
 import PurchaseOrderFormPage from "@/modules/inventories/components/PurchaseOrderFormPage";
 import { listAllInventories } from "@/modules/inventories/queries/list-inventories";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import BackButton from "@/components/BackButton";
 
 export const metadata: Metadata = {
   title: "สร้างใบสั่งซื้อใหม่",
@@ -30,15 +32,10 @@ export default async function CreatePurchaseOrderPage() {
   return (
     <>
       <SiteHeader title="สร้างใบสั่งซื้อใหม่" />
-      <div className="p-6">
-        <Button variant="outline" asChild className="mb-4">
-          <Link href="/back-office/inventories?tab=order">
-            <ChevronLeft className="mr-2 w-4 h-4" />
-            กลับ
-          </Link>
-        </Button>
+      <BackOfficeContainer>
+        <BackButton href="/back-office/inventories?tab=order" />
         <PurchaseOrderFormPage inventoryItems={inventoryItems} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

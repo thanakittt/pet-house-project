@@ -145,7 +145,7 @@ export function CreatePetDialog({
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>ชื่อสัตว์เลี้ยง</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>ชื่อ</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
@@ -175,7 +175,7 @@ export function CreatePetDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    ประเภทสัตว์เลี้ยง
+                    ประเภท
                   </FieldLabel>
                   <Select
                     value={field.value}
@@ -217,11 +217,11 @@ export function CreatePetDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    พันธุ์สัตว์เลี้ยง
+                    สายพันธุ์
                   </FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="เลือกพันธุ์" />
+                      <SelectValue placeholder="เลือกสายพันธุ์" />
                     </SelectTrigger>
                     <SelectContent>
                       {petBreeds
@@ -247,13 +247,13 @@ export function CreatePetDialog({
               rules={{
                 maxLength: {
                   value: 500,
-                  message: "ข้อมูลการแพ้ / โรคประจำตัวไม่เกิน 500 ตัวอักษร",
+                  message: "หมายเหตุไม่เกิน 500 ตัวอักษร",
                 },
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    ข้อมูลการแพ้ / โรคประจำตัว (ถ้ามี)
+                    หมายเหตุ (ถ้ามี)
                   </FieldLabel>
                   <Textarea
                     {...field}

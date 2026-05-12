@@ -38,7 +38,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="destructive"
-        className="border-rose-300 bg-rose-100 p-2 text-red-500 hover:bg-rose-200 md:p-4"
+        className="bg-rose-100 hover:bg-rose-200 p-2 md:p-4 border-rose-300 text-red-500"
       >
         สินค้าหมด
       </Badge>
@@ -48,7 +48,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="secondary"
-        className="border-amber-300 bg-amber-100 p-2 text-amber-500 hover:bg-amber-200 md:p-4"
+        className="bg-amber-100 hover:bg-amber-200 p-2 md:p-4 border-amber-300 text-amber-500"
       >
         สินค้าใกล้หมด
       </Badge>
@@ -57,7 +57,7 @@ function getStatusBadge(item: InventoryItem) {
   return (
     <Badge
       variant="secondary"
-      className="border-green-300 bg-green-100 p-2 text-green-500 hover:bg-green-200 md:p-4"
+      className="bg-green-100 hover:bg-green-200 p-2 md:p-4 border-green-300 text-green-500"
     >
       ปกติ
     </Badge>
@@ -89,8 +89,8 @@ export function InventoriesClient({
   ];
 
   return (
-    <div className="mx-auto w-full py-5 md:w-5xl">
-      <div className="mb-5 grid w-full grid-cols-1 gap-6 md:w-5xl md:grid-cols-3">
+    <>
+      <div className="gap-6 grid grid-cols-1 md:grid-cols-3 mb-5 w-full md:w-5xl">
         <TitleStatus
           title="สินค้าทั้งหมด"
           value={inventoryData.stats.total}
@@ -137,7 +137,7 @@ export function InventoriesClient({
         }
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -160,7 +160,7 @@ export function InventoriesClient({
                     {product.quantity}
                   </TableCell>
                   <TableCell>{getUnitLabel(product.unit)}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">
+                  <TableCell className="text-muted-foreground text-right">
                     {product.reorderLevel}
                   </TableCell>
                   <TableCell className="text-center">
@@ -192,7 +192,7 @@ export function InventoriesClient({
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="py-10 text-center text-muted-foreground"
+                  className="py-10 text-muted-foreground text-center"
                 >
                   ไม่พบข้อมูลสินค้าคงคลัง
                 </TableCell>
@@ -228,7 +228,7 @@ export function InventoriesClient({
           errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสินค้าคงคลัง"
         />
       )}
-    </div>
+    </>
   );
 }
 
@@ -242,7 +242,7 @@ export function TitleStatus({
   color: string;
 }) {
   return (
-    <Card className="flex flex-row items-center justify-between gap-2 px-5 py-6">
+    <Card className="flex flex-row justify-between items-center gap-2 px-5 py-6">
       <CardDescription className="text-sm md:text-base">
         {title}
       </CardDescription>

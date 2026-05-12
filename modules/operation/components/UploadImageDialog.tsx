@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import { supabase } from "@/lib/supabase"; // ปรับ path ตามโปรเจกต์ของคุณ
 import { uploadServiceImages } from "../actions/upload-service-images"; // ปรับ path ตามโปรเจกต์ของคุณ
 
 import { Button } from "@/components/ui/button";
@@ -119,54 +118,23 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
       setIsUploading(true);
       setServerError(null);
 
-      const uploadedFileNames: string[] = [];
+      // CODEMAP: send files to the Server Action
+      // input: ไฟล์ที่เลือกจาก react-hook-form พร้อม appointment/pet ids จาก props
+      // processing: ใส่ทุกอย่างลง FormData เพื่อให้ server validate, upload ไป Supabase Storage,
+      // และบันทึก database ในจุดที่เชื่อถือได้จุดเดียว
+      // output: ผลลัพธ์ success/error ที่ dialog เอาไปแสดงให้ผู้ใช้ได้
+      const uploadFormData = new FormData();
+      uploadFormData.append("type", data.type);
+      uploadFormData.append("appointmentId", appointmentId);
+      uploadFormData.append("petId", petId);
 
-      // วนลูปอัปโหลดแบบขนาน (Parallel Uploads)
-      const uploadPromises = data.imageFiles.map(async (file) => {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${appointmentId}-${Date.now()}-${Math.random()
-          .toString(36)
-          .substring(2)}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("images")
-          .upload(fileName, file);
-
-        if (uploadError) throw uploadError;
-
-        uploadedFileNames.push(fileName);
-
-        const { data: publicUrlData } = supabase.storage
-          .from("images")
-          .getPublicUrl(fileName);
-
-        return publicUrlData.publicUrl;
-      });
-
-      let uploadedUrls: string[] = [];
-      try {
-        uploadedUrls = await Promise.all(uploadPromises);
-      } catch (uploadError) {
-        // หากมีไฟล์ใดอัปโหลดไม่สำเร็จ ให้ลบไฟล์ที่อัปโหลดไปแล้วออกเพื่อป้องกันไฟล์ค้าง (orphaned uploads)
-        if (uploadedFileNames.length > 0) {
-          await supabase.storage.from("images").remove(uploadedFileNames);
-        }
-        throw uploadError;
+      for (const imageFile of data.imageFiles) {
+        uploadFormData.append("imageFiles", imageFile);
       }
 
-      // ส่ง URL ทั้งหมดให้ Server Action
-      const result = await uploadServiceImages({
-        imageUrls: uploadedUrls,
-        type: data.type,
-        appointmentId,
-        petId,
-      });
+      const result = await uploadServiceImages(uploadFormData);
 
       if (!result.success) {
-        // หากบันทึกลงฐานข้อมูลไม่สำเร็จ ให้ลบไฟล์ที่เพิ่งอัปโหลดขึ้น Supabase ออก
-        if (result.uploadedFileNames && result.uploadedFileNames.length > 0) {
-          await supabase.storage.from("images").remove(result.uploadedFileNames);
-        }
         setServerError(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
         return;
       }
@@ -222,7 +190,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    ประเภท <span className="text-destructive">*</span>
+                    ประเภท
                   </FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger id={field.name}>
@@ -246,7 +214,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
 
             <Field>
               <FieldLabel>
-                เลือกรูปภาพ <span className="text-destructive">*</span>
+                เลือกรูปภาพ
               </FieldLabel>
               <Input
                 type="file"
@@ -254,7 +222,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                 accept="image/png, image/jpeg, image/webp"
                 onChange={handleSelectFiles}
                 disabled={isUploading || form.formState.isSubmitting}
-                className="cursor-pointer"
+                className="cursor-pointer" 
               />
             </Field>
 
@@ -276,7 +244,6 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                         fill
                         sizes="80px"
                         className="object-cover"
-                        unoptimized
                       />
                       {/* ปุ่มกากบาทเพื่อลบรูปที่ไม่ต้องการ */}
                       <button

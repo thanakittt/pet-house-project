@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import { PetBreedManagement } from "@/modules/pet-breed/components/PetBreedManagement";
 import {
@@ -43,9 +44,9 @@ export default async function PetBreedsPage({
   return (
     <>
       <SiteHeader title="จัดการสายพันธุ์สัตว์เลี้ยง" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <PetBreedManagement {...petBreeds.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

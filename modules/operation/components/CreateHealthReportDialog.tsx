@@ -126,7 +126,7 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    หัวข้อ <span className="text-destructive">*</span>
+                    หัวข้อ
                   </FieldLabel>
                   <Input
                     {...field}
@@ -152,7 +152,7 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    รายละเอียด <span className="text-destructive">*</span>
+                    รายละเอียด
                   </FieldLabel>
                   <Textarea
                     {...field}

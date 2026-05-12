@@ -13,6 +13,7 @@ import { TransactionsBoard } from "@/modules/transaction/components/Transactions
 import { CreateTransactionDialog } from "@/modules/transaction/components/CreateTransactionDialog";
 import { Suspense } from "react";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 
 export const metadata: Metadata = {
   title: "จัดการบัญชี",
@@ -47,33 +48,33 @@ export default async function AccountingPage(props: {
   return (
     <>
       <SiteHeader title="จัดการบัญชี" />
-      <div className="flex flex-col gap-6 w-full py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header & Filter */}
-        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
-          <Suspense>
-            <TransactionFilter categories={categories} />
-          </Suspense>
-        </div>
-
-        {/* Summary Cards */}
-        <TransactionSummaryCards summary={summary} />
-
-        {/* Table Section */}
-        <div>
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">
-                รายการเคลื่อนไหวล่าสุด
-              </span>
-            </div>
-            <CreateTransactionDialog categories={categories} />
+      <BackOfficeContainer>
+        <div className="space-y-6">
+          {/* Header & Filter */}
+          <div className="flex sm:flex-row flex-col justify-end items-start sm:items-center gap-4">
+            <Suspense>
+              <TransactionFilter categories={categories} />
+            </Suspense>
           </div>
-          <TransactionsBoard
-            transactionData={transactions}
-            categories={categories}
-          />
+          {/* Summary Cards */}
+          <TransactionSummaryCards summary={summary} />
+          {/* Table Section */}
+          <div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm">
+                  รายการเคลื่อนไหวล่าสุด
+                </span>
+              </div>
+              <CreateTransactionDialog categories={categories} />
+            </div>
+            <TransactionsBoard
+              transactionData={transactions}
+              categories={categories}
+            />
+          </div>
         </div>
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

@@ -131,7 +131,7 @@ export function UpdatePetDialog({
         <DialogContent className="md:max-w-md">
           <DialogHeader className="px-4 pt-4">
             <DialogTitle className="font-bold text-lg">
-              แก้ไขสัตว์เลี้ยง
+              แก้ไขข้อมูลสัตว์เลี้ยง
             </DialogTitle>
             <DialogDescription>กรุณากรอกข้อมูลสัตว์เลี้ยง</DialogDescription>
             {serverError && (
@@ -149,20 +149,20 @@ export function UpdatePetDialog({
               name="name"
               control={form.control}
               rules={{
-                required: "กรุณาระบุชื่อสัตว์เลี้ยง",
+                required: "กรุณาระบุชื่อ",
                 maxLength: {
                   value: 100,
-                  message: "ชื่อสัตว์เลี้ยงไม่เกิน 100 ตัวอักษร",
+                  message: "ชื่อไม่เกิน 100 ตัวอักษร",
                 },
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>ชื่อสัตว์เลี้ยง</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>ชื่อ</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    placeholder="ระบุชื่อสัตว์เลี้ยง"
+                    placeholder="ระบุชื่อ"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -179,7 +179,7 @@ export function UpdatePetDialog({
               rules={{
                 validate: (value) => {
                   if (value === "") {
-                    return "กรุณาระบุประเภทสัตว์เลี้ยง";
+                    return "กรุณาระบุประเภท";
                   }
                   return true;
                 },
@@ -187,7 +187,7 @@ export function UpdatePetDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    ประเภทสัตว์เลี้ยง
+                    ประเภท
                   </FieldLabel>
                   <Select
                     value={field.value}
@@ -221,7 +221,7 @@ export function UpdatePetDialog({
               rules={{
                 validate: (value) => {
                   if (value === "") {
-                    return "กรุณาระบุพันธุ์สัตว์เลี้ยง";
+                    return "กรุณาระบุสายพันธุ์";
                   }
                   return true;
                 },
@@ -229,11 +229,11 @@ export function UpdatePetDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    พันธุ์สัตว์เลี้ยง
+                    สายพันธุ์
                   </FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="เลือกพันธุ์" />
+                      <SelectValue placeholder="เลือกสายพันธุ์" />
                     </SelectTrigger>
                     <SelectContent>
                       {petBreeds
@@ -259,13 +259,13 @@ export function UpdatePetDialog({
               rules={{
                 maxLength: {
                   value: 500,
-                  message: "ข้อมูลการแพ้ / โรคประจำตัวไม่เกิน 500 ตัวอักษร",
+                  message: "หมายเหตุไม่เกิน 500 ตัวอักษร",
                 },
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
-                    ข้อมูลการแพ้ / โรคประจำตัว (ถ้ามี)
+                    หมายเหตุ (ถ้ามี)
                   </FieldLabel>
                   <Textarea
                     {...field}
