@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, XIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SearchIcon,
+  XIcon,
+} from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -92,48 +97,61 @@ export function ManagementListControls({
     selectFilters.some((filter) => filter.value !== "ALL");
 
   return (
-    <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      {search ? (
-        <ManagementSearchForm
-          key={search.value}
-          disabled={isPending}
-          hasFilters={hasFilters}
-          pageParamName={pageParamName}
-          search={search}
-          searchParamName={searchParamName}
-          selectFilters={selectFilters}
-          updateUrl={updateUrl}
-        />
-      ) : (
-        <div />
-      )}
+    <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center gap-3 mb-5">
+      {/* ฝั่งซ้าย: [filter][search] */}
+      <div className="flex sm:flex-row flex-col flex-1 sm:items-center gap-3">
+        {/* 1. Filters */}
+        {selectFilters.length > 0 && (
+          <div className="flex sm:flex-row flex-col sm:items-center gap-2">
+            {selectFilters.map((filter) => (
+              <Select
+                key={filter.name}
+                value={filter.value}
+                onValueChange={(value) =>
+                  updateUrl({ [filter.name]: value, [pageParamName]: null })
+                }
+              >
+                <SelectTrigger
+                  className="w-full sm:w-[160px]"
+                  aria-label={filter.ariaLabel}
+                >
+                  <SelectValue placeholder={filter.placeholder} />
+                </SelectTrigger>
+                <SelectContent position="item-aligned">
+                  <SelectGroup>
+                    {filter.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            ))}
+          </div>
+        )}
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:justify-end">
-        {selectFilters.map((filter) => (
-          <Select
-            key={filter.name}
-            value={filter.value}
-            onValueChange={(value) =>
-              updateUrl({ [filter.name]: value, [pageParamName]: null })
-            }
-          >
-            <SelectTrigger className="w-full sm:w-[160px]" aria-label={filter.ariaLabel}>
-              <SelectValue placeholder={filter.placeholder} />
-            </SelectTrigger>
-            <SelectContent position="item-aligned">
-              <SelectGroup>
-                {filter.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        ))}
-
-        {createAction}
+        {/* 2. Search */}
+        {search && (
+          <ManagementSearchForm
+            key={search.value}
+            disabled={isPending}
+            hasFilters={hasFilters}
+            pageParamName={pageParamName}
+            search={search}
+            searchParamName={searchParamName}
+            selectFilters={selectFilters}
+            updateUrl={updateUrl}
+          />
+        )}
       </div>
+
+      {/* ฝั่งขวา: [createAction] */}
+      {createAction && (
+        <div className="flex justify-end items-center shrink-0">
+          {createAction}
+        </div>
+      )}
     </div>
   );
 }
@@ -166,11 +184,11 @@ function ManagementSearchForm({
           [pageParamName]: null,
         });
       }}
-      className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-2xl"
+      className="flex sm:flex-row flex-col gap-2 w-full lg:max-w-2xl"
     >
       <InputGroup className="sm:flex-1">
         <InputGroupAddon>
-          <SearchIcon />
+          <SearchIcon className="opacity-50 w-4 h-4" />
         </InputGroupAddon>
         <InputGroupInput
           value={searchValue}
@@ -202,7 +220,7 @@ function ManagementSearchForm({
             }}
             aria-label="ล้างตัวกรอง"
           >
-            <XIcon data-icon="inline-start" />
+            <XIcon data-icon="inline-start" className="mr-2 w-4 h-4" />
             ล้าง
           </Button>
         )}
@@ -225,12 +243,12 @@ export function ManagementPagination({
   const hasNextPage = totalPages > 0 && page < totalPages;
 
   return (
-    <div className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 mt-4 text-muted-foreground text-sm">
       <p>
         แสดง {resultStart}-{resultEnd} จาก {total} รายการ
       </p>
 
-      <div className="flex items-center justify-between gap-3 sm:justify-end">
+      <div className="flex justify-between sm:justify-end items-center gap-3">
         <span>
           หน้า {totalPages === 0 ? 0 : page} จาก {totalPages}
         </span>
@@ -242,7 +260,10 @@ export function ManagementPagination({
             disabled={!hasPreviousPage || isPending}
             onClick={() => updateUrl({ [pageParamName]: String(page - 1) })}
           >
-            <ChevronLeftIcon data-icon="inline-start" />
+            <ChevronLeftIcon
+              data-icon="inline-start"
+              className="mr-1 w-4 h-4"
+            />
             ก่อนหน้า
           </Button>
           <Button
@@ -253,7 +274,7 @@ export function ManagementPagination({
             onClick={() => updateUrl({ [pageParamName]: String(page + 1) })}
           >
             ถัดไป
-            <ChevronRightIcon data-icon="inline-end" />
+            <ChevronRightIcon data-icon="inline-end" className="ml-1 w-4 h-4" />
           </Button>
         </div>
       </div>

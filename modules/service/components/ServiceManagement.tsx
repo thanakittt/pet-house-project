@@ -31,7 +31,7 @@ import { CreateServiceDialog } from "./CreateServiceDialog";
 import { UpdateServiceDialog } from "./UpdateServiceDialog";
 
 const serviceTypeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   ...SERVICE_TYPE_OPTIONS,
 ];
 
@@ -72,7 +72,7 @@ export default function ServiceManagement({
         createAction={<CreateServiceDialog />}
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>

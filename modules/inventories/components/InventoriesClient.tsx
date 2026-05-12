@@ -27,7 +27,7 @@ import { CreateInventoryDialog } from "./CreateInventoryDialog";
 import { UpdateInventoryDialog } from "./UpdateInventoryDialog";
 
 const statusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   { value: "NORMAL", label: "ปกติ" },
   { value: "LOW", label: "สินค้าใกล้หมด" },
   { value: "OUT", label: "สินค้าหมด" },

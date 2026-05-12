@@ -33,14 +33,14 @@ import { CreateAnnouncementDialog } from "./CreateAnnouncementDialog";
 import { UpdateAnnouncementDialog } from "./UpdateAnnouncementDialog";
 
 const typeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   { value: "NEWS", label: ANNOUNCEMENT_TYPE_LABELS.NEWS },
   { value: "PROMOTION", label: ANNOUNCEMENT_TYPE_LABELS.PROMOTION },
   { value: "ALERT", label: ANNOUNCEMENT_TYPE_LABELS.ALERT },
 ];
 
 const statusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   { value: "ACTIVE", label: ANNOUNCEMENT_STATUS_LABELS.ACTIVE },
   { value: "SCHEDULED", label: ANNOUNCEMENT_STATUS_LABELS.SCHEDULED },
   { value: "EXPIRED", label: ANNOUNCEMENT_STATUS_LABELS.EXPIRED },

@@ -29,12 +29,12 @@ import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
 import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
 
 const petTypeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   ...PET_TYPE_OPTIONS,
 ];
 
 const sizeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกขนาด" },
   ...PET_SIZE_OPTIONS.filter((option) => option.value !== "ALL"),
 ];
 

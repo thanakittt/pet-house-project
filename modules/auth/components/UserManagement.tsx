@@ -31,7 +31,7 @@ import { authClient } from "@/lib/auth-client";
 import { getUserById } from "../queries/get-user";
 
 const roleOptions: Array<ManagementFilterOption & { value: UserRoleFilter }> = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกบทบาท" },
   { value: "admin", label: "ผู้ดูแลระบบ" },
   { value: "owner", label: "เจ้าของร้าน" },
   { value: "staff", label: "พนักงาน" },
@@ -116,7 +116,7 @@ export default function UserManagement({
         createAction={<CreateUserDialog />}
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>

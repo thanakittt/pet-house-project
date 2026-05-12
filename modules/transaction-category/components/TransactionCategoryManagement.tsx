@@ -27,7 +27,7 @@ import { CreateTransactionCategoryDialog } from "./CreateTransactionCategoryDial
 import { UpdateTransactionCategoryDialog } from "./UpdateTransactionCategoryDialog";
 
 const typeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   { value: "INCOME", label: TRANSACTION_TYPE_LABELS.INCOME },
   { value: "EXPENSE", label: TRANSACTION_TYPE_LABELS.EXPENSE },
 ];
@@ -66,7 +66,7 @@ export function TransactionCategoryManagement({
         createAction={<CreateTransactionCategoryDialog />}
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>

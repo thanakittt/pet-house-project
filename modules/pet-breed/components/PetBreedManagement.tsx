@@ -28,12 +28,12 @@ import { CreatePetBreedDialog } from "./CreatePetBreedDialog";
 import { UpdatePetBreedDialog } from "./UpdatePetBreedDialog";
 
 const typeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   ...PET_TYPE_OPTIONS,
 ];
 
 const sizeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกขนาด" },
   ...PET_SIZE_OPTIONS.filter((option) => option.value !== "ALL"),
 ];
 
@@ -80,7 +80,7 @@ export function PetBreedManagement({
         createAction={<CreatePetBreedDialog />}
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>

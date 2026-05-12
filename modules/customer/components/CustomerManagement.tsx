@@ -26,7 +26,7 @@ import { Customer } from "../types/customer";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 
 const channelOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกช่องทาง" },
   { value: "ONLINE", label: "Online" },
   { value: "WALK_IN", label: "Walk-in" },
 ];

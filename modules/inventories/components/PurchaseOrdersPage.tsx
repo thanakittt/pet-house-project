@@ -33,7 +33,7 @@ import { PurchaseOrderSummary } from "@/modules/inventories/types/purchase-order
 import { useState } from "react";
 
 const orderStatusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   ...PURCHASE_ORDER_STATUS_KEYS.map((status) => ({
     value: status,
     label: PURCHASE_ORDER_STATUS_CONFIG[status].title,
