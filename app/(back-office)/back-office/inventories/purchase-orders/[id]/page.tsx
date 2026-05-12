@@ -6,9 +6,11 @@ import { listAllInventories } from "@/modules/inventories/queries/list-inventori
 import PurchaseOrderDetailPage from "@/modules/inventories/components/PurchaseOrderDetailPage";
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 export const metadata: Metadata = {
   title: "รายละเอียดใบสั่งซื้อ",
@@ -51,19 +53,14 @@ export default async function PurchaseOrderPage({
   return (
     <>
       <SiteHeader title="รายละเอียดใบสั่งซื้อ" />
-      <div className="p-6">
-        <Button variant="outline" asChild className="mb-4">
-          <Link href="/back-office/inventories?tab=order">
-            <ChevronLeft className="mr-2 w-4 h-4" />
-            กลับ
-          </Link>
-        </Button>
+      <BackOfficeContainer>
+        <BackButton href="/back-office/inventories?tab=order" />
 
         <PurchaseOrderDetailPage
           order={order}
           inventoryItems={inventoryItems}
         />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

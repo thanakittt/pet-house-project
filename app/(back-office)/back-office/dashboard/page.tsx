@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { requireOwner } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // queries
@@ -63,7 +64,7 @@ export default async function DashboardPage(props: {
     <>
       <SiteHeader title="ภาพรวมธุรกิจ" />
 
-      <div className="flex flex-col gap-6 w-full py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <BackOfficeContainer>
         {/* ===== Header: ชื่อหน้า + Period Filter ===== */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
           {/* ต้องครอบด้วย Suspense เนื่องจาก useSearchParams */}
@@ -86,7 +87,7 @@ export default async function DashboardPage(props: {
           <PopularServicesCard services={popularServices} period={period} />
           <ReviewSummaryCard summary={reviews} period={period} />
         </div>
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

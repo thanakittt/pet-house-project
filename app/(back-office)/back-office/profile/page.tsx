@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import BackOfficeProfileForm from "@/modules/staff/components/BackOfficeProfileForm";
 import { getStaffProfile } from "@/modules/staff/queries/get-profile";
@@ -26,7 +27,9 @@ export default async function BackOfficeProfilePage() {
   return (
     <>
       <SiteHeader title="บัญชีผู้ใช้" />
-      <BackOfficeProfileForm profile={profile.data} />
+      <BackOfficeContainer>
+        <BackOfficeProfileForm profile={profile.data} />
+      </BackOfficeContainer>
     </>
   );
 }

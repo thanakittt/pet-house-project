@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import { TransactionCategoryManagement } from "@/modules/transaction-category/components/TransactionCategoryManagement";
 import {
@@ -40,9 +41,9 @@ export default async function TransactionCategoriesPage({
   return (
     <>
       <SiteHeader title="จัดการหมวดหมู่ธุรกรรม" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <TransactionCategoryManagement {...transactionCategories.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

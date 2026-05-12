@@ -62,9 +62,7 @@ export default function ServiceVariantsManagement({
 
   return (
     <>
-      <div className="mb-5">
-        <BackButton href={backHref} />
-      </div>
+      <BackButton href={backHref} />
 
       <ManagementListControls
         selectFilters={[
@@ -86,7 +84,7 @@ export default function ServiceVariantsManagement({
         createAction={<CreateServiceVariantDialog serviceId={serviceId} />}
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>

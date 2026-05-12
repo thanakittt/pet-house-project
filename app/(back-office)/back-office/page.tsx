@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/session"; // ปรับ path ให้ต�
 import { NAVIGATION_ITEMS, UserRole } from "@/lib/navigation";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 
 export const metadata: Metadata = {
   title: "หน้าหลักหลังร้าน",
@@ -26,8 +27,8 @@ export default async function BackOfficeHomePage() {
     <>
       <SiteHeader title="หน้าหลัก" />
 
-      <div className="flex-1 space-y-6 p-8 pt-6">
-        <div className="flex flex-col space-y-2">
+      <BackOfficeContainer>
+        <div className="flex flex-col space-y-2 mb-5">
           <h1 className="font-bold text-3xl tracking-tight">
             ยินดีต้อนรับ, {userName}
           </h1>
@@ -52,7 +53,7 @@ export default async function BackOfficeHomePage() {
             </Link>
           ))}
         </div>
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

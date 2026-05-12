@@ -3,6 +3,7 @@ import { requireStaff } from "@/lib/session";
 import { getPOSCheckoutData } from "@/modules/pos/queries/get-pos-data";
 import { POSCheckoutForm } from "@/modules/pos/components/POSCheckoutForm";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import BackButton from "@/components/BackButton";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { redirect } from "next/navigation";
@@ -48,7 +49,7 @@ export default async function POSPage({ params }: POSPageProps) {
   return (
     <>
       <SiteHeader title="ชำระเงิน" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <BackButton />
         <POSCheckoutForm
           appointment={result.data.appointment}
@@ -56,7 +57,7 @@ export default async function POSPage({ params }: POSPageProps) {
           availableServices={result.data.availableServices}
           depositAmount={APPOINTMENT_DEPOSIT_AMOUNT}
         />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

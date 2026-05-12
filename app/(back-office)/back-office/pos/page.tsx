@@ -3,6 +3,7 @@ import { getWaitingPayments } from "@/modules/pos/queries/get-waiting-payments";
 import { WaitingPaymentList } from "@/modules/pos/components/WaitingPaymentList";
 import { requireStaff } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 
 export const metadata: Metadata = {
   title: "POS - รายการรอชำระเงิน",
@@ -22,9 +23,9 @@ export default async function POSWaitingPaymentPage() {
     <>
       <SiteHeader title="POS - รายการรอชำระเงิน" />
 
-      <div className="mx-auto p-6 w-full max-w-7xl">
+      <BackOfficeContainer>
         <WaitingPaymentList appointments={result.data || []} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

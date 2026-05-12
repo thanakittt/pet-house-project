@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import PurchaseOrdersPage from "@/modules/inventories/components/PurchaseOrdersPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -105,11 +106,8 @@ export default async function InventoriesPage({
     <>
       <SiteHeader title="จัดการสินค้าคงคลัง" />
 
-      <div className="p-6">
-        <Tabs
-          defaultValue={defaultTab}
-          className="mx-auto mt-5 w-full md:w-5xl"
-        >
+      <BackOfficeContainer>
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="w-full py-5 md:w-1/2">
             <TabsTrigger value="inventory" asChild>
               <Link href={buildTabHref(query, "inventory")}>สินค้าคงคลัง</Link>
@@ -132,7 +130,7 @@ export default async function InventoriesPage({
             <PurchaseOrdersPage orderData={purchaseOrdersResult.data} />
           </TabsContent>
         </Tabs>
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

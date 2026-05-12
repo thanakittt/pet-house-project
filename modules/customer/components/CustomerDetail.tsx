@@ -8,6 +8,7 @@ import { Pet } from "@/modules/pet/types/pet";
 import { AppointmentHistoryList } from "./AppointmentHistoryList";
 import { type CustomerAppointmentHistoryResult } from "@/modules/appointment/queries/get-customer-history";
 import { type ActionResponse } from "@/types/action";
+import BackButton from "@/components/BackButton";
 
 interface CustomerDetailProps {
   appointmentHistory: ActionResponse<CustomerAppointmentHistoryResult>;
@@ -24,17 +25,7 @@ export default function CustomerDetail({
 }: CustomerDetailProps) {
   return (
     <>
-      <header className="flex items-center gap-4 mb-6 hover:text-muted-foreground transition-colors cursor-pointer">
-        <Link href="/back-office/customers">
-          <div className="flex items-center gap-2">
-            <ChevronLeft size={20} />
-            <div className="flex flex-col">
-              <h1 className="font-bold text-xl">รายละเอียดลูกค้า</h1>
-            </div>
-          </div>
-        </Link>
-      </header>
-
+      <BackButton href="/back-office/customers" />
       <div className="space-y-6">
         <PetInfoForm
           pets={pets}

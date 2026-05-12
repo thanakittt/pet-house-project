@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import { InventoryCategoryManagement } from "@/modules/inventory-category/components/InventoryCategoryManagement";
 import {
@@ -37,9 +38,9 @@ export default async function InventoryCategoriesPage({
   return (
     <>
       <SiteHeader title="จัดการหมวดหมู่สินค้า" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <InventoryCategoryManagement {...inventoryCategories.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

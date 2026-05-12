@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireAdminAndOwner } from "@/lib/session";
 import { LineOAManagement } from "@/modules/line-oa/components/LineOAManagement";
 import { listAppointmentStatusTemplates } from "@/modules/line-oa/queries/list-appointment-status-templates";
@@ -16,9 +17,9 @@ export default async function LineOAPage() {
   return (
     <>
       <SiteHeader title="จัดการ LINE OA" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <LineOAManagement templates={templates} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { getScheduleByDate } from "@/modules/appointment/queries/get-schedule";
 import { getConfirmedAppointmentRequests } from "@/modules/appointment/queries/get-confirmed-appointment-requests";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -38,13 +39,13 @@ export default async function AppointmentsPage({
   return (
     <>
       <SiteHeader title="จัดการนัดหมาย" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <AppointmentManagement
           initialDate={targetDate}
           appointments={appointments}
           newAppointmentRequests={newAppointmentRequests}
         />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

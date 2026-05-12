@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireAdmin } from "@/lib/session";
 import UserManagement from "@/modules/auth/components/UserManagement";
 import {
@@ -34,9 +35,9 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   return (
     <>
       <SiteHeader title="จัดการผู้ใช้" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <UserManagement {...userList} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

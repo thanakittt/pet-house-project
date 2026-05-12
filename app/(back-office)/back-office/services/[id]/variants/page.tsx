@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceVariantsManagement from "@/modules/service/components/ServiceVariantManagement";
 import {
@@ -61,13 +62,13 @@ export default async function ServiceVariantsPage({
   return (
     <>
       <SiteHeader title="จัดการตัวเลือกบริการ" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <ServiceVariantsManagement
           backHref={backHref}
           serviceId={id}
           {...serviceVariants.data}
         />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

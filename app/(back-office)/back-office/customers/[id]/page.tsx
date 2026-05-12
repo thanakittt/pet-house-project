@@ -4,6 +4,7 @@ import CustomerDetail from "@/modules/customer/components/CustomerDetail";
 import { listAllPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import {
   getCustomerAppointmentHistory,
@@ -75,14 +76,14 @@ export default async function CustomerDetailPage({
   return (
     <>
       <SiteHeader title="รายละเอียดลูกค้า" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <CustomerDetail
           appointmentHistory={appointmentHistory}
           petBreeds={petBreeds.data}
           customerId={id}
           pets={pets.data}
         />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

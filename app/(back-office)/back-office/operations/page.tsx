@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTodayAppointmentsBoard } from "@/modules/operation/queries/get-today-appointments";
 import DailyAppointmentsBoard from "@/modules/operation/components/DailyAppointmentsBoard";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -22,9 +23,9 @@ export default async function DailyBoardPage() {
     return (
       <>
         <SiteHeader title="คิวงานประจำวัน" />
-        <div className="p-6">
+        <BackOfficeContainer>
           <p className="text-muted-foreground">ไม่มีข้อมูลคิวงานวันนี้</p>
-        </div>
+        </BackOfficeContainer>
       </>
     );
   }
@@ -32,9 +33,9 @@ export default async function DailyBoardPage() {
     <>
       <SiteHeader title="คิวงานประจำวัน" />
       {/* โยน Data จาก Server Action เข้าไปยัง Client Component */}
-      <div className="p-6">
+      <BackOfficeContainer>
         <DailyAppointmentsBoard initialAppointments={result.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }

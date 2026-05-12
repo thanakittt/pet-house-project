@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireAdminAndOwner } from "@/lib/session";
 import ServiceManagement from "@/modules/service/components/ServiceManagement";
 import {
@@ -40,9 +41,9 @@ export default async function ServicesPage({
   return (
     <>
       <SiteHeader title="จัดการบริการ" />
-      <div className="p-6">
+      <BackOfficeContainer>
         <ServiceManagement {...services.data} />
-      </div>
+      </BackOfficeContainer>
     </>
   );
 }
