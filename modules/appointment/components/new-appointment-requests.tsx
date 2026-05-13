@@ -53,31 +53,31 @@ export default function NewAppointmentRequests({
 }: NewAppointmentRequestsProps) {
   if (appointments.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed bg-slate-50 p-8 text-center text-sm text-muted-foreground">
+      <div className="bg-slate-50 p-8 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
         ยังไม่มีคำขอจองคิวใหม่ที่ยืนยันแล้ว
       </div>
     );
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex flex-col gap-4 min-w-0">
       {appointments.map((appointment) => (
         <div
           key={appointment.id}
-          className="flex min-w-0 flex-col justify-between gap-4 overflow-hidden rounded-lg border border-slate-200 p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 md:flex-row md:items-center"
+          className="flex md:flex-row flex-col justify-between md:items-center gap-4 shadow-sm hover:shadow-md p-4 sm:p-5 border border-slate-200 rounded-lg min-w-0 overflow-hidden transition-shadow"
         >
-          <div className="flex min-w-0 flex-col gap-3">
-            <div className="flex min-w-0 flex-col gap-1">
-              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                <h3 className="min-w-0 break-words text-base font-semibold">
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex flex-col gap-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+                <h3 className="min-w-0 font-semibold text-base break-words">
                   {getPetNames(appointment) || "-"}
                 </h3>
-                <p className="break-words text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm break-words">
                   (คุณ {appointment.customer.nickname})
                 </p>
               </div>
 
-              <div className="flex min-w-0 items-start gap-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2 min-w-0 text-muted-foreground text-sm">
                 <Scissors size={15} className="shrink-0" />
                 <span className="min-w-0 break-words">
                   {getServiceNames(appointment) || "-"}
@@ -85,22 +85,18 @@ export default function NewAppointmentRequests({
               </div>
             </div>
 
-            <div className="flex min-w-0 flex-wrap gap-3 text-sm text-muted-foreground">
-              <div className="flex min-w-0 items-center gap-1.5">
+            <div className="flex flex-wrap gap-3 min-w-0 text-muted-foreground text-sm">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <CalendarDays size={15} className="shrink-0" />
                 <span className="break-words">
                   {formatThaiDate(appointment.appointmentDate)} เวลา{" "}
                   {formatAppointmentTime(appointment)}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <PawPrint size={15} className="shrink-0" />
-                <span>{appointment.items.length} รายการบริการ</span>
-              </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center md:flex-col md:items-end">
+          <div className="flex sm:flex-row flex-col md:flex-col items-stretch sm:items-center md:items-end gap-2">
             <AppointmentStatus status={appointment.status} />
             {/* ปุ่มกดดูรายละเอียด */}
             <Link
