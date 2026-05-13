@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 
 export function StaffLoginForm() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export function StaffLoginForm() {
       email: "",
       password: "",
     },
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: { email: string; password: string }) => {
@@ -60,7 +61,11 @@ export function StaffLoginForm() {
       const userRole = resultSignIn?.user?.role;
 
       // Redirect based on user role
-      if (userRole === "admin" || userRole === "staff" || userRole === "owner") {
+      if (
+        userRole === "admin" ||
+        userRole === "staff" ||
+        userRole === "owner"
+      ) {
         router.push("/back-office");
       } else {
         // For customer or other roles, redirect to home page
@@ -155,13 +160,15 @@ export function StaffLoginForm() {
               )}
             />
 
-            <Button
-              type="submit"
-              form="create-user"
-              disabled={isSubmitting || !isValid}
+            <LoadingButton
+              type="button"
+              size="lg"
+              disabled={isSubmitting}
+              isLoading={isSubmitting}
+              loadingText="กำลังเข้าสู่ระบบ..."
             >
-              {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-            </Button>
+                เข้าสู่ระบบ
+              </LoadingButton>
           </FieldGroup>
         </form>
       </section>
