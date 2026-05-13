@@ -48,6 +48,8 @@ interface ConfirmDialogProps {
   successMessage: string;
   /** ข้อความแสดงเมื่อเกิดข้อผิดพลาดที่ไม่คาดคิด (catch block) */
   errorMessage: string;
+  /** โหมดของ Dialog — ใช้ "delete" เมื่อต้องการให้ปุ่มยืนยันเป็น destructive */
+  mode?: "default" | "delete";
   /** ทางกลับหลังหลังจากดำเนินการสำเร็จ (optional) */
   redirectPath?: string;
 }
@@ -60,10 +62,12 @@ export function ConfirmDialog({
   onConfirm,
   successMessage,
   errorMessage,
+  mode = "default",
   redirectPath = "",
 }: ConfirmDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const confirmButtonVariant = mode === "delete" ? "destructive" : "default";
 
   /** จัดการการกดยืนยันลบ — ใช้ useTransition เพื่อป้องกัน UI freeze */
   const handleConfirm = async () => {
@@ -100,6 +104,7 @@ export function ConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
           <AlertDialogAction
+            variant={confirmButtonVariant}
             onClick={(e) => {
               e.preventDefault();
               handleConfirm();

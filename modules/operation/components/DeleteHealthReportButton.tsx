@@ -46,6 +46,7 @@ export default function DeleteHealthReportButton({
         onConfirm={handleDelete}
         successMessage="ลบรายงานสุขภาพสำเร็จ"
         errorMessage="เกิดข้อผิดพลาดในการลบรายงานสุขภาพ"
+        mode="delete"
       />
     </>
   );

@@ -645,6 +645,7 @@ export function POSCheckoutForm({
         }}
         successMessage="ลบข้อมูลเรียบร้อย"
         errorMessage="เกิดข้อผิดพลาดในการดำเนินการ"
+        mode="delete"
       />
 
       <ConfirmDialog

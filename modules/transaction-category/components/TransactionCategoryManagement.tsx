@@ -148,6 +148,7 @@ export function TransactionCategoryManagement({
             }
             successMessage="ลบข้อมูลหมวดหมู่ธุรกรรมเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลหมวดหมู่ธุรกรรม"
+            mode="delete"
           />
         </>
       )}

@@ -226,6 +226,7 @@ export function InventoriesClient({
           onConfirm={() => deleteInventory(selectedInventory.id)}
           successMessage="ลบข้อมูลสินค้าคงคลังเรียบร้อย"
           errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสินค้าคงคลัง"
+          mode="delete"
         />
       )}
     </>

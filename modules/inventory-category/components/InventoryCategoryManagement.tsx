@@ -117,6 +117,7 @@ export function InventoryCategoryManagement({
             }
             successMessage="ลบข้อมูลหมวดหมู่สินค้าเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลหมวดหมู่สินค้า"
+            mode="delete"
           />
         </>
       )}

@@ -46,6 +46,7 @@ export default function DeleteImageButton({
         onConfirm={handleDelete}
         successMessage="ลบรูปภาพสำเร็จ"
         errorMessage="เกิดข้อผิดพลาดในการลบรูปภาพ"
+        mode="delete"
       />
     </>
   );

@@ -158,6 +158,7 @@ export function PetBreedManagement({
             onConfirm={() => deletePetBreed({ id: selectedPetBreed.id })}
             successMessage="ลบข้อมูลสายพันธุ์เรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสายพันธุ์"
+            mode="delete"
           />
         </>
       )}

@@ -182,6 +182,7 @@ export default function PurchaseOrdersPage({
           onConfirm={() => deletePurchaseOrder(deleteTarget.id)}
           successMessage="ลบใบสั่งซื้อเรียบร้อย"
           errorMessage="เกิดข้อผิดพลาดในการลบใบสั่งซื้อ"
+          mode="delete"
         />
       )}
     </>

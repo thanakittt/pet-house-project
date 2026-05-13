@@ -155,6 +155,7 @@ export default function CustomerManagement({
             onConfirm={() => deleteCustomer(selectedCustomer.id)}
             successMessage="ลบข้อมูลลูกค้าเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า"
+            mode="delete"
           />
 
           <UpdateCustomerDialog

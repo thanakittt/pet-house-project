@@ -167,6 +167,7 @@ export default function ServiceVariantsManagement({
             onConfirm={() => deleteServiceVariant({ id: selectedVariant.id })}
             successMessage="ลบข้อมูลตัวเลือกบริการเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลตัวเลือกบริการ"
+            mode="delete"
           />
         </>
       )}

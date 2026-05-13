@@ -227,6 +227,7 @@ export function AnnouncementManagement({
             onConfirm={() => deleteAnnouncement({ id: selectedAnnouncement.id })}
             successMessage="ลบประกาศเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบประกาศ"
+            mode="delete"
           />
         </>
       )}

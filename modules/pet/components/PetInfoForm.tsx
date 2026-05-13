@@ -104,6 +104,7 @@ export function PetInfoForm({
             }
             successMessage="ลบข้อมูลสัตว์เลี้ยงเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสัตว์เลี้ยง"
+            mode="delete"
           />
         </>
       )}

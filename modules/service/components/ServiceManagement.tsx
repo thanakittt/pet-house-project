@@ -153,6 +153,7 @@ export default function ServiceManagement({
             onConfirm={() => deleteService({ id: selectedService.id })}
             successMessage="ลบข้อมูลบริการเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลบริการ"
+            mode="delete"
           />
         </>
       )}
