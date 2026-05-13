@@ -155,10 +155,10 @@ export default async function BackOfficeHomePage() {
 
       <BackOfficeContainer>
         <div className="flex flex-col space-y-2 mb-5">
-          <h1 className="font-bold text-3xl tracking-tight">
+          <h1 className="font-bold text-2xl md:text-3xl tracking-tight">
             ยินดีต้อนรับ, {userName}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-xs md:text-sm text-muted-foreground">
             ระบบจัดการร้านอาบน้ำตัดขนสัตว์เลี้ยง กรุณาเลือกเมนูที่คุณต้องการเข้าถึงจากรายการด้านล่าง
           </p>
         </div>
