@@ -188,7 +188,7 @@ function ManagementSearchForm({
     >
       <InputGroup className="sm:flex-1">
         <InputGroupAddon>
-          <SearchIcon className="opacity-50 w-4 h-4" />
+          <SearchIcon className="opacity-50 size-4" />
         </InputGroupAddon>
         <InputGroupInput
           value={searchValue}
@@ -199,14 +199,19 @@ function ManagementSearchForm({
       </InputGroup>
 
       <div className="flex gap-2">
-        <Button type="submit" variant="outline" disabled={disabled}>
+        <Button
+          type="submit"
+          variant="outline"
+          size="default"
+          disabled={disabled}>
           ค้นหา
         </Button>
 
         {hasFilters && (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
+            size="default"
             disabled={disabled}
             onClick={() => {
               setSearchValue("");
@@ -220,8 +225,8 @@ function ManagementSearchForm({
             }}
             aria-label="ล้างตัวกรอง"
           >
-            <XIcon data-icon="inline-start" className="mr-2 w-4 h-4" />
-            ล้าง
+            <XIcon data-icon="inline-start" className="size-4" />
+            ล้างตัวกรอง
           </Button>
         )}
       </div>
