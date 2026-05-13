@@ -58,7 +58,7 @@ export const TABLE_ACTION_CONFIG = {
   edit: {
     icon: TABLE_ACTION_ICONS.edit,
     className:
-      "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary focus-visible:border-primary/40 focus-visible:ring-primary/20",
+      "border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-200 hover:text-blue-800 focus-visible:border-blue-400 focus-visible:ring-blue-500/20 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-900/50",
   },
   manage: {
     icon: TABLE_ACTION_ICONS.manage,
