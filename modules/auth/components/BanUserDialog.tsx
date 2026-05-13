@@ -15,6 +15,7 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldDescription
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,13 +44,13 @@ export default function BanUserDialog({
     handleSubmit,
     control,
     reset,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       banReason: "",
       banExpiresIn: "",
     },
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: {
@@ -161,6 +162,9 @@ export default function BanUserDialog({
                     placeholder="ระบุระยะเวลาการแบน"
                     autoComplete="off"
                   />
+                  <FieldDescription>
+                    ปล่อยว่างไว้เพื่อแบนถาวร
+                  </FieldDescription>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -176,8 +180,11 @@ export default function BanUserDialog({
               <LoadingButton
                 type="submit"
                 form="ban-user-form"
-                disabled={!isValid}
-               isLoading={isSubmitting} loadingText="กำลังแบน...">แบน</LoadingButton>
+                isLoading={isSubmitting}
+                loadingText="กำลังแบน..."
+              >
+                แบน
+              </LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>
