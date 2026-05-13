@@ -219,7 +219,7 @@ export function SignUpForm() {
                       id={field.name}
                       type="password"
                       aria-invalid={fieldState.invalid}
-                      placeholder="รหัสผ่าน"
+                      placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร"
                       autoComplete="new-password"
                     />
                     {fieldState.invalid && (

@@ -147,7 +147,7 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
                     id={field.name}
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="รหัสผ่านใหม่"
+                    placeholder="ระบุรหัสผ่านใหม่อย่างน้อย 8 ตัวอักษร"
                     autoComplete="new-password"
                   />
                   {fieldState.invalid && (

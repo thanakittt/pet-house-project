@@ -217,7 +217,7 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
                     type="password"
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    placeholder="ระบุรหัสผ่าน"
+                    placeholder="ระบุรหัสผ่านอย่างน้อย 8 ตัวอักษร"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
