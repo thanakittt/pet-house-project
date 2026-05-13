@@ -11,7 +11,6 @@ import {
   parseISO,
   isSameDay,
 } from "date-fns";
-import { th } from "date-fns/locale";
 import {
   ChevronLeft,
   ChevronRight,
@@ -28,6 +27,7 @@ import { toast } from "sonner";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import { formatThaiDate } from "@/lib/utils";
 
 const START_HOUR = 9;
 const END_HOUR = 18;
@@ -305,7 +305,7 @@ export default function ScheduleCanvas({
             </div>
             <div className="min-w-0">
               <h2 className="font-bold text-xl wrap-break-word leading-tight">
-                {format(currentDate, "d MMMM yyyy", { locale: th })}
+                {formatThaiDate(currentDate)}
               </h2>
               {isToday && (
                 <p className="mt-1 font-medium text-primary text-sm">วันนี้</p>

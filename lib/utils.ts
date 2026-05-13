@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 
 export function cn(...inputs: ClassValue[]) {
@@ -41,6 +41,157 @@ export function formatPhoneNumber(
   return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
 }
 
-export function formatThaiDate(date: Date, formatStr: string = "d MMM yy"): string {
-  return format(date, formatStr, { locale: th });
+type ThaiDateInput = Date | string | null | undefined;
+
+/**
+ * ใช้สำหรับ format วันที่เป็นรูปแบบภาษาไทย
+ *
+ * รองรับค่า:
+ * - Date
+ * - string
+ * - null
+ * - undefined
+ *
+ * ฟังก์ชันนี้จะ:
+ * - parse วันที่ให้ปลอดภัย
+ * - รองรับวันที่จาก database แบบ `YYYY-MM-DD`
+ * - ป้องกันปัญหา timezone ของ JavaScript
+ * - คืนค่า fallback หากวันที่ไม่ถูกต้อง
+ *
+ * ตัวอย่าง:
+ * formatThaiDate("2026-05-14")
+ * // "14 พ.ค. 2026"
+ *
+ * formatThaiDate(new Date())
+ * // "14 พ.ค. 2026"
+ *
+ * formatThaiDate(null)
+ * // "-"
+ *
+ * @param value วันที่ที่ต้องการ format
+ * @param fallback ข้อความที่จะแสดงเมื่อวันที่ไม่ถูกต้อง
+ * @returns วันที่ในรูปแบบภาษาไทย
+ */
+export function formatThaiDate(
+  value: ThaiDateInput,
+  fallback: string = "-",
+): string {
+  const date = getDisplayDate(value);
+
+  return date ? format(date, "d MMM yyyy", { locale: th }) : fallback;
+}
+
+/**
+ * ใช้สำหรับ format วันที่ + เวลา เป็นรูปแบบภาษาไทย
+ *
+ * เหมาะกับ:
+ * - วันนัดหมาย
+ * - เวลาสร้างข้อมูล
+ * - เวลาชำระเงิน
+ * - activity log
+ *
+ * รูปแบบผลลัพธ์:
+ * "14 พ.ค. 2026 18:30"
+ *
+ * ตัวอย่าง:
+ * formatThaiDateTime("2026-05-14T18:30:00")
+ * // "14 พ.ค. 2026 18:30"
+ *
+ * formatThaiDateTime(undefined)
+ * // "-"
+ *
+ * @param value วันที่/เวลาที่ต้องการ format
+ * @param fallback ข้อความ fallback เมื่อ parse ไม่สำเร็จ
+ * @returns วันที่และเวลาในรูปแบบภาษาไทย
+ */
+export function formatThaiDateTime(
+  value: ThaiDateInput,
+  fallback: string = "-",
+): string {
+  const date = getDisplayDate(value);
+
+  return date ? format(date, "d MMM yyyy HH:mm", { locale: th }) : fallback;
+}
+
+/**
+ * ใช้สำหรับแสดงวันที่แบบสั้น
+ *
+ * เหมาะกับ:
+ * - card
+ * - table
+ * - mobile UI
+ * - dashboard
+ *
+ * รูปแบบผลลัพธ์:
+ * "14 พ.ค."
+ *
+ * ตัวอย่าง:
+ * formatThaiCompactDate("2026-05-14")
+ * // "14 พ.ค."
+ *
+ * @param value วันที่ที่ต้องการ format
+ * @param fallback ข้อความ fallback เมื่อวันที่ไม่ถูกต้อง
+ * @returns วันที่แบบย่อภาษาไทย
+ */
+export function formatThaiCompactDate(
+  value: ThaiDateInput,
+  fallback: string = "-",
+): string {
+  const date = getDisplayDate(value);
+
+  return date ? format(date, "d MMM", { locale: th }) : fallback;
+}
+
+/**
+ * ใช้ parse วันที่ให้ปลอดภัยก่อนนำไปแสดงผล
+ *
+ * จุดเด่น:
+ * - รองรับทั้ง Date และ string
+ * - รองรับค่า null/undefined
+ * - ป้องกัน invalid date
+ * - รองรับวันที่จาก database แบบ `YYYY-MM-DD`
+ * - ลดปัญหา timezone shift ของ JavaScript
+ *
+ * ตัวอย่างปัญหา:
+ * JavaScript อาจตีความ:
+ * "2026-05-14"
+ * เป็น UTC ทำให้วันแสดงผลคลาดเคลื่อน
+ *
+ * ฟังก์ชันนี้จึงแปลงเป็น:
+ * "2026-05-14T00:00:00"
+ * ก่อน parse
+ *
+ * @param value วันที่ที่ต้องการ parse
+ * @returns Date object หรือ null หาก parse ไม่สำเร็จ
+ */
+function getDisplayDate(value: ThaiDateInput): Date | null {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return isValid(value) ? value : null;
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  // วันที่แบบไม่มีเวลาจากฐานข้อมูลควรถูกอ่านเป็นวันที่ตามปฏิทินของร้าน
+  // เพื่อไม่ให้วันแสดงผลคลาดเคลื่อนจาก timezone ของ JavaScript
+  const valueToParse = /^\d{4}-\d{2}-\d{2}$/.test(trimmedValue)
+    ? `${trimmedValue}T00:00:00`
+    : trimmedValue;
+
+  const parsedDate = parseISO(valueToParse);
+
+  if (isValid(parsedDate)) {
+    return parsedDate;
+  }
+
+  const fallbackDate = new Date(trimmedValue);
+
+  return isValid(fallbackDate) ? fallbackDate : null;
 }

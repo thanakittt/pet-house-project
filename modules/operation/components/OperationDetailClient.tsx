@@ -1,7 +1,4 @@
 "use client";
-
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import {
   Camera,
   ClipboardList,
@@ -26,6 +23,7 @@ import Image from "next/image";
 import { useTransition } from "react";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { toast } from "sonner";
+import { formatThaiDate, formatThaiDateTime } from "@/lib/utils";
 
 export type AppointmentStatus =
   | "PENDING_DEPOSIT"
@@ -179,11 +177,7 @@ export default function OperationDetailClient({
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">เวลานัดหมาย</span>
               <span className="font-medium text-sm">
-                {format(
-                  new Date(operation.startTime),
-                  "dd MMM yyyy, HH:mm น.",
-                  { locale: th },
-                )}
+                {formatThaiDateTime(operation.startTime)}
               </span>
             </div>
           </CardContent>
@@ -357,9 +351,7 @@ export default function OperationDetailClient({
                       </h4>
                       <div className="flex items-center gap-1">
                         <span className="mr-2 text-muted-foreground text-xs">
-                          {format(new Date(report.createdAt), "dd MMM yyyy", {
-                            locale: th,
-                          })}
+                          {formatThaiDate(report.createdAt)}
                         </span>
 
                         <EditHealthReportDialog

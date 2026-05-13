@@ -3,8 +3,7 @@ import {
   type Announcement,
   type AnnouncementType,
 } from "@/modules/announcement/types/announcement";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatThaiDate } from "@/lib/utils";
 import { Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -15,17 +14,13 @@ const ANNOUNCEMENT_TAG_COLORS: Record<AnnouncementType, string> = {
 };
 
 function formatAnnouncementDate(announcement: Announcement): string {
-  const startDate = format(announcement.startDisplayAt, "d MMM yy", {
-    locale: th,
-  });
+  const startDate = formatThaiDate(announcement.startDisplayAt);
 
   if (!announcement.endDisplayAt) {
     return startDate;
   }
 
-  const endDate = format(announcement.endDisplayAt, "d MMM yy", {
-    locale: th,
-  });
+  const endDate = formatThaiDate(announcement.endDisplayAt);
 
   return `${startDate} - ${endDate}`;
 }

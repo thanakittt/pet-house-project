@@ -31,6 +31,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { ListPurchaseOrdersResult } from "@/modules/inventories/queries/list-purchase-orders";
 import { PurchaseOrderSummary } from "@/modules/inventories/types/purchase-order";
 import { useState } from "react";
+import { formatThaiDate } from "@/lib/utils";
 
 const orderStatusOptions: ManagementFilterOption[] = [
   { value: "ALL", label: "ทุกสถานะ" },
@@ -47,12 +48,6 @@ function formatCurrency(value: string): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-}
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "-";
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
 }
 
 export default function PurchaseOrdersPage({
@@ -127,7 +122,7 @@ export default function PurchaseOrdersPage({
                     <TableCell className="font-medium">
                       {order.staffNickname}
                     </TableCell>
-                    <TableCell>{formatDate(order.orderDate)}</TableCell>
+                    <TableCell>{formatThaiDate(order.orderDate)}</TableCell>
                     <TableCell className="font-semibold tabular-nums text-right">
                       {formatCurrency(order.totalAmount)}
                     </TableCell>
@@ -178,7 +173,7 @@ export default function PurchaseOrdersPage({
           open={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}
           title="ยืนยันการลบใบสั่งซื้อ"
-          description={`คุณต้องการลบใบสั่งซื้อของ "${deleteTarget.staffNickname}" วันที่ ${formatDate(deleteTarget.orderDate)} หรือไม่?`}
+          description={`คุณต้องการลบใบสั่งซื้อของ "${deleteTarget.staffNickname}" วันที่ ${formatThaiDate(deleteTarget.orderDate)} หรือไม่?`}
           onConfirm={() => deletePurchaseOrder(deleteTarget.id)}
           successMessage="ลบใบสั่งซื้อเรียบร้อย"
           errorMessage="เกิดข้อผิดพลาดในการลบใบสั่งซื้อ"

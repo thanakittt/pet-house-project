@@ -129,7 +129,7 @@ function VerificationRow({
     <TableRow>
       <TableCell className="min-w-[130px]">
         <div className="flex flex-col gap-1">
-          <span>{formatThaiDate(verification.createdAt, "dd MMM yy")}</span>
+          <span>{formatThaiDate(verification.createdAt)}</span>
           <span className="text-muted-foreground text-xs">
             {verification.provider}
           </span>
@@ -142,7 +142,7 @@ function VerificationRow({
             href={`/back-office/appointments/${verification.appointmentId}`}
             className="text-muted-foreground text-xs hover:underline underline-offset-4"
           >
-            นัดหมาย {formatThaiDate(verification.appointmentDate, "dd MMM yy")}
+            นัดหมาย {formatThaiDate(verification.appointmentDate)}
           </Link>
         </div>
       </TableCell>

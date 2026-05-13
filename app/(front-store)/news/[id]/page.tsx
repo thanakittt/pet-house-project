@@ -6,8 +6,7 @@ import {
   type AnnouncementType,
 } from "@/modules/announcement/types/announcement";
 import { getPublicAnnouncement } from "@/modules/announcement/queries/list-public-announcements";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatThaiDateTime } from "@/lib/utils";
 import { Calendar, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,17 +32,13 @@ export const metadata: Metadata = {
 };
 
 function formatAnnouncementDate(announcement: Announcement): string {
-  const startDate = format(announcement.startDisplayAt, "d MMMM yyyy HH:mm", {
-    locale: th,
-  });
+  const startDate = formatThaiDateTime(announcement.startDisplayAt);
 
   if (!announcement.endDisplayAt) {
     return startDate;
   }
 
-  const endDate = format(announcement.endDisplayAt, "d MMMM yyyy HH:mm", {
-    locale: th,
-  });
+  const endDate = formatThaiDateTime(announcement.endDisplayAt);
 
   return `${startDate} - ${endDate}`;
 }

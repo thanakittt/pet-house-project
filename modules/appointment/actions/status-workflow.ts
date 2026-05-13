@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { appointments, lineAppointmentStatusTemplates } from "@/db/schema";
+import { formatThaiDate } from "@/lib/utils";
 import { pushLineTextMessage } from "@/lib/line/messaging";
 import {
   DEFAULT_LINE_APPOINTMENT_STATUS_TEMPLATES,
@@ -184,9 +185,5 @@ function summarizeUniqueValues(values: string[]) {
 }
 
 function formatThaiAppointmentDate(appointmentDate: string) {
-  const date = new Date(`${appointmentDate}T00:00:00`);
-
-  return new Intl.DateTimeFormat("th-TH", {
-    dateStyle: "medium",
-  }).format(date);
+  return formatThaiDate(appointmentDate);
 }

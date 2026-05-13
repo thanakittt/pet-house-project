@@ -16,8 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatThaiDateTime } from "@/lib/utils";
 import Image from "next/image";
 import { useState } from "react";
 import { deleteAnnouncement } from "../actions/delete-announcement";
@@ -56,14 +55,6 @@ const statusBadgeVariant: Record<
   EXPIRED: "outline",
   INACTIVE: "destructive",
 };
-
-function formatThaiDateTime(date: Date | null): string {
-  if (!date) {
-    return "-";
-  }
-
-  return format(date, "d MMM yyyy HH:mm", { locale: th });
-}
 
 export function AnnouncementManagement({
   announcements,

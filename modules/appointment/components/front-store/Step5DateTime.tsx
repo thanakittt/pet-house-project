@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import { formatThaiDate } from "@/lib/utils";
 import { getAvailableSlots } from "@/modules/appointment/queries/get-available-slots";
 import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
@@ -188,7 +189,9 @@ export default function Step5DateTime({
         <div className="bg-primary/5 p-4 border border-primary rounded-2xl">
           <p className="text-primary text-sm text-center">
             คุณเลือกวันที่{" "}
-            <span className="font-bold text-primary">{format(selectedDate, "dd MMMM yyyy", { locale: th })}</span>{" "}
+            <span className="font-bold text-primary">
+              {formatThaiDate(selectedDate)}
+            </span>{" "}
             เวลา{" "}
             <span className="font-bold text-primary">{selectedTimeLabel} น.</span>
           </p>

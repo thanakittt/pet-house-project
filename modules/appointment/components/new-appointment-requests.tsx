@@ -2,22 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import AppointmentStatus from "./AppointmentStatus";
-import { CalendarDays, ChevronRight, PawPrint, Scissors } from "lucide-react";
+import { CalendarDays, ChevronRight, Scissors } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatThaiDate } from "@/lib/utils";
 import { type ConfirmedAppointmentRequest } from "../queries/get-confirmed-appointment-requests";
 
 interface NewAppointmentRequestsProps {
   appointments: ConfirmedAppointmentRequest[];
-}
-
-function formatThaiDate(dateString: string) {
-  const date = new Date(dateString);
-  const dayAndMonth = format(date, "d MMM", { locale: th });
-  const buddhistYear = date.getFullYear() + 543;
-
-  return `${dayAndMonth} ${buddhistYear}`;
 }
 
 function formatAppointmentTime(appointment: ConfirmedAppointmentRequest) {

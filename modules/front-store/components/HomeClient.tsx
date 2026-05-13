@@ -21,8 +21,7 @@ import {
   type AnnouncementType,
 } from "@/modules/announcement/types/announcement";
 import type { HomeReviewSummary } from "@/modules/front-store/queries/get-home-review-summary";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatThaiDate } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import ServiceSection from "./ServiceSection";
@@ -72,17 +71,13 @@ type HomeClientProps = {
 };
 
 function formatAnnouncementDate(announcement: Announcement): string {
-  const startDate = format(announcement.startDisplayAt, "d MMM yy", {
-    locale: th,
-  });
+  const startDate = formatThaiDate(announcement.startDisplayAt);
 
   if (!announcement.endDisplayAt) {
     return startDate;
   }
 
-  const endDate = format(announcement.endDisplayAt, "d MMM yy", {
-    locale: th,
-  });
+  const endDate = formatThaiDate(announcement.endDisplayAt);
 
   return `${startDate} - ${endDate}`;
 }

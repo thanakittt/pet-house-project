@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
-import { cn } from "@/lib/utils";
+import { cn, formatThaiDate } from "@/lib/utils";
 import { createCustomerReview } from "@/modules/appointment/actions/create-customer-review";
 import type {
   CustomerAppointmentListItem,
@@ -51,7 +51,7 @@ function getPetTypeForBadge(species: CustomerAppointmentListItem["species"]) {
 }
 
 function formatAppointmentDate(date: string) {
-  return format(parseISO(date), "d MMM yyyy", { locale: th });
+  return formatThaiDate(date);
 }
 
 function formatAppointmentTime(time: string) {

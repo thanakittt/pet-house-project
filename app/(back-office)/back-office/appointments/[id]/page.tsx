@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
-import { th } from "date-fns/locale";
 import { getAppointmentDetail } from "@/modules/appointment/queries/get-appointment-detail";
 import AppointmentStatusManager from "@/modules/appointment/components/AppointmentStatusManage";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 
 import { requireStaff } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
@@ -84,10 +83,7 @@ export default async function AppointmentDetailPage({
                   รหัสการจอง: {appointment.id.split("-")[0].toUpperCase()}
                 </h1>
                 <p className="mt-1 text-muted-foreground">
-                  วันที่:{" "}
-                  {format(new Date(appointment.date), "dd MMMM yyyy", {
-                    locale: th,
-                  })}
+                  วันที่: {formatThaiDate(appointment.date)}
                 </p>
               </div>
               <div className="text-right">

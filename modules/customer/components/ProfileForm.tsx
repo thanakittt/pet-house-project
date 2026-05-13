@@ -2,7 +2,7 @@
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import {
   Card,
   CardAction,
@@ -78,21 +78,7 @@ type ProfileFormProps = {
 };
 
 function formatBirthDate(value: string | null) {
-  if (!value) {
-    return "-";
-  }
-
-  const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return new Intl.DateTimeFormat("th-TH", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  return formatThaiDate(value);
 }
 
 function formatGender(value: Gender) {

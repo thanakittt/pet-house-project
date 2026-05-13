@@ -2,10 +2,9 @@
 
 import { AppointmentStatusBadge } from "@/components/StatusBadge";
 import { ManagementPagination } from "@/components/shared/ManagementListControls";
+import { formatThaiDate } from "@/lib/utils";
 import { type CustomerAppointmentHistoryResult } from "@/modules/appointment/queries/get-customer-history";
 import { type ActionResponse } from "@/types/action";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { Calendar, PawPrint, Receipt, Tag } from "lucide-react";
 import Link from "next/link";
 
@@ -16,13 +15,6 @@ interface AppointmentHistoryListProps {
 export function AppointmentHistoryList({
   appointmentHistory,
 }: AppointmentHistoryListProps) {
-  const formatThaiDate = (dateString: string | Date) => {
-    const date = new Date(dateString);
-    const dayAndMonth = format(date, "d MMM", { locale: th });
-    const buddhistYear = date.getFullYear() + 543;
-    return `${dayAndMonth} ${buddhistYear}`;
-  };
-
   if (!appointmentHistory.success) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">

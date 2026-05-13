@@ -15,9 +15,7 @@ import {
   Receipt, 
   CheckCircle2 
 } from "lucide-react";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 
 interface WaitingPaymentListProps {
   appointments: WaitingPaymentAppointment[];
@@ -66,7 +64,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                   <Clock size={12} className="mr-1.5" /> รอชำระเงิน
                 </Badge>
                 <span className="font-medium text-[13px] text-muted-foreground">
-                  {format(new Date(apt.appointmentDate), "dd MMM yyyy", { locale: th })}
+                  {formatThaiDate(apt.appointmentDate)}
                 </span>
               </div>
 

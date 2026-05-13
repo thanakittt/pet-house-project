@@ -13,6 +13,7 @@ import { transactions, transactionCategories } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { FinanceChartData, FinanceChartPoint, DashboardPeriod } from "../types/dashboard";
 import { getDateRange } from "../utils/date-range";
+import { formatThaiCompactDate } from "@/lib/utils";
 import {
   format,
   eachDayOfInterval,
@@ -83,7 +84,7 @@ export async function getFinanceChartData(
       const key = format(day, "yyyy-MM-dd");
       const bucket = dayMap.get(key) ?? { income: 0, expense: 0 };
       return {
-        label: format(day, "d MMM", { locale: th }),
+        label: formatThaiCompactDate(day),
         income: bucket.income,
         expense: bucket.expense,
       };
@@ -131,7 +132,7 @@ export async function getFinanceChartData(
       const key = format(day, "yyyy-MM-dd");
       const bucket = dayMap.get(key) ?? { income: 0, expense: 0 };
       return {
-        label: format(day, "d MMM", { locale: th }), // เช่น "1 เม.ย."
+        label: formatThaiCompactDate(day), // เช่น "1 เม.ย."
         income: bucket.income,
         expense: bucket.expense,
       };

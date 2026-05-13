@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
-import { cn } from "@/lib/utils";
+import { cn, formatThaiDate } from "@/lib/utils";
 import type { CustomerAppointmentDetail } from "@/modules/appointment/queries/get-customer-appointment-detail";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import { format, parseISO } from "date-fns";
@@ -60,7 +60,7 @@ function isTerminalStatus(status: CustomerAppointmentDetail["status"]) {
 }
 
 function formatDate(date: string) {
-  return format(parseISO(date), "d MMMM yyyy", { locale: th });
+  return formatThaiDate(date);
 }
 
 function formatTime(time: string) {

@@ -11,7 +11,7 @@ import {
 } from "@/components/shared/TableActionButton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { CustomerChannelBadge } from "@/components/shared/CustomerChannelBadge";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -96,7 +96,7 @@ export default function CustomerManagement({
                     )}
                   </TableCell>
                   <TableCell>
-                    {new Date(customer.createdAt).toLocaleDateString("th-TH")}
+                    {formatThaiDate(customer.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

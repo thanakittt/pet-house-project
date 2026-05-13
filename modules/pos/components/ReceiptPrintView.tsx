@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ReceiptData } from "@/modules/pos/queries/get-receipt-data";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
-import { formatPhoneNumber } from "@/lib/utils";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 
 interface ReceiptPrintViewProps {
@@ -85,11 +83,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
           </div>
           <div className="flex justify-between">
             <span>วันที่:</span>
-            <span>
-              {format(new Date(data.paymentDate), "dd MMM yyyy", {
-                locale: th,
-              })}
-            </span>
+            <span>{formatThaiDate(data.paymentDate)}</span>
           </div>
           <div className="flex justify-between">
             <span>แคชเชียร์:</span>

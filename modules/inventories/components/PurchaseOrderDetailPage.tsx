@@ -46,8 +46,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import StatusUpdate from "@/modules/inventories/components/StatusUpdate";
@@ -61,7 +59,7 @@ import {
 } from "@/modules/inventories/types/purchase-order";
 import { updatePurchaseOrderItems } from "@/modules/inventories/actions/update-purchase-order-items";
 import { InventoryItem } from "@/modules/inventories/types/inventory";
-import { cn } from "@/lib/utils";
+import { cn, formatThaiDate, formatThaiDateTime } from "@/lib/utils";
 
 // 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่างใน Edit Mode
 interface OrderItemEditState extends Omit<PurchaseOrderItemForm, "unitCost"> {
@@ -125,15 +123,8 @@ export default function PurchaseOrderDetailPage({
         0,
       );
 
-  const formattedDate = format(new Date(order.orderDate), "d MMMM yyyy", {
-    locale: th,
-  });
-
-  const formattedCreatedAt = format(
-    new Date(order.createdAt),
-    "d MMM yyyy, HH:mm น.",
-    { locale: th },
-  );
+  const formattedDate = formatThaiDate(order.orderDate);
+  const formattedCreatedAt = formatThaiDateTime(order.createdAt);
 
   const handleAddItem = (inventoryItemId: string) => {
     const product = inventoryItems.find((p) => p.id === inventoryItemId);
