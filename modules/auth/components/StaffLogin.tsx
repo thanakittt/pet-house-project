@@ -88,7 +88,7 @@ export function StaffLoginForm() {
         <h2 className="mb-5 font-semibold text-lg text-center">
           เข้าสู่ระบบสำหรับพนักงาน
         </h2>
-        <form id="create-user" onSubmit={handleSubmit(onSubmit)}>
+        <form id="create-user" onSubmit={handleSubmit(onSubmit)} className="px-5">
           <FieldGroup>
             {/* Email Field */}
             <Controller
@@ -147,6 +147,7 @@ export function StaffLoginForm() {
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุรหัสผ่าน"
                     autoComplete="off"
+
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
