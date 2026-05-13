@@ -7,6 +7,7 @@ import {
 } from "@/components/shared/ManagementListControls";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { TableActionButton } from "@/components/shared/TableActionButton";
+import { PetTypeBadge } from "@/components/shared/PetTypeBadge";
 import {
   Table,
   TableBody,
@@ -15,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PET_TYPE_LABELS, PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   PET_SIZE_LABELS,
   PET_SIZE_OPTIONS,
@@ -96,7 +97,7 @@ export function PetBreedManagement({
                 <TableRow key={petBreed.id}>
                   <TableCell>{petBreed.name}</TableCell>
                   <TableCell>
-                    {PET_TYPE_LABELS[petBreed.type] || "อื่นๆ"}
+                    <PetTypeBadge type={petBreed.type} />
                   </TableCell>
                   <TableCell>
                     {PET_SIZE_LABELS[petBreed.size] || petBreed.size}
