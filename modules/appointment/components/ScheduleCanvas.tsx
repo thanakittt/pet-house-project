@@ -104,7 +104,7 @@ const InteractiveStatusSelect = ({
         value={optimisticStatus}
         onChange={handleStatusChange}
         disabled={isPending}
-        className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${currentConfig.colorClass} ${isPending ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
+        className={`max-w-full appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${currentConfig.colorClass} ${isPending ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
       >
         <optgroup label="ช่วงการจอง" className="bg-background text-foreground">
           <option value="PENDING_DEPOSIT">
@@ -169,6 +169,66 @@ interface ScheduleCanvasProps {
   appointments: ScheduleRecord[];
 }
 
+function MobileScheduleList({
+  appointments,
+}: {
+  appointments: ScheduleRecord[];
+}) {
+  if (appointments.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed bg-slate-50 p-8 text-center text-slate-400">
+        <Clock size={40} className="mb-3 text-slate-300" />
+        <p className="font-medium text-base">ไม่มีคิวนัดหมายในวันนี้</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {appointments.map((appt) => (
+        <Link
+          key={`${appt.id}-${appt.petId}`}
+          href={`/back-office/appointments/${appt.id}`}
+          className="group block min-w-0 rounded-lg border border-slate-200 border-l-4 border-l-primary bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div className="flex min-w-0 flex-col gap-3">
+            <div className="flex min-w-0 flex-col gap-2">
+              <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 font-bold text-base leading-tight text-primary">
+                    <span className="min-w-0 break-words">{appt.petName}</span>
+                    <span className="break-words font-normal text-slate-500">
+                      ({appt.customerName})
+                    </span>
+                    {appt.note && (
+                      <StickyNote size={14} className="shrink-0 text-amber-500" />
+                    )}
+                  </div>
+                </div>
+
+                <InteractiveStatusSelect
+                  appointmentId={appt.id}
+                  currentStatus={appt.status}
+                />
+              </div>
+
+              <p className="flex items-center gap-1.5 break-words font-medium text-slate-500 text-sm">
+                <Clock size={14} className="shrink-0" />
+                {format(parseISO(appt.startTimeIso), "HH:mm")} -{" "}
+                {format(parseISO(appt.endTimeIso), "HH:mm")}
+              </p>
+            </div>
+
+            <p className="break-words font-medium text-slate-700 text-sm">
+              {appt.serviceNames || "-"}
+            </p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default function ScheduleCanvas({
   initialDate,
   appointments,
@@ -230,25 +290,27 @@ export default function ScheduleCanvas({
   };
 
   return (
-    <div className="flex flex-col bg-white shadow-sm mx-auto border border-slate-200 rounded-2xl w-full max-w-6xl h-[800px] overflow-hidden">
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       {/* Calendar Header */}
-      <div className="z-20 flex sm:flex-row flex-col justify-between items-center gap-4 bg-white px-6 py-5 border-slate-200 border-b shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block bg-primary/10 p-2 rounded-lg text-primary">
+      <div className="z-20 flex shrink-0 flex-col items-stretch justify-between gap-4 border-slate-200 border-b bg-white px-4 py-5 sm:flex-row sm:items-center sm:px-6">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="hidden rounded-lg bg-primary/10 p-2 text-primary sm:block">
               <CalendarIcon size={24} />
             </div>
-            <div>
-              <h2 className="font-bold text-slate-800 text-xl leading-none">
+            <div className="min-w-0">
+              <h2 className="break-words font-bold text-slate-800 text-xl leading-tight">
                 {format(currentDate, "d MMMM yyyy", { locale: th })}
               </h2>
               {isToday && (
-                <p className="mt-1 font-medium text-primary text-sm">วันนี้</p>
+                <p className="mt-1 font-medium text-primary text-sm">
+                  วันนี้
+                </p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ButtonGroup>
               <Button variant="outline" onClick={handlePrevDay}>
                 <ChevronLeft size={18} />
@@ -262,7 +324,7 @@ export default function ScheduleCanvas({
               <Button
                 variant="outline"
                 size="sm"
-                className="hidden sm:flex h-9"
+                className="h-9"
                 onClick={handleToday}
               >
                 กลับไปวันนี้
@@ -271,15 +333,19 @@ export default function ScheduleCanvas({
           </div>
         </div>
 
-        <Button variant="default" className="shadow-sm" asChild>
+        <Button variant="default" className="w-full shadow-sm sm:w-auto" asChild>
           <Link href="/back-office/appointments/create">เพิ่มนัดหมาย</Link>
         </Button>
+      </div>
+
+      <div className="bg-slate-50/50 p-4 md:hidden">
+        <MobileScheduleList appointments={appointments} />
       </div>
 
       {/* Schedule Canvas */}
       <div
         ref={scrollContainerRef}
-        className="relative flex flex-1 bg-slate-50/50 overflow-y-auto scroll-smooth"
+        className="relative hidden h-[720px] flex-1 overflow-y-auto scroll-smooth bg-slate-50/50 md:flex"
       >
         {/* แกนเวลา (Y-Axis) */}
         <div className="left-0 z-20 sticky flex-shrink-0 bg-white shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-slate-200 border-r w-20">

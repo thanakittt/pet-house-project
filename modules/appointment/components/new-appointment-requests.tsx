@@ -60,49 +60,54 @@ export default function NewAppointmentRequests({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       {appointments.map((appointment) => (
         <div
           key={appointment.id}
-          className="flex flex-col justify-between gap-4 overflow-hidden rounded-lg border border-slate-200 p-5 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center"
+          className="flex min-w-0 flex-col justify-between gap-4 overflow-hidden rounded-lg border border-slate-200 p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 md:flex-row md:items-center"
         >
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <h3 className="text-base font-semibold">
+          <div className="flex min-w-0 flex-col gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <h3 className="min-w-0 break-words text-base font-semibold">
                   {getPetNames(appointment) || "-"}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="break-words text-sm text-muted-foreground">
                   (คุณ {appointment.customer.nickname})
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex min-w-0 items-start gap-2 text-sm text-muted-foreground">
                 <Scissors size={15} className="shrink-0" />
-                <span>{getServiceNames(appointment) || "-"}</span>
+                <span className="min-w-0 break-words">
+                  {getServiceNames(appointment) || "-"}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <CalendarDays size={15} />
-                <span>
+            <div className="flex min-w-0 flex-wrap gap-3 text-sm text-muted-foreground">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <CalendarDays size={15} className="shrink-0" />
+                <span className="break-words">
                   {formatThaiDate(appointment.appointmentDate)} เวลา{" "}
                   {formatAppointmentTime(appointment)}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <PawPrint size={15} />
+                <PawPrint size={15} className="shrink-0" />
                 <span>{appointment.items.length} รายการบริการ</span>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center md:flex-col md:items-end">
             <AppointmentStatus status={appointment.status} />
             {/* ปุ่มกดดูรายละเอียด */}
-            <Link href={`/back-office/appointments/${appointment.id}`}>
-              <Button variant="ghost" size="default">
+            <Link
+              href={`/back-office/appointments/${appointment.id}`}
+              className="w-full sm:w-auto"
+            >
+              <Button variant="ghost" size="default" className="w-full sm:w-auto">
                 ดูรายละเอียด
                 <ChevronRight size={14} />
               </Button>
