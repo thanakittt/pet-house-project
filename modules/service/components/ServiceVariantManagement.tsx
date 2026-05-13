@@ -7,6 +7,7 @@ import {
   type ManagementFilterOption,
 } from "@/components/shared/ManagementListControls";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PetTypeBadge } from "@/components/shared/PetTypeBadge";
 import { TableActionButton } from "@/components/shared/TableActionButton";
 import {
   Table,
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PET_TYPE_LABELS, PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   PET_SIZE_LABELS,
   PET_SIZE_OPTIONS,
@@ -100,7 +101,7 @@ export default function ServiceVariantsManagement({
               variants.map((variant) => (
                 <TableRow key={variant.id}>
                   <TableCell>
-                    {PET_TYPE_LABELS[variant.petType] || variant.petType}
+                    <PetTypeBadge type={variant.petType} />
                   </TableCell>
                   <TableCell>
                     {PET_SIZE_LABELS[variant.size] || variant.size}

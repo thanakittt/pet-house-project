@@ -10,6 +10,7 @@ import {
   TableActionButton,
   TableActionLink,
 } from "@/components/shared/TableActionButton";
+import { ServiceTypeBadge } from "@/components/shared/ServiceTypeBadge";
 import {
   Table,
   TableBody,
@@ -18,10 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  SERVICE_TYPE_LABELS,
-  SERVICE_TYPE_OPTIONS,
-} from "@/lib/constants/service-type";
+import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { deleteService } from "../actions/delete-service";
@@ -88,7 +86,7 @@ export default function ServiceManagement({
                 <TableRow key={service.id}>
                   <TableCell>{service.name}</TableCell>
                   <TableCell>
-                    {SERVICE_TYPE_LABELS[service.serviceType] || "อื่นๆ"}
+                    <ServiceTypeBadge serviceType={service.serviceType} />
                   </TableCell>
                   <TableCell>{service.description || "-"}</TableCell>
                   <TableCell className="text-right">
