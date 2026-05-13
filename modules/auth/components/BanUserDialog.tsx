@@ -98,7 +98,7 @@ export default function BanUserDialog({
       <form onSubmit={handleSubmit(onSubmit)} id="ban-user-form">
         <DialogContent className="md:max-w-md">
           <DialogHeader className="px-4 pt-4">
-            <DialogTitle>แบนผู้ใช้</DialogTitle>
+            <DialogTitle className="font-bold text-lg">แบนผู้ใช้</DialogTitle>
             <DialogDescription>
               กรุณาระบุเหตุผลและระยะเวลาการแบน
             </DialogDescription>
