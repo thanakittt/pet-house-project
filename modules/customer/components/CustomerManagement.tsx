@@ -10,6 +10,7 @@ import {
   TableActionLink,
 } from "@/components/shared/TableActionButton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CustomerChannelBadge } from "@/components/shared/CustomerChannelBadge";
 import { formatPhoneNumber } from "@/lib/utils";
 import {
   Table,
@@ -85,7 +86,9 @@ export default function CustomerManagement({
                 <TableRow key={customer.id}>
                   <TableCell>{customer.userName ?? customer.nickname}</TableCell>
                   <TableCell>
-                    {customer.userId === null ? "Walk-in" : "Online"}
+                    <CustomerChannelBadge
+                      channel={customer.userId === null ? "WALK_IN" : "ONLINE"}
+                    />
                   </TableCell>
                   <TableCell>
                     {formatPhoneNumber(
