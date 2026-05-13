@@ -80,10 +80,10 @@ export default async function AppointmentDetailPage({
           <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
             <div className="flex justify-between items-start mb-6 pb-4 border-b">
               <div>
-                <h1 className="font-bold text-slate-800 text-2xl">
+                <h1 className="font-bold text-foreground text-xl">
                   รหัสการจอง: {appointment.id.split("-")[0].toUpperCase()}
                 </h1>
-                <p className="mt-1 text-slate-500">
+                <p className="mt-1 text-muted-foreground">
                   วันที่:{" "}
                   {format(new Date(appointment.date), "dd MMMM yyyy", {
                     locale: th,
@@ -91,7 +91,7 @@ export default async function AppointmentDetailPage({
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-slate-500 text-sm">ราคารวมโดยประมาณ</p>
+                <p className="text-muted-foreground text-sm">ราคารวมโดยประมาณ</p>
                 <p className="font-bold text-primary text-2xl">
                   ฿{appointment.totalPrice.toLocaleString()}
                 </p>
@@ -106,32 +106,33 @@ export default async function AppointmentDetailPage({
 
           {/* 2. ข้อมูลลูกค้า */}
           <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
-            <h2 className="mb-4 font-semibold text-slate-800 text-lg">
+            <h2 className="mb-4 font-semibold text-primary text-lg pb-4 border-b">
               ข้อมูลลูกค้า
             </h2>
             <div className="gap-4 grid grid-cols-2">
-              <div>
-                <p className="mb-1 text-slate-500 text-sm">ชื่อลูกค้า</p>
-                <p className="font-medium">{appointment.customer.name}</p>
+              <div className="flex items-end justify-start pl-2">
+                <p className="mb-1 text-muted-foreground text-sm md:text-base">ชื่อ : <span className="font-medium text-primary text-base md:text-lg pl-2">{appointment.customer.name}</span></p>
+
               </div>
-              <div>
-                <p className="mb-1 text-slate-500 text-sm">เบอร์โทรศัพท์</p>
-                <p className="font-medium">
+              <div className="flex items-end justify-start">
+                <p className="mb-1 text-muted-foreground text-sm md:text-base">เบอร์ : <span className="font-medium text-primary text-base md:text-lg pl-2">
                   {formatPhoneNumber(appointment.customer.walkInPhoneNumber)}
-                </p>
+                </span></p>
               </div>
-              {appointment.note && (
-                <div className="col-span-2 bg-yellow-50 mt-2 p-3 border border-yellow-200 rounded-md text-yellow-800 text-sm">
-                  <span className="font-semibold">หมายเหตุ: </span>{" "}
-                  {appointment.note}
-                </div>
-              )}
+              <div className="col-span-2">
+                {appointment.note && (
+                  <div className="bg-yellow-50 p-3 border border-yellow-200 rounded-md text-yellow-800 text-sm">
+                    <span className="font-semibold">หมายเหตุ: </span>{" "}
+                    {appointment.note}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {/* 3. ข้อมูลสัตว์เลี้ยงและบริการ */}
           <div className="space-y-4">
-            <h2 className="px-2 font-semibold text-slate-800 text-lg">
+            <h2 className="px-2 font-semibold text-primary text-lg">
               สัตว์เลี้ยงที่เข้ารับบริการ ({appointment.pets.length} ตัว)
             </h2>
 
@@ -149,14 +150,14 @@ export default async function AppointmentDetailPage({
                   className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl"
                 >
                   <div className="flex items-center gap-3 mb-4 pb-4 border-b">
-                    <div className="flex justify-center items-center bg-primary/10 rounded-full w-10 h-10 font-bold text-primary">
+                    <div className="flex justify-center items-center bg-primary rounded-full w-10 h-10 font-bold text-white">
                       {index + 1}
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-800 text-lg">
+                      <h3 className="font-bold text-primary text-lg">
                         {pet.petName}
                       </h3>
-                      <p className="text-slate-500 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         {PET_TYPE_LABELS[pet.petType]} - {pet.petBreed}
                       </p>
                     </div>
@@ -166,21 +167,21 @@ export default async function AppointmentDetailPage({
                     {pet.services.map((service) => (
                       <div
                         key={service.id}
-                        className="flex justify-between items-center bg-slate-50 p-3 border border-slate-100 rounded-lg"
+                        className="flex justify-between items-center bg-muted/50 p-3 rounded-lg"
                       >
                         <div>
-                          <p className="font-medium text-slate-800">
+                          <p className="font-medium text-primary">
                             {service.name}{" "}
-                            <span className="font-normal text-slate-500 text-sm">
+                            <span className="font-normal text-muted-foreground text-sm">
                               ({PET_SIZE_LABELS[service.size]})
                             </span>
                           </p>
-                          <p className="mt-1 text-slate-500 text-xs">
+                          <p className="mt-1 text-muted-foreground text-xs">
                             เวลา: {format(parseISO(service.startTime), "HH:mm")}{" "}
                             - {format(parseISO(service.endTime), "HH:mm")}
                           </p>
                         </div>
-                        <p className="font-semibold text-slate-800">
+                        <p className="font-semibold text-primary">
                           ฿{service.price}
                         </p>
                       </div>
@@ -190,7 +191,7 @@ export default async function AppointmentDetailPage({
                   {/* แสดงผลรายงานสุขภาพ (Health Reports) */}
                   {pet.healthReports?.length > 0 && (
                     <div className="mt-6 pt-4 border-t">
-                      <h4 className="flex items-center gap-2 mb-4 font-semibold text-md text-slate-800">
+                      <h4 className="flex items-center gap-2 mb-4 font-semibold text-md text-primary">
                         <ClipboardList className="w-4 h-4" />{" "}
                         รายงานสุขภาพเบื้องต้น
                       </h4>
@@ -200,10 +201,10 @@ export default async function AppointmentDetailPage({
                             key={report.id}
                             className="bg-slate-50 p-4 border border-slate-200 rounded-lg"
                           >
-                            <h5 className="mb-1 font-semibold text-slate-800 text-sm">
+                            <h5 className="mb-1 font-semibold text-primary text-sm">
                               {report.topic}
                             </h5>
-                            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
+                            <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
                               {report.description}
                             </p>
                           </div>
@@ -215,14 +216,14 @@ export default async function AppointmentDetailPage({
                   {/* แสดงผลรูปภาพด้วย ImageLightbox */}
                   {pet.serviceImages?.length > 0 && (
                     <div className="mt-6 pt-4 border-t">
-                      <h4 className="flex items-center gap-2 mb-4 font-semibold text-md text-slate-800">
+                      <h4 className="flex items-center gap-2 mb-4 font-semibold text-md text-primary">
                         <Camera className="w-4 h-4" /> ภาพประกอบการให้บริการ
                       </h4>
 
                       <div className="space-y-4">
                         {beforeImages.length > 0 && (
                           <div>
-                            <p className="mb-2 font-medium text-slate-500 text-sm">
+                            <p className="mb-2 font-medium text-muted-foreground text-sm">
                               ก่อนรับบริการ (Before)
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -251,14 +252,14 @@ export default async function AppointmentDetailPage({
 
                         {afterImages.length > 0 && (
                           <div>
-                            <p className="mb-2 font-medium text-slate-500 text-sm">
+                            <p className="mb-2 font-medium text-muted-foreground text-sm">
                               หลังรับบริการ (After)
                             </p>
                             <div className="flex flex-wrap gap-2">
                               {afterImages.map((img) => (
                                 <div
                                   key={img.id}
-                                  className="relative border border-slate-200 rounded-md w-24 h-24 overflow-hidden"
+                                  className="relative border border-muted rounded-md w-24 h-24 overflow-hidden"
                                 >
                                   <ImageLightbox src={img.imageUrl} alt="After">
                                     <Image

@@ -121,10 +121,10 @@ export default function AppointmentStatusManager({
   };
 
   return (
-    <div className="flex sm:flex-row flex-col justify-between items-center gap-4 bg-slate-50 p-4 border border-slate-100 rounded-xl">
+    <div className="flex sm:flex-row flex-col justify-between items-center gap-4 bg-muted p-4 border border-slate-100 rounded-xl">
       {/* 1. แสดงและเลือกสถานะปัจจุบัน (Dropdown) */}
       <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
-        <span className="font-medium text-slate-500 text-sm">
+        <span className="font-medium text-muted-foreground text-sm">
           สถานะปัจจุบัน:
         </span>
         <div className="relative">
