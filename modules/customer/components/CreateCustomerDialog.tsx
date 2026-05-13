@@ -92,7 +92,7 @@ export function CreateCustomerDialog() {
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button>
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มลูกค้าใหม่
+            <PlusIcon className="size-4" /> เพิ่มลูกค้าใหม่
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">

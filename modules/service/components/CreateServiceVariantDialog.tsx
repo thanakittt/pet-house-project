@@ -107,7 +107,7 @@ export function CreateServiceVariantDialog({
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button type="button">
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มตัวเลือกบริการ
+            <PlusIcon className="size-4" /> เพิ่มตัวเลือกบริการ
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">

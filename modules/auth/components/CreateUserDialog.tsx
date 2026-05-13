@@ -76,7 +76,7 @@ export function CreateUserDialog() {
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-user">
         <DialogTrigger asChild>
           <Button>
-            <PlusIcon className="size-3.5" />
+            <PlusIcon className="size-4" />
             เพิ่มผู้ใช้ใหม่
           </Button>
         </DialogTrigger>

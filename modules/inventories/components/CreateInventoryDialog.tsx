@@ -90,7 +90,7 @@ export function CreateInventoryDialog({
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-inventory-form">
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button type="button">
-            <PlusIcon className="size-3.5" /> เพิ่มสินค้า
+            <PlusIcon className="size-4" /> เพิ่มสินค้า
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
@@ -158,7 +158,7 @@ export function CreateInventoryDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="gap-4 grid grid-cols-2">
               <Controller
                 name="quantity"
                 control={form.control}

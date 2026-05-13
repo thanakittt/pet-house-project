@@ -113,7 +113,7 @@ export function CreatePetDialog({
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button>
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มสัตว์เลี้ยง
+            <PlusIcon className="size-4" /> เพิ่มสัตว์เลี้ยง
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
