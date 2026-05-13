@@ -43,7 +43,7 @@ export default async function PetBreedsPage({
 
   return (
     <>
-      <SiteHeader title="จัดการสายพันธุ์สัตว์เลี้ยง" />
+      <SiteHeader title="จัดการสายพันธุ์" />
       <BackOfficeContainer>
         <PetBreedManagement {...petBreeds.data} />
       </BackOfficeContainer>

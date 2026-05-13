@@ -53,7 +53,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     allowedUserRoles: ["owner", "admin", "staff"],
   },
   {
-    title: "จัดการสายพันธุ์สัตว์เลี้ยง",
+    title: "จัดการสายพันธุ์",
     url: "/back-office/pet-breeds",
     icon: <PawPrint className="size-5" />,
     allowedUserRoles: ["owner", "admin", "staff"],
