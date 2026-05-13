@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { SearchableCombobox } from "@/components/shared/SearchableCombobox";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,7 +22,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 // PencilIcon ถูกลบออก — ไม่ได้ใช้ภายใน UpdatePetDialog (trigger อยู่ที่ parent component)
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
@@ -39,6 +40,7 @@ import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { Pet } from "../types/pet";
 import { updatePet } from "../actions/update-pet";
 import { updateCustomerPet } from "../actions/customer-pet";
+import { createPetBreedComboboxOptions } from "../utils/pet-breed-combobox-options";
 
 type PetActionMode = "staff" | "customer";
 
@@ -58,6 +60,7 @@ export function UpdatePetDialog({
   actionMode = "staff",
 }: UpdatePetDialogProps) {
   const router = useRouter();
+  const dialogContentRef = useRef<HTMLDivElement | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm({
@@ -73,6 +76,11 @@ export function UpdatePetDialog({
     control: form.control,
     name: "petType",
   });
+  const petBreedOptions = createPetBreedComboboxOptions(
+    petBreeds,
+    selectedPetType,
+  );
+  const isPetBreedDisabled = selectedPetType === "";
 
   useEffect(() => {
     if (pet) {
@@ -129,19 +137,20 @@ export function UpdatePetDialog({
     >
       <form onSubmit={form.handleSubmit(onSubmit)} id="update-pet">
         <DialogContent className="md:max-w-md">
-          <DialogHeader className="px-4 pt-4">
-            <DialogTitle className="font-bold text-lg">
-              แก้ไขข้อมูลสัตว์เลี้ยง
-            </DialogTitle>
-            <DialogDescription>กรุณากรอกข้อมูลสัตว์เลี้ยง</DialogDescription>
-            {serverError && (
-              <DialogDescription className="text-destructive">
-                {serverError}
-              </DialogDescription>
-            )}
-          </DialogHeader>
+          <div ref={dialogContentRef} className="contents">
+            <DialogHeader className="px-4 pt-4">
+              <DialogTitle className="font-bold text-lg">
+                แก้ไขข้อมูลสัตว์เลี้ยง
+              </DialogTitle>
+              <DialogDescription>กรุณากรอกข้อมูลสัตว์เลี้ยง</DialogDescription>
+              {serverError && (
+                <DialogDescription className="text-destructive">
+                  {serverError}
+                </DialogDescription>
+              )}
+            </DialogHeader>
 
-          <FieldGroup className="gap-3 px-4 pb-3">
+            <FieldGroup className="gap-3 px-4 pb-3">
             {/* Name Field */}
             <Controller
               name="name"
@@ -225,24 +234,26 @@ export function UpdatePetDialog({
                 },
               }}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field
+                  data-invalid={fieldState.invalid}
+                  data-disabled={isPetBreedDisabled}
+                >
                   <FieldLabel htmlFor={field.name}>
                     สายพันธุ์
                   </FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกสายพันธุ์" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {petBreeds
-                        .filter((breed) => breed.type === selectedPetType)
-                        .map((breed) => (
-                          <SelectItem key={breed.id} value={breed.id}>
-                            {breed.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableCombobox
+                    id={field.name}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={petBreedOptions}
+                    contentContainerRef={dialogContentRef}
+                    placeholder="เลือกสายพันธุ์"
+                    searchPlaceholder="ค้นหาสายพันธุ์"
+                    emptyMessage="ไม่พบสายพันธุ์ที่ค้นหา"
+                    disabled={isPetBreedDisabled}
+                    aria-invalid={fieldState.invalid}
+                    onBlur={field.onBlur}
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -278,26 +289,27 @@ export function UpdatePetDialog({
                 </Field>
               )}
             />
-          </FieldGroup>
+            </FieldGroup>
 
-          <DialogFooter>
-            <div className="flex justify-end gap-2">
-              <DialogClose asChild>
-                <Button
-                  variant="outline"
+            <DialogFooter>
+              <div className="flex justify-end gap-2">
+                <DialogClose asChild>
+                  <Button
+                    variant="outline"
+                    className="px-6 py-5 text-sm cursor-pointer"
+                  >
+                    ยกเลิก
+                  </Button>
+                </DialogClose>
+                <LoadingButton
+                  type="submit"
+                  form="update-pet"
                   className="px-6 py-5 text-sm cursor-pointer"
-                >
-                  ยกเลิก
-                </Button>
-              </DialogClose>
-              <LoadingButton
-                type="submit"
-                form="update-pet"
-                className="px-6 py-5 text-sm cursor-pointer"
 
-               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
-            </div>
-          </DialogFooter>
+                 isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
+              </div>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </form>
     </Dialog>

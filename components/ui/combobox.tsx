@@ -87,6 +87,7 @@ function ComboboxInput({
 }
 
 function ComboboxContent({
+  container,
   className,
   side = "bottom",
   sideOffset = 6,
@@ -98,9 +99,10 @@ function ComboboxContent({
   Pick<
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
-  >) {
+  > &
+  Pick<ComboboxPrimitive.Portal.Props, "container">) {
   return (
-    <ComboboxPrimitive.Portal>
+    <ComboboxPrimitive.Portal container={container}>
       <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
