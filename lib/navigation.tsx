@@ -10,12 +10,12 @@ import {
   ClipboardList,
   Store,
   Layers,
-  Boxes,
   Tags,
   CircleDollarSign,
   Megaphone,
   MessageCircle,
   ReceiptText,
+  Package,
 } from "lucide-react";
 
 export type UserRole = "owner" | "admin" | "staff" | "customer" | "guest";
@@ -103,7 +103,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   {
     title: "จัดการสินค้าคงคลัง",
     url: "/back-office/inventories",
-    icon: <Boxes className="size-5" />,
+    icon: <Package className="size-5" />,
     allowedUserRoles: ["owner", "admin", "staff"],
   },
   {
