@@ -165,7 +165,7 @@ export function StaffLoginForm() {
             />
 
             <LoadingButton
-              type="button"
+              type="submit"
               disabled={isSubmitting}
               isLoading={isSubmitting}
               loadingText="กำลังเข้าสู่ระบบ..."
