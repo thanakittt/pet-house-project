@@ -16,12 +16,12 @@ const serviceTypeBadgeConfig: Record<
   MAIN: {
     label: SERVICE_TYPE_LABELS.MAIN,
     className:
-      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/30 dark:text-emerald-300",
+      "border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-900/30 dark:text-indigo-300",
   },
   ADDON: {
     label: SERVICE_TYPE_LABELS.ADDON,
     className:
-      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/30 dark:text-amber-300",
+      "border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-900/50 dark:bg-teal-900/30 dark:text-teal-300",
   },
 };
 
