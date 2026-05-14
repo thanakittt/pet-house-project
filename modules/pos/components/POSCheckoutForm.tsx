@@ -498,6 +498,7 @@ export function POSCheckoutForm({
 
                       <div className="flex gap-2 w-full">
                         <Input
+                          disabled={!newServiceId}
                           type="number"
                           placeholder="ราคา"
                           value={newPrice}

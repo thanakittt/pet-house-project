@@ -34,7 +34,8 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
           ไม่มีรายการรอชำระเงิน
         </h3>
         <p className="max-w-sm text-muted-foreground text-sm">
-          ยอดเยี่ยม! ลูกค้าทุกท่านได้รับการบริการและชำระเงินเรียบร้อยแล้วในขณะนี้
+          ยอดเยี่ยม!
+          ลูกค้าทุกท่านได้รับการบริการและชำระเงินเรียบร้อยแล้วในขณะนี้
         </p>
       </div>
     );
@@ -55,11 +56,8 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
           // 2. Card Design: เพิ่ม Interactive Hover State และ Top Accent Line
           <Card
             key={apt.id}
-            className="group relative flex flex-col shadow-sm hover:shadow-lg border-border/60 hover:border-primary/40 overflow-hidden transition-all duration-300"
+            className="group relative flex flex-col shadow-sm hover:shadow-lg p-0 border-border/60 hover:border-primary/40 overflow-hidden transition-all duration-300"
           >
-            {/* Top Status Accent Line */}
-            <div className="top-0 left-0 absolute bg-amber-400 w-full h-1" />
-
             <CardContent className="flex-1 p-6">
               {/* Header: Status & Time */}
               <div className="flex justify-between items-center mb-5">
@@ -127,12 +125,15 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                   ฿{totalAmount.toLocaleString()}
                 </p>
               </div>
-              <Button 
+              <Button
                 onClick={() => router.push(`/back-office/pos/${apt.id}`)}
                 className="shadow-sm group-hover:shadow-md transition-all"
               >
-                ทำรายการ 
-                <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1 duration-200" />
+                ทำรายการ
+                <ArrowRight
+                  size={16}
+                  className="ml-2 transition-transform group-hover:translate-x-1 duration-200"
+                />
               </Button>
             </CardFooter>
           </Card>
