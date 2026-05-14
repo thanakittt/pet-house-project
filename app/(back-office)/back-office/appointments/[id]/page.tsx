@@ -102,16 +102,16 @@ export default async function AppointmentDetailPage({
 
           {/* 2. ข้อมูลลูกค้า */}
           <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
-            <h2 className="mb-4 font-semibold text-primary text-lg pb-4 border-b">
+            <h2 className="mb-4 pb-4 border-b font-semibold text-primary text-lg">
               ข้อมูลลูกค้า
             </h2>
             <div className="gap-4 grid grid-cols-2">
-              <div className="flex items-end justify-start pl-2">
-                <p className="mb-1 text-muted-foreground text-sm md:text-base">ชื่อ : <span className="font-medium text-primary text-base md:text-lg pl-2">{appointment.customer.name}</span></p>
+              <div className="flex justify-start items-end pl-2">
+                <p className="mb-1 text-muted-foreground text-sm md:text-base">ชื่อ : <span className="pl-2 font-medium text-primary text-base md:text-lg">{appointment.customer.name}</span></p>
 
               </div>
-              <div className="flex items-end justify-start">
-                <p className="mb-1 text-muted-foreground text-sm md:text-base">เบอร์ : <span className="font-medium text-primary text-base md:text-lg pl-2">
+              <div className="flex justify-start items-end">
+                <p className="mb-1 text-muted-foreground text-sm md:text-base">เบอร์ : <span className="pl-2 font-medium text-primary text-base md:text-lg">
                   {formatPhoneNumber(appointment.customer.walkInPhoneNumber)}
                 </span></p>
               </div>
@@ -167,10 +167,7 @@ export default async function AppointmentDetailPage({
                       >
                         <div>
                           <p className="font-medium text-primary">
-                            {service.name}{" "}
-                            <span className="font-normal text-muted-foreground text-sm">
-                              ({PET_SIZE_LABELS[service.size]})
-                            </span>
+                            {service.name}
                           </p>
                           <p className="mt-1 text-muted-foreground text-xs">
                             เวลา: {format(parseISO(service.startTime), "HH:mm")}{" "}
