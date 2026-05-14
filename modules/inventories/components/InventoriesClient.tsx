@@ -90,10 +90,15 @@ export function InventoriesClient({
 
   return (
     <>
-      <div className="gap-6 grid grid-cols-1 md:grid-cols-3 mb-5 w-full md:w-5xl">
+      <div className="gap-6 grid grid-cols-1 md:grid-cols-4 mb-5 w-full">
         <TitleStatus
           title="สินค้าทั้งหมด"
           value={inventoryData.stats.total}
+          color="text-blue-500"
+        />
+        <TitleStatus
+          title="สินค้าปกติ"
+          value={inventoryData.stats.normalStock}
           color="text-green-500"
         />
         <TitleStatus

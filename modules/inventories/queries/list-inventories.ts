@@ -37,6 +37,7 @@ export type ListInventoriesParams = {
 
 export type InventoryStats = {
   total: number;
+  normalStock: number;
   lowStock: number;
   outOfStock: number;
 };
@@ -135,6 +136,7 @@ export async function listInventories({
     const [stats] = await db
       .select({
         total: sql<number>`COUNT(*)::int`,
+        normalStock: sql<number>`COUNT(*) FILTER (WHERE ${inventoryItems.quantity} > ${inventoryItems.reorderLevel})::int`,
         lowStock: sql<number>`COUNT(*) FILTER (WHERE ${inventoryItems.quantity} > 0 AND ${inventoryItems.quantity} <= ${inventoryItems.reorderLevel})::int`,
         outOfStock: sql<number>`COUNT(*) FILTER (WHERE ${inventoryItems.quantity} = 0)::int`,
       })
@@ -185,7 +187,12 @@ export async function listInventories({
         q: search,
         status,
         categoryId: normalizedCategoryId,
-        stats: stats ?? { total: 0, lowStock: 0, outOfStock: 0 },
+        stats: stats ?? {
+          total: 0,
+          normalStock: 0,
+          lowStock: 0,
+          outOfStock: 0,
+        },
       },
     };
   } catch (error) {

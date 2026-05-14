@@ -12,9 +12,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusIcon } from "lucide-react";
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   Field,
   FieldError,
@@ -36,6 +42,16 @@ import {
 import { useRouter } from "next/navigation";
 import { INVENTORY_UNITS } from "../constants/units";
 
+function adjustInventoryNumber(value: number | "", change: 1 | -1): number {
+  const currentValue = value === "" ? 0 : value;
+
+  if (value === "" && change === 1) {
+    return 1;
+  }
+
+  return Math.max(0, currentValue + change);
+}
+
 export function CreateInventoryDialog({
   inventoryCategories,
 }: {
@@ -48,8 +64,8 @@ export function CreateInventoryDialog({
   const form = useForm<InventoryForm>({
     defaultValues: {
       name: "",
-      quantity: 0,
-      reorderLevel: 0,
+      quantity: "",
+      reorderLevel: "",
       inventoryCategoryId: "",
       unit: "PIECE",
     },
@@ -169,17 +185,50 @@ export function CreateInventoryDialog({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>จำนวนปัจจุบัน</FieldLabel>
-                    <Input
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : 0,
-                        )
-                      }
-                      id={field.name}
-                      type="number"
-                      aria-invalid={fieldState.invalid}
-                    />
+                    <InputGroup>
+                      <InputGroupAddon>
+                        <InputGroupButton
+                          size="icon-xs"
+                          aria-label="ลดจำนวนปัจจุบัน"
+                          disabled={field.value === "" || field.value <= 0}
+                          onClick={() =>
+                            field.onChange(
+                              adjustInventoryNumber(field.value, -1),
+                            )
+                          }
+                        >
+                          <MinusIcon />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === ""
+                              ? ""
+                              : Number(e.target.value),
+                          )
+                        }
+                        id={field.name}
+                        type="number"
+                        min="0"
+                        step="1"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          size="icon-xs"
+                          aria-label="เพิ่มจำนวนปัจจุบัน"
+                          onClick={() =>
+                            field.onChange(
+                              adjustInventoryNumber(field.value, 1),
+                            )
+                          }
+                        >
+                          <PlusIcon />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -232,17 +281,44 @@ export function CreateInventoryDialog({
                   <FieldLabel htmlFor={field.name}>
                     จุดแจ้งเตือน (Reorder Level)
                   </FieldLabel>
-                  <Input
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : 0,
-                      )
-                    }
-                    id={field.name}
-                    type="number"
-                    aria-invalid={fieldState.invalid}
-                  />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <InputGroupButton
+                        size="icon-xs"
+                        aria-label="ลดจุดแจ้งเตือน"
+                        disabled={field.value === "" || field.value <= 0}
+                        onClick={() =>
+                          field.onChange(adjustInventoryNumber(field.value, -1))
+                        }
+                      >
+                        <MinusIcon />
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value),
+                        )
+                      }
+                      id={field.name}
+                      type="number"
+                      min="0"
+                      step="1"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupButton
+                        size="icon-xs"
+                        aria-label="เพิ่มจุดแจ้งเตือน"
+                        onClick={() =>
+                          field.onChange(adjustInventoryNumber(field.value, 1))
+                        }
+                      >
+                        <PlusIcon />
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
