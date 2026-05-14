@@ -106,17 +106,17 @@ export default function DailyAppointmentsBoard({ initialAppointments }: Props) {
         <SummaryCard
           title="รอดำเนินการ"
           count={pendingItems.length}
-          colorText="text-yellow-600"
+          colorText="text-yellow-400"
         />
         <SummaryCard
           title="กำลังทำ"
           count={inProgressItems.length}
-          colorText="text-blue-600"
+          colorText="text-blue-500"
         />
         <SummaryCard
           title="เสร็จสิ้น / รอรับกลับ"
           count={completedItems.length}
-          colorText="text-green-600"
+          colorText="text-green-500"
         />
       </div>
 
@@ -180,7 +180,7 @@ function Column({
       {items.map((item) => (
         <Card
           key={`${item.appointmentId}-${item.petId}`}
-          className={`shadow-sm border-l-4 ${borderColor}`}
+          className={`shadow-sm border-l-4 p-0 ${borderColor}`}
         >
           <CardHeader className="p-4 pb-2">
             <div className="flex justify-between items-start">

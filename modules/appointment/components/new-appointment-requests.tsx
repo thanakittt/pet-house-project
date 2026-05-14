@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import AppointmentStatus from "./AppointmentStatus";
 import { CalendarDays, ChevronRight, Scissors } from "lucide-react";
 import Link from "next/link";
@@ -55,9 +54,10 @@ export default function NewAppointmentRequests({
   return (
     <div className="flex flex-col gap-4 min-w-0">
       {appointments.map((appointment) => (
-        <div
+        <Link
           key={appointment.id}
-          className="flex md:flex-row flex-col justify-between md:items-center gap-4 shadow-sm hover:shadow-md p-4 sm:p-5 border border-slate-200 rounded-lg min-w-0 overflow-hidden transition-shadow"
+          href={`/back-office/appointments/${appointment.id}`}
+          className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white hover:bg-slate-50/50 shadow-sm hover:shadow-md p-4 sm:p-5 border border-slate-200 hover:border-slate-300 rounded-lg min-w-0 overflow-hidden transition-all cursor-pointer"
         >
           <div className="flex flex-col gap-3 min-w-0">
             <div className="flex flex-col gap-1 min-w-0">
@@ -71,7 +71,7 @@ export default function NewAppointmentRequests({
               </div>
 
               <div className="flex items-start gap-2 min-w-0 text-muted-foreground text-sm">
-                <Scissors size={15} className="shrink-0" />
+                <Scissors size={15} className="mt-0.5 shrink-0" />
                 <span className="min-w-0 break-words">
                   {getServiceNames(appointment) || "-"}
                 </span>
@@ -89,20 +89,19 @@ export default function NewAppointmentRequests({
             </div>
           </div>
 
-          <div className="flex sm:flex-row flex-col md:flex-col items-stretch sm:items-center md:items-end gap-2">
+          <div className="flex sm:flex-row flex-col md:flex-col items-stretch sm:items-center md:items-end gap-3 md:gap-2">
             <AppointmentStatus status={appointment.status} />
-            {/* ปุ่มกดดูรายละเอียด */}
-            <Link
-              href={`/back-office/appointments/${appointment.id}`}
-              className="w-full sm:w-auto"
-            >
-              <Button variant="ghost" size="default" className="w-full sm:w-auto">
-                ดูรายละเอียด
-                <ChevronRight size={14} />
-              </Button>
-            </Link>
+
+            {/* เปลี่ยนจากปุ่มเป็นข้อความที่มีไอคอน เพื่อหลีกเลี่ยง Nested Interactive Elements (<button> ใน <a>) */}
+            <div className="flex justify-center sm:justify-end items-center gap-1 py-1 font-medium text-muted-foreground group-hover:text-primary text-sm transition-colors">
+              ดูรายละเอียด
+              <ChevronRight
+                size={16}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </div>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -10,7 +10,7 @@ import Image from "next/image";
 import { uploadServiceImages } from "../actions/upload-service-images"; // ปรับ path ตามโปรเจกต์ของคุณ
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -31,10 +31,12 @@ import {
 } from "@/components/ui/dialog";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 
 // 1. เปลี่ยนจากการเก็บ URL เป็นการเก็บ File Object ของจริง
 type UploadImageForm = {
@@ -53,6 +55,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
   const [isUploading, setIsUploading] = useState(false); // ใช้ตอนกด Submit
   const [previews, setPreviews] = useState<{ file: File; url: string }[]>([]); // เก็บจับคู่ File กับ Preview URL
   const [serverError, setServerError] = useState<string | null>(null);
+  const selectedFileCount = previews.length;
 
   const form = useForm<UploadImageForm>({
     defaultValues: {
@@ -212,17 +215,53 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
             />
 
             <Field>
-              <FieldLabel>
-                เลือกรูปภาพ
+              <FieldLabel htmlFor="service-image-files">
+                {selectedFileCount > 0 ? "เลือกรูปภาพเพิ่ม" : "เลือกรูปภาพ"}
               </FieldLabel>
+              <label
+                htmlFor="service-image-files"
+                aria-disabled={isUploading || form.formState.isSubmitting}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "w-fit cursor-pointer",
+                  (isUploading || form.formState.isSubmitting) &&
+                    "pointer-events-none cursor-not-allowed opacity-50",
+                )}
+              >
+                <UploadIcon data-icon="inline-start" />
+                อัปโหลด
+              </label>
               <Input
+                id="service-image-files"
                 type="file"
                 multiple
                 accept="image/png, image/jpeg, image/webp"
                 onChange={handleSelectFiles}
                 disabled={isUploading || form.formState.isSubmitting}
-                className="cursor-pointer"
+                className="sr-only"
               />
+              <FieldDescription>
+                {selectedFileCount > 0
+                  ? `เลือกแล้ว ${selectedFileCount} รูป`
+                  : "ยังไม่ได้เลือกรูปภาพ"}
+              </FieldDescription>
+              {selectedFileCount > 0 && (
+                <div className="space-y-1 rounded-md border bg-muted/20 p-2">
+                  <p className="font-medium text-muted-foreground text-xs">
+                    ไฟล์ที่เลือกไว้
+                  </p>
+                  <ul className="max-h-24 space-y-1 overflow-y-auto text-muted-foreground text-xs">
+                    {previews.map((preview, index) => (
+                      <li
+                        key={`${preview.file.name}-${index}`}
+                        className="truncate"
+                      >
+                        {index + 1}. {preview.file.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </Field>
 
             {/* แสดง Preview พร้อมปุ่มกากบาทลบรูป */}
