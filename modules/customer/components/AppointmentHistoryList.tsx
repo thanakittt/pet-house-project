@@ -17,7 +17,7 @@ export function AppointmentHistoryList({
 }: AppointmentHistoryListProps) {
   if (!appointmentHistory.success) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+      <div className="bg-red-50 p-4 rounded-lg text-red-600 text-sm">
         {appointmentHistory.error}
       </div>
     );
@@ -28,20 +28,20 @@ export function AppointmentHistoryList({
 
   if (appointments.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed bg-gray-50 p-8 text-center text-muted-foreground">
+      <div className="bg-gray-50 p-8 border-2 border-dashed rounded-xl text-muted-foreground text-center">
         ยังไม่มีประวัติการจองสำหรับลูกค้ารายนี้
       </div>
     );
   }
 
   return (
-    <div className="mt-8 space-y-4">
-      <h2 className="flex items-center gap-2 text-lg font-bold">
+    <div className="space-y-4 mt-8">
+      <h2 className="flex items-center gap-2 font-bold text-lg">
         <Calendar size={20} />
         ประวัติการรับบริการ
       </h2>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+      <div className="gap-3 grid sm:grid-cols-2 lg:grid-cols-1">
         {appointments.map((appointment) => {
           const totalPrice = appointment.items.reduce(
             (sum, item) => sum + Number(item.price),
@@ -68,7 +68,7 @@ export function AppointmentHistoryList({
             <Link
               key={appointment.id}
               href={`/back-office/appointments/${appointment.id}`}
-              className="group flex cursor-pointer flex-col justify-between gap-4 rounded-xl border bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md md:flex-row md:items-center"
+              className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white shadow-sm hover:shadow-md p-4 border hover:border-gray-300 rounded-xl transition-all cursor-pointer"
             >
               <div className="flex flex-col gap-1.5 md:w-1/4">
                 <div className="flex items-center gap-2">
@@ -79,38 +79,35 @@ export function AppointmentHistoryList({
                 <div>
                   <AppointmentStatusBadge status={appointment.status} />
                 </div>
-                <span className="mt-1 font-mono text-xs text-gray-400">
-                  Ref: {appointment.id.split("-")[0]}
-                </span>
               </div>
 
-              <div className="flex flex-1 flex-col gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors group-hover:bg-blue-50/50">
-                <div className="flex items-start gap-2 text-sm text-gray-700">
+              <div className="flex flex-col flex-1 gap-2 bg-gray-50 group-hover:bg-blue-50/50 p-3 border border-gray-100 rounded-lg transition-colors">
+                <div className="flex items-start gap-2 text-gray-700 text-sm">
                   <PawPrint
                     size={16}
-                    className="mt-0.5 shrink-0 text-gray-400"
+                    className="mt-0.5 text-gray-400 shrink-0"
                   />
                   <span className="line-clamp-1" title={petSummary}>
                     {petSummary || "-"}
                   </span>
                 </div>
-                <div className="flex items-start gap-2 text-sm text-gray-600">
-                  <Tag size={16} className="mt-0.5 shrink-0 text-gray-400" />
+                <div className="flex items-start gap-2 text-gray-600 text-sm">
+                  <Tag size={16} className="mt-0.5 text-gray-400 shrink-0" />
                   <span className="line-clamp-1" title={serviceSummary}>
                     {serviceSummary || "-"}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-1 md:w-1/4 md:flex-col md:items-end md:justify-end">
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 md:hidden">
+              <div className="flex md:flex-col justify-between md:justify-end items-center md:items-end gap-1 md:w-1/4">
+                <div className="md:hidden flex items-center gap-1.5 text-gray-500 text-xs">
                   <Receipt size={14} />
                   <span>ยอดรวม</span>
                 </div>
-                <div className="text-base font-bold text-gray-900">
+                <div className="font-bold text-gray-900 text-base">
                   ฿{totalPrice.toLocaleString()}
                 </div>
-                <div className="hidden items-center gap-1 text-xs text-gray-500 md:flex">
+                <div className="hidden md:flex items-center gap-1 text-gray-500 text-xs">
                   <Receipt size={12} /> {appointment.items.length} รายการ
                 </div>
               </div>
