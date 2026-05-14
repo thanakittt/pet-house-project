@@ -11,7 +11,7 @@ import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import HealthReportModal from "./CreateHealthReportDialog";
 import EditHealthReportDialog from "./EditHealthReportDialog";
 import { useRouter } from "next/navigation";
@@ -23,7 +23,8 @@ import Image from "next/image";
 import { useTransition } from "react";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { toast } from "sonner";
-import { formatThaiDate, formatThaiDateTime } from "@/lib/utils";
+import { cn, formatThaiDate, formatThaiDateTime } from "@/lib/utils";
+import { getAppointmentStatusConfig } from "@/lib/constants/appointment-status";
 
 export type AppointmentStatus =
   | "PENDING_DEPOSIT"
@@ -205,8 +206,10 @@ export default function OperationDetailClient({
                 <LoadingButton
                   onClick={() => handleUpdateStatus("CHECKED_IN")}
                   isLoading={isPendingStatus}
-                  variant="outline"
-                  className="hover:bg-orange-50 border-orange-200 text-orange-700"
+                  className={cn(
+                    getAppointmentStatusConfig("CHECKED_IN").colorClass,
+                    "hover:opacity-80",
+                  )}
                 >
                   เช็คอิน (ถึงร้านแล้ว)
                 </LoadingButton>
@@ -216,8 +219,10 @@ export default function OperationDetailClient({
                 <LoadingButton
                   onClick={() => handleUpdateStatus("IN_PROGRESS")}
                   isLoading={isPendingStatus}
-                  variant="outline"
-                  className="hover:bg-blue-50 border-blue-200 text-blue-700"
+                  className={cn(
+                    getAppointmentStatusConfig("IN_PROGRESS").colorClass,
+                    "hover:opacity-80",
+                  )}
                 >
                   เริ่มให้บริการ
                 </LoadingButton>
@@ -227,8 +232,10 @@ export default function OperationDetailClient({
                 <LoadingButton
                   onClick={() => handleUpdateStatus("READY_FOR_PICKUP")}
                   isLoading={isPendingStatus}
-                  variant="outline"
-                  className="hover:bg-teal-50 border-teal-200 text-teal-700"
+                  className={cn(
+                    getAppointmentStatusConfig("READY_FOR_PICKUP").colorClass,
+                    "hover:opacity-80",
+                  )}
                 >
                   รอรับกลับ
                 </LoadingButton>

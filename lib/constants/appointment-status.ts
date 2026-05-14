@@ -1,8 +1,18 @@
-import { AppointmentStatus } from "@/modules/appointment/types/status";
+import type { AppointmentStatus } from "@/modules/appointment/types/status";
+
+type AppointmentStatusConfig = {
+  label: string;
+  colorClass: string;
+};
+
+const UNKNOWN_STATUS_CONFIG: AppointmentStatusConfig = {
+  label: "ไม่ทราบสถานะ",
+  colorClass: "bg-slate-100 text-slate-800 border-slate-200",
+};
 
 export const STATUS_CONFIG: Record<
   AppointmentStatus,
-  { label: string; colorClass: string }
+  AppointmentStatusConfig
 > = {
   PENDING_DEPOSIT: {
     label: "รอชำระค่ามัดจำ",
@@ -41,3 +51,19 @@ export const STATUS_CONFIG: Record<
     colorClass: "bg-slate-100 text-slate-800 border-slate-200",
   },
 };
+
+export function getAppointmentStatusConfig(
+  status: AppointmentStatus | string,
+): AppointmentStatusConfig {
+  const config = STATUS_CONFIG[status as AppointmentStatus];
+
+  if (config) {
+    return config;
+  }
+
+  // Fallback สำหรับข้อมูลเก่าหรือค่าที่ไม่ได้อยู่ใน enum เพื่อให้ UI ไม่พัง
+  return {
+    ...UNKNOWN_STATUS_CONFIG,
+    label: status || UNKNOWN_STATUS_CONFIG.label,
+  };
+}

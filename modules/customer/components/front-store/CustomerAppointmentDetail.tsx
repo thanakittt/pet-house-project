@@ -1,9 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 import { cn, formatThaiDate } from "@/lib/utils";
 import type { CustomerAppointmentDetail } from "@/modules/appointment/queries/get-customer-appointment-detail";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
@@ -78,7 +77,6 @@ function getPetTypeForBadge(species: "DOG" | "CAT") {
 export default function CustomerAppointmentDetails({
   appointment,
 }: CustomerAppointmentDetailsProps) {
-  const statusConfig = STATUS_CONFIG[appointment.status];
   const currentStepIndex = getStepIndex(appointment.status);
   const firstPet = appointment.pets[0];
   const receiptItems = appointment.pets.flatMap((pet) =>
@@ -119,15 +117,11 @@ export default function CustomerAppointmentDetails({
                 รายการนี้ไม่อยู่ในขั้นตอนให้บริการตามปกติ
               </p>
             </div>
-            <Badge
-              variant="outline"
-              className={cn(
-                "w-fit px-4 py-1.5 rounded-full font-semibold",
-                statusConfig.colorClass,
-              )}
-            >
-              {statusConfig.label}
-            </Badge>
+            <AppointmentStatusBadge
+              status={appointment.status}
+              size="md"
+              className="w-fit px-4 py-1.5 font-semibold"
+            />
           </div>
         </Card>
       ) : (
@@ -230,15 +224,11 @@ export default function CustomerAppointmentDetails({
                       {firstPet.breed}
                     </p>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "hidden sm:inline-flex px-3 py-1 rounded-full font-semibold",
-                      statusConfig.colorClass,
-                    )}
-                  >
-                    {statusConfig.label}
-                  </Badge>
+                  <AppointmentStatusBadge
+                    status={appointment.status}
+                    size="md"
+                    className="hidden px-3 py-1 font-semibold sm:inline-flex"
+                  />
                 </div>
               ) : null}
 

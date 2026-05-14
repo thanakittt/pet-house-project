@@ -1,19 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { WaitingPaymentAppointment } from "@/modules/pos/queries/get-waiting-payments";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Clock, 
-  User, 
-  Phone, 
-  ArrowRight, 
-  Dog, 
-  Receipt, 
-  CheckCircle2 
+import {
+  User,
+  Phone,
+  ArrowRight,
+  Dog,
+  Receipt,
+  CheckCircle2,
 } from "lucide-react";
 import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 
@@ -31,7 +30,9 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
         <div className="flex justify-center items-center bg-emerald-100 mb-6 rounded-full w-20 h-20 text-emerald-600">
           <CheckCircle2 size={40} strokeWidth={2.5} />
         </div>
-        <h3 className="mb-2 font-bold text-foreground text-xl tracking-tight">ไม่มีรายการรอชำระเงิน</h3>
+        <h3 className="mb-2 font-bold text-foreground text-xl tracking-tight">
+          ไม่มีรายการรอชำระเงิน
+        </h3>
         <p className="max-w-sm text-muted-foreground text-sm">
           ยอดเยี่ยม! ลูกค้าทุกท่านได้รับการบริการและชำระเงินเรียบร้อยแล้วในขณะนี้
         </p>
@@ -42,13 +43,18 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
   return (
     <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {appointments.map((apt) => {
-        const totalAmount = apt.items.reduce((sum, item) => sum + Number(item.price), 0);
-        const uniquePets = Array.from(new Set(apt.items.map((item) => item.pet.name)));
+        const totalAmount = apt.items.reduce(
+          (sum, item) => sum + Number(item.price),
+          0,
+        );
+        const uniquePets = Array.from(
+          new Set(apt.items.map((item) => item.pet.name)),
+        );
 
         return (
           // 2. Card Design: เพิ่ม Interactive Hover State และ Top Accent Line
-          <Card 
-            key={apt.id} 
+          <Card
+            key={apt.id}
             className="group relative flex flex-col shadow-sm hover:shadow-lg border-border/60 hover:border-primary/40 overflow-hidden transition-all duration-300"
           >
             {/* Top Status Accent Line */}
@@ -57,12 +63,11 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
             <CardContent className="flex-1 p-6">
               {/* Header: Status & Time */}
               <div className="flex justify-between items-center mb-5">
-                <Badge 
-                  variant="outline" 
-                  className="bg-amber-50 hover:bg-amber-50 border-amber-200 text-amber-700 text-xs"
-                >
-                  <Clock size={12} className="mr-1.5" /> รอชำระเงิน
-                </Badge>
+                <AppointmentStatusBadge
+                  status="READY_FOR_PICKUP"
+                  withIcon
+                  className="hover:bg-amber-50"
+                />
                 <span className="font-medium text-[13px] text-muted-foreground">
                   {formatThaiDate(apt.appointmentDate)}
                 </span>
@@ -81,7 +86,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                     </p>
                     {apt.customer.walkInPhoneNumber ? (
                       <p className="flex items-center mt-1 font-medium text-muted-foreground text-xs truncate">
-                        <Phone size={12} className="mr-1.5 shrink-0" /> 
+                        <Phone size={12} className="mr-1.5 shrink-0" />
                         {formatPhoneNumber(apt.customer.walkInPhoneNumber)}
                       </p>
                     ) : (
@@ -104,7 +109,8 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                       น้อง {uniquePets.join(", ")}
                     </p>
                     <p className="flex items-center mt-1 text-muted-foreground text-xs">
-                      <Receipt size={12} className="mr-1.5" /> {apt.items.length} รายการบริการ
+                      <Receipt size={12} className="mr-1.5" />{" "}
+                      {apt.items.length} รายการบริการ
                     </p>
                   </div>
                 </div>

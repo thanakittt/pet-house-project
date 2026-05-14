@@ -1,6 +1,6 @@
 "use client";
 
-import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { ManagementPagination } from "@/components/shared/ManagementListControls";
 import { formatThaiDate } from "@/lib/utils";
 import { type CustomerAppointmentHistoryResult } from "@/modules/appointment/queries/get-customer-history";

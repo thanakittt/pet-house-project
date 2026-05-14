@@ -25,8 +25,11 @@ import { ScheduleRecord } from "@/modules/appointment/types/schedule";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { toast } from "sonner";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
-import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
-import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import {
+  getAppointmentStatusConfig,
+  STATUS_CONFIG,
+} from "@/lib/constants/appointment-status";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { formatThaiDate } from "@/lib/utils";
 
 const START_HOUR = 9;
@@ -88,11 +91,7 @@ const InteractiveStatusSelect = ({
     });
   };
 
-  const currentConfig = STATUS_CONFIG[optimisticStatus] ||
-    STATUS_CONFIG[currentStatus] || {
-      label: optimisticStatus,
-      colorClass: "bg-slate-100 text-slate-800 border-slate-200",
-    };
+  const currentConfig = getAppointmentStatusConfig(optimisticStatus);
 
   return (
     <div

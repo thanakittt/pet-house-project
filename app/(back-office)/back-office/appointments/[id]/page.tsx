@@ -4,7 +4,6 @@ import { format, parseISO } from "date-fns";
 import { getAppointmentDetail } from "@/modules/appointment/queries/get-appointment-detail";
 import AppointmentStatusManager from "@/modules/appointment/components/AppointmentStatusManage";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
-import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 
 import { requireStaff } from "@/lib/session";
@@ -14,7 +13,7 @@ import { Camera, AlertTriangle, ClipboardList } from "lucide-react"; // [NEW] �
 import BackButton from "@/components/BackButton";
 import ImageLightbox from "@/modules/operation/components/ImageLightbox";
 import Image from "next/image";
-import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 
 export const metadata: Metadata = {
   title: "รายละเอียดการจอง",

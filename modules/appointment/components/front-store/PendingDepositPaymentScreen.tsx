@@ -1,5 +1,6 @@
 "use client";
 
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
@@ -42,7 +43,10 @@ export default function PendingDepositPaymentScreen({
       {verifiedSlipTransRef ? (
         // เมื่อ verify ผ่าน ไม่ต้องแสดง upload form ซ้ำ เพราะ appointment ถูกเปลี่ยนเป็น CONFIRMED แล้ว
         <div className="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
-          <p className="font-semibold">สถานะปัจจุบัน: ยืนยันคิวแล้ว</p>
+          <div className="flex flex-wrap items-center gap-2 font-semibold">
+            <span>สถานะปัจจุบัน:</span>
+            <AppointmentStatusBadge status="CONFIRMED" />
+          </div>
           <p className="mt-1">
             ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT}{" "}
             บาทเรียบร้อยแล้ว
@@ -55,7 +59,10 @@ export default function PendingDepositPaymentScreen({
         <>
           {/* หน้านี้ตั้งใจแสดงเฉพาะการจ่ายมัดจำ เพื่อกันลูกค้าจองคิวใหม่ซ้อนก่อนจ่ายคิวเดิม */}
           <div className="w-full max-w-xl rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left text-sm text-amber-950">
-            <p className="font-semibold">สถานะปัจจุบัน: รอชำระมัดจำ</p>
+            <div className="flex flex-wrap items-center gap-2 font-semibold">
+              <span>สถานะปัจจุบัน:</span>
+              <AppointmentStatusBadge status="PENDING_DEPOSIT" />
+            </div>
             <p className="mt-1">
               คุณมีคิวที่รอชำระมัดจำอยู่ กรุณาชำระและอัปโหลดสลิปก่อนจองคิวใหม่
             </p>

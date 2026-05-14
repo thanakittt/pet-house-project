@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { Badge } from "@/components/ui/badge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,7 +15,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 import { cn, formatThaiDate } from "@/lib/utils";
 import { createCustomerReview } from "@/modules/appointment/actions/create-customer-review";
 import type {
@@ -233,7 +232,6 @@ export default function CustomerAppointment({
       ) : (
         <div className="space-y-6">
           {appointments.map((item) => {
-            const statusConfig = STATUS_CONFIG[item.status];
             const review = item.review;
             const hasReview = item.status === "COMPLETED" && review;
             const canReview = item.status === "COMPLETED" && !item.review;
@@ -244,15 +242,11 @@ export default function CustomerAppointment({
                 className="group relative bg-white shadow-sm hover:shadow-primary/5 hover:shadow-xl border border-slate-100 rounded-3xl overflow-hidden transition-all duration-300"
               >
                 <div className="top-6 right-6 absolute">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "shadow-none px-4 py-1.5 border rounded-full font-semibold transition-colors",
-                      statusConfig.colorClass,
-                    )}
-                  >
-                    {statusConfig.label}
-                  </Badge>
+                  <AppointmentStatusBadge
+                    status={item.status}
+                    size="md"
+                    className="shadow-none px-4 py-1.5 font-semibold transition-colors"
+                  />
                 </div>
 
                 <div className="space-y-6 p-6 md:p-8">

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AppointmentStatusBadge } from "@/components/StatusBadge"; // สมมติว่าคุณมี Component นี้แล้ว
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { type TodayAppointmentsResult } from "../queries/get-today-appointments";
 
 export type AppointmentStatus =

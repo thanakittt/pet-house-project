@@ -4,6 +4,7 @@ import {
   LoadingButton,
   LoadingButtonContent,
 } from "@/components/shared/LoadingButton";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -299,7 +300,7 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
                     </div>
 
                     <div className="flex items-center justify-between gap-2">
-                      <Badge variant="outline">{template.status}</Badge>
+                      <AppointmentStatusBadge status={template.status} />
                       <Button
                         type="button"
                         variant="outline"

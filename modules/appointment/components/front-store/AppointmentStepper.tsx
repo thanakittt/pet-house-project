@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { cn } from "@/lib/utils";
@@ -233,7 +234,10 @@ export default function AppointmentStepper({
         {verifiedSlipTransRef ? (
           // verify ผ่านแล้ว appointment ถูกเปลี่ยนเป็น CONFIRMED ฝั่ง server
           <div className="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
-            <p className="font-semibold">สถานะปัจจุบัน: ยืนยันคิวแล้ว</p>
+            <div className="flex flex-wrap items-center gap-2 font-semibold">
+              <span>สถานะปัจจุบัน:</span>
+              <AppointmentStatusBadge status="CONFIRMED" />
+            </div>
             <p className="mt-1">
               ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT} บาทเรียบร้อยแล้ว
             </p>
