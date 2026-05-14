@@ -40,6 +40,8 @@ import {
   Search,
   ChevronsUpDown,
   Check,
+  MinusIcon,
+  PlusIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -52,10 +54,20 @@ import { createPurchaseOrder } from "@/modules/inventories/actions/create-purcha
 import { cn } from "@/lib/utils";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { format } from "date-fns";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 // 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่าง (Empty String)
 interface OrderItemState extends Omit<PurchaseOrderItemForm, "unitCost"> {
   unitCost: number | "";
+}
+
+function adjustOrderQuantity(quantity: number, change: 1 | -1): number {
+  return Math.max(1, quantity + change);
 }
 
 /**
@@ -295,19 +307,53 @@ export default function PurchaseOrderFormPage({
                         </TableCell>
 
                         <TableCell className="text-right">
-                          <Input
-                            type="number"
-                            className="ml-auto w-20 text-right"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              updateItemField(
-                                item.inventoryItemId,
-                                "quantity",
-                                Math.max(1, Number(e.target.value)),
-                              )
-                            }
-                          />
+                          <InputGroup className="ml-auto w-28">
+                            <InputGroupAddon>
+                              <InputGroupButton
+                                size="icon-xs"
+                                aria-label="ลดจำนวนสินค้า"
+                                disabled={item.quantity <= 1}
+                                onClick={() =>
+                                  updateItemField(
+                                    item.inventoryItemId,
+                                    "quantity",
+                                    adjustOrderQuantity(item.quantity, -1),
+                                  )
+                                }
+                              >
+                                <MinusIcon />
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                            <InputGroupInput
+                              type="number"
+                              className="text-right"
+                              min="1"
+                              step="1"
+                              value={item.quantity}
+                              onChange={(e) =>
+                                updateItemField(
+                                  item.inventoryItemId,
+                                  "quantity",
+                                  Math.max(1, Number(e.target.value)),
+                                )
+                              }
+                            />
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupButton
+                                size="icon-xs"
+                                aria-label="เพิ่มจำนวนสินค้า"
+                                onClick={() =>
+                                  updateItemField(
+                                    item.inventoryItemId,
+                                    "quantity",
+                                    adjustOrderQuantity(item.quantity, 1),
+                                  )
+                                }
+                              >
+                                <PlusIcon />
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                          </InputGroup>
                         </TableCell>
 
                         {/* 7. Input ของราคารองรับค่าว่าง */}

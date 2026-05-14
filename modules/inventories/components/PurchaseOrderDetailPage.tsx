@@ -13,6 +13,8 @@ import {
   Trash2,
   ChevronsUpDown,
   Save,
+  MinusIcon,
+  PlusIcon,
 } from "lucide-react";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
@@ -60,6 +62,12 @@ import {
 import { updatePurchaseOrderItems } from "@/modules/inventories/actions/update-purchase-order-items";
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import { cn, formatThaiDate, formatThaiDateTime } from "@/lib/utils";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 // 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่างใน Edit Mode
 interface OrderItemEditState extends Omit<PurchaseOrderItemForm, "unitCost"> {
@@ -77,6 +85,10 @@ function formatCurrency(value: number): string {
 // ── Helper: แสดงเลขที่ PO จาก UUID (8 ตัวท้าย uppercase) ──
 function formatPoNumber(id: string): string {
   return `#PO-${id.replace(/-/g, "").toUpperCase().slice(-8)}`;
+}
+
+function adjustOrderQuantity(quantity: number, change: 1 | -1): number {
+  return Math.max(1, quantity + change);
 }
 
 /**
@@ -490,19 +502,53 @@ export default function PurchaseOrderDetailPage({
                             {item.inventoryItemName}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Input
-                              type="number"
-                              min="1"
-                              className="w-20 text-right ml-auto h-8 text-sm"
-                              value={item.quantity}
-                              onChange={(e) =>
-                                updateEditItemField(
-                                  item.inventoryItemId,
-                                  "quantity",
-                                  Math.max(1, Number(e.target.value)),
-                                )
-                              }
-                            />
+                            <InputGroup className="ml-auto h-8 w-28">
+                              <InputGroupAddon>
+                                <InputGroupButton
+                                  size="icon-xs"
+                                  aria-label="ลดจำนวนสินค้า"
+                                  disabled={item.quantity <= 1}
+                                  onClick={() =>
+                                    updateEditItemField(
+                                      item.inventoryItemId,
+                                      "quantity",
+                                      adjustOrderQuantity(item.quantity, -1),
+                                    )
+                                  }
+                                >
+                                  <MinusIcon />
+                                </InputGroupButton>
+                              </InputGroupAddon>
+                              <InputGroupInput
+                                type="number"
+                                min="1"
+                                step="1"
+                                className="text-right text-sm"
+                                value={item.quantity}
+                                onChange={(e) =>
+                                  updateEditItemField(
+                                    item.inventoryItemId,
+                                    "quantity",
+                                    Math.max(1, Number(e.target.value)),
+                                  )
+                                }
+                              />
+                              <InputGroupAddon align="inline-end">
+                                <InputGroupButton
+                                  size="icon-xs"
+                                  aria-label="เพิ่มจำนวนสินค้า"
+                                  onClick={() =>
+                                    updateEditItemField(
+                                      item.inventoryItemId,
+                                      "quantity",
+                                      adjustOrderQuantity(item.quantity, 1),
+                                    )
+                                  }
+                                >
+                                  <PlusIcon />
+                                </InputGroupButton>
+                              </InputGroupAddon>
+                            </InputGroup>
                           </TableCell>
                           <TableCell className="text-right">
                             {/* 7. Input ของราคารองรับค่าว่าง (Edit Mode) */}
