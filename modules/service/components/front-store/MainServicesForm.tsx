@@ -11,7 +11,7 @@ import {
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CatIcon, Clock, DogIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Dog, Cat, ChevronRight } from "lucide-react";
+import { Dog, Cat, Waves, Scissors } from "lucide-react";
 
 type PetViewType = "dog" | "cat" | "all";
 type PetType = "DOG" | "CAT";
@@ -94,34 +94,49 @@ function EmptyServices() {
 function ServiceCard({ service }: { service: DisplayService }) {
   const hasMultipleVariants = service.variants.length > 1;
 
+  const getServiceIcon = (name: string) => {
+    if (name.includes("อาบน้ำตัดขน")) return <Scissors className="text-orange-600" size={20} />;
+    if (name.includes("อาบน้ำ")) return <Waves className="text-blue-600" size={20} />;
+    return null;
+  };
+
+  const iconBaseColor = service.name.includes("อาบน้ำตัดขน") ? "bg-orange-50" : "bg-blue-50";
+
   return (
     <div className="group relative bg-white rounded-2xl p-2 border border-slate-100 shadow-sm transition-all duration-500">
       <div className="p-4">
         <header className="mb-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-xl font-bold text-primary tracking-tight mb-2 group-hover:text-primary transition-colors">
-                {service.name}
-              </h3>
-              {service.description && (
-                <p className="text-muted-foreground text-sm md:text-base leading-relaxed max-w-full">
-                  {service.description}
-                </p>
-              )}
+          <div className="flex flex-col justify-between items-start gap-4">
+            <div className="flex flex-row  gap-4 items-center">
+              {/* เพิ่มส่วนแสดงไอคอนบริการหลัก */}
+              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", iconBaseColor)}>
+                {getServiceIcon(service.name)}
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-primary tracking-tight mb-1 group-hover:text-primary transition-colors">
+                  {service.name}
+                </h3>
+
+              </div>
             </div>
+            {service.description && (
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-full">
+                {service.description}
+              </p>
+            )}
           </div>
         </header>
 
         <div className="space-y-3">
+          {/* ส่วน variants คงเดิมตามที่ส่งมา */}
           {service.variants.map((variant) => (
             <div
               key={variant.id}
               className="flex items-center justify-between p-4 px-6 md:p-5 rounded-2xl bg-muted/80 border border-transparent transition-all duration-300 group/item"
             >
               <div className="flex items-center gap-4">
-                {/* Size Indicator */}
                 <div className="flex flex-col">
-                  <span className="text-primary font-semibold text-base md:text-lg">
+                  <span className="text-primary font-semibold text-base">
                     {PET_SIZE_LABELS[variant.size] || variant.size}
                   </span>
                   <div className="flex items-center gap-1 text-muted-foreground">
@@ -130,11 +145,10 @@ function ServiceCard({ service }: { service: DisplayService }) {
                   </div>
                 </div>
               </div>
-
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <span className="text-xs font-bold text-muted-foreground block uppercase tracking-wider mb-0.5">เริ่มต้น</span>
-                  <span className="text-lg md:text-xl font-bold text-primary group-hover/item:text-primary transition-colors">
+                  <span className="text-lg md:text-xl font-bold text-primary">
                     {formatVariantPrice(variant)}
                   </span>
                 </div>
@@ -146,7 +160,6 @@ function ServiceCard({ service }: { service: DisplayService }) {
     </div>
   );
 }
-
 export function MainServicesForm({
   services,
   type = "all",
@@ -176,12 +189,12 @@ export function MainServicesForm({
                   className={cn(
                     "flex items-center justify-center gap-3 mb-6 rounded-xl w-full mx-auto py-3 transition-all border",
                     group.type === 'dog'
-                      ? "bg-blue-50/50 border-blue-100/50 text-blue-700"
-                      : "bg-orange-50/50 border-orange-100/50 text-orange-600"
+                      ? "bg-blue-50/50 border-blue-100/50 text-blue-500"
+                      : "bg-orange-50/50 border-orange-100/50 text-orange-500"
                   )}
                 >
                   <div className={cn(
-                    group.type === 'dog' ? "text-blue-600" : "text-orange-500"
+                    group.type === 'dog' ? "text-blue-500" : "text-orange-500"
                   )}>
                     {group.type === 'dog' ? (
                       <Dog className="size-6" />

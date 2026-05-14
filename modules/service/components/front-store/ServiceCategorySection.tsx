@@ -41,15 +41,15 @@ export function ServiceCategorySection({
                         <TabsTrigger
                             value={`${defaultTabValue.split('-')[0]}-dog`}
                         >
-                            <Dog data-icon="inline-start" />
-                            <span className="truncate">สุนัข</span>
+                            <Dog data-icon="inline-start" className="text-blue-500" />
+                            <span className="truncate text-blue-500">สุนัข</span>
                         </TabsTrigger>
 
                         <TabsTrigger
                             value={`${defaultTabValue.split('-')[0]}-cat`}
                         >
-                            <Cat data-icon="inline-start" />
-                            <span className="truncate">แมว</span>
+                            <Cat data-icon="inline-start" className="text-orange-500" />
+                            <span className="truncate text-orange-500" >แมว</span>
                         </TabsTrigger>
                     </TabsList>
 

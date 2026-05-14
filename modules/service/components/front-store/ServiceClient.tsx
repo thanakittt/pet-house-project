@@ -18,7 +18,7 @@ export function ServiceClient({ services }: ServiceClientProps) {
   );
 
   return (
-    <main className="space-y-8 mx-auto p-4 md:p-8 pb-20 max-w-5xl min-h-screen overflow-x-hidden font-noto-thai">
+    <main className="mx-auto p-4 md:p-8 pb-20 max-w-5xl min-h-screen overflow-x-hidden font-noto-thai">
       <div className="space-y-6">
         {/* --- หมวดหมู่บริการหลัก --- */}
         <ServiceCategorySection
