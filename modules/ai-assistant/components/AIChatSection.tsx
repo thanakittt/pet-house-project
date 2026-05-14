@@ -43,10 +43,10 @@ const ChatBubble = ({ msg, isLoading = false }: { msg?: Message; isLoading?: boo
                 {isUser ? <User size={16} /> : <Bot size={16} />}
             </div>
             <div className={cn(
-                "shadow-sm p-4 rounded-2xl text-sm leading-relaxed",
+                "shadow-sm px-3 py-2 rounded-2xl text-sm leading-relaxed",
                 isUser
                     ? "bg-primary text-primary-foreground rounded-tr-none"
-                    : "bg-white text-slate-700 rounded-tl-none border border-slate-100"
+                    : "bg-white text-primary rounded-tl-none border border-slate-100"
             )}>
                 {isLoading ? (
                     <div className="flex items-center gap-2 text-muted-foreground italic">
@@ -143,14 +143,17 @@ export default function AIChatSection() {
                             <Bot size={24} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg tracking-tight">AI Pet Assistant</h3>
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-bold text-lg tracking-tight">AI Pet Assistant </h3>
+                                <Sparkles className="text-amber-400 animate-pulse " size={18} />
+                            </div>
                             <div className="flex items-center gap-1.5">
                                 <span className="bg-green-500 rounded-full size-2 animate-pulse" />
                                 <Badge variant="secondary" className="px-2 py-1 font-bold text-[10px] uppercase">Online</Badge>
                             </div>
                         </div>
                     </div>
-                    <Sparkles className="text-primary/40" size={24} />
+
                 </header>
 
                 {/* Chat Area */}
@@ -171,30 +174,28 @@ export default function AIChatSection() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                             placeholder="ถามเรื่องการดูแลน้องๆ ได้ที่นี่..."
-                            className="flex-1 bg-muted/50 border-muted-foreground/20 rounded-2xl focus-visible:ring-primary h-10"
+                            className="flex-1 bg-muted/50 border-muted-foreground/20 text-sm md:text-base h-10"
                         />
                         <LoadingButton
-                            size="default"
                             onClick={handleSendMessage}
                             disabled={!input.trim()}
-                            isLoading={isLoading}
-                            loadingText={<span className="hidden md:inline ml-2">กำลังส่ง...</span>}
-                            className="shadow-lg shadow-primary/10 active:scale-95 transition-all"
+                            className="shadow-lg shadow-primary/10 active:scale-95 hover:bg-primary/95 transition-all text-sm"
                         >
-                            <Send data-icon="inline-start" />
-                            <span className="hidden md:inline ml-2">ส่งข้อความ</span>
+                            <Send data-icon="inline-center" className="size-3.5 md:size-4" />
+                            <span className="hidden md:inline ml-1">ส่งข้อความ</span>
                         </LoadingButton>
+
                     </div>
 
                     {/* Quick Suggestions */}
-                    <div className="flex gap-2 mt-4 pb-1 overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-2 mt-4 pb-1 overflow-x-auto lg:flex-wrap">
                         {QUICK_SUGGESTIONS.map((text) => (
                             <Button
                                 key={text}
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setInput(text)}
-                                className="bg-background hover:bg-primary rounded-full hover:text-primary-foreground text-xs md:text-sm whitespace-nowrap transition-colors"
+                                className="hover:border-primary rounded-full hover:text-primary text-xs md:text-sm whitespace-nowrap transition-colors"
                             >
                                 {text}
                             </Button>
@@ -202,6 +203,7 @@ export default function AIChatSection() {
                     </div>
                 </footer>
             </div>
+
         </section>
     )
 }
