@@ -39,10 +39,24 @@ export async function createInventory(
       };
     }
 
-    const validationError = validateInventoryNumbers(
-      data.quantity,
-      data.reorderLevel,
-    );
+    if (data.quantity === "") {
+      return {
+        success: false,
+        error: "กรุณาระบุจำนวน",
+      };
+    }
+
+    if (data.reorderLevel === "") {
+      return {
+        success: false,
+        error: "กรุณาระบุจุดสั่งซื้อ",
+      };
+    }
+
+    const quantity = data.quantity;
+    const reorderLevel = data.reorderLevel;
+
+    const validationError = validateInventoryNumbers(quantity, reorderLevel);
     if (validationError) {
       return validationError;
     }
@@ -77,9 +91,9 @@ export async function createInventory(
       // Step 3: Insert the inventory item securely
       await tx.insert(inventoryItems).values({
         name: trimmedName,
-        quantity: data.quantity,
+        quantity,
         unit: data.unit,
-        reorderLevel: data.reorderLevel,
+        reorderLevel,
         inventoryCategoryId: data.inventoryCategoryId,
       });
     });

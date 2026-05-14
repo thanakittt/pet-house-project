@@ -9,8 +9,8 @@ export interface InventoryItem extends DbInventoryItem {
 
 export interface InventoryForm {
   name: string;
-  quantity: number;
+  quantity: number | "";
   unit: "PIECE" | "BOX" | "PACK" | "GALLON" | "BOTTLE";
-  reorderLevel: number;
+  reorderLevel: number | "";
   inventoryCategoryId: string;
 }

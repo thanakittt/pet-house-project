@@ -48,8 +48,8 @@ export function CreateInventoryDialog({
   const form = useForm<InventoryForm>({
     defaultValues: {
       name: "",
-      quantity: 0,
-      reorderLevel: 0,
+      quantity: "",
+      reorderLevel: "",
       inventoryCategoryId: "",
       unit: "PIECE",
     },
@@ -173,11 +173,12 @@ export function CreateInventoryDialog({
                       {...field}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? Number(e.target.value) : 0,
+                          e.target.value === "" ? "" : Number(e.target.value),
                         )
                       }
                       id={field.name}
                       type="number"
+                      min="0"
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -236,11 +237,12 @@ export function CreateInventoryDialog({
                     {...field}
                     onChange={(e) =>
                       field.onChange(
-                        e.target.value ? Number(e.target.value) : 0,
+                        e.target.value === "" ? "" : Number(e.target.value),
                       )
                     }
                     id={field.name}
                     type="number"
+                    min="0"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (

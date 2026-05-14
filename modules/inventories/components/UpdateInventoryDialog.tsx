@@ -117,7 +117,7 @@ export function UpdateInventoryDialog({
             )}
           </DialogHeader>
 
-          <FieldGroup className="gap-3 px-4 pb-3 pt-4">
+          <FieldGroup className="gap-3 px-4 pt-4 pb-3">
             <Controller
               name="name"
               control={form.control}
@@ -168,7 +168,7 @@ export function UpdateInventoryDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="gap-4 grid grid-cols-2">
               <Controller
                 name="quantity"
                 control={form.control}
@@ -183,9 +183,10 @@ export function UpdateInventoryDialog({
                       {...field}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? Number(e.target.value) : 0,
+                          e.target.value === "" ? "" : Number(e.target.value),
                         )
                       }
+                      min="0"
                       id={field.name}
                       type="number"
                       aria-invalid={fieldState.invalid}
@@ -243,9 +244,10 @@ export function UpdateInventoryDialog({
                     {...field}
                     onChange={(e) =>
                       field.onChange(
-                        e.target.value ? Number(e.target.value) : 0,
+                        e.target.value === "" ? "" : Number(e.target.value),
                       )
                     }
+                    min="0"
                     id={field.name}
                     type="number"
                     aria-invalid={fieldState.invalid}
@@ -259,7 +261,7 @@ export function UpdateInventoryDialog({
           </FieldGroup>
 
           <DialogFooter>
-            <div className="flex justify-end gap-2 px-4 pb-4 pt-2">
+            <div className="flex justify-end gap-2 px-4 pt-2 pb-4">
               <DialogClose asChild>
                 <Button
                   type="button"
