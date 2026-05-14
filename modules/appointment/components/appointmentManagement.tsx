@@ -35,23 +35,21 @@ export default function AppointmentManagement({
 
   return (
     <main className="w-full min-w-0">
-      <div className="mx-auto w-full max-w-6xl min-w-0">
+      <div className="mx-auto w-full min-w-0 max-w-6xl">
         {/* form card */}
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           className="mb-5 w-full min-w-0"
         >
-          <TabsList className="w-full min-w-0 py-5 md:w-1/2">
+          <TabsList width="half" size="lg" className="mb-4">
             <TabsTrigger
               value="new-appointment-requests"
-              className="min-w-0 gap-2"
+              className="gap-2 min-w-0"
             >
               <span className="truncate">จองคิวใหม่</span>
               {newAppointmentCount > 0 && (
-                <Badge className="h-5 min-w-5 shrink-0 rounded-full px-1.5">
-                  {newAppointmentCount}
-                </Badge>
+                <Badge>{newAppointmentCount}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="appointment-schedule" className="min-w-0">
@@ -60,7 +58,7 @@ export default function AppointmentManagement({
           </TabsList>
           <TabsContent
             value="new-appointment-requests"
-            className="min-w-0 pt-5"
+            className="min-w-0"
           >
             <NewAppointmentRequests appointments={newAppointmentRequests} />
           </TabsContent>

@@ -108,7 +108,7 @@ export default async function InventoriesPage({
 
       <BackOfficeContainer>
         <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="w-full py-5 md:w-1/2">
+          <TabsList width="half" size="lg" className="mb-4">
             <TabsTrigger value="inventory" asChild>
               <Link href={buildTabHref(query, "inventory")}>สินค้าคงคลัง</Link>
             </TabsTrigger>

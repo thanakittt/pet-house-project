@@ -26,7 +26,6 @@ export function ServiceClient({ services }: ServiceClientProps) {
           icon={Scissors}
           iconBgColor="bg-blue-500"
           defaultTabValue="main-dog"
-          activeTabColor="data-[state=active]:text-blue-500"
           dogContent={<MainServicesForm services={mainServices} type="dog" />}
           catContent={<MainServicesForm services={mainServices} type="cat" />}
           desktopContent={<MainServicesForm services={mainServices} type="all" />}
@@ -38,7 +37,6 @@ export function ServiceClient({ services }: ServiceClientProps) {
           icon={Star}
           iconBgColor="bg-amber-500"
           defaultTabValue="addon-dog"
-          activeTabColor="data-[state=active]:text-orange-500"
           dogContent={<AddOnServicesForm services={addonServices} type="dog" />}
           catContent={<AddOnServicesForm services={addonServices} type="cat" />}
           desktopContent={<AddOnServicesForm services={addonServices} type="all" />}

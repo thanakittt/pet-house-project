@@ -13,7 +13,6 @@ interface ServiceCategorySectionProps {
     dogContent: ReactNode;
     catContent: ReactNode;
     desktopContent: ReactNode;
-    activeTabColor?: string; // เช่น text-blue-500 หรือ text-orange-500
 }
 
 export function ServiceCategorySection({
@@ -38,21 +37,19 @@ export function ServiceCategorySection({
             {/* 📱 Mobile: Tabs View */}
             <div className="md:hidden">
                 <Tabs defaultValue={defaultTabValue} className="w-full">
-                    <TabsList className="grid grid-cols-2 mb-4 p-1 w-full h-12">
+                    <TabsList width="full" size="lg" className="mb-4">
                         <TabsTrigger
                             value={`${defaultTabValue.split('-')[0]}-dog`}
-                            className="flex justify-center items-center gap-3 data-[state=active]:bg-white data-[state=active]:shadow-sm h-full font-bold data-[state=active]:text-blue-600 text-base transition-all"
                         >
-                            <Dog size={20} className="text-blue-500 shrink-0" />
-                            <span className="pt-0.5 leading-none">สุนัข</span>
+                            <Dog data-icon="inline-start" />
+                            <span className="truncate">สุนัข</span>
                         </TabsTrigger>
 
                         <TabsTrigger
                             value={`${defaultTabValue.split('-')[0]}-cat`}
-                            className="flex justify-center items-center gap-3 data-[state=active]:bg-white data-[state=active]:shadow-sm h-full font-bold data-[state=active]:text-orange-500 text-base transition-all"
                         >
-                            <Cat size={20} className="text-orange-500 shrink-0" />
-                            <span className="pt-0.5 leading-none">แมว</span>
+                            <Cat data-icon="inline-start" />
+                            <span className="truncate">แมว</span>
                         </TabsTrigger>
                     </TabsList>
 
