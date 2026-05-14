@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { or, like } from "drizzle-orm";
+import { and, or, ilike, isNull } from "drizzle-orm";
 import { customers } from "@/db/schema";
 import { CustomerSearchResult } from "../types/customer";
 import { ActionResponse } from "@/types/action";
@@ -16,14 +16,19 @@ export async function searchCustomer(
       return { success: true, data: [] };
     }
 
+    const pattern = `%${trimmedKeyword}%`;
+
     const customer = await db.query.customers.findMany({
       columns: {
         id: true,
         nickname: true,
       },
-      where: or(
-        like(customers.walkInPhoneNumber, `%${trimmedKeyword}%`),
-        like(customers.nickname, `%${trimmedKeyword}%`),
+      where: and(
+        or(
+          ilike(customers.walkInPhoneNumber, pattern),
+          ilike(customers.nickname, pattern),
+        ),
+        isNull(customers.deletedAt),
       ),
       with: {
         pets: {
