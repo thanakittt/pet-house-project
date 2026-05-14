@@ -85,7 +85,7 @@ function BrandLink() {
         className="rounded-sm size-10 object-contain shrink-0"
       />
       <span className="font-heading font-bold text-primary text-lg truncate">
-        Pet House
+        PET HOUSE
       </span>
     </Link>
   );
@@ -148,7 +148,7 @@ export function FrontStoreNavbar() {
           : "border-b border-border bg-background shadow-sm"
       )}
     >
-      <div className="items-center gap-4 grid grid-cols-[1fr_auto] md:grid-cols-[1fr_auto_1fr] mx-auto px-4 md:px-8 max-w-5xl h-16">
+      <div className="items-center gap-4 grid grid-cols-[1fr_auto] md:grid-cols-[1fr_auto_1fr] mx-auto px-4 md:px-8 max-w-5xl h-16 md:h-18">
         <div className="flex justify-start min-w-0">
           <BrandLink />
         </div>
@@ -162,7 +162,7 @@ export function FrontStoreNavbar() {
                 key={item.href}
                 asChild
                 variant={isActive ? "secondary" : "ghost"}
-                size="sm"
+                size="default"
               >
                 <Link href={item.href} aria-current={isActive ? "page" : undefined}>
                   {item.label}
