@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/card";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CatIcon, Clock, DogIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Dog, Cat, ChevronRight } from "lucide-react";
 
 type PetViewType = "dog" | "cat" | "all";
 type PetType = "DOG" | "CAT";
@@ -89,67 +91,59 @@ function EmptyServices() {
     </Card>
   );
 }
-
 function ServiceCard({ service }: { service: DisplayService }) {
   const hasMultipleVariants = service.variants.length > 1;
 
   return (
-    <Card className="shadow-sm border-slate-100">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">{service.name}</CardTitle>
-        {service.description && (
-          <CardDescription>{service.description}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent>
-        {hasMultipleVariants ? (
-          <div className="space-y-3">
-            <p className="font-bold text-[10px] text-muted-foreground md:text-xs uppercase tracking-wider">
-              ราคาเริ่มต้นตามขนาด (บาท)
-            </p>
-            <div className="gap-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {service.variants.map((variant) => (
-                <div
-                  key={variant.id}
-                  className="flex flex-col justify-center items-center gap-1 bg-slate-50/50 p-2 border border-slate-100 rounded-lg min-h-24 text-center"
-                >
-                  <p className="text-muted-foreground md:text-md text-base">
-                    {PET_SIZE_LABELS[variant.size] || variant.size}
-                  </p>
-                  <p className="font-medium text-primary md:text-md text-base">
-                    {formatVariantPrice(variant)}
-                  </p>
-                  <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <Clock className="size-3" />
-                    ~{variant.durationMinutes} นาที
-                  </p>
-                </div>
-              ))}
+    <div className="group relative bg-white rounded-2xl p-2 border border-slate-100 shadow-sm transition-all duration-500">
+      <div className="p-4">
+        <header className="mb-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-xl font-bold text-primary tracking-tight mb-2 group-hover:text-primary transition-colors">
+                {service.name}
+              </h3>
+              {service.description && (
+                <p className="text-muted-foreground text-sm md:text-base leading-relaxed max-w-full">
+                  {service.description}
+                </p>
+              )}
             </div>
           </div>
-        ) : (
-          service.variants.map((variant) => (
+        </header>
+
+        <div className="space-y-3">
+          {service.variants.map((variant) => (
             <div
               key={variant.id}
-              className="flex justify-between items-center gap-3 bg-slate-50/50 p-3 border border-slate-100 rounded-lg"
+              className="flex items-center justify-between p-4 px-6 md:p-5 rounded-2xl bg-muted/80 border border-transparent transition-all duration-300 group/item"
             >
-              <div className="space-y-1">
-                <p className="text-muted-foreground text-base">
-                  ราคาเริ่มต้น
-                </p>
-                <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Clock className="size-3" />
-                  ~{variant.durationMinutes} นาที
-                </p>
+              <div className="flex items-center gap-4">
+                {/* Size Indicator */}
+                <div className="flex flex-col">
+                  <span className="text-primary font-semibold text-base md:text-lg">
+                    {PET_SIZE_LABELS[variant.size] || variant.size}
+                  </span>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Clock className="size-3.5" />
+                    <span className="text-xs font-medium">~{variant.durationMinutes} นาที</span>
+                  </div>
+                </div>
               </div>
-              <p className="font-bold text-primary text-sm text-right">
-                {formatVariantPrice(variant)}
-              </p>
+
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <span className="text-xs font-bold text-muted-foreground block uppercase tracking-wider mb-0.5">เริ่มต้น</span>
+                  <span className="text-lg md:text-xl font-bold text-primary group-hover/item:text-primary transition-colors">
+                    {formatVariantPrice(variant)}
+                  </span>
+                </div>
+              </div>
             </div>
-          ))
-        )}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -166,29 +160,46 @@ export function MainServicesForm({
       : petGroups.filter((group) => group.type === type);
 
   return (
-    <section className="font-noto-thai">
-      <div
-        className={
-          filteredGroups.length > 1
-            ? "grid grid-cols-1 md:grid-cols-2 gap-6"
-            : "w-full"
-        }
-      >
+    <section className="w-full font-noto-thai antialiased pb-12">
+      <div className={cn(
+        "grid grid-cols-1 gap-6",
+        filteredGroups.length > 1 && "lg:grid-cols-2"
+      )}>
         {filteredGroups.map((group) => {
           const groupServices = getServicesForPet(services, group.petType);
 
           return (
-            <div key={group.type} className="space-y-4">
+            <div key={group.type} className="flex flex-col">
+              {/* Modern Section Header - ปรับสีตามประเภทสัตว์ */}
               {type === "all" && (
                 <div
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-lg ${group.styles}`}
+                  className={cn(
+                    "flex items-center justify-center gap-3 mb-6 rounded-xl w-full mx-auto py-3 transition-all border",
+                    group.type === 'dog'
+                      ? "bg-blue-50/50 border-blue-100/50 text-blue-700"
+                      : "bg-orange-50/50 border-orange-100/50 text-orange-600"
+                  )}
                 >
-                  {group.icon}
-                  {group.label}
+                  <div className={cn(
+                    group.type === 'dog' ? "text-blue-600" : "text-orange-500"
+                  )}>
+                    {group.type === 'dog' ? (
+                      <Dog className="size-6" />
+                    ) : (
+                      <Cat className="size-6" />
+                    )}
+                  </div>
+
+                  <div>
+                    <h2 className="text-lg md:text-xl font-bold">
+                      {group.label}
+                    </h2>
+                  </div>
                 </div>
               )}
 
-              <div className="space-y-4">
+              {/* รายการบริการ (Service Cards) */}
+              <div className="grid gap-6">
                 {groupServices.length > 0 ? (
                   groupServices.map((service) => (
                     <ServiceCard key={service.id} service={service} />
@@ -201,6 +212,6 @@ export function MainServicesForm({
           );
         })}
       </div>
-    </section>
+    </section >
   );
 }
