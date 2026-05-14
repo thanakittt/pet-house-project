@@ -1,12 +1,33 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { Receipt } from "lucide-react"; // เพิ่ม Receipt icon
-import Link from "next/link"; // เพิ่ม Link
-import { LoadingButton } from "@/components/shared/LoadingButton";
+import { Receipt } from "lucide-react";
+import Link from "next/link";
+import {
+  LoadingButton,
+  LoadingButtonContent,
+} from "@/components/shared/LoadingButton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AppointmentStatus } from "@/modules/appointment/types/status";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
 import { updateAppointmentStatus } from "../actions/update-appointment";
@@ -25,14 +46,34 @@ const PATH_FLOW: AppointmentStatus[] = [
   "READY_FOR_PICKUP",
 ];
 
+const BOOKING_STATUS_OPTIONS: AppointmentStatus[] = [
+  "PENDING_DEPOSIT",
+  "PENDING_APPROVAL",
+  "CONFIRMED",
+];
+
+const SERVICE_DAY_STATUS_OPTIONS: AppointmentStatus[] = [
+  "CHECKED_IN",
+  "IN_PROGRESS",
+  "READY_FOR_PICKUP",
+];
+
+const FINAL_STATUS_OPTIONS: AppointmentStatus[] = [
+  "COMPLETED",
+  "CANCELLED",
+  "NO_SHOW",
+];
+
 export default function AppointmentStatusManager({
   appointmentId,
   currentStatus,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [confirmStatus, setConfirmStatus] = useState<AppointmentStatus | null>(
+    null,
+  );
 
-  const isWorking = isLoading || isPending;
+  const isWorking = isLoading;
 
   const getNextStatus = (): AppointmentStatus | null => {
     const currentIndex = PATH_FLOW.indexOf(currentStatus);
@@ -47,39 +88,45 @@ export default function AppointmentStatusManager({
     currentStatus,
   );
 
-  const handleUpdateStatus = async (newStatus: AppointmentStatus) => {
+  const showSuccessToast = (newStatus: AppointmentStatus) => {
+    // สถานะ CONFIRMED มี side effect เรื่องค่ามัดจำ จึงต้องแจ้งรายละเอียดเพิ่มให้ผู้ใช้รู้
+    if (newStatus === "CONFIRMED") {
+      toast.success(
+        `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
+      );
+      return;
+    }
+
+    toast.success(`อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`);
+  };
+
+  const handleUpdateStatus = async (
+    newStatus: AppointmentStatus,
+  ): Promise<boolean> => {
     if (newStatus === "COMPLETED") {
       toast.info("กรุณาชำระเงินผ่านระบบ POS เพื่อเสร็จสิ้นการนัดหมาย");
-      return;
+      return false;
     }
 
     setIsLoading(true);
     try {
       const result = await updateAppointmentStatus(appointmentId, newStatus);
       if (result.success) {
-        // เพิ่มเงื่อนไขแจ้งเตือนพิเศษสำหรับสถานะ CONFIRMED
-        if (newStatus === "CONFIRMED") {
-          toast.success(
-            `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
-          );
-        } else {
-          toast.success(
-            `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
-          );
-        }
-      } else {
-        toast.error(result.error);
+        showSuccessToast(newStatus);
+        return true;
       }
+
+      toast.error(result.error || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
+      return false;
     } catch {
       toast.error("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handler สำหรับ Select Dropdown
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as AppointmentStatus;
+  const requestStatusChange = async (newStatus: AppointmentStatus) => {
     if (newStatus === currentStatus) return;
 
     if (newStatus === "COMPLETED") {
@@ -88,185 +135,180 @@ export default function AppointmentStatusManager({
     }
 
     if (["CANCELLED", "NO_SHOW"].includes(newStatus)) {
-      if (
-        !window.confirm(
-          `ยืนยันการเปลี่ยนสถานะเป็น "${STATUS_CONFIG[newStatus].label}" ใช่หรือไม่?`,
-        )
-      ) {
-        return;
-      }
+      setConfirmStatus(newStatus);
+      return;
     }
 
-    startTransition(async () => {
-      try {
-        const result = await updateAppointmentStatus(appointmentId, newStatus);
-        if (result.success) {
-          // เพิ่มเงื่อนไขแจ้งเตือนพิเศษสำหรับสถานะ CONFIRMED
-          if (newStatus === "CONFIRMED") {
-            toast.success(
-              `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
-            );
-          } else {
-            toast.success(
-              `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`,
-            );
-          }
-        } else {
-          toast.error(result.error || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
-        }
-      } catch {
-        toast.error("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
-      }
-    });
+    await handleUpdateStatus(newStatus);
   };
 
-  return (
-    <div className="flex sm:flex-row flex-col justify-between items-center gap-4 bg-muted p-4 border border-slate-100 rounded-xl">
-      {/* 1. แสดงและเลือกสถานะปัจจุบัน (Dropdown) */}
-      <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
-        <span className="font-medium text-muted-foreground text-sm">
-          สถานะปัจจุบัน:
-        </span>
-        <div className="relative">
-          <select
-            value={currentStatus}
-            onChange={handleSelectChange}
-            disabled={isWorking}
-            className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${STATUS_CONFIG[currentStatus].colorClass} ${isWorking ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
-          >
-            <optgroup
-              label="ช่วงการจอง"
-              className="bg-background text-foreground"
-            >
-              <option value="PENDING_DEPOSIT">
-                {STATUS_CONFIG["PENDING_DEPOSIT"].label}
-              </option>
-              <option value="PENDING_APPROVAL">
-                {STATUS_CONFIG["PENDING_APPROVAL"].label}
-              </option>
-              <option value="CONFIRMED">
-                {STATUS_CONFIG["CONFIRMED"].label}
-              </option>
-            </optgroup>
-            <optgroup
-              label="วันที่มาใช้บริการ"
-              className="bg-background text-foreground"
-            >
-              <option value="CHECKED_IN">
-                {STATUS_CONFIG["CHECKED_IN"].label}
-              </option>
-              <option value="IN_PROGRESS">
-                {STATUS_CONFIG["IN_PROGRESS"].label}
-              </option>
-              <option value="READY_FOR_PICKUP">
-                {STATUS_CONFIG["READY_FOR_PICKUP"].label}
-              </option>
-            </optgroup>
-            <optgroup label="จบงาน" className="bg-background text-foreground">
-              <option
-                value="COMPLETED"
-                disabled={currentStatus !== "COMPLETED"}
-              >
-                {STATUS_CONFIG["COMPLETED"].label}
-              </option>
-              <option value="CANCELLED">
-                {STATUS_CONFIG["CANCELLED"].label}
-              </option>
-              <option value="NO_SHOW">{STATUS_CONFIG["NO_SHOW"].label}</option>
-            </optgroup>
-          </select>
+  const handleConfirmStatusChange = async () => {
+    if (!confirmStatus) return;
 
-          <div className="top-1/2 right-3 absolute flex items-center -translate-y-1/2 pointer-events-none">
-            {isPending ? (
-              <Spinner className="opacity-70 text-current" />
-            ) : (
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="opacity-70"
+    const isSuccess = await handleUpdateStatus(confirmStatus);
+    if (isSuccess) {
+      setConfirmStatus(null);
+    }
+  };
+
+  const confirmDialogTitle =
+    confirmStatus === "NO_SHOW"
+      ? "ยืนยันว่าลูกค้าไม่มาตามนัด"
+      : "ยืนยันการยกเลิกคิว";
+
+  const confirmDialogDescription =
+    confirmStatus === "NO_SHOW"
+      ? "เมื่อตั้งสถานะนี้ ระบบจะบันทึกว่านัดหมายนี้เป็น No Show"
+      : "เมื่อตั้งสถานะนี้ ระบบจะบันทึกว่านัดหมายนี้ถูกยกเลิก";
+
+  return (
+    <>
+      <div className="flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-muted/50 p-4 rounded-lg">
+        <div className="flex flex-col gap-2 w-full sm:w-auto">
+          <span className="font-medium text-muted-foreground text-sm">
+            สถานะปัจจุบัน
+          </span>
+
+          <Select
+            value={currentStatus}
+            onValueChange={(value) =>
+              requestStatusChange(value as AppointmentStatus)
+            }
+            disabled={isWorking}
+          >
+            <SelectTrigger className="w-full sm:w-[220px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>ช่วงการจอง</SelectLabel>
+                {BOOKING_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {STATUS_CONFIG[status].label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+
+              <SelectGroup>
+                <SelectLabel>วันที่มาใช้บริการ</SelectLabel>
+                {SERVICE_DAY_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {STATUS_CONFIG[status].label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+
+              <SelectGroup>
+                <SelectLabel>จบงาน</SelectLabel>
+                {FINAL_STATUS_OPTIONS.map((status) => (
+                  <SelectItem
+                    key={status}
+                    value={status}
+                    disabled={
+                      status === "COMPLETED" && currentStatus !== "COMPLETED"
+                    }
+                  >
+                    {STATUS_CONFIG[status].label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 w-full sm:w-auto">
+          {!isFinished && (
+            <>
+              {currentStatus === "CONFIRMED" && (
+                <Button
+                  variant="outline"
+                  disabled={isWorking}
+                  onClick={() => requestStatusChange("NO_SHOW")}
+                >
+                  ไม่มาตามนัด
+                </Button>
+              )}
+
+              <Button
+                variant="destructive"
+                disabled={isWorking}
+                onClick={() => requestStatusChange("CANCELLED")}
               >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            )}
-          </div>
+                ยกเลิกคิว
+              </Button>
+            </>
+          )}
+
+          {currentStatus === "READY_FOR_PICKUP" && (
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={`/back-office/pos/${appointmentId}`}>
+                <Receipt data-icon="inline-start" />
+                ไปหน้ารับชำระเงิน (POS)
+              </Link>
+            </Button>
+          )}
+
+          {currentStatus === "COMPLETED" && (
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={`/receipt/${appointmentId}`}>
+                <Receipt data-icon="inline-start" />
+                ใบเสร็จ
+              </Link>
+            </Button>
+          )}
+
+          {nextStatus && (
+            <LoadingButton
+              variant={
+                currentStatus === "READY_FOR_PICKUP" ? "outline" : "default"
+              }
+              disabled={isWorking}
+              isLoading={isLoading}
+              loadingText="กำลังอัปเดต..."
+              onClick={() => handleUpdateStatus(nextStatus)}
+              className="flex-1 sm:flex-none min-w-[180px]"
+            >
+              {`เปลี่ยนเป็น: ${STATUS_CONFIG[nextStatus].label}`}
+            </LoadingButton>
+          )}
         </div>
       </div>
 
-      {/* 2. ปุ่มควบคุมสถานะตาม Flow */}
-      <div className="flex flex-wrap justify-end gap-2 w-full sm:w-auto">
-        {!isFinished && (
-          <>
-            {currentStatus === "CONFIRMED" && (
-              <Button
-                variant="outline"
-                className="hover:bg-slate-200 text-slate-600"
-                disabled={isWorking}
-                onClick={() => {
-                  if (window.confirm("ยืนยันว่าลูกค้าไม่มาตามนัด (No Show)?")) {
-                    handleUpdateStatus("NO_SHOW");
-                  }
-                }}
-              >
-                ไม่มาตามนัด
-              </Button>
-            )}
-
-            <Button
-              variant="outline"
-              className="hover:bg-red-50 border-red-200 text-red-600 hover:text-red-700"
+      <AlertDialog
+        open={Boolean(confirmStatus)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfirmStatus(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialogTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDialogDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isWorking}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
               disabled={isWorking}
-              onClick={() => {
-                if (window.confirm("คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคิวนี้?")) {
-                  handleUpdateStatus("CANCELLED");
-                }
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmStatusChange();
               }}
             >
-              ยกเลิกคิว
-            </Button>
-          </>
-        )}
-
-        {/* --- ปุ่มลัดไปหน้า POS (จะโชว์เฉพาะสถานะ READY_FOR_PICKUP) --- */}
-        {currentStatus === "READY_FOR_PICKUP" && (
-          <Button asChild className="w-full sm:w-auto">
-            <Link href={`/back-office/pos/${appointmentId}`}>
-              <Receipt className="mr-2 w-4 h-4" />
-              ไปหน้ารับชำระเงิน (POS)
-            </Link>
-          </Button>
-        )}
-
-        {/* --- ปุ่มลัดไปหน้าใบเสร็จ (จะโชว์เฉพาะสถานะ COMPLETED) --- */}
-        {currentStatus === "COMPLETED" && (
-          <Button asChild className="w-full sm:w-auto">
-            <Link href={`/receipt/${appointmentId}`}>
-              <Receipt className="mr-2 w-4 h-4" />
-              ใบเสร็จ
-            </Link>
-          </Button>
-        )}
-
-        {nextStatus && (
-          <LoadingButton
-            variant={
-              currentStatus === "READY_FOR_PICKUP" ? "outline" : "default"
-            }
-            disabled={isWorking}
-            isLoading={isLoading}
-            loadingText="กำลังอัปเดต..."
-            onClick={() => handleUpdateStatus(nextStatus)}
-            className="flex-1 sm:flex-none min-w-[180px]"
-          >
-            {`เปลี่ยนเป็น: ${STATUS_CONFIG[nextStatus].label}`}
-          </LoadingButton>
-        )}
-      </div>
-    </div>
+              <LoadingButtonContent
+                isLoading={isLoading}
+                loadingText="กำลังอัปเดต..."
+              >
+                ยืนยัน
+              </LoadingButtonContent>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

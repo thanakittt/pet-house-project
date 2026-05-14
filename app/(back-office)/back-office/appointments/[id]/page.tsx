@@ -14,6 +14,7 @@ import { Camera, AlertTriangle, ClipboardList } from "lucide-react"; // [NEW] �
 import BackButton from "@/components/BackButton";
 import ImageLightbox from "@/modules/operation/components/ImageLightbox";
 import Image from "next/image";
+import { AppointmentStatusBadge } from "@/components/StatusBadge";
 
 export const metadata: Metadata = {
   title: "รายละเอียดการจอง",
@@ -79,9 +80,12 @@ export default async function AppointmentDetailPage({
           <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
             <div className="flex justify-between items-start mb-6 pb-4 border-b">
               <div>
-                <h1 className="font-bold text-foreground text-xl">
-                  รหัสการจอง: {appointment.id.split("-")[0].toUpperCase()}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-bold text-foreground text-xl">
+                    รหัสการจอง: {appointment.id.split("-")[0].toUpperCase()}
+                  </h1>
+                  <AppointmentStatusBadge status={appointment.status} />
+                </div>
                 <p className="mt-1 text-muted-foreground">
                   วันที่: {formatThaiDate(appointment.date)}
                 </p>
