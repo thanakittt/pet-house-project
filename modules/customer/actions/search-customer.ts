@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { and, or, ilike, isNull } from "drizzle-orm";
-import { customers } from "@/db/schema";
+import { customers, pets } from "@/db/schema";
 import { CustomerSearchResult } from "../types/customer";
 import { ActionResponse } from "@/types/action";
 
@@ -32,6 +32,7 @@ export async function searchCustomer(
       ),
       with: {
         pets: {
+          where: isNull(pets.deletedAt),
           columns: {
             id: true,
             name: true,
