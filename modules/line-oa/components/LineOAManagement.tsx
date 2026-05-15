@@ -55,12 +55,7 @@ import {
   SendIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  type FormEvent,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { type FormEvent, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { broadcastLineText } from "../actions/broadcast-line-text";
 import { updateAppointmentStatusTemplate } from "../actions/update-appointment-status-template";
@@ -155,20 +150,14 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
 
   return (
     <>
-      <Tabs defaultValue="broadcast" className="gap-4">
-        <TabsList>
-          <TabsTrigger value="broadcast">
-            <MegaphoneIcon data-icon="inline-start" />
-            Broadcast
-          </TabsTrigger>
-          <TabsTrigger value="templates">
-            <BellIcon data-icon="inline-start" />
-            Template แจ้งเตือน
-          </TabsTrigger>
+      <Tabs defaultValue="broadcast" className="gap-4"  >
+        <TabsList size="lg" width="half" className="mb-2">
+          <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
+          <TabsTrigger value="templates">Template แจ้งเตือน</TabsTrigger>
         </TabsList>
 
         <TabsContent value="broadcast">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="gap-4 grid lg:grid-cols-[minmax(0,1fr)_320px]">
             <Card>
               <CardHeader>
                 <CardTitle>ส่งข้อความ Broadcast</CardTitle>
@@ -211,11 +200,7 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
                 </form>
               </CardContent>
               <CardFooter className="justify-end">
-                <Button
-                  type="submit"
-                  form="line-oa-broadcast-form"
-
-                >
+                <Button type="submit" form="line-oa-broadcast-form">
                   <SendIcon data-icon="inline-start" />
                   ตรวจสอบและส่ง
                 </Button>
@@ -242,7 +227,7 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3">
                 <ToggleGroup
                   type="single"
                   value={templateStatusFilter}
@@ -268,49 +253,49 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
               </div>
 
               {filteredTemplates.length === 0 ? (
-                <div className="flex min-h-40 items-center justify-center rounded-md border border-dashed p-6 text-center text-muted-foreground text-sm">
+                <div className="flex justify-center items-center p-6 border border-dashed rounded-md min-h-40 text-muted-foreground text-sm text-center">
                   ไม่พบ template ในตัวกรองนี้
                 </div>
               ) : (
-                <div className="grid gap-3 md:grid-cols-2">
-                {filteredTemplates.map((template) => (
-                  <div
-                    key={template.status}
-                    className="flex flex-col gap-3 rounded-md border p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex min-w-0 flex-col gap-1">
-                        <span className="font-medium">{template.label}</span>
-                        <span className="text-muted-foreground text-sm">
-                          {template.description}
-                        </span>
+                <div className="gap-3 grid md:grid-cols-2">
+                  {filteredTemplates.map((template) => (
+                    <div
+                      key={template.status}
+                      className="flex flex-col gap-3 p-4 border rounded-md"
+                    >
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <span className="font-medium">{template.label}</span>
+                          <span className="text-muted-foreground text-sm">
+                            {template.description}
+                          </span>
+                        </div>
+                        <Badge
+                          variant={template.isActive ? "default" : "secondary"}
+                        >
+                          {template.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                        </Badge>
                       </div>
-                      <Badge
-                        variant={template.isActive ? "default" : "secondary"}
-                      >
-                        {template.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-                      </Badge>
-                    </div>
 
-                    <div className="rounded-md bg-muted/50 p-3 text-sm whitespace-pre-wrap">
-                      {renderLineAppointmentStatusTemplate(
-                        template.messageTemplate,
-                        LINE_TEMPLATE_SAMPLE_DATA,
-                      )}
-                    </div>
+                      <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
+                        {renderLineAppointmentStatusTemplate(
+                          template.messageTemplate,
+                          LINE_TEMPLATE_SAMPLE_DATA,
+                        )}
+                      </div>
 
-                    <div className="flex items-center justify-between gap-2">
-                      <AppointmentStatusBadge status={template.status} />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setSelectedTemplate(template)}
-                      >
-                        แก้ไข
-                      </Button>
+                      <div className="flex justify-between items-center gap-2">
+                        <AppointmentStatusBadge status={template.status} />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setSelectedTemplate(template)}
+                        >
+                          แก้ไข
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -336,8 +321,13 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
               }}
               disabled={isPending}
             >
-            <LoadingButtonContent isLoading={isPending} loadingText="กำลังส่ง...">ยืนยันส่ง Broadcast</LoadingButtonContent>
-          </AlertDialogAction>
+              <LoadingButtonContent
+                isLoading={isPending}
+                loadingText="กำลังส่ง..."
+              >
+                ยืนยันส่ง Broadcast
+              </LoadingButtonContent>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -446,7 +436,7 @@ function UpdateTemplateDialog({
         <form
           id={`line-template-${template.status}`}
           onSubmit={handleSubmit}
-          className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]"
+          className="gap-4 grid lg:grid-cols-[minmax(0,1fr)_280px]"
         >
           <FieldGroup>
             <Field data-invalid={!validationResult.success}>
@@ -513,7 +503,7 @@ function UpdateTemplateDialog({
 
             <div className="flex flex-col gap-2">
               <span className="font-medium text-sm">Preview</span>
-              <div className="min-h-36 rounded-md border bg-muted/50 p-3 text-sm whitespace-pre-wrap">
+              <div className="bg-muted/50 p-3 border rounded-md min-h-36 text-sm whitespace-pre-wrap">
                 {previewMessage}
               </div>
             </div>
@@ -521,7 +511,7 @@ function UpdateTemplateDialog({
         </form>
 
         <DialogFooter>
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <div className="flex sm:flex-row flex-col sm:justify-end gap-2">
             <Button
               type="button"
               variant="outline"
