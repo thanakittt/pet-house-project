@@ -10,6 +10,7 @@ import { Pet } from "../types/pet";
 import { CreatePetDialog } from "./CreatePetDialog";
 import { PetCard } from "./PetCard";
 import { UpdatePetDialog } from "./UpdatePetDialog";
+import { PawPrintIcon } from "lucide-react";
 
 type PetActionMode = "staff" | "customer";
 
@@ -38,9 +39,12 @@ export function PetInfoForm({
 
   return (
     <>
-      <Card className="shadow-sm rounded-xl overflow-hidden">
+      <Card className="overflow-hidden">
         <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>ข้อมูลสัตว์เลี้ยง</CardTitle>
+          <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
+            <PawPrintIcon size={20} className="text-taupe-600 rounded-md bg-taupe-100 p-1.5 w-8 h-8" />
+            ข้อมูลสัตว์เลี้ยง
+          </CardTitle>
           {shouldShowHeaderCreateButton && (
             <CreatePetDialog
               petBreeds={petBreeds}
@@ -50,7 +54,7 @@ export function PetInfoForm({
           )}
         </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent className="px-6 py-2">
           {pets.length > 0 ? (
             <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
               {pets.map((pet) => (
