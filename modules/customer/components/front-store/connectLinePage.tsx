@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   connectLine,
   disconnectLine,
-} from "@/modules/customer/actions/connect-line";
+} from "@/modules/line/actions/connect-line";
 import { useRouter } from "next/navigation";
 
 interface ConnectLinePageProps {
