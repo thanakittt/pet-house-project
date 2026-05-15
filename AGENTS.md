@@ -166,3 +166,16 @@ Solution:
 
 Rule for next sessions:
 - For JSX files with Thai labels, avoid including Thai `aria-label` text in patch context. Anchor on component names, prop names, route strings, or other ASCII identifiers.
+
+## 13. PowerShell rg paths with route-group parentheses
+Problem:
+- `rg ... app\(back-office\)\...` failed because PowerShell parsed the route-group parentheses in the path.
+
+Cause:
+- The path argument was not quoted, so PowerShell treated `(` and `)` as syntax before `rg` received the path.
+
+Solution:
+- Re-run `rg` with the route-group path wrapped in single quotes, or omit the route-group path when a broader quoted-safe search is sufficient.
+
+Rule for next sessions:
+- Quote any `rg` path containing parentheses or brackets in PowerShell, just like `Get-Content -LiteralPath`.

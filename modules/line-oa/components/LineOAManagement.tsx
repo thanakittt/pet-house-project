@@ -59,6 +59,7 @@ import { type FormEvent, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { broadcastLineText } from "../actions/broadcast-line-text";
 import { updateAppointmentStatusTemplate } from "../actions/update-appointment-status-template";
+import { updateStaffAppointmentStatusTemplate } from "../actions/update-staff-appointment-status-template";
 import {
   LINE_TEMPLATE_PLACEHOLDERS,
   LINE_TEMPLATE_SAMPLE_DATA,
@@ -69,9 +70,19 @@ import {
   type LineAppointmentStatusTemplateView,
   type LineTemplatePlaceholder,
 } from "../types/appointment-status-template";
+import {
+  DEFAULT_STAFF_LINE_TEMPLATE_ACTIVE,
+  STAFF_LINE_TEMPLATE_PLACEHOLDERS,
+  STAFF_LINE_TEMPLATE_SAMPLE_DATA,
+  renderStaffLineAppointmentStatusTemplate,
+  validateStaffLineTemplateInput,
+  type StaffLineAppointmentStatusTemplateView,
+  type StaffLineTemplatePlaceholder,
+} from "../types/staff-appointment-status-template";
 
 type LineOAManagementProps = {
   templates: LineAppointmentStatusTemplateView[];
+  staffTemplate: StaffLineAppointmentStatusTemplateView;
 };
 
 type TemplateStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
@@ -83,7 +94,18 @@ const placeholderLabels: Record<LineTemplatePlaceholder, string> = {
   serviceNames: "รายการบริการ",
 };
 
-export function LineOAManagement({ templates }: LineOAManagementProps) {
+const staffPlaceholderLabels: Record<StaffLineTemplatePlaceholder, string> = {
+  appointmentDate: "วันที่นัดหมาย",
+  customerName: "ชื่อลูกค้า",
+  customerPhone: "เบอร์โทรลูกค้า",
+  petNames: "รายชื่อสัตว์เลี้ยง",
+  serviceNames: "รายการบริการ",
+};
+
+export function LineOAManagement({
+  templates,
+  staffTemplate,
+}: LineOAManagementProps) {
   const [message, setMessage] = useState("");
   const [messageError, setMessageError] = useState<string | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -91,6 +113,7 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
     useState<TemplateStatusFilter>("ALL");
   const [selectedTemplate, setSelectedTemplate] =
     useState<LineAppointmentStatusTemplateView | null>(null);
+  const [isStaffTemplateOpen, setIsStaffTemplateOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const trimmedMessage = useMemo(() => message.trim(), [message]);
@@ -219,87 +242,124 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
         </TabsContent>
 
         <TabsContent value="templates">
-          <Card>
-            <CardHeader>
-              <CardTitle>Template ข้อความแจ้งเตือนสถานะ</CardTitle>
-              <CardDescription>
-                ปรับข้อความ LINE ที่ลูกค้าจะได้รับเมื่อสถานะนัดหมายเปลี่ยน
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3">
-                <ToggleGroup
-                  type="single"
-                  value={templateStatusFilter}
-                  onValueChange={(value) => {
-                    if (!value) {
-                      return;
-                    }
-
-                    setTemplateStatusFilter(value as TemplateStatusFilter);
-                  }}
-                  variant="outline"
-                  size="sm"
-                  aria-label="Filter LINE appointment status templates"
-                >
-                  <ToggleGroupItem value="ALL">ทั้งหมด</ToggleGroupItem>
-                  <ToggleGroupItem value="ACTIVE">เปิดใช้งาน</ToggleGroupItem>
-                  <ToggleGroupItem value="INACTIVE">ปิดใช้งาน</ToggleGroupItem>
-                </ToggleGroup>
-                <span className="text-muted-foreground text-sm">
-                  แสดง {filteredTemplates.length.toLocaleString("th-TH")} จาก{" "}
-                  {templates.length.toLocaleString("th-TH")} template
-                </span>
-              </div>
-
-              {filteredTemplates.length === 0 ? (
-                <div className="flex justify-center items-center p-6 border border-dashed rounded-md min-h-40 text-muted-foreground text-sm text-center">
-                  ไม่พบ template ในตัวกรองนี้
+          <div className="flex flex-col gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Template ข้อความแจ้งเตือนสถานะ</CardTitle>
+                <CardDescription>
+                  ปรับข้อความ LINE ที่ลูกค้าจะได้รับเมื่อสถานะนัดหมายเปลี่ยน
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3">
+                  <ToggleGroup
+                    type="single"
+                    value={templateStatusFilter}
+                    onValueChange={(value) => {
+                      if (!value) {
+                        return;
+                      }
+                      setTemplateStatusFilter(value as TemplateStatusFilter);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    aria-label="Filter LINE appointment status templates"
+                  >
+                    <ToggleGroupItem value="ALL">ทั้งหมด</ToggleGroupItem>
+                    <ToggleGroupItem value="ACTIVE">เปิดใช้งาน</ToggleGroupItem>
+                    <ToggleGroupItem value="INACTIVE">ปิดใช้งาน</ToggleGroupItem>
+                  </ToggleGroup>
+                  <span className="text-muted-foreground text-sm">
+                    แสดง {filteredTemplates.length.toLocaleString("th-TH")} จาก{" "}
+                    {templates.length.toLocaleString("th-TH")} template
+                  </span>
                 </div>
-              ) : (
-                <div className="gap-3 grid md:grid-cols-2">
-                  {filteredTemplates.map((template) => (
-                    <div
-                      key={template.status}
-                      className="flex flex-col gap-3 p-4 border rounded-md"
-                    >
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex flex-col gap-1 min-w-0">
-                          <span className="font-medium">{template.label}</span>
-                          <span className="text-muted-foreground text-sm">
-                            {template.description}
-                          </span>
+                {filteredTemplates.length === 0 ? (
+                  <div className="flex justify-center items-center p-6 border border-dashed rounded-md min-h-40 text-muted-foreground text-sm text-center">
+                    ไม่พบ template ในตัวกรองนี้
+                  </div>
+                ) : (
+                  <div className="gap-3 grid md:grid-cols-2">
+                    {filteredTemplates.map((template) => (
+                      <div
+                        key={template.status}
+                        className="flex flex-col gap-3 p-4 border rounded-md"
+                      >
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex flex-col gap-1 min-w-0">
+                            <span className="font-medium">{template.label}</span>
+                            <span className="text-muted-foreground text-sm">
+                              {template.description}
+                            </span>
+                          </div>
+                          <Badge
+                            variant={template.isActive ? "default" : "secondary"}
+                          >
+                            {template.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                          </Badge>
                         </div>
-                        <Badge
-                          variant={template.isActive ? "default" : "secondary"}
-                        >
-                          {template.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-                        </Badge>
+                        <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
+                          {renderLineAppointmentStatusTemplate(
+                            template.messageTemplate,
+                            LINE_TEMPLATE_SAMPLE_DATA,
+                          )}
+                        </div>
+                        <div className="flex justify-between items-center gap-2">
+                          <AppointmentStatusBadge status={template.status} />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setSelectedTemplate(template)}
+                          >
+                            แก้ไข
+                          </Button>
+                        </div>
                       </div>
-
-                      <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
-                        {renderLineAppointmentStatusTemplate(
-                          template.messageTemplate,
-                          LINE_TEMPLATE_SAMPLE_DATA,
-                        )}
-                      </div>
-
-                      <div className="flex justify-between items-center gap-2">
-                        <AppointmentStatusBadge status={template.status} />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setSelectedTemplate(template)}
-                        >
-                          แก้ไข
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <div className="flex sm:flex-row flex-col sm:justify-between sm:items-start gap-3">
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <BellIcon className="size-5" />
+                      Template แจ้งเตือนพนักงาน
+                    </CardTitle>
+                    <CardDescription>{staffTemplate.description}</CardDescription>
+                  </div>
+                  <Badge variant={staffTemplate.isActive ? "default" : "secondary"}>
+                    {staffTemplate.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                  </Badge>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <AppointmentStatusBadge status={staffTemplate.status} />
+                  {staffTemplate.isDefault ? (
+                    <Badge variant="outline">ค่าเริ่มต้น</Badge>
+                  ) : null}
+                </div>
+                <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
+                  {renderStaffLineAppointmentStatusTemplate(
+                    staffTemplate.messageTemplate,
+                    STAFF_LINE_TEMPLATE_SAMPLE_DATA,
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter className="justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsStaffTemplateOpen(true)}
+                >
+                  แก้ไข
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
 
@@ -344,6 +404,12 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
           }}
         />
       ) : null}
+
+      <UpdateStaffTemplateDialog
+        template={staffTemplate}
+        open={isStaffTemplateOpen}
+        onOpenChange={setIsStaffTemplateOpen}
+      />
     </>
   );
 }
@@ -533,6 +599,205 @@ function UpdateTemplateDialog({
             <LoadingButton
               type="submit"
               form={`line-template-${template.status}`}
+              isLoading={isPending}
+              loadingText="กำลังบันทึก..."
+            >
+              <SaveIcon data-icon="inline-start" />
+              บันทึก
+            </LoadingButton>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function UpdateStaffTemplateDialog({
+  template,
+  open,
+  onOpenChange,
+}: {
+  template: StaffLineAppointmentStatusTemplateView;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const router = useRouter();
+  const [messageTemplate, setMessageTemplate] = useState(
+    template.messageTemplate,
+  );
+  const [isActive, setIsActive] = useState(template.isActive);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const validationResult = useMemo(
+    () => validateStaffLineTemplateInput(messageTemplate),
+    [messageTemplate],
+  );
+
+  const previewMessage = useMemo(() => {
+    return renderStaffLineAppointmentStatusTemplate(
+      messageTemplate || template.defaultMessageTemplate,
+      STAFF_LINE_TEMPLATE_SAMPLE_DATA,
+    );
+  }, [messageTemplate, template.defaultMessageTemplate]);
+
+  const remainingCharacters = MAX_LINE_TEMPLATE_LENGTH - messageTemplate.length;
+
+  function insertPlaceholder(placeholder: StaffLineTemplatePlaceholder) {
+    setMessageTemplate((currentTemplate) => {
+      const nextPart = `{${placeholder}}`;
+
+      if (!currentTemplate) {
+        return nextPart;
+      }
+
+      return `${currentTemplate}\n${nextPart}`;
+    });
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setServerError(null);
+
+    if (!validationResult.success) {
+      setServerError(validationResult.error);
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await updateStaffAppointmentStatusTemplate({
+        messageTemplate,
+        isActive,
+      });
+
+      if (!result.success) {
+        setServerError(result.error);
+        return;
+      }
+
+      toast.success("บันทึก template แจ้งเตือนพนักงานสำเร็จ");
+      onOpenChange(false);
+      router.refresh();
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="md:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>แก้ไข template: {template.label}</DialogTitle>
+          <DialogDescription>
+            ใช้ placeholder เพื่อให้ระบบเติมข้อมูลนัดหมายจริงก่อนส่ง LINE
+            ให้พนักงาน
+          </DialogDescription>
+          {serverError ? (
+            <DialogDescription className="text-destructive">
+              {serverError}
+            </DialogDescription>
+          ) : null}
+        </DialogHeader>
+
+        <form
+          id="line-staff-confirmed-template"
+          onSubmit={handleSubmit}
+          className="gap-4 grid lg:grid-cols-[minmax(0,1fr)_280px]"
+        >
+          <FieldGroup>
+            <Field data-invalid={!validationResult.success}>
+              <FieldLabel htmlFor="line-staff-confirmed-template-message">
+                ข้อความ template
+              </FieldLabel>
+              <Textarea
+                id="line-staff-confirmed-template-message"
+                value={messageTemplate}
+                onChange={(event) => {
+                  setMessageTemplate(event.target.value);
+                  setServerError(null);
+                }}
+                rows={10}
+                aria-invalid={!validationResult.success}
+                disabled={isPending}
+              />
+              <FieldDescription
+                className={cn(remainingCharacters < 0 && "text-destructive")}
+              >
+                เหลือ {remainingCharacters.toLocaleString("th-TH")} ตัวอักษร
+              </FieldDescription>
+              {!validationResult.success ? (
+                <FieldError errors={[{ message: validationResult.error }]} />
+              ) : null}
+            </Field>
+
+            <Field orientation="horizontal">
+              <Checkbox
+                id="line-staff-confirmed-template-active"
+                checked={isActive}
+                onCheckedChange={(checked) => setIsActive(Boolean(checked))}
+                disabled={isPending}
+              />
+              <div className="flex flex-col gap-1">
+                <FieldLabel htmlFor="line-staff-confirmed-template-active">
+                  เปิดใช้งานการส่ง LINE ให้พนักงาน
+                </FieldLabel>
+                <FieldDescription>
+                  ถ้าปิด ระบบจะไม่ส่ง LINE ให้พนักงานเมื่อ appointment เป็น
+                  CONFIRMED
+                </FieldDescription>
+              </div>
+            </Field>
+          </FieldGroup>
+
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <span className="font-medium text-sm">Placeholder</span>
+              <div className="flex flex-wrap gap-2">
+                {STAFF_LINE_TEMPLATE_PLACEHOLDERS.map((placeholder) => (
+                  <Button
+                    key={placeholder}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => insertPlaceholder(placeholder)}
+                    disabled={isPending}
+                  >
+                    {staffPlaceholderLabels[placeholder]}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="font-medium text-sm">Preview</span>
+              <div className="bg-muted/50 p-3 border rounded-md min-h-36 text-sm whitespace-pre-wrap">
+                {previewMessage}
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <DialogFooter>
+          <div className="flex sm:flex-row flex-col sm:justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setMessageTemplate(template.defaultMessageTemplate);
+                setIsActive(DEFAULT_STAFF_LINE_TEMPLATE_ACTIVE);
+                setServerError(null);
+              }}
+              disabled={isPending}
+            >
+              <RotateCcwIcon data-icon="inline-start" />
+              Reset ค่าเริ่มต้น
+            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={isPending}>
+                ยกเลิก
+              </Button>
+            </DialogClose>
+            <LoadingButton
+              type="submit"
+              form="line-staff-confirmed-template"
               isLoading={isPending}
               loadingText="กำลังบันทึก..."
             >

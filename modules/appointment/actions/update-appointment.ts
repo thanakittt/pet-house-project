@@ -11,6 +11,7 @@ import { AppointmentStatus } from "../types/status";
 import {
   APPOINTMENT_NOT_FOUND_ERROR,
   notifyCustomerAppointmentStatusChange,
+  notifyStaffConfirmedAppointment,
   updateAppointmentStatusInTransaction,
 } from "./status-workflow";
 
@@ -71,6 +72,11 @@ export async function updateAppointmentStatus(
 
     // ส่ง LINE หลัง transaction สำเร็จเท่านั้น เพื่อไม่แจ้งสถานะที่ถูก rollback
     await notifyCustomerAppointmentStatusChange({
+      appointmentId,
+      newStatus,
+      statusChanged,
+    });
+    await notifyStaffConfirmedAppointment({
       appointmentId,
       newStatus,
       statusChanged,
