@@ -57,6 +57,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const chartHeightClass =
+  "h-[240px] sm:h-[280px] md:h-[320px] lg:h-[340px]";
+
 export function FinanceOverviewChart({
   data,
   period,
@@ -121,11 +124,16 @@ export function FinanceOverviewChart({
       <CardContent className="flex-1 pt-0">
         {/* กรณีไม่มีข้อมูล */}
         {data.points.every((p) => p.income === 0 && p.expense === 0) ? (
-          <div className="flex items-center justify-center h-[200px] text-sm text-muted-foreground">
+          <div
+            className={`flex items-center justify-center ${chartHeightClass} text-sm text-muted-foreground`}
+          >
             ไม่มีข้อมูลธุรกรรมใน{periodLabel[period]}
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+          <ChartContainer
+            config={chartConfig}
+            className={`aspect-auto ${chartHeightClass} w-full`}
+          >
             <BarChart
               accessibilityLayer
               data={data.points}

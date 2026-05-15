@@ -19,3 +19,56 @@ Solution:
 Rule for next sessions:
 - 
 - 
+
+## 2. Patch context with mojibake Thai comments
+Problem:
+- `apply_patch` failed when matching context that included Thai comments rendered as mojibake.
+
+Cause:
+- The patch context used non-ASCII/comment text as anchors, but the file content was encoded or displayed differently.
+
+Solution:
+- Re-applied the patch using stable ASCII anchors such as `satisfies ChartConfig`, class names, and component tags.
+
+Rule for next sessions:
+- Prefer ASCII-only context anchors when patching files that show mojibake or mixed-language comments.
+- Avoid relying on rendered Thai comment text as patch context unless the exact bytes are confirmed.
+
+## 3. Missing pnpm command in PATH
+Problem:
+- `pnpm lint` failed because `pnpm` was not recognized in the current PowerShell session.
+
+Cause:
+- The package manager binary was not available on PATH, even though the project defines lint scripts.
+
+Solution:
+- Use `npm run lint` as a local fallback for the same package script when `pnpm` is unavailable.
+
+Rule for next sessions:
+- If `pnpm` is missing, verify with the equivalent `npm run <script>` before stopping verification.
+
+## 4. npm.ps1 blocked by PowerShell execution policy
+Problem:
+- `npm run lint` failed because PowerShell blocked `npm.ps1` under the current execution policy.
+
+Cause:
+- PowerShell attempted to execute the script shim instead of the `.cmd` launcher.
+
+Solution:
+- Use `npm.cmd run lint` on Windows PowerShell to run the same npm script.
+
+Rule for next sessions:
+- Prefer `npm.cmd run <script>` when `npm` is blocked by PowerShell execution policy.
+
+## 5. In-app browser waitForLoadState networkidle unsupported
+Problem:
+- Browser verification failed when using `waitForLoadState({ state: "networkidle" })`.
+
+Cause:
+- The in-app browser runtime for this session does not support the `networkidle` load state.
+
+Solution:
+- Retry browser verification with `waitForLoadState({ state: "load" })`.
+
+Rule for next sessions:
+- Use `load` or `domcontentloaded` for in-app browser verification unless `networkidle` support is confirmed.

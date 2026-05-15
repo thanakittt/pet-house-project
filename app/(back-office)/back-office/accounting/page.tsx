@@ -51,7 +51,7 @@ export default async function AccountingPage(props: {
       <BackOfficeContainer>
         <div className="space-y-6">
           {/* Header & Filter */}
-          <div className="flex sm:flex-row flex-col justify-end items-start sm:items-center gap-4">
+          <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-end">
             <Suspense>
               <TransactionFilter categories={categories} />
             </Suspense>

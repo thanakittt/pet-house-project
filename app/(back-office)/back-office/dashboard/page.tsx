@@ -65,27 +65,26 @@ export default async function DashboardPage(props: {
       <SiteHeader title="ภาพรวมธุรกิจ" />
 
       <BackOfficeContainer>
-        {/* ===== Header: ชื่อหน้า + Period Filter ===== */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
-          {/* ต้องครอบด้วย Suspense เนื่องจาก useSearchParams */}
-          <Suspense fallback={<Skeleton className="h-9 w-[240px]" />}>
-            <DashboardPeriodFilter currentPeriod={period} />
-          </Suspense>
-        </div>
-
-        {/* ===== Row 1: ยอดขาย + การจองคิว (2 cols) ===== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <SalesOverviewCard summary={sales} period={period} />
-          <AppointmentSummaryCard summary={appointments} period={period} />
-        </div>
-
-        {/* ===== Row 2: Finance Chart (เต็มความกว้าง) ===== */}
-        <FinanceOverviewChart data={financeChart} period={period} />
-
-        {/* ===== Row 3: บริการยอดนิยม + รีวิวลูกค้า (2 cols) ===== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <PopularServicesCard services={popularServices} period={period} />
-          <ReviewSummaryCard summary={reviews} period={period} />
+        <div className="flex flex-col gap-4">
+          {/* ===== Header: ชื่อหน้า + Period Filter ===== */}
+          <div className="flex sm:flex-row flex-col sm:justify-end sm:items-center gap-4">
+            {/* ต้องครอบด้วย Suspense เนื่องจาก useSearchParams */}
+            <Suspense fallback={<Skeleton className="w-[240px] h-9" />}>
+              <DashboardPeriodFilter currentPeriod={period} />
+            </Suspense>
+          </div>
+          {/* ===== Row 1: ยอดขาย + การจองคิว (2 cols) ===== */}
+          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2">
+            <SalesOverviewCard summary={sales} period={period} />
+            <AppointmentSummaryCard summary={appointments} period={period} />
+          </div>
+          {/* ===== Row 2: Finance Chart (เต็มความกว้าง) ===== */}
+          <FinanceOverviewChart data={financeChart} period={period} />
+          {/* ===== Row 3: บริการยอดนิยม + รีวิวลูกค้า (2 cols) ===== */}
+          <div className="gap-4 grid grid-cols-1 lg:grid-cols-2">
+            <PopularServicesCard services={popularServices} period={period} />
+            <ReviewSummaryCard summary={reviews} period={period} />
+          </div>
         </div>
       </BackOfficeContainer>
     </>

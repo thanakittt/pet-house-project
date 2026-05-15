@@ -64,12 +64,12 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-3">
+    <div className="flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center">
       {/* Date Filter (Overrides Period) */}
-      <div className="flex items-center gap-2">
+      <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
         <Input
           type="date"
-          className="w-[150px] h-9 text-sm"
+          className="h-9 w-full text-sm md:w-[150px]"
           value={currentDate}
           onChange={(e) => {
             if (e.target.value) {
@@ -80,7 +80,7 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
           }}
         />
         {!currentDate && (
-          <div className="flex bg-muted/50 p-1 rounded-lg w-fit">
+          <div className="grid w-full grid-cols-2 gap-1 rounded-lg bg-muted/50 p-1 md:flex md:w-fit">
             {PERIODS.map((period) => (
               <Button
                 key={period.value}
@@ -106,7 +106,7 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
         value={currentCategoryId}
         onValueChange={(value) => updateFilters({ categoryId: value })}
       >
-        <SelectTrigger className="w-[180px] h-9">
+        <SelectTrigger className="h-9 w-full md:w-[180px]">
           <SelectValue placeholder="ทุกหมวดหมู่" />
         </SelectTrigger>
         <SelectContent>
