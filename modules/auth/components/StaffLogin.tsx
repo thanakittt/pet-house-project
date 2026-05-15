@@ -79,7 +79,7 @@ export function StaffLoginForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="rounded-lg w-sm">
+      <section className="rounded-lg w-sm px-5">
         <Image
           className="mx-auto mb-2 rounded-sm"
           src="/images/logo/1.png"

@@ -82,7 +82,7 @@ export function SignInForm() {
 
   return (
     <div className="flex justify-center items-center min-h-svh">
-      <section className="flex flex-col items-center rounded-lg w-sm">
+      <section className="flex flex-col items-center rounded-lg w-sm px-5">
         <Image
           className="mx-auto mb-2 rounded-sm"
           src="/images/logo/1.png"
@@ -97,9 +97,9 @@ export function SignInForm() {
         <form
           id="sign-in-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full"
+          className="flex flex-col items-center w-full"
         >
-          <FieldGroup className="p-0">
+          <FieldGroup className="flex flex-col gap-3 p-0 w-full">
             {/* Email Field */}
             <Controller
               name="email"
@@ -143,7 +143,7 @@ export function SignInForm() {
                     <FieldLabel htmlFor={field.name}>รหัสผ่าน</FieldLabel>
                     <Link
                       href="/forgot-password"
-                      className="text-muted-foreground text-xs hover:underline underline-offset-4"
+                      className="text-muted-foreground text-xs md:text-sm hover:underline underline-offset-4"
                     >
                       ลืมรหัสผ่าน?
                     </Link>

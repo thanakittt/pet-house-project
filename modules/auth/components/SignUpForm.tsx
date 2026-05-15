@@ -90,7 +90,7 @@ export function SignUpForm() {
 
   return (
     <div className="flex justify-center items-center min-h-svh">
-      <section className="flex flex-col justify-center items-center rounded-lg w-xs">
+      <section className="flex flex-col justify-center items-center rounded-lg w-sm px-5">
         <Image
           className="mb-2 rounded-sm"
           src="/images/logo/1.png"
