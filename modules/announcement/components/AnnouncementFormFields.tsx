@@ -212,12 +212,13 @@ export function AnnouncementFormFields({
         </div>
       </Field>
 
-      <Controller
-        name="startDisplayAt"
-        control={control}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Controller
+          name="startDisplayAt"
+          control={control}
         rules={{ required: "กรุณาระบุวันเริ่มแสดงประกาศ" }}
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid}>
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={`${idPrefix}-${field.name}`}>
               วันเริ่มแสดง
             </FieldLabel>
@@ -228,15 +229,15 @@ export function AnnouncementFormFields({
               aria-invalid={fieldState.invalid}
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-          </Field>
-        )}
-      />
+            </Field>
+          )}
+        />
 
-      <Controller
-        name="endDisplayAt"
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid}>
+        <Controller
+          name="endDisplayAt"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={`${idPrefix}-${field.name}`}>
               วันสิ้นสุด
             </FieldLabel>
@@ -249,9 +250,10 @@ export function AnnouncementFormFields({
             <FieldDescription>
               เว้นว่างได้ หากต้องการให้แสดงต่อเนื่อง
             </FieldDescription>
-          </Field>
-        )}
-      />
+            </Field>
+          )}
+        />
+      </div>
 
       <Controller
         name="isActive"
