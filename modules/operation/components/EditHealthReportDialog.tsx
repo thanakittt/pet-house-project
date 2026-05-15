@@ -102,7 +102,7 @@ export default function EditHealthReportDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="w-8 h-8 text-muted-foreground hover:text-blue-600"
+            className="max-lg:hidden w-8 h-8 text-muted-foreground hover:text-blue-600"
           >
             <Edit2Icon className="w-4 h-4" />
           </Button>

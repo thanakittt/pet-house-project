@@ -66,7 +66,9 @@ export default async function AccountingPage(props: {
                   รายการเคลื่อนไหวล่าสุด
                 </span>
               </div>
-              <CreateTransactionDialog categories={categories} />
+              <div className="hidden lg:block">
+                <CreateTransactionDialog categories={categories} />
+              </div>
             </div>
             <TransactionsBoard
               transactionData={transactions}

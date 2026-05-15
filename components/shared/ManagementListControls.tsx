@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
 import {
   InputGroup,
   InputGroupAddon,
@@ -38,6 +39,7 @@ type SelectFilter = {
 
 type ManagementListControlsProps = {
   createAction?: ReactNode;
+  createActionDesktopOnly?: boolean;
   pageParamName?: string;
   search?: {
     ariaLabel: string;
@@ -86,6 +88,7 @@ function useUrlParamUpdater() {
 
 export function ManagementListControls({
   createAction,
+  createActionDesktopOnly,
   pageParamName = "page",
   search,
   selectFilters = [],
@@ -148,7 +151,11 @@ export function ManagementListControls({
 
       {/* ฝั่งขวา: [createAction] */}
       {createAction && (
-        <div className="flex justify-end items-center shrink-0">
+        <div
+          className={`justify-end items-center shrink-0 ${
+            createActionDesktopOnly ? DESKTOP_ONLY_CONTAINER_CLASS : "flex"
+          }`}
+        >
           {createAction}
         </div>
       )}

@@ -140,6 +140,7 @@ export function InventoriesClient({
         createAction={
           <CreateInventoryDialog inventoryCategories={inventoryCategories} />
         }
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -176,6 +177,7 @@ export function InventoriesClient({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedInventory(product);
                           setIsUpdateDialogOpen(true);
@@ -184,6 +186,7 @@ export function InventoriesClient({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedInventory(product);
                           setIsDeleteDialogOpen(true);

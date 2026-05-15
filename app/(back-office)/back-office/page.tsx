@@ -170,7 +170,14 @@ export default async function BackOfficeHomePage() {
               DEFAULT_QUICK_ACCESS_MODULE_STYLE;
 
             return (
-              <Link key={module.url} href={module.url} className="group block">
+              <Link
+                key={module.url}
+                href={module.url}
+                className={cn(
+                  "group block",
+                  module.desktopOnly && "hidden lg:block",
+                )}
+              >
                 <Card
                   className={cn(
                     "hover:bg-muted/50 hover:shadow-sm h-full transition-all duration-200",

@@ -369,7 +369,7 @@ export function POSCheckoutForm({
                                   <span className="min-w-[80px] font-bold text-lg text-right">
                                     ฿{Number(item.price).toLocaleString()}
                                   </span>
-                                  <div className="flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="hidden lg:flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button
                                       variant="ghost"
                                       size="icon"
@@ -408,7 +408,7 @@ export function POSCheckoutForm({
               </div>
 
               {/* Add Item Section */}
-              <div className="bg-muted/5 p-4 sm:p-6 border-t">
+              <div className="hidden lg:block bg-muted/5 p-4 sm:p-6 border-t">
                 {!isAddingItem ? (
                   <Button
                     variant="outline"
@@ -567,7 +567,7 @@ export function POSCheckoutForm({
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4">
+              <div className="hidden lg:block space-y-3 pt-4">
                 <p className="font-bold text-muted-foreground text-xs uppercase">
                   วิธีชำระเงิน
                 </p>
@@ -619,7 +619,7 @@ export function POSCheckoutForm({
                 isLoading={isPending}
                 loadingText="กำลังบันทึก..."
                 className={cn(
-                  "shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
+                  "max-lg:hidden shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
                   paymentMethod === "CASH"
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                     : "bg-indigo-600 hover:bg-indigo-700 text-white",

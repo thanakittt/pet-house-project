@@ -150,7 +150,7 @@ export function LineOAManagement({ templates }: LineOAManagementProps) {
 
   return (
     <>
-      <Tabs defaultValue="broadcast" className="gap-4"  >
+      <Tabs defaultValue="broadcast" className="hidden lg:flex flex-col gap-4">
         <TabsList size="lg" width="half" className="mb-2">
           <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
           <TabsTrigger value="templates">Template แจ้งเตือน</TabsTrigger>

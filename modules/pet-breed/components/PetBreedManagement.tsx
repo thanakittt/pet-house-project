@@ -79,6 +79,7 @@ export function PetBreedManagement({
           },
         ]}
         createAction={<CreatePetBreedDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -107,6 +108,7 @@ export function PetBreedManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedPetBreed(petBreed);
                           setIsUpdateDialogOpen(true);
@@ -116,6 +118,7 @@ export function PetBreedManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedPetBreed(petBreed);
                           setIsDeleteDialogOpen(true);

@@ -210,10 +210,7 @@ function MobileScheduleList({
                   </div>
                 </div>
 
-                <InteractiveStatusSelect
-                  appointmentId={appt.id}
-                  currentStatus={appt.status}
-                />
+                <AppointmentStatusBadge status={appt.status} />
               </div>
 
               <p className="flex items-center gap-1.5 font-medium text-muted-foreground text-sm break-words">
@@ -229,6 +226,12 @@ function MobileScheduleList({
           </div>
         </Link>
       ))}
+      <div className="hidden">
+        <InteractiveStatusSelect
+          appointmentId={appointments[0].id}
+          currentStatus={appointments[0].status}
+        />
+      </div>
     </div>
   );
 }
@@ -335,7 +338,7 @@ export default function ScheduleCanvas({
           </div>
         </div>
 
-        <Button className="shadow-sm w-full sm:w-auto" asChild>
+        <Button className="max-lg:hidden shadow-sm w-full sm:w-auto" asChild>
           <Link href="/back-office/appointments/create">
             <PlusIcon className="size-4" />
             เพิ่มนัดหมาย

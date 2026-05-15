@@ -11,6 +11,7 @@ import { CreatePetDialog } from "./CreatePetDialog";
 import { PetCard } from "./PetCard";
 import { UpdatePetDialog } from "./UpdatePetDialog";
 import { PawPrintIcon } from "lucide-react";
+import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
 
 type PetActionMode = "staff" | "customer";
 
@@ -36,6 +37,7 @@ export function PetInfoForm({
       ? "ยังไม่มีข้อมูลสัตว์เลี้ยงในโปรไฟล์ของคุณ"
       : "ยังไม่มีข้อมูลสัตว์เลี้ยงในระบบ";
   const shouldShowHeaderCreateButton = pets.length > 0 || actionMode === "staff";
+  const shouldUseDesktopOnlyActions = actionMode === "staff";
 
   return (
     <>
@@ -46,11 +48,19 @@ export function PetInfoForm({
             ข้อมูลสัตว์เลี้ยง
           </CardTitle>
           {shouldShowHeaderCreateButton && (
-            <CreatePetDialog
-              petBreeds={petBreeds}
-              customerId={customerId}
-              actionMode={actionMode}
-            />
+            <div
+              className={
+                shouldUseDesktopOnlyActions
+                  ? DESKTOP_ONLY_CONTAINER_CLASS
+                  : undefined
+              }
+            >
+              <CreatePetDialog
+                petBreeds={petBreeds}
+                customerId={customerId}
+                actionMode={actionMode}
+              />
+            </div>
           )}
         </CardHeader>
 
@@ -61,6 +71,7 @@ export function PetInfoForm({
                 <PetCard
                   key={pet.id}
                   pet={pet}
+                  desktopOnlyActions={shouldUseDesktopOnlyActions}
                   onEdit={() => {
                     setSelectedPet(pet);
                     setIsEditOpen(true);

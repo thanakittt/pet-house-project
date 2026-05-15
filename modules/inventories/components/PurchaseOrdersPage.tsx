@@ -89,6 +89,7 @@ export default function PurchaseOrdersPage({
               </Link>
             </Button>
           }
+          createActionDesktopOnly
         />
 
         <div className="border rounded-md overflow-x-auto">
@@ -130,6 +131,7 @@ export default function PurchaseOrdersPage({
                       <StatusUpdate
                         orderId={order.id}
                         currentStatus={order.status as PurchaseOrderStatus}
+                        desktopOnly
                       />
                     </TableCell>
                     <TableCell className="text-right">
@@ -144,6 +146,7 @@ export default function PurchaseOrdersPage({
                           <TableActionButton
                             aria-label="ลบใบสั่งซื้อ"
                             action="delete"
+                            desktopOnly
                             onClick={() => {
                               setDeleteTarget(order);
                               setIsDeleteDialogOpen(true);

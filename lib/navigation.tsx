@@ -25,6 +25,7 @@ export interface NavItem {
   url: string;
   icon: React.ReactNode;
   allowedUserRoles: UserRole[];
+  desktopOnly?: boolean;
 }
 
 export const NAVIGATION_ITEMS: NavItem[] = [
@@ -39,12 +40,14 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     url: "/back-office/dashboard",
     icon: <LayoutDashboard className="size-5" />,
     allowedUserRoles: ["owner"],
+    desktopOnly: true,
   },
   {
     title: "จัดการผู้ใช้",
     url: "/back-office/users",
     icon: <UserCog className="size-5" />,
     allowedUserRoles: ["admin"],
+    desktopOnly: true,
   },
   {
     title: "จัดการลูกค้าและสัตว์เลี้ยง",
@@ -81,6 +84,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     url: "/back-office/pos",
     icon: <Store className="size-5" />,
     allowedUserRoles: ["owner", "admin", "staff"],
+    desktopOnly: true,
   },
   {
     title: "จัดการประกาศ",
@@ -93,12 +97,14 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     url: "/back-office/line-oa",
     icon: <MessageCircle className="size-5" />,
     allowedUserRoles: ["owner", "admin"],
+    desktopOnly: true,
   },
   {
     title: "จัดการหมวดหมู่สินค้า",
     url: "/back-office/inventory-categories",
     icon: <Layers className="size-5" />,
     allowedUserRoles: ["owner", "admin", "staff"],
+    desktopOnly: true,
   },
   {
     title: "จัดการสินค้าคงคลัง",
@@ -111,17 +117,20 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     url: "/back-office/transaction-categories",
     icon: <Tags className="size-5" />,
     allowedUserRoles: ["owner"],
+    desktopOnly: true,
   },
   {
     title: "จัดการบัญชี",
     url: "/back-office/accounting",
     icon: <CircleDollarSign className="size-5" />,
     allowedUserRoles: ["owner"],
+    desktopOnly: true,
   },
   {
     title: "ตรวจสลิปโอนเงิน",
     url: "/back-office/payment-slip-verifications",
     icon: <ReceiptText className="size-5" />,
     allowedUserRoles: ["owner"],
+    desktopOnly: true,
   },
 ];

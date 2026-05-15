@@ -32,7 +32,7 @@ export default function DeleteHealthReportButton({
         aria-label={`ลบรายงานสุขภาพ: ${topic}`}
         variant="ghost"
         size="icon"
-        className="hover:bg-destructive/10 w-8 h-8 text-muted-foreground hover:text-destructive"
+        className="max-lg:hidden hover:bg-destructive/10 w-8 h-8 text-muted-foreground hover:text-destructive"
         onClick={() => setOpen(true)}
       >
         <Trash2Icon className="w-4 h-4" />

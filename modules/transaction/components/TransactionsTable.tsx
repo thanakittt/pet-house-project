@@ -66,6 +66,7 @@ export function TransactionsTable({
                     className="size-8"
                     aria-label="แก้ไข"
                     action="edit"
+                    desktopOnly
                     onClick={() => onEdit(tx)}
                     disabled={!tx.isManual}
                     title={
@@ -79,6 +80,7 @@ export function TransactionsTable({
                     className="size-8"
                     aria-label="ลบ"
                     action="delete"
+                    desktopOnly
                     onClick={() => onDelete(tx)}
                     disabled={!tx.isManual}
                     title={

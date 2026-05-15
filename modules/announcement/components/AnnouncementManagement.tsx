@@ -96,6 +96,7 @@ export function AnnouncementManagement({
           },
         ]}
         createAction={<CreateAnnouncementDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -165,6 +166,7 @@ export function AnnouncementManagement({
                         <TableActionButton
                           aria-label="แก้ไขข้อมูล"
                           action="edit"
+                          desktopOnly
                           onClick={() => {
                             setSelectedAnnouncement(announcement);
                             setIsUpdateDialogOpen(true);
@@ -174,6 +176,7 @@ export function AnnouncementManagement({
                         <TableActionButton
                           aria-label="ลบข้อมูล"
                           action="delete"
+                          desktopOnly
                           onClick={() => {
                             setSelectedAnnouncement(announcement);
                             setIsDeleteDialogOpen(true);

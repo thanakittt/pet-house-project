@@ -339,10 +339,12 @@ export default function OperationDetailClient({
               </CardTitle>
             </div>
 
-            <HealthReportModal
-              appointmentId={operation.appointmentId}
-              petId={operation.petId}
-            />
+            <div className="hidden lg:block">
+              <HealthReportModal
+                appointmentId={operation.appointmentId}
+                petId={operation.petId}
+              />
+            </div>
           </CardHeader>
           <CardContent className="pt-6">
             {healthReports.length > 0 ? (

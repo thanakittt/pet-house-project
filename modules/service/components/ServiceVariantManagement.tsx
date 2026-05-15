@@ -83,6 +83,7 @@ export default function ServiceVariantsManagement({
           },
         ]}
         createAction={<CreateServiceVariantDialog serviceId={serviceId} />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -117,6 +118,7 @@ export default function ServiceVariantsManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedVariant(variant);
                           setIsEditDialogOpen(true);
@@ -126,6 +128,7 @@ export default function ServiceVariantsManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedVariant(variant);
                           setIsDeleteDialogOpen(true);

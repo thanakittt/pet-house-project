@@ -64,6 +64,7 @@ export function TransactionCategoryManagement({
           },
         ]}
         createAction={<CreateTransactionCategoryDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -94,6 +95,7 @@ export function TransactionCategoryManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedTransactionCategory(category);
                           setIsUpdateDialogOpen(true);
@@ -103,6 +105,7 @@ export function TransactionCategoryManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedTransactionCategory(category);
                           setIsDeleteDialogOpen(true);

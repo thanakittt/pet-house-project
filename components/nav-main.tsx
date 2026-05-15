@@ -10,11 +10,12 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavItem } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 
 export function NavMain({
   items,
 }: {
-  items: Pick<NavItem, "title" | "url" | "icon">[];
+  items: Pick<NavItem, "title" | "url" | "icon" | "desktopOnly">[];
 }) {
   const pathname = usePathname();
   const isActive = (url: string) => {
@@ -29,7 +30,10 @@ export function NavMain({
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.url}>
+            <SidebarMenuItem
+              key={item.url}
+              className={cn(item.desktopOnly && "hidden lg:block")}
+            >
               <SidebarMenuButton
                 tooltip={item.title}
                 asChild

@@ -52,7 +52,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
       {/* แถบเครื่องมือ */}
       <div className="print:hidden flex justify-between items-center mb-6 w-full max-w-sm">
         <BackButton />
-        <Button onClick={handlePrint} className="shadow-sm">
+        <Button onClick={handlePrint} className="max-lg:hidden shadow-sm">
           <Printer className="mr-2" size={16} /> พิมพ์ใบเสร็จ
         </Button>
       </div>

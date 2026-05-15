@@ -115,6 +115,7 @@ export default function UserManagement({
           },
         ]}
         createAction={<CreateUserDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -148,12 +149,14 @@ export default function UserManagement({
                         <TableActionButton
                           aria-label="ยกเลิกการแบน"
                           action="unban"
+                          desktopOnly
                           onClick={() => unbanUser(user.id)}
                         />
                       ) : (
                         <TableActionButton
                           aria-label="แบนผู้ใช้"
                           action="ban"
+                          desktopOnly
                           onClick={() => {
                             setSelectedUserId(user.id);
                             setIsBanUserDialogOpen(true);
@@ -164,6 +167,7 @@ export default function UserManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         disabled={loadingUserId === user.id}
                         isLoading={loadingUserId === user.id}
                         onClick={() => handleEditUser(user.id)}

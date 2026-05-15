@@ -22,6 +22,7 @@ type TableActionButtonProps = Omit<
   "children"
 > & {
   action: TableAction;
+  desktopOnly?: boolean;
   icon?: LucideIcon;
   isLoading?: boolean;
 };
@@ -31,9 +32,13 @@ type TableActionLinkProps = Omit<
   "asChild" | "children" | "onClick"
 > & {
   action: TableAction;
+  desktopOnly?: boolean;
   href: string;
   icon?: LucideIcon;
 };
+
+export const DESKTOP_ONLY_ACTION_CLASS = "max-lg:hidden";
+export const DESKTOP_ONLY_CONTAINER_CLASS = "max-lg:hidden lg:flex";
 
 export const TABLE_ACTION_ICONS = {
   ban: BanIcon,
@@ -100,6 +105,7 @@ function ActionIcon({
 export function TableActionButton({
   action,
   className,
+  desktopOnly,
   icon,
   isLoading,
   size = "icon",
@@ -112,7 +118,11 @@ export function TableActionButton({
     <Button
       variant={variant}
       size={size}
-      className={cn(config.className, className)}
+      className={cn(
+        config.className,
+        desktopOnly && DESKTOP_ONLY_ACTION_CLASS,
+        className,
+      )}
       {...props}
       aria-busy={isLoading}
       disabled={props.disabled || isLoading}
@@ -125,6 +135,7 @@ export function TableActionButton({
 export function TableActionLink({
   action,
   className,
+  desktopOnly,
   href,
   icon,
   size = "icon",
@@ -137,7 +148,11 @@ export function TableActionLink({
     <Button
       variant={variant}
       size={size}
-      className={cn(config.className, className)}
+      className={cn(
+        config.className,
+        desktopOnly && DESKTOP_ONLY_ACTION_CLASS,
+        className,
+      )}
       asChild
       {...props}
     >

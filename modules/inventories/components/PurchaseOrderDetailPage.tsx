@@ -48,7 +48,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import StatusUpdate from "@/modules/inventories/components/StatusUpdate";
 import {
@@ -122,6 +122,21 @@ export default function PurchaseOrderDetailPage({
   const [selectedItemId, setSelectedItemId] = useState("");
 
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    const laptopQuery = window.matchMedia("(min-width: 1024px)");
+
+    const handleViewportChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) {
+        setIsEditing(false);
+      }
+    };
+
+    laptopQuery.addEventListener("change", handleViewportChange);
+    return () => {
+      laptopQuery.removeEventListener("change", handleViewportChange);
+    };
+  }, []);
 
   // 3. ปรับการคำนวณ totalAmount โดยแปลง unitCost กลับเป็นตัวเลข
   const displayItems = isEditing ? editItems : order.items;
@@ -265,7 +280,11 @@ export default function PurchaseOrderDetailPage({
 
           <div className="relative z-10 w-full md:w-auto">
             <div className="bg-slate-50/80 p-1.5 rounded-xl border border-slate-100 backdrop-blur-sm flex justify-end">
-              <StatusUpdate orderId={order.id} currentStatus={currentStatus} />
+              <StatusUpdate
+                orderId={order.id}
+                currentStatus={currentStatus}
+                desktopOnly
+              />
             </div>
           </div>
         </div>
@@ -354,7 +373,7 @@ export default function PurchaseOrderDetailPage({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="gap-1.5 text-slate-600 hover:text-slate-900 h-8"
+                      className="hidden lg:inline-flex gap-1.5 text-slate-600 hover:text-slate-900 h-8"
                       onClick={() => setIsEditing(true)}
                     >
                       <Pencil size={13} />
@@ -363,7 +382,7 @@ export default function PurchaseOrderDetailPage({
                   )}
 
                   {isEditing && (
-                    <div className="flex items-center gap-1.5">
+                    <div className="hidden lg:flex items-center gap-1.5">
                       <Button
                         size="sm"
                         variant="ghost"
@@ -391,7 +410,7 @@ export default function PurchaseOrderDetailPage({
               </div>
 
               {isEditing && (
-                <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100">
+                <div className="hidden lg:flex items-center gap-3 mt-4 pt-4 border-t border-slate-100">
                   <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                     <PopoverTrigger asChild>
                       <Button

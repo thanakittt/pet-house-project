@@ -66,6 +66,7 @@ export default function CustomerManagement({
           },
         ]}
         createAction={<CreateCustomerDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -109,6 +110,7 @@ export default function CustomerManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedCustomer(customer);
                           setIsUpdateDialogOpen(true);
@@ -118,6 +120,7 @@ export default function CustomerManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedCustomer(customer);
                           setIsDeleteDialogOpen(true);

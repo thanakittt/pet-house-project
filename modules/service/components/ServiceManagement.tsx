@@ -68,6 +68,7 @@ export default function ServiceManagement({
           },
         ]}
         createAction={<CreateServiceDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -100,6 +101,7 @@ export default function ServiceManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedService(service);
                           setIsEditDialogOpen(true);
@@ -109,6 +111,7 @@ export default function ServiceManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedService(service);
                           setIsDeleteDialogOpen(true);
