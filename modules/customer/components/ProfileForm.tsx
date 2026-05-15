@@ -632,7 +632,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       </header>
 
       <div className="mx-auto max-w-4xl">
-        <Card className="w-full">
+        <Card className="w-full ">
           <CardHeader>
             <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
               <User2 size={20} className="text-blue-600 rounded-md bg-blue-100 p-1.5 w-8 h-8" /> ข้อมูลส่วนตัว
@@ -649,7 +649,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             </CardAction>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="px-6 pb-3">
             <dl className="flex flex-col gap-3">
               <ProfileRow
                 label="ชื่อ-นามสกุล"
@@ -674,7 +674,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
               <LockKeyholeIcon size={20} className="text-emerald-600 rounded-md bg-emerald-100 p-1.5 w-8 h-8" /> ความปลอดภัยและการเข้าถึง
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-6 pb-3">
             <div className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-4 rounded-lg border border-border px-4 py-3">
                 <div className="min-w-0 flex-1">
