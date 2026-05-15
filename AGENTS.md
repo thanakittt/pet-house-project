@@ -72,3 +72,30 @@ Solution:
 
 Rule for next sessions:
 - Use `load` or `domcontentloaded` for in-app browser verification unless `networkidle` support is confirmed.
+
+## 6. PowerShell Select-String regex with quotes and pipes
+Problem:
+- `Select-String` failed when the regex pattern included quoted JSX attributes and `|` alternation.
+
+Cause:
+- The PowerShell command string did not preserve the regex as one argument, so pieces of the pattern were parsed as separate positional parameters.
+
+Solution:
+- Use `rg -n 'pattern' ...` for JSX searches, or pass a safely quoted single pattern string to `Select-String`.
+
+Rule for next sessions:
+- Prefer `rg` for multi-term JSX/TSX searches in PowerShell.
+- If using `Select-String`, wrap the full pattern so PowerShell receives it as one argument.
+
+## 7. Reusing mojibake context in patches
+Problem:
+- `apply_patch` failed while wrapping announcement date fields because the patch included Thai mojibake labels and validation text as expected context.
+
+Cause:
+- The file contains mixed-language mojibake, and patch matching is byte-sensitive.
+
+Solution:
+- Re-applied the change using ASCII-only JSX anchors such as `name="startDisplayAt"` and `name="isActive"`.
+
+Rule for next sessions:
+- When a file already shows mojibake, keep patch hunks minimal and anchor on ASCII identifiers only.
