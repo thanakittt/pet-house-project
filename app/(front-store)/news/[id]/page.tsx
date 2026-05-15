@@ -11,6 +11,7 @@ import { Calendar, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import BackButton from "@/components/BackButton";
 
 const ANNOUNCEMENT_TAG_COLORS: Record<AnnouncementType, string> = {
   NEWS: "bg-blue-100 text-blue-600 border-blue-200",
@@ -59,14 +60,9 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
 
   return (
     <main className="space-y-6 mx-auto p-4 md:p-8 max-w-5xl">
-      <Button variant="outline" asChild>
-        <Link href="/news">
-          <ChevronLeft className="mr-2 w-4 h-4" />
-          กลับ
-        </Link>
-      </Button>
+      <BackButton />
 
-      <article className="bg-white shadow-sm border border-slate-100 rounded-3xl overflow-hidden">
+      <article className="bg-white shadow-sm border border-slate-100 rounded-2xl overflow-hidden">
         {announcement.imageUrl ? (
           <div className="relative bg-muted border-slate-100 border-b w-full aspect-video">
             <Image
@@ -95,10 +91,10 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
           </div>
 
           <div className="space-y-3">
-            <h1 className="font-bold text-primary text-2xl md:text-4xl leading-tight">
+            <h1 className="font-bold text-primary text-2xl">
               {announcement.title}
             </h1>
-            <p className="text-muted-foreground leading-7 whitespace-pre-wrap">
+            <p className="text-muted-foreground text-sm md:text-base leading-7 whitespace-pre-wrap">
               {announcement.content}
             </p>
           </div>

@@ -100,6 +100,11 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
 
   return (
     <div className="space-y-4 mx-auto p-4 md:p-8 max-w-5xl">
+      <header className="mb-5 mt-3">
+        <h1 className="text-pretty text-xl font-bold md:text-2xl">
+          ข่าวสารทั้งหมด
+        </h1>
+      </header>
       <AnnouncementList
         announcements={result.data.announcements}
         className="gap-4 grid grid-cols-1"

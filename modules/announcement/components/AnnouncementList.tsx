@@ -78,7 +78,7 @@ export default function AnnouncementList({
                 </p>
 
                 {/* Date */}
-                <div className="flex items-center gap-1.5 mt-1 text-primary/50 text-xs md:text-sm">
+                <div className="flex items-center gap-1.5 mt-1 text-muted-foreground/80 text-xs md:text-sm">
                   <Calendar size={14} className="opacity-70" />
                   <span>{formatAnnouncementDate(announcement)}</span>
                 </div>
