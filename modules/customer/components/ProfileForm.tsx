@@ -34,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
   changeCustomerPassword,
   requestCustomerEmailChange,
@@ -42,7 +41,7 @@ import {
   updateCustomerProfile,
 } from "@/modules/customer/actions/profile";
 import { CustomerProfile } from "@/modules/customer/queries/get-profile";
-import { PencilIcon } from "lucide-react";
+import { CircleUserRound, LockKeyholeIcon, PencilIcon, User2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -457,12 +456,12 @@ function PasswordDialog({
 
       const result = hasPassword
         ? await changeCustomerPassword({
-            currentPassword: data.currentPassword,
-            newPassword: data.newPassword,
-          })
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        })
         : await setCustomerPassword({
-            newPassword: data.newPassword,
-          });
+          newPassword: data.newPassword,
+        });
 
       if (!result.success) {
         setServerError(result.error);
@@ -625,17 +624,18 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
     : "ตั้งรหัสผ่าน";
 
   return (
-    <main className="w-full p-5">
-      <header className="mb-2">
-        <h1 className="text-pretty text-2xl font-bold">บัญชีผู้ใช้</h1>
+    <main className="mx-auto max-w-4xl p-5">
+      <header className="mb-5 mt-3">
+        <h1 className="text-pretty text-xl font-bold md:text-2xl">
+          บัญชีผู้ใช้
+        </h1>
       </header>
-      <Separator className="mb-5" />
 
       <div className="mx-auto max-w-4xl">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-base font-bold">
-              ข้อมูลส่วนตัว
+            <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
+              <User2 size={20} className="text-blue-600 rounded-md bg-blue-100 p-1.5 w-8 h-8" /> ข้อมูลส่วนตัว
             </CardTitle>
             <CardAction>
               <Button
@@ -670,19 +670,19 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
         <Card className="mt-5 w-full">
           <CardHeader>
-            <CardTitle className="text-base font-bold">
-              ความปลอดภัยและการเข้าถึง
+            <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
+              <LockKeyholeIcon size={20} className="text-emerald-600 rounded-md bg-emerald-100 p-1.5 w-8 h-8" /> ความปลอดภัยและการเข้าถึง
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-4 rounded-lg border border-border px-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">อีเมล</p>
+                  <p className="text-sm md:text-basefont-medium">อีเมล</p>
                   <p className="text-sm text-muted-foreground">
                     ใช้สำหรับเข้าสู่ระบบและรับการแจ้งเตือน
                   </p>
-                  <p className="mt-1 truncate text-sm">{profile.email}</p>
+                  <p className="mt-1 truncate text-sm md:text-base">{profile.email}</p>
                 </div>
                 <Button
                   variant="outline"
@@ -697,13 +697,13 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
               <div className="flex items-start justify-between gap-4 rounded-lg border border-border px-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">รหัสผ่าน</p>
+                  <p className="text-sm md:text-base font-medium">รหัสผ่าน</p>
                   <p className="text-sm text-muted-foreground">
                     {profile.hasPassword
                       ? "เปลี่ยนรหัสผ่านเพื่อความปลอดภัย"
                       : "ตั้งรหัสผ่านเพื่อเข้าสู่ระบบด้วยอีเมลได้"}
                   </p>
-                  <p className="mt-1 text-sm">
+                  <p className="mt-1 text-sm md:text-base">
                     {profile.hasPassword ? "••••••••" : "ยังไม่ได้ตั้งรหัสผ่าน"}
                   </p>
                 </div>
