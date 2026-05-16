@@ -27,12 +27,12 @@ import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 import {
   Calendar,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   Clock,
   Eye,
   MessageSquare,
+  PawPrint,
   Star,
   Wallet,
 } from "lucide-react";
@@ -44,6 +44,10 @@ import { toast } from "sonner";
 type CustomerAppointmentProps = {
   appointmentData: CustomerAppointmentsResult;
 };
+
+function buildAppointmentPageHref(page: number): string {
+  return page <= 1 ? "/appointments" : `/appointments?page=${page}`;
+}
 
 function getPetTypeForBadge(species: CustomerAppointmentListItem["species"]) {
   return species.toLowerCase();
@@ -57,7 +61,6 @@ function formatAppointmentTime(time: string) {
   if (!time) {
     return "-";
   }
-
   return format(parseISO(time), "HH:mm", { locale: th });
 }
 
@@ -81,7 +84,6 @@ function CustomerReviewDialog({
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
-
     if (!nextOpen) {
       resetForm();
     }
@@ -89,7 +91,6 @@ function CustomerReviewDialog({
 
   function handleSubmit() {
     setError("");
-
     startTransition(async () => {
       const result = await createCustomerReview({
         appointmentId,
@@ -115,40 +116,41 @@ function CustomerReviewDialog({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="gap-2 hover:bg-primary/5 px-6 border-2 border-primary/30 border-dashed rounded-xl w-full sm:w-auto h-12 font-bold text-primary"
+          size="lg"
+          className="gap-2 hover:border-primary/30 hover:bg-primary/5 font-semibold text-muted-foreground transition-all duration-300"
         >
-          <MessageSquare className="size-4" />
-          รีวิวบริการนี้
+          <MessageSquare className="size-3.5" />
+          เขียนรีวิวบริการ
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-2xl">
         <DialogHeader>
-          <DialogTitle>รีวิวบริการ</DialogTitle>
+          <DialogTitle className="text-xl font-bold tracking-tight">รีวิวบริการ</DialogTitle>
           <DialogDescription>
-            ให้คะแนนและเล่าประสบการณ์หลังใช้บริการครั้งนี้
+            ให้คะแนนและเล่าประสบการณ์หลังใช้บริการครั้งนี้ เพื่อให้เราพัฒนาให้ดียิ่งขึ้น
           </DialogDescription>
           {error ? (
-            <DialogDescription className="text-destructive">
+            <DialogDescription className="text-destructive font-medium">
               {error}
             </DialogDescription>
           ) : null}
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="space-y-5 py-2 items-center justify-center">
           <div className="space-y-2">
-            <Label>คะแนนบริการ</Label>
-            <div className="flex gap-2">
+            <Label className="text-primary font-medium text-sm">คะแนนบริการ</Label>
+            <div className="flex gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
-                  className="rounded-full p-1 transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="rounded-full p-0.5 transition hover:scale-110 focus-visible:outline-none"
                   onClick={() => setRating(star)}
                   aria-label={`ให้คะแนน ${star} ดาว`}
                 >
                   <Star
                     className={cn(
-                      "size-8",
+                      "size-7 transition-colors",
                       star <= rating
                         ? "fill-amber-400 text-amber-400"
                         : "text-slate-200",
@@ -160,26 +162,27 @@ function CustomerReviewDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`review-comment-${appointmentId}`}>
+            <Label htmlFor={`review-comment-${appointmentId}`} className="text-primary font-medium text-sm">
               ความคิดเห็นเพิ่มเติม
             </Label>
             <Textarea
               id={`review-comment-${appointmentId}`}
               value={comment}
               onChange={(event) => setComment(event.target.value)}
-              placeholder="เล่าความประทับใจ หรือสิ่งที่อยากให้ร้านปรับปรุง"
-              className="min-h-28 resize-none"
+              placeholder="เล่าความประทับใจ หรือสิ่งที่อยากให้ร้านปรับปรุง..."
+              className="min-h-24 resize-none rounded-xl border-slate-200 focus-visible:ring-primary/20"
               disabled={isPending}
             />
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             onClick={() => setOpen(false)}
             disabled={isPending}
+            className="rounded-xl"
           >
             ยกเลิก
           </Button>
@@ -188,6 +191,7 @@ function CustomerReviewDialog({
             onClick={handleSubmit}
             isLoading={isPending}
             loadingText="กำลังบันทึก..."
+            className="rounded-xl px-5"
           >
             ส่งรีวิว
           </LoadingButton>
@@ -207,30 +211,32 @@ export default function CustomerAppointment({
   const hasNextPage = totalPages > 0 && page < totalPages;
 
   return (
-    <div className="space-y-6 mx-auto mt-5 p-4 max-w-5xl animate-in duration-700">
-      <div className="flex flex-col space-y-2">
-        <h1 className="font-extrabold text-primary text-2xl md:text-3xl tracking-tight">
+    <div className="space-y-6 mx-auto p-4 max-w-4xl animate-in duration-500 fade-in-50">
+      <header className="mb-5 mt-3">
+        <h1 className="text-pretty text-xl font-bold md:text-2xl">
           ประวัติการใช้บริการ
         </h1>
-      </div>
+      </header>
 
       {!appointmentData.hasLineConnection ? <LineNotificationAlert /> : null}
 
       {appointments.length === 0 ? (
-        <div className="bg-white shadow-sm p-10 border border-slate-200 border-dashed rounded-3xl text-center">
-          <Calendar className="mx-auto mb-4 size-10 text-muted-foreground" />
-          <h2 className="font-bold text-primary text-xl">
+        <div className="bg-white p-12 border border-slate-100 rounded-2xl text-center shadow-sm">
+          <div className="mx-auto mb-4 size-12 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
+            <Calendar className="size-5 text-slate-400" />
+          </div>
+          <h2 className="font-semibold text-primary text-lg">
             ยังไม่มีประวัติการใช้บริการ
           </h2>
-          <p className="mx-auto mt-2 max-w-md text-muted-foreground text-sm">
-            เมื่อลูกค้าจองคิวหรือใช้บริการแล้ว รายการทั้งหมดจะแสดงอยู่ที่หน้านี้
+          <p className="mx-auto mt-1 max-w-xs text-muted-foreground text-xs leading-relaxed">
+            เมื่อคุณทำการนัดหมายหรือเข้าใช้บริการเสร็จสิ้น รายการนัดหมายจะแสดงขึ้นที่นี่
           </p>
-          <Button asChild className="mt-6">
-            <Link href="/appointments/new">จองคิวใหม่</Link>
+          <Button asChild className="mt-5 rounded-xl px-5 shadow-sm">
+            <Link href="/appointments/new">ทำการนัดหมายใหม่</Link>
           </Button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {appointments.map((item) => {
             const review = item.review;
             const hasReview = item.status === "COMPLETED" && review;
@@ -239,168 +245,173 @@ export default function CustomerAppointment({
             return (
               <div
                 key={item.id}
-                className="group relative bg-white shadow-sm hover:shadow-primary/5 hover:shadow-xl border border-slate-100 rounded-3xl overflow-hidden transition-all duration-300"
+                className="group relative bg-white border border-slate-100 rounded-2xl transition-all duration-300 hover:-translate-y-0.5 overflow-hidden shadow-sm hover:shadow-md"
               >
-                <div className="top-6 right-6 absolute">
-                  <AppointmentStatusBadge
-                    status={item.status}
-                    size="md"
-                    className="shadow-none px-4 py-1.5 font-semibold transition-colors"
-                  />
-                </div>
+                {/* Main clickable area linking to details */}
+                <Link href={`/appointments/${item.id}`} className="block p-5 md:p-6">
+                  <div className="flex flex-col gap-5">
 
-                <div className="space-y-6 p-6 md:p-8">
-                  <div className="flex md:flex-row flex-col items-start gap-6">
-                    <div className="relative mt-2 md:mt-0 shrink-0">
-                      <PetTypeBadge type={getPetTypeForBadge(item.species)} />
-                    </div>
-
-                    <div className="flex-1 space-y-3 w-full">
-                      <div className="space-y-1 pr-28 md:pr-0">
-                        <h3 className="font-bold text-primary text-xl md:text-2xl transition-colors">
-                          {item.petName || "-"}
-                          <span className="ml-3 font-medium text-muted-foreground text-sm uppercase tracking-widest">
-                            {item.breed || "-"}
-                          </span>
-                        </h3>
-                        <p className="font-medium text-md text-muted-foreground md:text-lg">
-                          {item.services || "-"}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-4 text-muted-foreground text-sm">
-                        <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg font-medium">
-                          <Calendar className="size-4 text-primary" />
-                          {formatAppointmentDate(item.date)}
+                    {/* Top block: Header info */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="size-11 md:size-12 bg-taupe-100 border border-slate-100 rounded-xl flex items-center justify-center shrink-0 shadow-inner text-taupe-800">
+                          <PawPrint className="size-5 md:size-6 stroke-[1.5]" />
                         </div>
-                        <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg font-medium">
-                          <Clock className="size-4 text-primary" />
-                          {formatAppointmentTime(item.time)} น.
+                        <div className="space-y-0.5">
+                          <h3 className="font-semibold text-primary text-lg md:text-xl tracking-tight">
+                            {item.petName || "-"}
+                            {item.breed && (
+                              <span className="ml-2 font-normal text-muted-foreground/80 text-xs md:text-sm tracking-normal">
+                                ({item.breed})
+                              </span>
+                            )}
+                          </h3>
+                          <p className="text-muted-foreground/90 font-normal text-xs md:text-sm line-clamp-1">
+                            {item.services || "ทั่วไป"}
+                          </p>
                         </div>
                       </div>
 
-                      <div className="md:hidden block pt-2">
-                        <Button
-                          asChild
-                          variant="secondary"
-                          className="hover:bg-primary/10 w-full text-muted-foreground hover:text-primary transition-all"
-                        >
-                          <Link href={`/appointments/${item.id}`}>
-                            <Eye className="mr-2 size-4" />
-                            ดูรายละเอียดนัดหมาย
-                          </Link>
-                        </Button>
+                      {/* Status Badge */}
+                      <div className="shrink-0">
+                        <AppointmentStatusBadge
+                          status={item.status}
+                          size="md"
+                          className="shadow-none px-3.5 py-1 rounded-full text-xs font-medium"
+                        />
                       </div>
                     </div>
 
-                    <Link
-                      href={`/appointments/${item.id}`}
-                      className="hidden md:flex self-center hover:bg-muted p-3 rounded-full text-muted-foreground hover:text-primary transition-all"
-                      aria-label="ดูรายละเอียดนัดหมาย"
-                    >
-                      <ChevronRight className="size-8" />
-                    </Link>
-                  </div>
+                    {/* Middle block: DateTime tags */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5 bg-muted/50 border border-primary/10 px-3 py-1.5 rounded-full font-medium">
+                        <Calendar className="size-3.5" />
+                        {formatAppointmentDate(item.date)}
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-muted/50 border border-primary/10 px-3 py-1.5 rounded-full font-medium">
+                        <Clock className="size-3.5 text-" />
+                        {formatAppointmentTime(item.time)} น.
+                      </div>
+                    </div>
 
-                  <Separator className="hidden md:block bg-slate-100" />
+                    <Separator className="bg-muted" />
 
-                  <div className="flex sm:flex-row flex-col justify-between items-center gap-6">
-                    <div className="w-full sm:w-auto">
-                      {hasReview ? (
-                        <div className="space-y-2 bg-amber-50/50 p-4 border border-amber-100/50 rounded-2xl">
-                          <div className="flex gap-1">
-                            {[...Array(5)].map((_, index) => (
-                              <Star
-                                key={index}
-                                className={cn(
-                                  "size-4",
-                                  index < review.rating
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-slate-200",
-                                )}
-                              />
-                            ))}
+                    {/* Bottom block: Price and Custom actions zone */}
+                    <div className="flex flex-row justify-between items-center gap-">
+                      {/* Left: Star Review Status */}
+                      <div className="flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+                        {hasReview ? (
+                          <div className="flex items-center gap-1 bg-amber-50/40 border border-amber-100/50 px-2.5 py-1 rounded-lg w-fit">
+                            <div className="flex gap-0.5">
+                              {[...Array(5)].map((_, idx) => (
+                                <Star
+                                  key={idx}
+                                  className={cn(
+                                    "size-3",
+                                    idx < review.rating
+                                      ? "fill-amber-400 text-amber-400"
+                                      : "text-slate-200",
+                                  )}
+                                />
+                              ))}
+                            </div>
+                            {review.comment && (
+                              <span className="text-[11px] text-amber-700/80 font-medium ml-1 truncate max-w-[120px] md:max-w-[240px] hidden sm:inline">
+                                &quot;{review.comment}&quot;
+                              </span>
+                            )}
                           </div>
-                          {review.comment ? (
-                            <p className="text-muted-foreground text-sm italic leading-relaxed">
-                              &quot;{review.comment}&quot;
-                            </p>
-                          ) : null}
-                        </div>
-                      ) : (
-                        canReview && (
-                          <CustomerReviewDialog appointmentId={item.id} />
-                        )
-                      )}
-                    </div>
+                        ) : null}
+                      </div>
 
-                    <div className="flex justify-between sm:justify-end items-center gap-6 pt-4 sm:pt-0 sm:border-0 border-t w-full sm:w-auto">
-                      <div className="text-right">
-                        <p className="font-bold text-muted-foreground text-xs uppercase tracking-tighter">
+                      {/* Right: Net Total Price display */}
+                      <div className="text-right shrink-0">
+                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
                           ยอดสุทธิ
                         </p>
-                        <p className="font-black text-primary text-2xl">
+                        <p className="font-bold text-primary text-xl md:text-2xl tracking-tight">
                           ฿{item.price.toLocaleString()}
                         </p>
                       </div>
-
-                      {item.status === "PENDING_DEPOSIT" && (
-                        <Button
-                          asChild
-                          variant="default"
-                          size="default"
-                          className="hover:bg-primary/80 transition-all"
-                        >
-                          <Link href="/appointments/new">
-                            <Wallet className="size-4" />
-                            ชำระเงิน
-                          </Link>
-                        </Button>
-                      )}
                     </div>
+
                   </div>
+                </Link>
+
+                {/* Floating Interactive Buttons Zone (To bypass main link trigger) */}
+                <div
+                  className="absolute bottom-6 left-5 flex items-center gap-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  {canReview && (
+                    <CustomerReviewDialog appointmentId={item.id} />
+                  )}
+
+                  {item.status === "PENDING_DEPOSIT" && (
+                    <Button
+                      asChild
+                      variant="default"
+                      size="sm"
+                      className="gap-1.5 rounded-xl shadow-sm text-xs h-10 px-4 transition-all"
+                    >
+                      <Link href="/appointments/new">
+                        <Wallet className="size-3.5" />
+                        ชำระเงิน
+                      </Link>
+                    </Button>
+                  )}
                 </div>
+
+                <div className="absolute right-10 top-20 my-auto flex opacity-100 pointer-events-none translate-x-2 group-hover:translate-x-0 transition-all duration-300 md:hidden">
+                  <ChevronRightIcon className="size-6 text-primary" />
+                </div>
+
               </div>
             );
           })}
 
-          <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 bg-white shadow-sm p-4 border border-slate-100 rounded-2xl">
-            <p className="font-medium text-muted-foreground text-sm">
+          {/* Pagination Section */}
+          <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <p>
               แสดง {resultStart}-{resultEnd} จาก {total} รายการ
             </p>
 
-            <div className="flex justify-between sm:justify-end items-center gap-3">
-              {hasPreviousPage ? (
-                <Button asChild variant="outline" size="sm" className="gap-2">
-                  <Link href={`/appointments?page=${page - 1}`}>
-                    <ChevronsLeft className="size-4" />
-                    ก่อนหน้า
-                  </Link>
-                </Button>
-              ) : (
-                <Button variant="outline" size="sm" className="gap-2" disabled>
-                  <ChevronsLeft className="size-4" />
-                  ก่อนหน้า
-                </Button>
-              )}
-
-              <span className="bg-muted px-3 py-1 rounded-full font-semibold text-primary text-sm">
-                หน้า {totalPages === 0 ? 0 : page} จาก {totalPages}
+            <div className="flex items-center justify-between gap-3 sm:justify-end">
+              <span>
+                หน้า {page} จาก {totalPages}
               </span>
+              <div className="flex gap-2">
+                {hasPreviousPage ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={buildAppointmentPageHref(page - 1)}>
+                      <ChevronLeftIcon data-icon="inline-start" />
+                      ก่อนหน้า
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" disabled>
+                    <ChevronLeftIcon data-icon="inline-start" />
+                    ก่อนหน้า
+                  </Button>
+                )}
+                {hasNextPage ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={buildAppointmentPageHref(page + 1)}>
+                      ถัดไป
+                      <ChevronRightIcon data-icon="inline-end" />
+                    </Link>
+                  </Button>
+                ) : (
 
-              {hasNextPage ? (
-                <Button asChild variant="outline" size="sm" className="gap-2">
-                  <Link href={`/appointments?page=${page + 1}`}>
+                  <Button variant="outline" size="sm" disabled>
                     ถัดไป
-                    <ChevronsRight className="size-4" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button variant="outline" size="sm" className="gap-2" disabled>
-                  ถัดไป
-                  <ChevronsRight className="size-4" />
-                </Button>
-              )}
+                    <ChevronRightIcon data-icon="inline-end" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
