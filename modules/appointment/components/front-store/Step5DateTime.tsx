@@ -147,7 +147,7 @@ export default function Step5DateTime({
                 เวลาที่สามารถจองได้
               </Label>
               <p className="pl-1 text-muted-foreground text-xs">
-                * เวลาทำการ 09:00 น. - 18:00 น.
+                * เวลาทำการ 09:00 - 18:00 น.
               </p>
             </div>
             <Input
