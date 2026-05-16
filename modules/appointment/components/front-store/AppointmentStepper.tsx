@@ -58,12 +58,12 @@ export default function AppointmentStepper({
     const currentBooking =
       formData.petId && formData.mainServiceId
         ? [
-            {
-              petId: formData.petId,
-              mainServiceId: formData.mainServiceId,
-              addOnServiceIds: formData.addOnServiceIds,
-            },
-          ]
+          {
+            petId: formData.petId,
+            mainServiceId: formData.mainServiceId,
+            addOnServiceIds: formData.addOnServiceIds,
+          },
+        ]
         : [];
 
     return [...bookings, ...currentBooking];
@@ -173,26 +173,26 @@ export default function AppointmentStepper({
 
   const renderStepperHeader = () => {
     const stepNames = [
-      "เลือกสัตว์เลี้ยง",
+      "สัตว์เลี้ยง",
       "บริการหลัก",
       "บริการเสริม",
-      "สรุปรายการ",
-      "นัดหมายวันเวลา",
+      "สรุป",
+      "วันเวลา",
     ];
 
     return (
-      <div className="relative mx-auto mb-12 flex max-w-4xl items-start justify-between">
+      <div className="relative mx-auto mb-10 flex max-w-4xl items-start justify-between">
         <div className="absolute left-0 top-6 -z-10 h-1 w-full bg-slate-100" />
         {[1, 2, 3, 4, 5].map((item) => (
           <div key={item} className="flex w-full flex-col items-center gap-3">
             <div
               className={cn(
-                "flex size-12 items-center justify-center rounded-full border-4 font-bold transition-all",
+                "flex size-10 md:size-12 items-center justify-center rounded-full border-4 font-bold transition-all",
                 step === item
-                  ? "border-white bg-primary text-white ring-2 ring-primary"
+                  ? "border-white bg-primary text-white ring-2 text-xs md:text-base ring-primary"
                   : step > item
-                    ? "border-white bg-primary text-white ring-2 ring-green-400/60"
-                    : "border-white bg-muted text-primary/40",
+                    ? "border-white bg-primary text-white ring-2 text-xs md:text-base ring-green-400/60"
+                    : "border-white bg-muted text-xs md:text-base text-primary/40",
               )}
             >
               {item}
@@ -259,7 +259,7 @@ export default function AppointmentStepper({
 
   return (
     <div className="mx-auto my-4 h-auto w-full max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h1 className="mb-10 text-2xl font-bold text-slate-900">
+      <h1 className="mb-8 text-pretty text-xl font-bold md:text-2xl">
         จองคิวรับบริการ
       </h1>
 
@@ -311,7 +311,7 @@ export default function AppointmentStepper({
       </div>
 
       {step === 5 ? (
-        <div className="mx-auto mt-6 max-w-4xl">
+        <div className="mx-auto mt-6 max-w-4xl md:px-6">
           <label
             htmlFor="appointment-note"
             className="mb-2 block text-sm font-medium text-primary"
@@ -355,7 +355,7 @@ export default function AppointmentStepper({
             "px-8 shadow-none transition-colors",
             step === totalSteps
               ? "bg-green-600 hover:bg-green-700"
-            : "bg-primary hover:bg-primary/80",
+              : "bg-primary hover:bg-primary/80",
           )}
         >
           {step === totalSteps ? "ยืนยันการจอง" : "ถัดไป"}

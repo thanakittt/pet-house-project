@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
-import { Edit2, PlusCircle, X } from "lucide-react";
+import { Edit2, PlusCircle, Trash2, X } from "lucide-react";
 import {
   formatDurationMinutes,
   formatPrice,
@@ -41,12 +41,12 @@ export default function Step4Summary({
     })),
     ...(data.petId
       ? [
-          {
-            booking: data,
-            index: bookings.length,
-            isCurrentFormData: true,
-          },
-        ]
+        {
+          booking: data,
+          index: bookings.length,
+          isCurrentFormData: true,
+        },
+      ]
       : []),
   ];
 
@@ -85,7 +85,7 @@ export default function Step4Summary({
   return (
     <div className="flex flex-col gap-4 mx-auto max-w-4xl animate-in duration-500 fade-in">
       <div className="text-left">
-        <h3 className="font-bold text-primary text-xl">
+        <h3 className="font-bold text-primary text-lg md:text-xl">
           ขั้นตอนที่ 4 : สรุปรายการจอง
         </h3>
         <p className="text-muted-foreground text-sm">
@@ -107,24 +107,23 @@ export default function Step4Summary({
               key={`${booking.petId}-${index}`}
               className="relative bg-white shadow-sm px-6 pt-6 pb-4 border border-primary/40 hover:border-primary rounded-2xl transition-all"
             >
-              <div className="top-4 right-4 absolute flex gap-1">
+              <div className="top-4 right-4 absolute flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-primary/5 rounded-full text-muted-foreground hover:text-primary transition-all"
+                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 hover:text-blue-600 transition-all"
                   onClick={() => handleEdit(index)}
                   title={`แก้ไขรายการของ ${pet.name}`}
                 >
-                  <Edit2 className="size-4" />
+                  <Edit2 className="md:size-5 size-4" />
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant="destructive"
                   size="icon"
-                  className="hover:bg-red-50 rounded-full text-muted-foreground hover:text-red-500 transition-all"
                   onClick={() => handleRemove(index)}
                   title={`ลบรายการของ ${pet.name}`}
                 >
-                  <X className="size-5" />
+                  <Trash2 className="md:size-5 size-4" />
                 </Button>
               </div>
 
@@ -185,14 +184,13 @@ export default function Step4Summary({
         })}
       </div>
 
-      <button
-        type="button"
+      <div
         onClick={onAddMore}
         className="group flex justify-center items-center gap-2 hover:bg-muted py-5 border-2 border-muted-foreground/30 hover:border-primary border-dashed rounded-2xl w-full font-bold text-muted-foreground/80 hover:text-primary transition-all"
       >
-        <PlusCircle className="size-5" />
-        เพิ่มสัตว์เลี้ยงอีกตัว
-      </button>
+        <PlusCircle className="md:size-5 size-4" />
+        <span className="text-sm md:text-base">เพิ่มสัตว์เลี้ยงอีกตัว</span>
+      </div>
 
       <div className="flex justify-between items-center bg-white shadow-lg p-6 border border-primary/20 rounded-2xl text-primary">
         <div>
@@ -204,7 +202,7 @@ export default function Step4Summary({
           </p>
         </div>
         <div className="text-right">
-          <span className="font-black text-3xl tracking-tight">
+          <span className="font-black text-2xl md:text-3xl tracking-tight">
             {formatPrice(grandTotal)}
           </span>
         </div>

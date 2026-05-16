@@ -43,7 +43,7 @@ export default function Step3AddOnService({
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="text-left">
-        <h3 className="text-xl font-bold text-primary">
+        <h3 className="font-bold text-primary text-lg md:text-xl">
           ขั้นตอนที่ 3 : เลือกบริการเสริม
         </h3>
         <p className="text-sm text-muted-foreground">
