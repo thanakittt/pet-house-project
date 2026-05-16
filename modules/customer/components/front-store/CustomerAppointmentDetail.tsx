@@ -133,43 +133,35 @@ export default function CustomerAppointmentDetails({
 
               </div>
             </div >
-            <Link href="https://maps.app.goo.gl/4zDGa6djFfVKGq5RA" target="_blank" rel="noopener noreferrer">
-              <div className="overflow-hidden bg-white p-6 shadow-sm border rounded-2xl transition-all duration-300 hover:shadow-md">
-                <div className="flex md:flex-row flex-col justify-between gap-6">
-                  <div className="space-y-4">
-                    <div className="flex flex-col items-start gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-fuchsia-50 p-2 rounded-lg  text-fuchsia-500">
-                          <Store className="size-5" />
-                        </div>
-                        <p className=" font-bold text-lg text-primary uppercase ">
-                          Pet House
-                        </p>
-                      </div >
-                      <p className="mt-2  px-4 text-primary text-base leading-relaxed text-left">
+            <Link
+              href="https://maps.app.goo.gl/4zDGa6djFfVKGq5RA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block overflow-hidden bg-white p-6 shadow-sm border rounded-2xl transition-all duration-300 hover:shadow-md"
+            >
+              <div className="flex md:flex-row flex-col justify-between gap-6">
+                <div className="space-y-4">
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-fuchsia-50 p-2 rounded-lg  text-fuchsia-500">
+                        <Store className="size-5" />
+                      </div>
+                      <p className=" font-bold text-lg text-primary uppercase ">
+                        Pet House
+                      </p>
+                    </div >
+                    <p className="mt-2  px-4 text-primary text-base leading-relaxed text-left">
                         181/262 ม.3 ถ.โพธาราม ต.ช้างเผือก อ.เชียงใหม่ จ.เชียงใหม่
                         50300
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="default"
-                      className="md:inline-flex hover:bg-muted size-11 active:scale-95 w-full"
-                    >
-                      <Link
-                        href="https://maps.app.goo.gl/4zDGa6djFfVKGq5RA"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="size-5" />
-                      </Link>
-                    </Button>
-
+                    </p>
                   </div>
                 </div>
-              </div >
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex size-11 items-center justify-center rounded-md border bg-background transition-colors group-hover:bg-muted">
+                    <ExternalLink className="size-5" />
+                  </span>
+                </div>
+              </div>
             </Link >
           </div>
 
