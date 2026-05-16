@@ -17,11 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatThaiDate } from "@/lib/utils";
 import { createCustomerReview } from "@/modules/appointment/actions/create-customer-review";
-import type {
-  CustomerAppointmentListItem,
-  CustomerAppointmentsResult,
-} from "@/modules/appointment/queries/get-customer-appointments";
-import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
+import type { CustomerAppointmentsResult } from "@/modules/appointment/queries/get-customer-appointments";
 import LineNotificationAlert from "./LineNotificationAlert";
 import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
@@ -30,7 +26,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Clock,
-  Eye,
   MessageSquare,
   PawPrint,
   Star,
@@ -47,10 +42,6 @@ type CustomerAppointmentProps = {
 
 function buildAppointmentPageHref(page: number): string {
   return page <= 1 ? "/appointments" : `/appointments?page=${page}`;
-}
-
-function getPetTypeForBadge(species: CustomerAppointmentListItem["species"]) {
-  return species.toLowerCase();
 }
 
 function formatAppointmentDate(date: string) {

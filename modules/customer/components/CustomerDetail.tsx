@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { PetInfoForm } from "@/modules/pet/components/PetInfoForm";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { Pet } from "@/modules/pet/types/pet";

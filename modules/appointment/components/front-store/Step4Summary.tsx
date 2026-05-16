@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
-import { Edit2, PlusCircle, Trash2, X } from "lucide-react";
+import { Edit2, PlusCircle, Trash2 } from "lucide-react";
 import {
   formatDurationMinutes,
   formatPrice,

@@ -3,7 +3,7 @@
 import BackButton from "@/components/BackButton";
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
-import { cn, formatThaiDate } from "@/lib/utils";
+import { formatThaiDate } from "@/lib/utils";
 import type { CustomerAppointmentDetail } from "@/modules/appointment/queries/get-customer-appointment-detail";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import { format, parseISO } from "date-fns";
@@ -11,13 +11,8 @@ import { th } from "date-fns/locale";
 import {
   Calendar,
   CalendarCheck,
-  CheckCircle2,
-  ChevronLeft,
-  Circle,
   Clock,
   ExternalLink,
-  MapPin,
-  Phone,
   Printer,
   Scissors,
   Store,
@@ -27,37 +22,6 @@ import Link from "next/link";
 type CustomerAppointmentDetailsProps = {
   appointment: CustomerAppointmentDetail;
 };
-
-const STEPS = [
-  { key: "booking", label: "จองสำเร็จ" },
-  { key: "confirmed", label: "ยืนยันนัด" },
-  { key: "processing", label: "กำลังทำ" },
-  { key: "completed", label: "เสร็จสิ้น" },
-];
-
-function getStepIndex(status: CustomerAppointmentDetail["status"]) {
-  if (status === "COMPLETED") {
-    return 3;
-  }
-
-  if (
-    status === "CHECKED_IN" ||
-    status === "IN_PROGRESS" ||
-    status === "READY_FOR_PICKUP"
-  ) {
-    return 2;
-  }
-
-  if (status === "CONFIRMED") {
-    return 1;
-  }
-
-  return 0;
-}
-
-function isTerminalStatus(status: CustomerAppointmentDetail["status"]) {
-  return status === "CANCELLED" || status === "NO_SHOW";
-}
 
 function formatDate(date: string) {
   return formatThaiDate(date);
@@ -78,7 +42,6 @@ function getPetTypeForBadge(species: "DOG" | "CAT") {
 export default function CustomerAppointmentDetails({
   appointment,
 }: CustomerAppointmentDetailsProps) {
-  const currentStepIndex = getStepIndex(appointment.status);
   const firstPet = appointment.pets[0];
   const receiptItems = appointment.pets.flatMap((pet) =>
     pet.services.map((service) => ({
