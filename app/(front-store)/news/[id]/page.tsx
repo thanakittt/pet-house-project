@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
 import {
   ANNOUNCEMENT_TYPE_LABELS,
   type Announcement,
@@ -7,9 +6,8 @@ import {
 } from "@/modules/announcement/types/announcement";
 import { getPublicAnnouncement } from "@/modules/announcement/queries/list-public-announcements";
 import { formatThaiDateTime } from "@/lib/utils";
-import { Calendar, ChevronLeft } from "lucide-react";
+import { Calendar } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import BackButton from "@/components/BackButton";
 

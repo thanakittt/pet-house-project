@@ -4,9 +4,6 @@ import type { ServiceWithVariants } from "@/modules/service/types/service";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
 import { CatIcon, Clock, DogIcon } from "lucide-react";
@@ -92,8 +89,6 @@ function EmptyServices() {
   );
 }
 function ServiceCard({ service }: { service: DisplayService }) {
-  const hasMultipleVariants = service.variants.length > 1;
-
   const getServiceIcon = (name: string) => {
     if (name.includes("อาบน้ำตัดขน")) return <Scissors className="text-orange-600" size={20} />;
     if (name.includes("อาบน้ำ")) return <Waves className="text-blue-600" size={20} />;

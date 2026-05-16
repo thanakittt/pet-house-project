@@ -7,9 +7,6 @@ import PurchaseOrderDetailPage from "@/modules/inventories/components/PurchaseOr
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import { SiteHeader } from "@/components/site-header";
 import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import BackButton from "@/components/BackButton";
 
 export const metadata: Metadata = {

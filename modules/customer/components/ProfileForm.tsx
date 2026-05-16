@@ -41,7 +41,7 @@ import {
   updateCustomerProfile,
 } from "@/modules/customer/actions/profile";
 import { CustomerProfile } from "@/modules/customer/queries/get-profile";
-import { CircleUserRound, LockKeyholeIcon, PencilIcon, User2 } from "lucide-react";
+import { LockKeyholeIcon, PencilIcon, User2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
