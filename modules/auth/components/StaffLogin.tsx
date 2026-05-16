@@ -79,7 +79,7 @@ export function StaffLoginForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="rounded-lg w-sm px-5">
+      <section className="px-5 rounded-lg w-sm">
         <Image
           className="mx-auto mb-2 rounded-sm"
           src="/images/logo/1.png"
@@ -122,7 +122,7 @@ export function StaffLoginForm() {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุอีเมล"
-                    autoComplete="off"
+                    autoComplete="email"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -155,7 +155,7 @@ export function StaffLoginForm() {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุรหัสผ่าน"
-                    autoComplete="off"
+                    autoComplete="password"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
