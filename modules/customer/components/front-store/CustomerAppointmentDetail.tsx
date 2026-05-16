@@ -10,6 +10,7 @@ import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 import {
   Calendar,
+  CalendarCheck,
   CheckCircle2,
   ChevronLeft,
   Circle,
@@ -89,90 +90,27 @@ export default function CustomerAppointmentDetails({
   return (
     <main className="space-y-8 mx-auto max-w-5xl p-6 lg:p-8">
       <BackButton href="/" />
-      <div className="animate-in fade-in  bg-white shadow-sm hover:shadow-md p-6 md:p-8 border rounded-2xl h-full text-center transition-all duration-300">
-        {isTerminalStatus(appointment.status) ? (
-          <div className="relative bg-white shadow-slate-200/30 shadow-xl p-8 border border-slate-100 rounded-2xl overflow-hidden">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="font-bold text-primary text-lg">
-                  สถานะการนัดหมาย
-                </h2>
-                <p className="mt-1 text-muted-foreground text-sm">
-                  รายการนี้ไม่อยู่ในขั้นตอนให้บริการตามปกติ
-                </p>
-              </div>
-              <AppointmentStatusBadge
-                status={appointment.status}
-                size="md"
-                className="w-fit px-4 py-1.5 font-semibold"
-              />
-            </div>
-          </div >
-        ) : (
-          <div className="relative bg-white shadow-slate-200/30 shadow-xl p-10 border border-slate-100 rounded-2xl overflow-hidden">
-            <div className="relative flex justify-between w-full">
-              <div className="top-5 left-0 absolute bg-slate-100 w-full h-[2px]" />
-
-              <div
-                className="top-5 left-0 absolute bg-primary h-[2px] transition-all duration-1000 ease-in-out"
-                style={{
-                  width: `${(currentStepIndex / (STEPS.length - 1)) * 100}%`,
-                }}
-              />
-
-              {STEPS.map((step, index) => {
-                const isCompleted = index <= currentStepIndex;
-                const isCurrent = index === currentStepIndex;
-
-                return (
-                  <div
-                    key={step.key}
-                    className="group z-10 flex flex-col items-center gap-4 w-16"
-                  >
-                    <div
-                      className={cn(
-                        "flex justify-center items-center border-2 rounded-full size-10 transition-all duration-500",
-                        isCompleted
-                          ? "bg-primary border-primary text-white shadow-lg"
-                          : "bg-white border-slate-200 text-muted-foreground",
-                        isCurrent && "ring-4 ring-primary/10 scale-110",
-                      )}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle2 className="size-5" />
-                      ) : (
-                        <Circle className="size-4" />
-                      )}
-                    </div>
-                    <span
-                      className={cn(
-                        "font-bold text-xs md:text-xs tracking-tight transition-colors",
-                        isCompleted ? "text-primary" : "text-muted-foreground",
-                      )}
-                    >
-                      {step.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div >
-        )}
-
+      <div className="animate-in fade-in">
         <div className="gap-6 md:gap-8 grid grid-cols-1 lg:grid-cols-3 ">
           <div className="space-y-6 lg:col-span-2">
-            <div className="bg-white shadow-sm border-0 rounded-2xl overflow-hidden">
-              <div className="space-y-6 p-6 md:p-8">
-                <div className="flex items-center gap-3">
-                  <div className="bg-blue-50 p-2 rounded-lg text-blue-600">
-                    <Calendar className="size-5 md:size-6" />
+            <div className="overflow-hidden bg-white shadow-sm border rounded-2xl transition-all duration-300">
+              <div className="space-y-6 p-6">
+                <div className="flex items-start gap-3 justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-indigo-50 p-2 rounded-lg text-indigo-500">
+                      <CalendarCheck className="size-5" />
+                    </div>
+                    <h2 className="font-bold text-primary text-lg md:text-xl">
+                      ข้อมูลการนัดหมาย
+                    </h2>
                   </div>
-                  <h2 className="font-bold text-primary text-lg md:text-xl">
-                    ข้อมูลการนัดหมาย
-                  </h2>
+                  <AppointmentStatusBadge
+                    status={appointment.status}
+                    size="md"
+                  />
                 </div>
 
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-2 items-center px-4">
                   <div className="space-y-2 w-full">
                     <div className="flex items-center gap-1 font-medium text-muted-foreground text-sm">
                       <Calendar className="size-3" />
@@ -194,7 +132,7 @@ export default function CustomerAppointmentDetails({
                 </div>
 
                 {firstPet ? (
-                  <div className="flex items-center gap-5 shadow-sm p-5 md:p-6 border border-slate-100 rounded-2xl">
+                  <div className="flex items-center gap-5 bg-muted/80 p-4 rounded-xl">
                     <div className="shrink-0">
                       <PetTypeBadge
                         type={getPetTypeForBadge(firstPet.species)}
@@ -204,15 +142,10 @@ export default function CustomerAppointmentDetails({
                       <h3 className="font-bold text-primary text-lg md:text-xl">
                         {firstPet.name}
                       </h3>
-                      <p className="font-medium text-muted-foreground text-sm md:text-base">
+                      <p className="text-muted-foreground text-sm md:text-base">
                         {firstPet.breed}
                       </p>
                     </div>
-                    <AppointmentStatusBadge
-                      status={appointment.status}
-                      size="md"
-                      className="hidden px-3 py-1 font-semibold sm:inline-flex"
-                    />
                   </div>
                 ) : null}
 
@@ -221,12 +154,12 @@ export default function CustomerAppointmentDetails({
                     {appointment.pets.slice(1).map((pet) => (
                       <div
                         key={pet.petId}
-                        className="flex items-center gap-4 shadow-sm p-4 border border-slate-100 rounded-2xl"
+                        className="flex items-center gap-4 p-4 bg-muted/80 rounded-xl"
                       >
                         <PetTypeBadge type={getPetTypeForBadge(pet.species)} />
                         <div>
-                          <p className="font-bold text-primary">{pet.name}</p>
-                          <p className="text-muted-foreground text-sm">
+                          <p className="font-bold text-primary text-lg md:text-xl">{pet.name}</p>
+                          <p className="text-muted-foreground text-sm md:text-base">
                             {pet.breed}
                           </p>
                         </div>
@@ -234,22 +167,23 @@ export default function CustomerAppointmentDetails({
                     ))}
                   </div>
                 ) : null}
+
               </div>
             </div >
             <Link href="https://maps.app.goo.gl/4zDGa6djFfVKGq5RA" target="_blank" rel="noopener noreferrer">
-              <div className="bg-white shadow-sm p-6 md:p-8 border border-slate-100 rounded-2xl">
+              <div className="overflow-hidden bg-white p-6 shadow-sm border rounded-2xl transition-all duration-300 hover:shadow-md">
                 <div className="flex md:flex-row flex-col justify-between gap-6">
                   <div className="space-y-4">
                     <div className="flex flex-col items-start gap-2">
                       <div className="flex items-center gap-2">
-                        <div className="bg-primary p-2 rounded-lg">
-                          <Store className="size-4 text-white" />
+                        <div className="bg-fuchsia-50 p-2 rounded-lg  text-fuchsia-500">
+                          <Store className="size-5" />
                         </div>
                         <p className=" font-bold text-lg text-primary uppercase ">
                           Pet House
                         </p>
                       </div >
-                      <p className="mt-2 text-primary text-base leading-relaxed text-left">
+                      <p className="mt-2  px-4 text-primary text-base leading-relaxed text-left">
                         181/262 ม.3 ถ.โพธาราม ต.ช้างเผือก อ.เชียงใหม่ จ.เชียงใหม่
                         50300
                       </p>
@@ -259,7 +193,7 @@ export default function CustomerAppointmentDetails({
                     <Button
                       variant="outline"
                       size="default"
-                      className="hidden md:inline-flex hover:bg-muted size-11 active:scale-95 w-full"
+                      className="md:inline-flex hover:bg-muted size-11 active:scale-95 w-full"
                     >
                       <Link
                         href="https://maps.app.goo.gl/4zDGa6djFfVKGq5RA"
@@ -277,12 +211,12 @@ export default function CustomerAppointmentDetails({
           </div>
 
           <div className="lg:col-span-1">
-            <div className="lg:top-24 relative lg:sticky shadow-2xl shadow-slate-200/50 p-8 border border-slate-100 rounded-2xl overflow-hidden text-primary">
-              <div className="-right-10 -bottom-10 absolute opacity-[0.03] rotate-12 pointer-events-none">
-                <Scissors className="size-48" />
+            <div className="lg:top-24 relative lg:sticky overflow-hidden bg-white p-6 shadow-sm border rounded-2xl transition-all duration-300 hover:shadow-md">
+              <div className="-left-10 -bottom-10 absolute opacity-5 rotate-12 pointer-events-none">
+                <Scissors className="size-44" />
               </div>
 
-              <h2 className="pb-6 font-bold text-primary text-lg">
+              <h2 className="pb-6 font-bold text-primary text-lg md:text-xl">
                 สรุปยอดชำระ
               </h2>
 
@@ -305,7 +239,7 @@ export default function CustomerAppointmentDetails({
                 <div className="space-y-4 mt-6 pt-6 border-muted border-t">
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">
-                      <p className="font-black text-primary text-lg">
+                      <p className="font-bold text-primary text-lg">
                         รวมทั้งหมด
                       </p>
                     </div>
@@ -340,9 +274,6 @@ export default function CustomerAppointmentDetails({
                     พิมพ์ใบเสร็จ
                   </Button>
                 )}
-                <p className="px-2 font-medium text-muted-foreground text-xs text-center leading-relaxed">
-                  กรุณาแสดงหน้านี้ให้เจ้าหน้าที่สแกนเมื่อเข้ารับบริการตามเวลานัดหมาย
-                </p>
               </div>
 
               <div className="bottom-0 left-0 absolute flex gap-1 opacity-20 w-full h-1.5">
