@@ -191,9 +191,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
               rules={{ required: "กรุณาเลือกประเภท" }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    ประเภท
-                  </FieldLabel>
+                  <FieldLabel htmlFor={field.name}>ประเภท</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger id={field.name}>
                       <SelectValue placeholder="เลือกประเภท" />
@@ -246,11 +244,11 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                   : "ยังไม่ได้เลือกรูปภาพ"}
               </FieldDescription>
               {selectedFileCount > 0 && (
-                <div className="space-y-1 rounded-md border bg-muted/20 p-2">
+                <div className="space-y-1 bg-muted/20 p-2 border rounded-md">
                   <p className="font-medium text-muted-foreground text-xs">
                     ไฟล์ที่เลือกไว้
                   </p>
-                  <ul className="max-h-24 space-y-1 overflow-y-auto text-muted-foreground text-xs">
+                  <ul className="space-y-1 max-h-24 overflow-y-auto text-muted-foreground text-xs">
                     {previews.map((preview, index) => (
                       <li
                         key={`${preview.file.name}-${index}`}

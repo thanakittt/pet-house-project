@@ -179,3 +179,17 @@ Solution:
 
 Rule for next sessions:
 - Quote any `rg` path containing parentheses or brackets in PowerShell, just like `Get-Content -LiteralPath`.
+
+## 14. PowerShell rg regex with unescaped double quotes
+Problem:
+- `rg` failed with an `unclosed group` regex parse error when the pattern included `variant=\"outline\"` inside a PowerShell command string.
+
+Cause:
+- The quoting did not preserve the intended quote characters, so `rg` received a malformed regex ending around `variant=\`.
+
+Solution:
+- Re-run the search using a single-quoted PowerShell string for the full regex, for example `rg -n 'bg-yellow-50|variant="outline"' ...`.
+
+Rule for next sessions:
+- Wrap full `rg` regex patterns in single quotes when searching for JSX props that contain double quotes.
+- Keep JSX search patterns simple, or split the search into separate `rg` calls if quoting starts getting fragile.

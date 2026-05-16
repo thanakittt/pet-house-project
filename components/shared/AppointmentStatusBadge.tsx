@@ -37,9 +37,9 @@ const STATUS_ICONS: Record<AppointmentStatus, ReactNode> = {
 };
 
 const sizeClassNames: Record<AppointmentStatusBadgeSize, string> = {
-  sm: "px-2 py-0.5 text-xs",
-  md: "px-3 py-1 text-xs",
-  lg: "p-3 text-xs md:p-4 md:text-sm",
+  sm: "px-2.5 py-1 text-[11px] leading-tight", // เพิ่ม py เป็น 1 และแก้ leading ให้มีพื้นที่สระ
+  md: "px-3 py-1.5 text-xs leading-tight",     // เพิ่ม py เป็น 1.5 
+  lg: "px-4 py-2 text-sm leading-tight",       // เพิ่ม py เป็น 2 
 };
 
 function isKnownAppointmentStatus(status: string): status is AppointmentStatus {

@@ -131,12 +131,12 @@ export default function OperationDetailClient({
 
             {/* แสดงผล Medical Notes */}
             {operation.pet.medicalNotes && (
-              <div className="bg-amber-50 p-3 border border-amber-200 rounded-md">
-                <div className="flex items-center gap-2 mb-1 font-medium text-amber-800 text-sm">
+              <div className="bg-red-50 p-3 border border-red-200 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-red-800 text-sm">
                   <AlertCircle className="w-4 h-4" />
                   ข้อมูลสุขภาพ / ข้อควรระวัง
                 </div>
-                <p className="text-amber-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-red-700 text-sm leading-relaxed whitespace-pre-wrap">
                   {operation.pet.medicalNotes}
                 </p>
               </div>
@@ -152,12 +152,12 @@ export default function OperationDetailClient({
 
             {/* [NEW] แสดงผล Appointment Note (หมายเหตุการจอง) */}
             {operation.appointment.note && (
-              <div className="bg-blue-50 mt-2 p-3 border border-blue-200 rounded-md">
-                <div className="flex items-center gap-2 mb-1 font-medium text-blue-800 text-sm">
+              <div className="bg-yellow-50 mt-2 p-3 border border-yellow-200 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-yellow-800 text-sm">
                   <StickyNote className="w-4 h-4" />
                   หมายเหตุการจอง
                 </div>
-                <p className="text-blue-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-yellow-700 text-sm leading-relaxed whitespace-pre-wrap">
                   {operation.appointment.note}
                 </p>
               </div>
@@ -198,7 +198,7 @@ export default function OperationDetailClient({
               <span className="font-medium text-muted-foreground">
                 สถานะปัจจุบัน:
               </span>
-              <AppointmentStatusBadge status={currentStatus} />
+              <AppointmentStatusBadge status={currentStatus} size="lg" />
             </div>
 
             <div className="flex flex-wrap gap-2 pt-4 border-t">
@@ -339,12 +339,10 @@ export default function OperationDetailClient({
               </CardTitle>
             </div>
 
-            <div className="hidden lg:block">
-              <HealthReportModal
-                appointmentId={operation.appointmentId}
-                petId={operation.petId}
-              />
-            </div>
+            <HealthReportModal
+              appointmentId={operation.appointmentId}
+              petId={operation.petId}
+            />
           </CardHeader>
           <CardContent className="pt-6">
             {healthReports.length > 0 ? (
