@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export type ManagementFilterOption = {
   value: string;
@@ -100,7 +101,8 @@ export function ManagementListControls({
     selectFilters.some((filter) => filter.value !== "ALL");
 
   return (
-    <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center gap-3 mb-5">
+    <div className="mb-5 flex flex-col gap-2" aria-busy={isPending}>
+      <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center gap-3">
       {/* ฝั่งซ้าย: [filter][search] */}
       <div className="flex sm:flex-row flex-col flex-1 sm:items-center gap-3">
         {/* 1. Filters */}
@@ -110,6 +112,7 @@ export function ManagementListControls({
               <Select
                 key={filter.name}
                 value={filter.value}
+                disabled={isPending}
                 onValueChange={(value) =>
                   updateUrl({ [filter.name]: value, [pageParamName]: null })
                 }
@@ -159,6 +162,8 @@ export function ManagementListControls({
           {createAction}
         </div>
       )}
+      </div>
+      <PendingIndicator isPending={isPending} />
     </div>
   );
 }
@@ -255,7 +260,8 @@ export function ManagementPagination({
   const hasNextPage = totalPages > 0 && page < totalPages;
 
   return (
-    <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 mt-4 text-muted-foreground text-sm">
+    <div className="mt-4 flex flex-col gap-2" aria-busy={isPending}>
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 text-muted-foreground text-sm">
       <p>
         แสดง {resultStart}-{resultEnd} จาก {total} รายการ
       </p>
@@ -290,6 +296,16 @@ export function ManagementPagination({
           </Button>
         </div>
       </div>
+      </div>
+      <PendingIndicator isPending={isPending} />
+    </div>
+  );
+}
+
+function PendingIndicator({ isPending }: { isPending: boolean }) {
+  return (
+    <div className="h-1 w-full" aria-hidden="true">
+      {isPending ? <Skeleton className="h-1 w-full rounded-full" /> : null}
     </div>
   );
 }
