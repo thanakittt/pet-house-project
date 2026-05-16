@@ -106,7 +106,7 @@ export default function Step5DateTime({
   return (
     <div className="slide-in-from-right-4 flex flex-col gap-6 mx-auto max-w-4xl animate-in duration-500 fade-in">
       <div className="text-left">
-        <h3 className="font-bold text-primary text-xl">
+        <h3 className="font-bold text-primary text-lg md:text-xl">
           ขั้นตอนที่ 5 : เลือกวันและเวลา
         </h3>
         <p className="text-muted-foreground text-sm">
@@ -114,16 +114,21 @@ export default function Step5DateTime({
         </p>
       </div>
 
-      <div className="flex flex-col justify-between gap-4 bg-white shadow-sm p-6 md:p-8 border border-slate-100 rounded-2xl h-full overflow-hidden">
-        <div className="flex md:flex-row flex-col md:items-end gap-4">
+      <div className="flex flex-col justify-between gap-4">
+        <div className="flex md:flex-row flex-col md:items-end gap-6 md:gap-10">
           <div className="flex flex-col gap-3 w-full">
-            <Label
-              htmlFor="date"
-              className="flex items-center gap-2 font-semibold text-primary text-base"
-            >
-              <CalendarDays className="size-4 text-primary" />
-              วันที่รับบริการ
-            </Label>
+            <div className="flex items-center gap-2 justify-between">
+              <Label
+                htmlFor="date"
+                className="flex items-center gap-2 font-semibold text-primary text-base"
+              >
+                <CalendarDays className="size-4 text-primary" />
+                วันที่รับบริการ
+              </Label>
+              <p className="pl-1 text-muted-foreground text-xs">
+                *ร้านหยุดทุกวันพุธ
+              </p>
+            </div>
             <Input
               id="date"
               name="date"
@@ -132,25 +137,25 @@ export default function Step5DateTime({
               min={format(new Date(), "yyyy-MM-dd")}
               onChange={(event) => setSelectedDate(event.target.value)}
             />
-            <p className="pl-1 text-muted-foreground text-xs">
-              *ร้านหยุดทุกวันพุธ
-            </p>
+
           </div>
 
           <div className="flex flex-col gap-3 w-full">
-            <Label className="flex items-center gap-2 font-semibold text-slate-700 text-base">
-              <Clock className="size-4 text-primary" />
-              เวลาที่สามารถจองได้
-            </Label>
+            <div className="flex items-center gap-2 justify-between">
+              <Label className="flex items-center gap-2 font-semibold text-primary text-base">
+                <Clock className="size-4 text-primary" />
+                เวลาที่สามารถจองได้
+              </Label>
+              <p className="pl-1 text-muted-foreground text-xs">
+                * เวลาทำการ 09:00 น. - 18:00 น.
+              </p>
+            </div>
             <Input
               type="text"
               value={formatDurationMinutes(durationMinutes)}
               disabled
               readOnly
             />
-            <p className="pl-1 text-muted-foreground text-xs">
-              * เวลาทำการ 09:00 น. - 18:00 น.
-            </p>
           </div>
         </div>
 

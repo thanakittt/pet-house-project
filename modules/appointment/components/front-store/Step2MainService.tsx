@@ -30,15 +30,13 @@ export default function Step2MainService({
   return (
     <div className="slide-in-from-right-4 flex flex-col gap-6 animate-in duration-500 fade-in">
       <div className="text-left">
-        <h3 className="font-bold text-primary text-xl">
+        <h3 className="font-bold text-primary text-lg md:text-xl">
           ขั้นตอนที่ 2 : เลือกบริการหลัก
         </h3>
-        <div className="flex items-center gap-2 mt-1">
-          <p className="text-muted-foreground text-sm">
-            กรุณาเลือกบริการพื้นฐานที่ต้องการ
-          </p>
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <p className="text-muted-foreground text-sm">กรุณาเลือกบริการพื้นฐานที่ต้องการ</p>
           {pet ? (
-            <span className="bg-primary/10 px-2 py-0.5 rounded-full font-medium text-[10px] text-primary">
+            <span className="bg-primary/10 px-2 py-0.5 rounded-full font-medium text-xs md:text-sm text-primary">
               {pet.name} | {PET_TYPE_LABELS[pet.breed.type]} | ขนาด
               {PET_SIZE_LABELS[pet.breed.size]}
             </span>
