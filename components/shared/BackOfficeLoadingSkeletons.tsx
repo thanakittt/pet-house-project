@@ -30,6 +30,7 @@ type BackOfficeSkeletonVariant =
   | "line-oa"
   | "operations"
   | "profile"
+  | "shell"
   | "table"
   | "dashboard"
   | "detail";
@@ -280,6 +281,38 @@ export function BackOfficeProfileSkeleton() {
   );
 }
 
+export function BackOfficeShellSkeleton() {
+  return (
+    <div aria-busy="true" aria-live="polite" className="flex flex-col gap-5">
+      <section className="rounded-lg border p-6">
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-6 w-52 max-w-full" />
+          <Skeleton className="h-4 w-full max-w-2xl" />
+          <Skeleton className="h-4 w-3/4 max-w-xl" />
+        </div>
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Skeleton className="h-24 rounded-lg" />
+        <Skeleton className="h-24 rounded-lg" />
+        <Skeleton className="h-24 rounded-lg" />
+      </div>
+
+      <section className="rounded-lg border p-6">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-9 w-28" />
+        </div>
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-14 w-full rounded-md" />
+          <Skeleton className="h-14 w-full rounded-md" />
+          <Skeleton className="h-14 w-full rounded-md" />
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function ManagementFiltersSkeleton({
   showCreateAction = true,
 }: {
@@ -450,6 +483,8 @@ function getRouteSkeletonContent(variant: BackOfficeSkeletonVariant) {
       return <DailyAppointmentsBoardSkeleton />;
     case "profile":
       return <BackOfficeProfileSkeleton />;
+    case "shell":
+      return <BackOfficeShellSkeleton />;
     case "dashboard":
       return <DashboardSkeleton />;
     case "detail":
@@ -471,6 +506,8 @@ function getRouteTitleWidth(variant: BackOfficeSkeletonVariant) {
       return "w-64";
     case "profile":
       return "w-28";
+    case "shell":
+      return "w-36";
     case "home":
     case "table":
     case "detail":

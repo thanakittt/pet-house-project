@@ -1,5 +1,5 @@
 import { BackOfficeRouteSkeleton } from "@/components/shared/BackOfficeLoadingSkeletons";
 
 export default function Loading() {
-  return <BackOfficeRouteSkeleton />;
+  return <BackOfficeRouteSkeleton variant="shell" />;
 }
