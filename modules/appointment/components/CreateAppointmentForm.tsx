@@ -577,7 +577,7 @@ export default function CreateAppointmentForm({
                   <Field
                     data-invalid={Boolean(
                       errors.petBookings?.[index]?.mainServiceId ||
-                        shouldShowMainVariantError,
+                      shouldShowMainVariantError,
                     )}
                   >
                     <FieldLabel htmlFor={`main-service-${field.id}`}>
@@ -600,7 +600,7 @@ export default function CreateAppointmentForm({
                             className="w-full"
                             aria-invalid={Boolean(
                               errors.petBookings?.[index]?.mainServiceId ||
-                                shouldShowMainVariantError,
+                              shouldShowMainVariantError,
                             )}
                           >
                             <SelectValue placeholder="-- เลือกบริการหลัก --" />
@@ -666,8 +666,8 @@ export default function CreateAppointmentForm({
                                     const newValues = checked
                                       ? [...(field.value || []), service.id]
                                       : (field.value || []).filter(
-                                          (id) => id !== service.id,
-                                        );
+                                        (id) => id !== service.id,
+                                      );
                                     field.onChange(newValues);
                                     setValue("startTime", "");
                                   }}
@@ -721,7 +721,8 @@ export default function CreateAppointmentForm({
           <div className="flex justify-end pt-4">
             <LoadingButton
               type="submit"
-              size="lg"
+              size="default"
+              variant="default"
               disabled={hasUnmatchedSelectedService}
               isLoading={isSubmitting}
               loadingText="กำลังบันทึก..."
