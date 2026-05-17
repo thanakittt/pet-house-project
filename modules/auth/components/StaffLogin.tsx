@@ -78,7 +78,7 @@ export function StaffLoginForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="px-5 rounded-lg md:w-[400px] w-full">
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg md:w-[400px] w-full">
         <Image
           className="mx-auto mb-3 rounded-sm"
           src="/images/logo/1.png"
@@ -88,14 +88,14 @@ export function StaffLoginForm() {
           loading="eager"
           priority
         />
-        <h1 className="mb-1 font-bold text-xl text-center uppercase">Pet House</h1>
-        <h2 className="mb-5 font-semibold text-base text-center">
+        <h1 className="mb-1 font-bold text-xl uppercase">Pet House</h1>
+        <h2 className="mb-5 font-semibold text-base md:text-lg">
           เข้าสู่ระบบสำหรับพนักงาน
         </h2>
         <form
           id="create-user"
           onSubmit={handleSubmit(onSubmit)}
-          className="px-5"
+          className="flex flex-col items-center w-full"
         >
           <FieldGroup>
             {/* Email Field */}
