@@ -7,6 +7,7 @@ import { type CustomerAppointmentHistoryResult } from "@/modules/appointment/que
 import { type ActionResponse } from "@/types/action";
 import { Calendar, PawPrint, Receipt, Tag } from "lucide-react";
 import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface AppointmentHistoryListProps {
   appointmentHistory: ActionResponse<CustomerAppointmentHistoryResult>;
@@ -35,87 +36,89 @@ export function AppointmentHistoryList({
   }
 
   return (
-    <div className="space-y-4 mt-8">
-      <h2 className="flex items-center gap-2 font-bold text-lg">
-        <Calendar size={20} />
-        ประวัติการรับบริการ
-      </h2>
+    <div>
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center gap-2 text-lg font-bold">
+          <Calendar size={18} className="text-cyan-600 rounded-lg bg-cyan-100/50 p-2.5 w-10 h-10" />
+          ประวัติการรับบริการ
+        </CardHeader>
 
-      <div className="gap-3 grid sm:grid-cols-2 lg:grid-cols-1">
-        {appointments.map((appointment) => {
-          const totalPrice = appointment.items.reduce(
-            (sum, item) => sum + Number(item.price),
-            0,
-          );
+        <CardContent className="grid sm:grid-cols-2 lg:grid-cols-1 gap-4 px-6 py-2">
+          {appointments.map((appointment) => {
+            const totalPrice = appointment.items.reduce(
+              (sum, item) => sum + Number(item.price),
+              0,
+            );
 
-          const uniquePets = Array.from(
-            new Set(
-              appointment.items.map((item) => item.pet?.name || "Unknown"),
-            ),
-          );
-          const petSummary = uniquePets.join(", ");
-
-          const uniqueServices = Array.from(
-            new Set(
-              appointment.items.map(
-                (item) => item.serviceVariant?.service?.name,
+            const uniquePets = Array.from(
+              new Set(
+                appointment.items.map((item) => item.pet?.name || "Unknown"),
               ),
-            ),
-          );
-          const serviceSummary = uniqueServices.join(", ");
+            );
+            const petSummary = uniquePets.join(", ");
 
-          return (
-            <Link
-              key={appointment.id}
-              href={`/back-office/appointments/${appointment.id}`}
-              className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white shadow-sm hover:shadow-md p-4 border hover:border-gray-300 rounded-xl transition-all cursor-pointer"
-            >
-              <div className="flex flex-col gap-1.5 md:w-1/4">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900 transition-colors">
-                    {formatThaiDate(appointment.appointmentDate)}
-                  </span>
-                </div>
-                <div>
-                  <AppointmentStatusBadge status={appointment.status} />
-                </div>
-              </div>
+            const uniqueServices = Array.from(
+              new Set(
+                appointment.items.map(
+                  (item) => item.serviceVariant?.service?.name,
+                ),
+              ),
+            );
+            const serviceSummary = uniqueServices.join(", ");
 
-              <div className="flex flex-col flex-1 gap-2 bg-gray-50 group-hover:bg-blue-50/50 p-3 border border-gray-100 rounded-lg transition-colors">
-                <div className="flex items-start gap-2 text-gray-700 text-sm">
-                  <PawPrint
-                    size={16}
-                    className="mt-0.5 text-gray-400 shrink-0"
-                  />
-                  <span className="line-clamp-1" title={petSummary}>
-                    {petSummary || "-"}
-                  </span>
+            return (
+              <Link
+                key={appointment.id}
+                href={`/back-office/appointments/${appointment.id}`}
+                className="group flex flex-col justify-between items-center w-full gap-4 bg-white shadow-sm hover:shadow-md p-4 border hover:border-gray-300 rounded-xl transition-all cursor-pointer"
+              >
+                <div className="flex flex-row justify-between w-full gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-primary transition-colors">
+                      {formatThaiDate(appointment.appointmentDate)}
+                    </span>
+                  </div>
+                  <div>
+                    <AppointmentStatusBadge status={appointment.status} />
+                  </div>
                 </div>
-                <div className="flex items-start gap-2 text-gray-600 text-sm">
-                  <Tag size={16} className="mt-0.5 text-gray-400 shrink-0" />
-                  <span className="line-clamp-1" title={serviceSummary}>
-                    {serviceSummary || "-"}
-                  </span>
-                </div>
-              </div>
+                <div className="flex flex-row justify-between w-full gap-1.5">
+                  <div className="flex flex-col flex-1 gap-2">
+                    <div className="flex items-start gap-2 text-primary/70 text-sm">
+                      <PawPrint
+                        size={16}
+                        className="mt-0.5 shrink-0"
+                      />
+                      <span className="line-clamp-1" title={petSummary}>
+                        {petSummary || "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2 text-primary/70 text-sm">
+                      <Tag size={16} className="mt-0.5 shrink-0" />
+                      <span className="line-clamp-1" title={serviceSummary}>
+                        {serviceSummary || "-"}
+                      </span>
+                    </div>
+                  </div>
 
-              <div className="flex md:flex-col justify-between md:justify-end items-center md:items-end gap-1 md:w-1/4">
-                <div className="md:hidden flex items-center gap-1.5 text-gray-500 text-xs">
-                  <Receipt size={14} />
-                  <span>ยอดรวม</span>
+                  <div className="flex md:flex-col justify-between md:justify-end items-center md:items-end gap-1 md:w-1/4">
+                    <div className="md:hidden flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <Receipt size={14} />
+                      <span>ยอดรวม</span>
+                    </div>
+                    <div className="font-bold text-primary text-base">
+                      ฿{totalPrice.toLocaleString()}
+                    </div>
+                    <div className="hidden md:flex items-center gap-1 text-muted-foreground text-xs">
+                      <Receipt size={12} /> {appointment.items.length} รายการ
+                    </div>
+                  </div>
                 </div>
-                <div className="font-bold text-gray-900 text-base">
-                  ฿{totalPrice.toLocaleString()}
-                </div>
-                <div className="hidden md:flex items-center gap-1 text-gray-500 text-xs">
-                  <Receipt size={12} /> {appointment.items.length} รายการ
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
+              </Link>
+            );
+          })}
+        </CardContent>
+      </Card>
       <ManagementPagination
         page={page}
         pageParamName="historyPage"
@@ -123,6 +126,7 @@ export function AppointmentHistoryList({
         total={total}
         totalPages={totalPages}
       />
+
     </div>
   );
 }
