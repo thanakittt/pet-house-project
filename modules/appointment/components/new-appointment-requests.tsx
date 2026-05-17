@@ -57,7 +57,7 @@ export default function NewAppointmentRequests({
         <Link
           key={appointment.id}
           href={`/back-office/appointments/${appointment.id}`}
-          className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white hover:bg-slate-50/50 shadow-sm hover:shadow-md p-4 sm:p-5 border border-slate-200 hover:border-slate-300 rounded-lg min-w-0 overflow-hidden transition-all cursor-pointer"
+          className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white hover:bg-slate-50/50 shadow-sm hover:shadow-md p-4 sm:p-5 border rounded-lg min-w-0 overflow-hidden transition-all cursor-pointer"
         >
           <div className="flex flex-col gap-3 min-w-0">
             <div className="flex flex-col gap-1 min-w-0">
