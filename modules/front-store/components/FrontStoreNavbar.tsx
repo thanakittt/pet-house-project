@@ -56,7 +56,7 @@ const authenticatedNavItems: NavItem[] = [
     href: "/appointments/new",
     activeHref: "/appointments",
     activeMatch: "exact",
-  }
+  },
 ];
 
 function isNavItemActive(pathname: string, item: NavItem) {
@@ -145,7 +145,7 @@ export function FrontStoreNavbar() {
         "top-0 z-50 fixed w-full transition-all duration-200",
         isScrolled
           ? "border-b border-border/50 bg-background/70 shadow-sm backdrop-blur-md"
-          : "border-b border-border bg-background shadow-sm"
+          : "border-b border-border bg-background shadow-sm",
       )}
     >
       <div className="items-center gap-4 grid grid-cols-[1fr_auto] md:grid-cols-[1fr_auto_1fr] mx-auto px-4 md:px-8 max-w-5xl h-16 md:h-18">
@@ -153,7 +153,10 @@ export function FrontStoreNavbar() {
           <BrandLink />
         </div>
 
-        <nav aria-label="เมนูลูกค้า" className="hidden md:flex items-center gap-1">
+        <nav
+          aria-label="เมนูลูกค้า"
+          className="hidden md:flex items-center gap-1"
+        >
           {navItems.map((item) => {
             const isActive = isNavItemActive(pathname, item);
 
@@ -164,13 +167,15 @@ export function FrontStoreNavbar() {
                 variant={isActive ? "secondary" : "ghost"}
                 size="default"
               >
-                <Link href={item.href} aria-current={isActive ? "page" : undefined}>
+                <Link
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                >
                   {item.label}
                 </Link>
               </Button>
             );
           })}
-
         </nav>
 
         <div className="hidden md:flex justify-end gap-2">
@@ -249,7 +254,10 @@ export function FrontStoreNavbar() {
               </SheetTitle>
             </SheetHeader>
 
-            <nav aria-label="เมนูลูกค้าบนมือถือ" className="flex flex-col gap-2 px-4">
+            <nav
+              aria-label="เมนูลูกค้าบนมือถือ"
+              className="flex flex-col gap-2 px-4"
+            >
               {navItems.map((item) => {
                 const isActive = isNavItemActive(pathname, item);
 
@@ -307,10 +315,27 @@ export function FrontStoreNavbar() {
                   </SheetClose>
 
                   <SheetClose asChild>
-                    <Button asChild variant="outline" className="justify-start h-11">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="justify-start h-11"
+                    >
                       <Link href="/appointments">
                         <CalendarClock data-icon="inline-start" />
                         ประวัติการจอง
+                      </Link>
+                    </Button>
+                  </SheetClose>
+
+                  <SheetClose asChild>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="justify-start h-11"
+                    >
+                      <Link href="/pets">
+                        <Cat data-icon="inline-start" />
+                        สัตว์เลี้ยงของฉัน
                       </Link>
                     </Button>
                   </SheetClose>
