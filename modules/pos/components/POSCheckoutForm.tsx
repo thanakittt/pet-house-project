@@ -291,27 +291,27 @@ export function POSCheckoutForm({
           {/* Service Items Card */}
           <Card className="gap-0 shadow-sm border-muted/60">
             <CardHeader className="bg-muted/20 border-b">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Info size={18} className="text-primary" /> รายการบริการทั้งหมด
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <Info size={18} className="text-primary " /> รายการบริการทั้งหมด
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-border/50">
                 {groupedItems.length === 0 ? (
-                  <div className="p-6 text-muted-foreground text-sm text-center">
+                  <div className="p-6 text-muted-foreground text-base text-center">
                     ไม่มีรายการบริการ
                   </div>
                 ) : (
                   groupedItems.map(([petId, group]) => (
                     <div key={petId} className="flex flex-col">
-                      <div className="bg-muted/30 px-4 sm:px-6 py-2 border-border/50 border-b font-bold text-foreground text-sm">
+                      <div className="bg-muted/30 px-4 pt-2 font-bold text-foreground text-base ">
                         น้อง: {group.petName}
                       </div>
-                      <div className="divide-y divide-border/50">
+                      <div>
                         {group.items.map((item) => (
                           <div
                             key={item.id}
-                            className="group flex flex-row gap-4 hover:bg-muted/10 p-4"
+                            className="group flex flex-row gap-4 hover:bg-muted/10 p-3 pl-6"
                           >
                             <div className="flex w-full justify-between items-center ">
                               <p className="flex items-center font-medium text-sm md:text-base w-full">
@@ -408,7 +408,7 @@ export function POSCheckoutForm({
               </div>
 
               {/* Add Item Section */}
-              <div className="hidden lg:block bg-muted/5 p-4 sm:p-6 border-t">
+              <div className="hidden lg:block bg-muted/5 p-6 border-t">
                 {!isAddingItem ? (
                   <Button
                     variant="outline"
@@ -427,7 +427,7 @@ export function POSCheckoutForm({
                     >
                       <X size={14} />
                     </Button>
-                    <p className="mb-4 font-bold text-primary text-sm">
+                    <p className="mb-4 font-bold text-primary text-base">
                       เพิ่มรายการบริการใหม่
                     </p>
 
