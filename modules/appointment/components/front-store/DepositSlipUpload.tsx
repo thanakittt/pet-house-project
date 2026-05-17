@@ -219,27 +219,30 @@ export default function DepositSlipUpload({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-5 bg-amber-50 p-5 border border-amber-200 rounded-2xl w-full max-w-3xl text-left"
+      className="flex flex-col gap-5 bg-white p-5 border border-amber-200 rounded-2xl w-full text-left"
     >
-      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-start gap-2">
-        <div>
-          <h2 className="font-semibold text-amber-950 text-base">
-            ชำระมัดจำเพื่อยืนยันคิว
-          </h2>
-          <p className="mt-1 text-amber-900 text-sm">
+      <div className="flex flex-col">
+        <>
+          <div className="flex flex-row justify-between">
+            <h2 className="font-bold text-primary text-base md:text-xl">
+              ชำระมัดจำเพื่อยืนยันคิว
+            </h2>
+            <Badge variant="outline" className="border-primary text-primary p-3">
+              {APPOINTMENT_DEPOSIT_AMOUNT} บาท
+            </Badge>
+          </div>
+          <p className="mt-1 text-muted-foreground text-xs md:text-sm w-70 md:w-full">
             สแกน QR Code เพื่อชำระเงิน แล้วอัปโหลดสลิปให้ระบบตรวจสอบอัตโนมัติ
           </p>
-        </div>
-        <Badge variant="outline" className="border-amber-300 text-amber-950">
-          {APPOINTMENT_DEPOSIT_AMOUNT} บาท
-        </Badge>
+        </>
+
       </div>
 
       <div
         className={
           isDepositExpired
-            ? "flex flex-col gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-950 sm:flex-row sm:items-center sm:justify-between"
-            : "flex flex-col gap-3 rounded-xl border border-amber-300 bg-white/80 p-4 text-amber-950 sm:flex-row sm:items-center sm:justify-between"
+            ? "flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-800 sm:flex-row sm:items-center sm:justify-between"
+            : "flex flex-col gap-3 rounded-2xl border border-primary bg-white p-4 text-primary sm:flex-row sm:items-center sm:justify-between"
         }
       >
         <div className="flex items-start gap-3">
@@ -261,8 +264,9 @@ export default function DepositSlipUpload({
         {isDepositExpired ? (
           <Button
             type="button"
+            size="lg"
             variant="outline"
-            className="bg-white hover:bg-red-100 border-red-300 text-red-900"
+            className="bg-white hover:bg-red-100 border-red-300 text-red-800"
             onClick={() => router.refresh()}
           >
             <RefreshCw data-icon="inline-start" />
@@ -278,14 +282,14 @@ export default function DepositSlipUpload({
           "--deposit-qr-size": `${DEPOSIT_QR_IMAGE_SIZE_PX}px`,
         } as CSSProperties}
       >
-        <div className="flex flex-col gap-4 bg-white/90 p-4 border border-amber-200 rounded-xl text-center">
+        <div className="flex flex-col gap-4 bg-white/90 p-4 border border-slate-100 rounded-2xl text-center shadow-sm">
           <div
-            className="relative bg-white mx-auto border border-amber-100 rounded-lg w-full aspect-square overflow-hidden"
+            className="relative bg-white mx-auto w-full aspect-square overflow-hidden"
             style={{ maxWidth: DEPOSIT_QR_IMAGE_SIZE_PX }}
           >
             {isQrImageError ? (
               // fallback นี้ทำให้ flow ไม่พังแม้รูป QR ใน public/images หายหรือโหลดไม่ได้
-              <div className="flex justify-center items-center p-4 h-full font-medium text-amber-900 text-sm">
+              <div className="flex justify-center items-center p-6 h-full font-medium text-amber-900 text-sm">
                 ไม่สามารถแสดง QR Code ได้
               </div>
             ) : (
@@ -307,7 +311,7 @@ export default function DepositSlipUpload({
               ชำระ {APPOINTMENT_DEPOSIT_AMOUNT} บาท ก่อนอัปโหลดสลิป
             </p>
           </div>
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-left text-xs text-amber-900">
+          <div className="px-3 text-left text-xs text-primary">
             <p className="font-medium">ขั้นตอนสั้น ๆ</p>
             <p className="mt-1">
               1. สแกน QR Code 2. บันทึกรูปสลิป 3. เลือกรูปแล้วกดตรวจสอบ
@@ -315,15 +319,15 @@ export default function DepositSlipUpload({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-white/90 p-4">
+        <div className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <FieldGroup>
             <Field>
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between  gap-3">
                 <div>
-                  <FieldLabel htmlFor="deposit-slip">
+                  <FieldLabel htmlFor="deposit-slip" className="text-base md:text-xl font-bold">
                     รูปสลิปโอนเงิน
                   </FieldLabel>
-                  <FieldDescription>
+                  <FieldDescription className="text-xs md:text-sm text-muted-foreground">
                     รองรับ JPG, PNG, GIF, WebP ขนาดไม่เกิน 4MB
                   </FieldDescription>
                 </div>
@@ -342,8 +346,8 @@ export default function DepositSlipUpload({
                 ) : null}
               </div>
 
-              <FieldDescription>
-                เลือกรูปให้ชัด เห็นยอดเงิน วันที่ เวลา และเลขอ้างอิงครบถ้วน
+              <FieldDescription className="text-primary text-sm md:text-base">
+                *เลือกรูปให้ชัด เห็นยอดเงิน วันที่ เวลา และเลขอ้างอิงครบถ้วน*
               </FieldDescription>
 
               <Input

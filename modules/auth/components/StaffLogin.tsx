@@ -78,9 +78,9 @@ export function StaffLoginForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="px-5 rounded-lg w-sm">
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg md:w-[400px] w-full">
         <Image
-          className="mx-auto mb-2 rounded-sm"
+          className="mx-auto mb-3 rounded-sm"
           src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
@@ -88,14 +88,14 @@ export function StaffLoginForm() {
           loading="eager"
           priority
         />
-        <h1 className="mb-2 font-bold text-2xl text-center">Pet House</h1>
-        <h2 className="mb-5 font-semibold text-lg text-center">
+        <h1 className="mb-1 font-bold text-xl uppercase">Pet House</h1>
+        <h2 className="mb-5 font-semibold text-base md:text-lg">
           เข้าสู่ระบบสำหรับพนักงาน
         </h2>
         <form
           id="create-user"
           onSubmit={handleSubmit(onSubmit)}
-          className="px-5"
+          className="flex flex-col items-center w-full"
         >
           <FieldGroup>
             {/* Email Field */}
@@ -165,6 +165,9 @@ export function StaffLoginForm() {
 
             <LoadingButton
               type="submit"
+              variant="default"
+              size="default"
+              className="mt-3"
               disabled={isSubmitting}
               isLoading={isSubmitting}
               loadingText="กำลังเข้าสู่ระบบ..."

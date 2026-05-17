@@ -81,18 +81,18 @@ export function SignInForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-svh">
-      <section className="flex flex-col items-center rounded-lg w-sm px-5">
+    <div className="flex justify-center items-center min-h-screen">
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg md:w-[400px] w-full">
         <Image
-          className="mx-auto mb-2 rounded-sm"
+          className="mx-auto mb-3 rounded-sm"
           src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}
           priority
         />
-        <h1 className="mb-2 font-bold text-2xl text-center">Pet House</h1>
-        <h2 className="mb-5 font-semibold text-lg text-center">เข้าสู่ระบบ</h2>
+        <h1 className="mb-2 font-bold text-xl  uppercase">Pet House</h1>
+        <h2 className="mb-5 font-semibold text-base md:text-lg ">เข้าสู่ระบบ</h2>
 
         <form
           id="sign-in-form"
@@ -164,7 +164,9 @@ export function SignInForm() {
             />
 
             <LoadingButton
-              className="mt-2 w-full"
+              className="mt-3"
+              variant="default"
+              size="default"
               type="submit"
               isLoading={isSubmitting}
               loadingText="กำลังเข้าสู่ระบบ..."
@@ -174,11 +176,11 @@ export function SignInForm() {
           </FieldGroup>
         </form>
 
-        <div className="pt-6 w-full">
+        <div className="py-6 w-full">
           <FieldSeparator>หรือ</FieldSeparator>
         </div>
 
-        <div className="flex flex-col gap-3 mt-5 w-full">
+        <div className="flex flex-col gap-3 w-full">
           <Button
             variant="outline"
             className="py-5"
@@ -210,7 +212,7 @@ export function SignInForm() {
           </Button>
         </div>
 
-        <p className="mt-6 text-sm text-center">
+        <p className="my-5 text-sm text-center">
           ยังไม่มีบัญชี?{" "}
           <Link
             href="/sign-up"
