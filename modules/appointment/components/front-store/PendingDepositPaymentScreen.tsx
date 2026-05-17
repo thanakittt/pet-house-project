@@ -2,7 +2,7 @@
 
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Wallet } from "lucide-react";
 import { useState } from "react";
 import DepositSlipUpload from "./DepositSlipUpload";
 
@@ -22,17 +22,17 @@ export default function PendingDepositPaymentScreen({
   const shortAppointmentId = appointmentId.split("-")[0].toUpperCase();
 
   return (
-    <div className="mx-auto my-4 flex h-auto w-full max-w-5xl flex-col items-center gap-6 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-      <div className="flex size-16 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+    <div className="mx-auto my-4 flex h-auto w-full max-w-5xl flex-col items-center gap-6 md:rounded-2xl md:border md:border-slate-200 bg-white md:p-8 text-center md:shadow-sm">
+      <div className="flex size-16 items-center justify-center rounded-full bg-amber-50 text-amber-400 shadow-sm">
         {verifiedSlipTransRef ? (
           <ShieldCheck className="size-8" />
         ) : (
-          <CheckCircle2 className="size-8" />
+          <Wallet className="size-8" />
         )}
       </div>
 
       <div>
-        <h1 className="mb-2 text-2xl font-bold text-slate-900">
+        <h1 className="mb-2 text-2xl font-black text-primary">
           {verifiedSlipTransRef ? "ยืนยันคิวแล้ว" : "ชำระมัดจำเพื่อยืนยันคิว"}
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -42,7 +42,7 @@ export default function PendingDepositPaymentScreen({
 
       {verifiedSlipTransRef ? (
         // เมื่อ verify ผ่าน ไม่ต้องแสดง upload form ซ้ำ เพราะ appointment ถูกเปลี่ยนเป็น CONFIRMED แล้ว
-        <div className="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
+        <div className="w-full rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
           <div className="flex flex-wrap items-center gap-2 font-semibold">
             <span>สถานะปัจจุบัน:</span>
             <AppointmentStatusBadge status="CONFIRMED" />
@@ -58,7 +58,7 @@ export default function PendingDepositPaymentScreen({
       ) : (
         <>
           {/* หน้านี้ตั้งใจแสดงเฉพาะการจ่ายมัดจำ เพื่อกันลูกค้าจองคิวใหม่ซ้อนก่อนจ่ายคิวเดิม */}
-          <div className="w-full max-w-xl rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left text-sm text-amber-950">
+          <div className="w-full rounded-2xl  border border-amber-200  bg-amber-50 p-5 text-left text-sm text-amber-950">
             <div className="flex flex-wrap items-center gap-2 font-semibold">
               <span>สถานะปัจจุบัน:</span>
               <AppointmentStatusBadge status="PENDING_DEPOSIT" />

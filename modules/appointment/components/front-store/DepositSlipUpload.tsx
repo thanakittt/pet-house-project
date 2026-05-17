@@ -224,7 +224,7 @@ export default function DepositSlipUpload({
       <div className="flex flex-col">
         <>
           <div className="flex flex-row justify-between">
-            <h2 className="font-semibold text-primary text-base md:text-xl">
+            <h2 className="font-bold text-primary text-base md:text-xl">
               ชำระมัดจำเพื่อยืนยันคิว
             </h2>
             <Badge variant="outline" className="border-primary text-primary p-3">
@@ -322,12 +322,12 @@ export default function DepositSlipUpload({
         <div className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
           <FieldGroup>
             <Field>
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between  gap-3">
                 <div>
-                  <FieldLabel htmlFor="deposit-slip">
+                  <FieldLabel htmlFor="deposit-slip" className="text-base md:text-xl font-bold">
                     รูปสลิปโอนเงิน
                   </FieldLabel>
-                  <FieldDescription>
+                  <FieldDescription className="text-xs md:text-sm text-muted-foreground">
                     รองรับ JPG, PNG, GIF, WebP ขนาดไม่เกิน 4MB
                   </FieldDescription>
                 </div>
@@ -346,8 +346,8 @@ export default function DepositSlipUpload({
                 ) : null}
               </div>
 
-              <FieldDescription>
-                เลือกรูปให้ชัด เห็นยอดเงิน วันที่ เวลา และเลขอ้างอิงครบถ้วน
+              <FieldDescription className="text-primary text-sm md:text-base">
+                *เลือกรูปให้ชัด เห็นยอดเงิน วันที่ เวลา และเลขอ้างอิงครบถ้วน*
               </FieldDescription>
 
               <Input
