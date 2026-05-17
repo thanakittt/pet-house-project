@@ -13,6 +13,7 @@ import {
   Dog,
   Receipt,
   CheckCircle2,
+  PawPrint,
 } from "lucide-react";
 import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 
@@ -75,7 +76,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
               <div className="space-y-4">
                 {/* Customer */}
                 <div className="flex items-start gap-3.5">
-                  <div className="flex justify-center items-center bg-primary/10 rounded-full w-9 h-9 text-primary shrink-0">
+                  <div className="flex justify-center items-center bg-sky-50 rounded-full w-9 h-9 text-sky-500 shrink-0">
                     <User size={18} />
                   </div>
                   <div className="flex flex-col overflow-hidden">
@@ -99,8 +100,8 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
 
                 {/* Pets */}
                 <div className="flex items-start gap-3.5">
-                  <div className="flex justify-center items-center bg-muted rounded-full w-9 h-9 text-muted-foreground shrink-0">
-                    <Dog size={18} />
+                  <div className="flex justify-center items-center bg-taupe-100 rounded-full w-9 h-9 text-taupe-600 shrink-0">
+                    <PawPrint size={18} />
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <p className="font-medium text-foreground text-sm truncate">
