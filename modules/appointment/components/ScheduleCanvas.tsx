@@ -177,8 +177,8 @@ function MobileScheduleList({
 }) {
   if (appointments.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center bg-slate-50 p-8 border border-dashed rounded-lg text-slate-400 text-center">
-        <Clock size={40} className="mb-3 text-slate-300" />
+      <div className="flex flex-col justify-center items-center bg-muted/50 p-8 border border-dashed rounded-lg text-muted-foreground/50 text-center">
+        <Clock size={30} className="mb-3" />
         <p className="font-medium text-base">ไม่มีคิวนัดหมายในวันนี้</p>
       </div>
     );
@@ -190,7 +190,7 @@ function MobileScheduleList({
         <Link
           key={`${appt.id}-${appt.petId}`}
           href={`/back-office/appointments/${appt.id}`}
-          className="group block bg-white shadow-sm hover:shadow-md p-4 border border-slate-200 border-l-4 border-l-primary rounded-lg min-w-0 transition-shadow"
+          className="group block bg-white shadow-sm hover:shadow-md p-4 border border-l-4 border-l-primary rounded-lg min-w-0 transition-shadow"
         >
           <div className="flex flex-col gap-3 min-w-0">
             <div className="flex flex-col gap-2 min-w-0">
@@ -220,7 +220,7 @@ function MobileScheduleList({
               </p>
             </div>
 
-            <p className="font-medium text-slate-700 text-sm break-words">
+            <p className="font-medium text-muted-foreground text-sm break-words">
               {appt.serviceNames || "-"}
             </p>
           </div>
@@ -297,9 +297,9 @@ export default function ScheduleCanvas({
   };
 
   return (
-    <div className="flex flex-col bg-white shadow-sm mx-auto border border-slate-200 rounded-2xl w-full min-w-0 max-w-6xl overflow-hidden">
+    <div className="flex flex-col bg-white shadow-sm mx-auto border rounded-2xl w-full min-w-0 max-w-6xl overflow-hidden">
       {/* Calendar Header */}
-      <div className="z-20 flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-white px-4 sm:px-6 py-5 border-slate-200 border-b shrink-0">
+      <div className="z-20 flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-white px-4 sm:px-6 py-5 border-b shrink-0">
         <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:gap-6 min-w-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="hidden sm:block bg-amber-50 p-3 rounded-lg text-amber-600">
@@ -346,17 +346,17 @@ export default function ScheduleCanvas({
         </Button>
       </div>
 
-      <div className="md:hidden bg-slate-50/50 p-4">
+      <div className="md:hidden bg-muted/40 p-4">
         <MobileScheduleList appointments={appointments} />
       </div>
 
       {/* Schedule Canvas */}
       <div
         ref={scrollContainerRef}
-        className="hidden relative md:flex flex-1 bg-slate-50/50 h-[720px] overflow-y-auto scroll-smooth"
+        className="hidden relative md:flex flex-1 bg-white h-[720px] overflow-y-auto scroll-smooth"
       >
         {/* แกนเวลา (Y-Axis) */}
-        <div className="left-0 z-20 sticky flex-shrink-0 bg-white shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-slate-200 border-r w-20">
+        <div className="left-0 z-20 sticky flex-shrink-0 bg-white shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-muted-foreground/30 border-r w-20">
           {hoursGrid.map((hour) => (
             <div
               key={hour}
@@ -375,7 +375,7 @@ export default function ScheduleCanvas({
           {hoursGrid.map((hour) => (
             <div
               key={hour}
-              className="absolute border-slate-200/60 border-t w-full"
+              className="absolute border-muted-foreground/30 border-t w-full"
               style={{
                 top: `${(hour - START_HOUR) * ROW_HEIGHT_PX + CANVAS_PADDING_TOP}px`,
               }}
@@ -395,8 +395,8 @@ export default function ScheduleCanvas({
           )}
 
           {appointments.length === 0 && (
-            <div className="absolute inset-0 flex flex-col justify-center items-center opacity-60 text-slate-400 pointer-events-none">
-              <Clock size={48} className="mb-4 text-slate-300" />
+            <div className="absolute inset-0 flex flex-col justify-center items-center opacity-60 text-muted-foreground/50 pointer-events-none">
+              <Clock size={48} className="mb-4" />
               <p className="font-medium text-lg">ไม่มีคิวนัดหมายในวันนี้</p>
             </div>
           )}
@@ -417,7 +417,7 @@ export default function ScheduleCanvas({
                   height,
                 }}
               >
-                <div className="relative flex flex-col bg-white shadow-sm hover:shadow-lg p-4 border-slate-200 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
+                <div className="relative flex flex-col bg-white shadow-sm hover:shadow-lg p-4 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
                   <div className="flex justify-between items-start gap-2 mb-1.5">
                     <div className="flex items-center gap-1 font-bold text-primary text-base truncate leading-tight">
                       {appt.petName}{" "}
