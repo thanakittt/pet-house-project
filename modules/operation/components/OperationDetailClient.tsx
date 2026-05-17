@@ -193,7 +193,7 @@ export default function OperationDetailClient({
             <Info className="w-5 h-5 text-muted-foreground" />
             <CardTitle>การจัดการสถานะ (บิลหลัก)</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <span className="font-medium text-muted-foreground">
                 สถานะปัจจุบัน:
@@ -256,7 +256,7 @@ export default function OperationDetailClient({
               petId={operation.petId}
             />
           </CardHeader>
-          <CardContent className="space-y-6 pt-6">
+          <CardContent className="space-y-6">
             {/* Before Images */}
             <div>
               <h3 className="mb-3 font-medium text-muted-foreground text-sm">
@@ -286,7 +286,7 @@ export default function OperationDetailClient({
                   ))}
                 </div>
               ) : (
-                <p className="bg-muted/20 p-4 border border-dashed rounded text-muted-foreground text-sm text-center">
+                <p className="bg-muted/20 p-4 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
                   ยังไม่มีรูปภาพ
                 </p>
               )}
@@ -321,7 +321,7 @@ export default function OperationDetailClient({
                   ))}
                 </div>
               ) : (
-                <p className="bg-muted/20 p-4 border border-dashed rounded text-muted-foreground text-sm text-center">
+                <p className="bg-muted/20 p-4 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
                   ยังไม่มีรูปภาพ
                 </p>
               )}
@@ -344,40 +344,44 @@ export default function OperationDetailClient({
               petId={operation.petId}
             />
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent>
             {healthReports.length > 0 ? (
               <div className="space-y-4">
                 {healthReports.map((report) => (
                   <div
                     key={report.id}
-                    className="group bg-gray-50/50 p-4 border rounded-lg"
+                    className="group p-4 border bg-muted/60 rounded-lg"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-900">
-                        {report.topic}
-                      </h4>
-                      <div className="flex items-center gap-1">
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col items-start gap-1">
+                        <h4 className="font-semibold text-primary">
+                          {report.topic}
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          {report.description}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
                         <span className="mr-2 text-muted-foreground text-xs">
                           {formatThaiDate(report.createdAt)}
                         </span>
+                        <div className="flex flex-row items-center gap-2">
+                          <EditHealthReportDialog
+                            report={report}
+                            appointmentId={operation.appointmentId}
+                            petId={operation.petId}
+                          />
 
-                        <EditHealthReportDialog
-                          report={report}
-                          appointmentId={operation.appointmentId}
-                          petId={operation.petId}
-                        />
-
-                        <DeleteHealthReportButton
-                          reportId={report.id}
-                          topic={report.topic}
-                          appointmentId={operation.appointmentId}
-                          petId={operation.petId}
-                        />
+                          <DeleteHealthReportButton
+                            reportId={report.id}
+                            topic={report.topic}
+                            appointmentId={operation.appointmentId}
+                            petId={operation.petId}
+                          />
+                        </div>
                       </div>
                     </div>
-                    <p className="text-gray-700 text-sm">
-                      {report.description}
-                    </p>
                   </div>
                 ))}
               </div>

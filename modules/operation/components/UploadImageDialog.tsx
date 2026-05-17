@@ -164,7 +164,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
     >
       <form onSubmit={form.handleSubmit(onSubmit)} id="upload-image-form">
         <DialogTrigger asChild className="text-sm cursor-pointer">
-          <Button type="button" size="sm" variant="outline">
+          <Button type="button" size="lg" variant="outline">
             <PlusIcon className="mr-2 size-3.5" /> เพิ่มรูปภาพ
           </Button>
         </DialogTrigger>
@@ -223,7 +223,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                   buttonVariants({ variant: "outline" }),
                   "w-fit cursor-pointer",
                   (isUploading || form.formState.isSubmitting) &&
-                    "pointer-events-none cursor-not-allowed opacity-50",
+                  "pointer-events-none cursor-not-allowed opacity-50",
                 )}
               >
                 <UploadIcon data-icon="inline-start" />

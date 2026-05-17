@@ -102,7 +102,7 @@ export default function EditHealthReportDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="max-lg:hidden w-8 h-8 text-muted-foreground hover:text-blue-600"
+            className="max-lg:hidden w-8 h-8 text-muted-foreground hover:bg-blue-100 hover:text-blue-600"
           >
             <Edit2Icon className="w-4 h-4" />
           </Button>
@@ -193,7 +193,7 @@ export default function EditHealthReportDialog({
                 form={`edit-health-report-${report.id}`}
                 className="px-6 py-5 text-sm cursor-pointer"
 
-               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
+                isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

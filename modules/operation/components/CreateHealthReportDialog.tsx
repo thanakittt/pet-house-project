@@ -90,7 +90,7 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-health-report">
         {/* Trigger Button: ปรับ style ให้เหมาะกับ Header ของ Card */}
         <DialogTrigger asChild className="text-sm cursor-pointer">
-          <Button type="button" size="sm" variant="outline">
+          <Button type="button" size="lg" variant="outline">
             <PlusIcon className="mr-2 size-3.5" /> เพิ่มรายงาน
           </Button>
         </DialogTrigger>
@@ -184,7 +184,7 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
                 form="create-health-report"
                 className="px-6 py-5 text-sm cursor-pointer"
 
-               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
+                isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>
