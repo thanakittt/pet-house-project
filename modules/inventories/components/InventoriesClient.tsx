@@ -38,7 +38,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="destructive"
-        className="bg-rose-100 hover:bg-rose-200 p-2 md:p-4 border-rose-300 text-red-500"
+        className="bg-rose-50 hover:bg-rose-100 p-2 md:p-3 border-rose-400 text-red-600"
       >
         สินค้าหมด
       </Badge>
@@ -48,7 +48,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="secondary"
-        className="bg-amber-100 hover:bg-amber-200 p-2 md:p-4 border-amber-300 text-amber-500"
+        className="bg-amber-50 hover:bg-amber-100 p-2 md:p-3 border-amber-400 text-amber-600"
       >
         สินค้าใกล้หมด
       </Badge>
@@ -57,7 +57,7 @@ function getStatusBadge(item: InventoryItem) {
   return (
     <Badge
       variant="secondary"
-      className="bg-green-100 hover:bg-green-200 p-2 md:p-4 border-green-300 text-green-500"
+      className="bg-green-50 hover:bg-green-100 p-2 md:p-3 border-green-400 text-green-600"
     >
       ปกติ
     </Badge>
