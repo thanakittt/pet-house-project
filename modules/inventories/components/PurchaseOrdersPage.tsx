@@ -117,7 +117,7 @@ export default function PurchaseOrdersPage({
               ) : (
                 orderData.orders.map((order, index) => (
                   <TableRow key={order.id}>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell>
                       {rowOffset + index + 1}
                     </TableCell>
                     <TableCell className="font-medium">

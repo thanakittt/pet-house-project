@@ -130,11 +130,10 @@ export default function StatusUpdate({
                       <DropdownMenuItem
                         key={key}
                         onClick={() => handleStatusChange(key)}
-                        className={`mb-0.5 flex cursor-pointer items-center justify-between rounded-md px-2 py-2 ${
-                          isSelected
-                            ? "bg-slate-50 font-bold text-slate-900"
-                            : "text-slate-600 hover:bg-slate-50"
-                        }`}
+                        className={`mb-0.5 flex cursor-pointer items-center justify-between rounded-md px-2 py-2 ${isSelected
+                          ? "bg-slate-50 font-bold text-slate-900"
+                          : "text-slate-600 hover:bg-slate-50"
+                          }`}
                       >
                         <div className="flex items-center gap-2">
                           <div
