@@ -28,6 +28,8 @@ import {
   Info,
   User,
   Phone,
+  ClipboardList,
+  Receipt,
 } from "lucide-react";
 import { cn, formatPhoneNumber } from "@/lib/utils";
 
@@ -292,7 +294,7 @@ export function POSCheckoutForm({
           <Card className="gap-0 shadow-sm border-muted/60">
             <CardHeader className="bg-muted/20 border-b">
               <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                <Info size={18} className="text-primary " /> รายการบริการทั้งหมด
+                <ClipboardList size={18} className="text-primary " /> รายการบริการทั้งหมด
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -304,7 +306,7 @@ export function POSCheckoutForm({
                 ) : (
                   groupedItems.map(([petId, group]) => (
                     <div key={petId} className="flex flex-col">
-                      <div className="bg-muted/30 px-4 pt-2 font-bold text-foreground text-base ">
+                      <div className="px-4 pt-2 font-bold text-foreground text-base border-t border-slate-100 ">
                         น้อง: {group.petName}
                       </div>
                       <div>
@@ -320,14 +322,14 @@ export function POSCheckoutForm({
                                   "MAIN" && (
                                     <Badge
                                       variant="secondary"
-                                      className="bg-primary/10 hover:bg-primary/20 ml-2 text-xs text-primary"
+                                      className="border-teal-200 bg-teal-50 text-teal-700 ml-2 dark:border-teal-900/50 dark:bg-teal-900/30 dark:text-teal-300"
                                     >
                                       บริการหลัก
                                     </Badge>
                                   )}
                                 <Badge
                                   variant="outline"
-                                  className="ml-2 text-xs"
+                                  className="ml-2 text-xs border-slate-300 bg-slate-50 text-slate-700"
                                 >
                                   {
                                     PET_SIZE_LABELS[
@@ -526,7 +528,10 @@ export function POSCheckoutForm({
         <div className="lg:col-span-4">
           <Card className="top-6 sticky shadow-lg border-primary/10">
             <CardHeader className="bg-muted/30 border-b">
-              <CardTitle className="text-lg font-bold">สรุปการสั่งซื้อ</CardTitle>
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <Receipt className="text-primary" size={18} />
+                สรุปการสั่งซื้อ
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* [NEW] UI แสดงยอดรวมแบบแยกบรรทัด */}
@@ -567,7 +572,7 @@ export function POSCheckoutForm({
                 </div>
               </div>
 
-              <div className="hidden lg:block space-y-3 ">
+              <div className="hidden lg:block space-y-3 border-t pt-4">
                 <p className="font-semibold text-foreground text-sm">
                   วิธีชำระเงิน
                 </p>
@@ -578,8 +583,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "CASH"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md ring-emerald-500"
-                        : "border-muted text-muted-foreground hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-600",
+                        ? "border-emerald-500 bg-emerald-50 text-emerald-600 shadow-md ring-emerald-400"
+                        : "border-muted text-muted-foreground hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-500",
                     )}
                     onClick={() => setPaymentMethod("CASH")}
                   >
@@ -593,8 +598,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "TRANSFER"
-                        ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md ring-indigo-500"
-                        : "border-muted text-muted-foreground hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-600",
+                        ? "border-blue-500 bg-blue-50 text-blue-600 shadow-md ring-blue-400"
+                        : "border-muted text-muted-foreground hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-600",
                     )}
                     onClick={() => setPaymentMethod("TRANSFER")}
                   >
@@ -622,7 +627,7 @@ export function POSCheckoutForm({
                   "max-lg:hidden shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
                   paymentMethod === "CASH"
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white",
+                    : "bg-blue-500 hover:bg-blue-600 text-white",
                 )}
               >
                 ยืนยันชำระเงิน
