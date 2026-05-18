@@ -163,7 +163,7 @@ export default function AppointmentStatusManager({
 
   return (
     <>
-      <div className="hidden lg:flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-muted/50 p-4 rounded-lg">
+      <div className="hidden lg:flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-muted/80 p-4 rounded-lg">
         <div className="flex flex-col gap-2 w-full sm:w-auto">
           <span className="font-medium text-muted-foreground text-sm">
             สถานะปัจจุบัน

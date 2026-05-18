@@ -9,7 +9,7 @@ import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import { requireStaff } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
 import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
-import { Camera, AlertTriangle, ClipboardList } from "lucide-react"; // [NEW] นำเข้า ClipboardList
+import { Camera, AlertTriangle, ClipboardList, Phone, User } from "lucide-react"; // [NEW] นำเข้า ClipboardList
 import BackButton from "@/components/BackButton";
 import ImageLightbox from "@/modules/operation/components/ImageLightbox";
 import Image from "next/image";
@@ -77,7 +77,7 @@ export default async function AppointmentDetailPage({
         <div className="space-y-6">
           {/* 1. Header & Status Manager */}
           <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
-            <div className="flex justify-between items-start mb-6 pb-4 border-b">
+            <div className="flex justify-between items-start mb-6">
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="font-bold text-foreground text-xl">
@@ -105,18 +105,26 @@ export default async function AppointmentDetailPage({
 
           {/* 2. ข้อมูลลูกค้า */}
           <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
-            <h2 className="mb-4 pb-4 border-b font-semibold text-primary text-lg">
+            <h2 className="mb-4 font-semibold text-primary text-lg">
               ข้อมูลลูกค้า
             </h2>
-            <div className="gap-4 grid grid-cols-2">
-              <div className="flex justify-start items-end pl-2">
-                <p className="mb-1 text-muted-foreground text-sm md:text-base">ชื่อ : <span className="pl-2 font-medium text-primary text-base md:text-lg">{appointment.customer.name}</span></p>
+            <div className="gap-4 grid grid-cols-2 items-center">
+              <div className="flex items-center pl-2">
+                <div className="bg-sky-50 p-2 rounded-full">
+                  <User className="text-sky-600" size={16} />
+                </div>
+
+                <p className="pl-2 font-medium text-primary text-base md:text-lg">{appointment.customer.name}</p>
 
               </div>
-              <div className="flex justify-start items-end">
-                <p className="mb-1 text-muted-foreground text-sm md:text-base">เบอร์ : <span className="pl-2 font-medium text-primary text-base md:text-lg">
+              <div className="flex items-center">
+                <div className="bg-emerald-50 p-2 rounded-full">
+                  <Phone className="text-emerald-600" size={16} />
+                </div>
+
+                <p className="pl-2 font-medium text-primary text-base md:text-lg">
                   {formatPhoneNumber(appointment.customer.walkInPhoneNumber)}
-                </span></p>
+                </p>
               </div>
               <div className="col-span-2">
                 {appointment.note && (
@@ -148,7 +156,7 @@ export default async function AppointmentDetailPage({
                   key={pet.petId}
                   className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl"
                 >
-                  <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+                  <div className="flex items-center gap-3 mb-4">
                     <div className="flex justify-center items-center bg-primary rounded-full w-10 h-10 font-bold text-white">
                       {index + 1}
                     </div>
@@ -306,7 +314,7 @@ export default async function AppointmentDetailPage({
             })}
           </div>
         </div>
-      </BackOfficeContainer>
-    </div>
+      </BackOfficeContainer >
+    </div >
   );
 }
