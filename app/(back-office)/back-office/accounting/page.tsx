@@ -62,8 +62,8 @@ export default async function AccountingPage(props: {
           <div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm">
-                  รายการเคลื่อนไหวล่าสุด
+                <span className="font-bold text-lg md:text-xl ">
+                  รายการล่าสุด
                 </span>
               </div>
               <div className="hidden lg:block">

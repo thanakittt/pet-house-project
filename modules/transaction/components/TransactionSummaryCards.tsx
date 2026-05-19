@@ -15,7 +15,7 @@ export function TransactionSummaryCards({ summary }: TransactionSummaryCardsProp
       {/* รายรับรวม */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">รายรับรวม</CardTitle>
+          <CardTitle className="text-sm md:text-base font-medium">รายรับรวม</CardTitle>
           <div className="bg-green-100 p-2 rounded-full">
             <TrendingUp className="h-4 w-4 text-green-600" />
           </div>
@@ -30,7 +30,7 @@ export function TransactionSummaryCards({ summary }: TransactionSummaryCardsProp
       {/* รายจ่ายรวม */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">รายจ่ายรวม</CardTitle>
+          <CardTitle className="text-sm md:text-base font-medium">รายจ่ายรวม</CardTitle>
           <div className="bg-red-100 p-2 rounded-full">
             <TrendingDown className="h-4 w-4 text-red-600" />
           </div>
@@ -45,7 +45,7 @@ export function TransactionSummaryCards({ summary }: TransactionSummaryCardsProp
       {/* กำไรสุทธิ */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">กำไรสุทธิ</CardTitle>
+          <CardTitle className="text-sm md:text-base font-medium">กำไรสุทธิ</CardTitle>
           <div className={`${isNetProfitPositive ? "bg-green-100" : "bg-red-100"} p-2 rounded-full`}>
             <DollarSign className={`h-4 w-4 ${isNetProfitPositive ? "text-green-600" : "text-red-600"}`} />
           </div>

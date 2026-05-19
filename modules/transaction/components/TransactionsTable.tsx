@@ -47,9 +47,10 @@ export function TransactionsTable({
           {transactions.map((tx) => (
             <TableRow key={tx.id}>
               <TableCell>{formatThaiDate(tx.transactionDate)}</TableCell>
-              <TableCell>{tx.note || "-"}</TableCell>
+              <TableCell className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px] md:max-w-[400px]">
+                {tx.note || "-"}</TableCell>
               <TableCell>
-                <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                   {tx.categoryName}
                 </span>
               </TableCell>
