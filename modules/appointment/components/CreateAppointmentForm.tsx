@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { getBangkokDayOfWeek, getBangkokTodayString } from "@/lib/finance/date";
 
 import { searchCustomer } from "@/modules/customer/actions/search-customer";
 import { CustomerSearchResult } from "@/modules/customer/types/customer";
@@ -68,11 +69,13 @@ export function AvailableSlots({
   error,
 }: AvailableSlotsProps) {
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const date = new Date();
-    while (date.getDay() === SHOP_CLOSED_DAY) {
-      date.setDate(date.getDate() + 1);
+    let date = getBangkokTodayString();
+    while (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
+      const nextDate = new Date(`${date}T00:00:00`);
+      nextDate.setDate(nextDate.getDate() + 1);
+      date = format(nextDate, "yyyy-MM-dd");
     }
-    return format(date, "yyyy-MM-dd");
+    return date;
   });
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -81,7 +84,7 @@ export function AvailableSlots({
     const fetchSlots = async () => {
       if (!selectedDate || durationMinutes <= 0) return;
 
-      const dayOfWeek = new Date(selectedDate).getDay();
+      const dayOfWeek = getBangkokDayOfWeek(selectedDate);
       if (dayOfWeek === SHOP_CLOSED_DAY) {
         setAvailableSlots([]);
         return;
@@ -123,7 +126,7 @@ export function AvailableSlots({
             id="date-picker"
             type="date"
             value={selectedDate}
-            min={format(new Date(), "yyyy-MM-dd")}
+            min={getBangkokTodayString()}
             aria-invalid={Boolean(error)}
             onChange={(e) => {
               const val = e.target.value;

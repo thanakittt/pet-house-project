@@ -6,17 +6,16 @@ import { appointments, appointmentItems } from "@/db/schema"; // นำเข้
 // สมมติว่าคุณมีตารางเหล่านี้ (กรุณาปรับ path ตามจริง)
 import { customers, pets, serviceVariants, services } from "@/db/schema";
 import { and, eq, gte, lte, notInArray } from "drizzle-orm";
-import { startOfDay, endOfDay, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { ScheduleRecord } from "../types/schedule";
 import { ActionResponse } from "@/types/action";
+import { getBangkokDayRange } from "@/lib/finance/date";
 
 export async function getScheduleByDate(
   dateString: string,
 ): Promise<ActionResponse<ScheduleRecord[]>> {
   try {
-    const targetDate = parseISO(dateString);
-    const start = startOfDay(targetDate);
-    const end = endOfDay(targetDate);
+    const { start, end } = getBangkokDayRange(dateString);
 
     // 1. คิวรีข้อมูลจาก Database ด้วย Query Builder (เพื่อความชัวร์แม้ไม่ได้เซ็ต Relations)
     const rawItems = await db

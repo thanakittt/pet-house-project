@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import { getBangkokDayOfWeek, getBangkokTodayString } from "@/lib/finance/date";
 import { formatThaiDate } from "@/lib/utils";
 import { getAvailableSlots } from "@/modules/appointment/queries/get-available-slots";
 import { format, parseISO } from "date-fns";
@@ -16,13 +17,15 @@ import {
 } from "./booking-utils";
 
 function getInitialDate() {
-  const date = new Date();
+  let date = getBangkokTodayString();
 
-  while (date.getDay() === SHOP_CLOSED_DAY) {
-    date.setDate(date.getDate() + 1);
+  while (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
+    const nextDate = new Date(`${date}T00:00:00`);
+    nextDate.setDate(nextDate.getDate() + 1);
+    date = format(nextDate, "yyyy-MM-dd");
   }
 
-  return format(date, "yyyy-MM-dd");
+  return date;
 }
 
 export default function Step5DateTime({
@@ -55,7 +58,7 @@ export default function Step5DateTime({
 
       update({ ...data, startTimeIso: "" });
 
-      const dayOfWeek = new Date(`${selectedDate}T00:00:00`).getDay();
+      const dayOfWeek = getBangkokDayOfWeek(selectedDate);
 
       if (dayOfWeek === SHOP_CLOSED_DAY) {
         setAvailableSlots([]);
@@ -134,7 +137,7 @@ export default function Step5DateTime({
               name="date"
               type="date"
               value={selectedDate}
-              min={format(new Date(), "yyyy-MM-dd")}
+              min={getBangkokTodayString()}
               onChange={(event) => setSelectedDate(event.target.value)}
             />
 
