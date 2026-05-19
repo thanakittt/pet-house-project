@@ -15,6 +15,7 @@ import {
   Save,
   MinusIcon,
   PlusIcon,
+  Info,
 } from "lucide-react";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
@@ -290,14 +291,14 @@ export default function PurchaseOrderDetailPage({
         {/* ── Left Column: Info ── */}
         <div className="lg:col-span-1 flex flex-col gap-8">
           <Card className="py-6 px-2">
-            <CardHeader >
+            <CardHeader>
               <CardTitle className="text-base font-bold text-primary flex items-center gap-2">
-                รายละเอียดอ้างอิง
+                <Info className="text-primary" size={18} />  รายละเอียดอ้างอิง
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-6 py-2">
-              <div className="flex flex-col gap-5 space-y-2 ">
-                <div className="flex items-start gap-4">
+            <CardContent className="px-4">
+              <div className="flex flex-col  space-y-4">
+                <div className="flex items-start gap-4 bg-muted/50 p-4 rounded-lg">
                   <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                     <Calendar size={18} />
                   </div>
@@ -311,7 +312,7 @@ export default function PurchaseOrderDetailPage({
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
                   <div className="p-2.5 bg-orange-50 text-orange-600 rounded-lg shrink-0">
                     <User size={18} />
                   </div>
@@ -324,7 +325,7 @@ export default function PurchaseOrderDetailPage({
                     </span>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
                   <div className="p-2.5 bg-purple-50 text-purple-600 rounded-lg shrink-0">
                     <Hash size={18} />
                   </div>
