@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import { getBangkokDayOfWeek, getBangkokTodayString } from "@/lib/finance/date";
+import { formatThaiDate } from "@/lib/utils";
 import { getAvailableSlots } from "@/modules/appointment/queries/get-available-slots";
 import { format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
@@ -15,13 +17,15 @@ import {
 } from "./booking-utils";
 
 function getInitialDate() {
-  const date = new Date();
+  let date = getBangkokTodayString();
 
-  while (date.getDay() === SHOP_CLOSED_DAY) {
-    date.setDate(date.getDate() + 1);
+  while (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
+    const nextDate = new Date(`${date}T00:00:00`);
+    nextDate.setDate(nextDate.getDate() + 1);
+    date = format(nextDate, "yyyy-MM-dd");
   }
 
-  return format(date, "yyyy-MM-dd");
+  return date;
 }
 
 export default function Step5DateTime({
@@ -54,7 +58,7 @@ export default function Step5DateTime({
 
       update({ ...data, startTimeIso: "" });
 
-      const dayOfWeek = new Date(`${selectedDate}T00:00:00`).getDay();
+      const dayOfWeek = getBangkokDayOfWeek(selectedDate);
 
       if (dayOfWeek === SHOP_CLOSED_DAY) {
         setAvailableSlots([]);
@@ -105,7 +109,7 @@ export default function Step5DateTime({
   return (
     <div className="slide-in-from-right-4 flex flex-col gap-6 mx-auto max-w-4xl animate-in duration-500 fade-in">
       <div className="text-left">
-        <h3 className="font-bold text-primary text-xl">
+        <h3 className="font-bold text-primary text-lg md:text-xl">
           ขั้นตอนที่ 5 : เลือกวันและเวลา
         </h3>
         <p className="text-muted-foreground text-sm">
@@ -113,43 +117,48 @@ export default function Step5DateTime({
         </p>
       </div>
 
-      <div className="flex flex-col justify-between gap-4 bg-white shadow-sm p-6 md:p-8 border border-slate-100 rounded-2xl h-full overflow-hidden">
-        <div className="flex md:flex-row flex-col md:items-end gap-4">
+      <div className="flex flex-col justify-between gap-4">
+        <div className="flex md:flex-row flex-col md:items-end gap-6 md:gap-10">
           <div className="flex flex-col gap-3 w-full">
-            <Label
-              htmlFor="date"
-              className="flex items-center gap-2 font-semibold text-primary text-base"
-            >
-              <CalendarDays className="size-4 text-primary" />
-              วันที่รับบริการ
-            </Label>
+            <div className="flex items-center gap-2 justify-between">
+              <Label
+                htmlFor="date"
+                className="flex items-center gap-2 font-semibold text-primary text-base"
+              >
+                <CalendarDays className="size-4 text-primary" />
+                วันที่รับบริการ
+              </Label>
+              <p className="pl-1 text-muted-foreground text-xs">
+                *ร้านหยุดทุกวันพุธ
+              </p>
+            </div>
             <Input
               id="date"
               name="date"
               type="date"
               value={selectedDate}
-              min={format(new Date(), "yyyy-MM-dd")}
+              min={getBangkokTodayString()}
               onChange={(event) => setSelectedDate(event.target.value)}
             />
-            <p className="pl-1 text-muted-foreground text-xs">
-              *ร้านหยุดทุกวันพุธ
-            </p>
+
           </div>
 
           <div className="flex flex-col gap-3 w-full">
-            <Label className="flex items-center gap-2 font-semibold text-slate-700 text-base">
-              <Clock className="size-4 text-primary" />
-              เวลาที่สามารถจองได้
-            </Label>
+            <div className="flex items-center gap-2 justify-between">
+              <Label className="flex items-center gap-2 font-semibold text-primary text-base">
+                <Clock className="size-4 text-primary" />
+                เวลาที่สามารถจองได้
+              </Label>
+              <p className="pl-1 text-muted-foreground text-xs">
+                * เวลาทำการ 09:00 - 18:00 น.
+              </p>
+            </div>
             <Input
               type="text"
               value={formatDurationMinutes(durationMinutes)}
               disabled
               readOnly
             />
-            <p className="pl-1 text-muted-foreground text-xs">
-              * เวลาทำการ 09:00 น. - 18:00 น.
-            </p>
           </div>
         </div>
 
@@ -188,7 +197,9 @@ export default function Step5DateTime({
         <div className="bg-primary/5 p-4 border border-primary rounded-2xl">
           <p className="text-primary text-sm text-center">
             คุณเลือกวันที่{" "}
-            <span className="font-bold text-primary">{format(selectedDate, "dd MMMM yyyy", { locale: th })}</span>{" "}
+            <span className="font-bold text-primary">
+              {formatThaiDate(selectedDate)}
+            </span>{" "}
             เวลา{" "}
             <span className="font-bold text-primary">{selectedTimeLabel} น.</span>
           </p>

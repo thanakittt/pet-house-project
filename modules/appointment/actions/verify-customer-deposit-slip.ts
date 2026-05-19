@@ -15,6 +15,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 import type { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { notifyStaffConfirmedAppointment } from "./status-workflow";
 
 const THUNDER_VERIFY_BANK_URL = "https://api.thunder.in.th/v2/verify/bank";
 const SLIP_STORAGE_BUCKET = "images";
@@ -618,6 +619,12 @@ export async function verifyCustomerDepositSlip(formData: FormData): Promise<
     }
 
     // revalidate หน้าเกี่ยวข้อง เพื่อให้หลัง verify แล้ว reload หน้าเห็นสถานะล่าสุด
+    await notifyStaffConfirmedAppointment({
+      appointmentId,
+      newStatus: "CONFIRMED",
+      statusChanged: true,
+    });
+
     revalidatePath("/appointments/new");
     revalidatePath("/back-office/appointments");
     revalidatePath(`/back-office/appointments/${appointmentId}`);

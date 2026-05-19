@@ -36,7 +36,7 @@ export function AppointmentSummaryCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="md:text-base text-sm font-bold">
             การจองคิว
           </CardTitle>
           <CardDescription className="text-xs mt-0.5">
@@ -44,7 +44,7 @@ export function AppointmentSummaryCard({
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}
-        <div className="bg-blue-500/10 p-2 rounded-lg">
+        <div className="bg-blue-500/10 p-2.5 rounded-lg">
           <CalendarCheck className="size-4 text-blue-500" />
         </div>
       </CardHeader>

@@ -10,6 +10,8 @@ import { Pet } from "../types/pet";
 import { CreatePetDialog } from "./CreatePetDialog";
 import { PetCard } from "./PetCard";
 import { UpdatePetDialog } from "./UpdatePetDialog";
+import { PawPrintIcon } from "lucide-react";
+import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
 
 type PetActionMode = "staff" | "customer";
 
@@ -35,28 +37,41 @@ export function PetInfoForm({
       ? "ยังไม่มีข้อมูลสัตว์เลี้ยงในโปรไฟล์ของคุณ"
       : "ยังไม่มีข้อมูลสัตว์เลี้ยงในระบบ";
   const shouldShowHeaderCreateButton = pets.length > 0 || actionMode === "staff";
+  const shouldUseDesktopOnlyActions = actionMode === "staff";
 
   return (
     <>
-      <Card className="shadow-sm rounded-xl overflow-hidden">
+      <Card className="overflow-hidden">
         <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>ข้อมูลสัตว์เลี้ยง</CardTitle>
+          <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
+            <PawPrintIcon size={18} className="text-taupe-600 rounded-lg bg-taupe-100 p-2.5 w-10 h-10" />
+            ข้อมูลสัตว์เลี้ยง
+          </CardTitle>
           {shouldShowHeaderCreateButton && (
-            <CreatePetDialog
-              petBreeds={petBreeds}
-              customerId={customerId}
-              actionMode={actionMode}
-            />
+            <div
+              className={
+                shouldUseDesktopOnlyActions
+                  ? DESKTOP_ONLY_CONTAINER_CLASS
+                  : undefined
+              }
+            >
+              <CreatePetDialog
+                petBreeds={petBreeds}
+                customerId={customerId}
+                actionMode={actionMode}
+              />
+            </div>
           )}
         </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent className="px-6 py-2">
           {pets.length > 0 ? (
             <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
               {pets.map((pet) => (
                 <PetCard
                   key={pet.id}
                   pet={pet}
+                  desktopOnlyActions={shouldUseDesktopOnlyActions}
                   onEdit={() => {
                     setSelectedPet(pet);
                     setIsEditOpen(true);
@@ -104,6 +119,7 @@ export function PetInfoForm({
             }
             successMessage="ลบข้อมูลสัตว์เลี้ยงเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสัตว์เลี้ยง"
+            mode="delete"
           />
         </>
       )}

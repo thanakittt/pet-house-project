@@ -21,8 +21,7 @@ import {
   type AnnouncementType,
 } from "@/modules/announcement/types/announcement";
 import type { HomeReviewSummary } from "@/modules/front-store/queries/get-home-review-summary";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatThaiDate } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import ServiceSection from "./ServiceSection";
@@ -72,17 +71,13 @@ type HomeClientProps = {
 };
 
 function formatAnnouncementDate(announcement: Announcement): string {
-  const startDate = format(announcement.startDisplayAt, "d MMM yy", {
-    locale: th,
-  });
+  const startDate = formatThaiDate(announcement.startDisplayAt);
 
   if (!announcement.endDisplayAt) {
     return startDate;
   }
 
-  const endDate = format(announcement.endDisplayAt, "d MMM yy", {
-    locale: th,
-  });
+  const endDate = formatThaiDate(announcement.endDisplayAt);
 
   return `${startDate} - ${endDate}`;
 }
@@ -202,9 +197,9 @@ export default function HomeClient({
                   key={announcement.id}
                   className="group h-full"
                 >
-                  <div className="relative flex items-center justify-between bg-white rounded-3xl border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/40 overflow-hidden h-full">
+                  <div className="relative flex justify-between items-center bg-white shadow-sm hover:shadow-md border border-slate-100 hover:border-primary/40 rounded-3xl h-full overflow-hidden transition-all duration-300">
                     {/* Content Section */}
-                    <div className="p-6 flex flex-col gap-2 w-full pr-0">
+                    <div className="flex flex-col gap-2 p-6 pr-0 w-full">
                       {/* Tag & Category */}
                       <div className="flex items-center gap-2 mb-1">
                         <span
@@ -215,25 +210,25 @@ export default function HomeClient({
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-bold text-primary text-base md:text-lg group-hover:text-primary transition-colors line-clamp-1">
+                      <h3 className="font-bold text-primary group-hover:text-primary text-base md:text-lg line-clamp-1 transition-colors">
                         {announcement.title}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed pr-10">
+                      <p className="pr-10 text-muted-foreground text-sm line-clamp-2 leading-relaxed">
                         {announcement.content}
                       </p>
 
                       {/* Date */}
-                      <div className="flex items-center gap-1.5 text-primary/50 text-xs md:text-sm mt-1">
+                      <div className="flex items-center gap-1.5 mt-1 text-primary/50 text-xs md:text-sm">
                         <Calendar size={14} className="opacity-70" />
                         <span>{formatAnnouncementDate(announcement)}</span>
                       </div>
                     </div>
 
                     {/* Action Icon Section */}
-                    <div className="pr-6 flex ">
-                      <div className="flex items-center justify-center size-9 rounded-full border border-primary/10 bg-primary/5 text-primary/50 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300 shadow-inner">
+                    <div className="flex pr-6">
+                      <div className="flex justify-center items-center bg-primary/5 group-hover:bg-primary shadow-inner border border-primary/10 group-hover:border-primary rounded-full size-9 text-primary/50 group-hover:text-white transition-all duration-300">
                         <ChevronRight
                           size={18}
                           className="transition-transform group-hover:translate-x-0.5"
@@ -346,7 +341,7 @@ export default function HomeClient({
       ) : null}
 
       {/* --- Contact & Map Section --- */}
-      <section className="space-y-6">
+      <section className="space-y-6" id="contact">
         <div className="flex items-center gap-2 px-2">
           <div className="flex justify-center items-center bg-pink-400 shadow-md rounded-xl size-10 text-white">
             <Heart size={20} />

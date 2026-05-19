@@ -29,9 +29,10 @@ import { CreateUserDialog } from "./CreateUserDialog";
 import { UpdateUserDialog } from "./UpdateUserDialog";
 import { authClient } from "@/lib/auth-client";
 import { getUserById } from "../queries/get-user";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const roleOptions: Array<ManagementFilterOption & { value: UserRoleFilter }> = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกบทบาท" },
   { value: "admin", label: "ผู้ดูแลระบบ" },
   { value: "owner", label: "เจ้าของร้าน" },
   { value: "staff", label: "พนักงาน" },
@@ -114,9 +115,10 @@ export default function UserManagement({
           },
         ]}
         createAction={<CreateUserDialog />}
+        createActionDesktopOnly
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -134,7 +136,7 @@ export default function UserManagement({
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phoneNumber ?? "—"}</TableCell>
+                  <TableCell>{formatPhoneNumber(user.phoneNumber, "—")}</TableCell>
                   <TableCell>
                     <RoleBadge role={user.role} />
                   </TableCell>
@@ -147,12 +149,14 @@ export default function UserManagement({
                         <TableActionButton
                           aria-label="ยกเลิกการแบน"
                           action="unban"
+                          desktopOnly
                           onClick={() => unbanUser(user.id)}
                         />
                       ) : (
                         <TableActionButton
                           aria-label="แบนผู้ใช้"
                           action="ban"
+                          desktopOnly
                           onClick={() => {
                             setSelectedUserId(user.id);
                             setIsBanUserDialogOpen(true);
@@ -163,6 +167,7 @@ export default function UserManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         disabled={loadingUserId === user.id}
                         isLoading={loadingUserId === user.id}
                         onClick={() => handleEditUser(user.id)}

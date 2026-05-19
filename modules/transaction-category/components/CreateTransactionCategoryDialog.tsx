@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +28,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -89,7 +89,7 @@ export function CreateTransactionCategoryDialog() {
       >
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button type="button">
-            <PlusIcon className="size-3.5" /> เพิ่มหมวดหมู่ธุรกรรม
+            <PlusIcon className="size-4" /> เพิ่มหมวดหมู่ธุรกรรม
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
@@ -107,7 +107,6 @@ export function CreateTransactionCategoryDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* ชื่อหมวดหมู่ */}
@@ -182,14 +181,12 @@ export function CreateTransactionCategoryDialog() {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-transaction-category"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

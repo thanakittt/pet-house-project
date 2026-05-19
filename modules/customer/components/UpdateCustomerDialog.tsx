@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,7 +20,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import {
   Select,
@@ -137,7 +137,6 @@ export function UpdateCustomerDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Nickname Field */}
@@ -258,14 +257,12 @@ export function UpdateCustomerDialog({
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 className="px-6 py-5 text-sm cursor-pointer"
                 form={`update-customer-${customer?.id}`}
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

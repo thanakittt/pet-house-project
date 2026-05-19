@@ -1,5 +1,7 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
+import { SearchableCombobox } from "@/components/shared/SearchableCombobox";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,8 +21,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
+import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
@@ -37,6 +38,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { createPet } from "../actions/create-pet";
 import { createCustomerPet } from "../actions/customer-pet";
+import { createPetBreedComboboxOptions } from "../utils/pet-breed-combobox-options";
 
 type PetActionMode = "staff" | "customer";
 
@@ -52,6 +54,7 @@ export function CreatePetDialog({
   actionMode = "staff",
 }: CreatePetDialogProps) {
   const router = useRouter();
+  const dialogContentRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -68,6 +71,11 @@ export function CreatePetDialog({
     control: form.control,
     name: "petType",
   });
+  const petBreedOptions = createPetBreedComboboxOptions(
+    petBreeds,
+    selectedPetType,
+  );
+  const isPetBreedDisabled = selectedPetType === "";
 
   const onSubmit = async (data: CreatePetForm) => {
     try {
@@ -113,25 +121,24 @@ export function CreatePetDialog({
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button>
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มสัตว์เลี้ยง
+            <PlusIcon className="size-4" /> เพิ่มสัตว์เลี้ยง
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
-          <DialogHeader className="px-4 pt-4">
-            <DialogTitle className="font-bold text-lg">
-              เพิ่มสัตว์เลี้ยง
-            </DialogTitle>
-            <DialogDescription>กรุณากรอกข้อมูลสัตว์เลี้ยง</DialogDescription>
-            {serverError && (
-              <DialogDescription className="text-destructive">
-                {serverError}
-              </DialogDescription>
-            )}
-          </DialogHeader>
+          <div ref={dialogContentRef} className="contents">
+            <DialogHeader className="px-4 pt-4">
+              <DialogTitle className="font-bold text-lg">
+                เพิ่มสัตว์เลี้ยง
+              </DialogTitle>
+              <DialogDescription>กรุณากรอกข้อมูลสัตว์เลี้ยง</DialogDescription>
+              {serverError && (
+                <DialogDescription className="text-destructive">
+                  {serverError}
+                </DialogDescription>
+              )}
+            </DialogHeader>
 
-          <Separator />
-
-          <FieldGroup className="gap-3 px-4 pb-3">
+            <FieldGroup className="gap-3 px-4 pb-3">
             {/* Name Field */}
             <Controller
               name="name"
@@ -215,24 +222,26 @@ export function CreatePetDialog({
                 },
               }}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field
+                  data-invalid={fieldState.invalid}
+                  data-disabled={isPetBreedDisabled}
+                >
                   <FieldLabel htmlFor={field.name}>
                     สายพันธุ์
                   </FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกสายพันธุ์" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {petBreeds
-                        .filter((breed) => breed.type === selectedPetType)
-                        .map((breed) => (
-                          <SelectItem key={breed.id} value={breed.id}>
-                            {breed.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableCombobox
+                    id={field.name}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={petBreedOptions}
+                    contentContainerRef={dialogContentRef}
+                    placeholder="เลือกสายพันธุ์"
+                    searchPlaceholder="ค้นหาสายพันธุ์"
+                    emptyMessage="ไม่พบสายพันธุ์ที่ค้นหา"
+                    disabled={isPetBreedDisabled}
+                    aria-invalid={fieldState.invalid}
+                    onBlur={field.onBlur}
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -268,28 +277,27 @@ export function CreatePetDialog({
                 </Field>
               )}
             />
-          </FieldGroup>
+            </FieldGroup>
 
-          <DialogFooter>
-            <div className="flex justify-end gap-2">
-              <DialogClose asChild>
-                <Button
-                  variant="outline"
+            <DialogFooter>
+              <div className="flex justify-end gap-2">
+                <DialogClose asChild>
+                  <Button
+                    variant="outline"
+                    className="px-6 py-5 text-sm cursor-pointer"
+                  >
+                    ยกเลิก
+                  </Button>
+                </DialogClose>
+                <LoadingButton
+                  type="submit"
+                  form="create-pet"
                   className="px-6 py-5 text-sm cursor-pointer"
-                >
-                  ยกเลิก
-                </Button>
-              </DialogClose>
-              <Button
-                type="submit"
-                form="create-pet"
-                className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
-            </div>
-          </DialogFooter>
+
+                 isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
+              </div>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </form>
     </Dialog>

@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,7 +20,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
@@ -85,7 +85,7 @@ export function UpdatePetBreedDialog({
         setServerError(result.error);
         return;
       }
-      
+
 
       onOpenChange(false);
       form.reset();
@@ -126,7 +126,6 @@ export function UpdatePetBreedDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Pet Breed Name Field */}
@@ -230,14 +229,12 @@ export function UpdatePetBreedDialog({
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 className="px-6 py-5 text-sm cursor-pointer"
                 form={`update-pet-breed-${petBreed.id}`}
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

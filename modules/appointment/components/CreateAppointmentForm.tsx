@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { format, parseISO } from "date-fns";
@@ -7,10 +8,30 @@ import { th } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { getBangkokDayOfWeek, getBangkokTodayString } from "@/lib/finance/date";
 
 import { searchCustomer } from "@/modules/customer/actions/search-customer";
 import { CustomerSearchResult } from "@/modules/customer/types/customer";
@@ -48,11 +69,13 @@ export function AvailableSlots({
   error,
 }: AvailableSlotsProps) {
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const date = new Date();
-    while (date.getDay() === SHOP_CLOSED_DAY) {
-      date.setDate(date.getDate() + 1);
+    let date = getBangkokTodayString();
+    while (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
+      const nextDate = new Date(`${date}T00:00:00`);
+      nextDate.setDate(nextDate.getDate() + 1);
+      date = format(nextDate, "yyyy-MM-dd");
     }
-    return format(date, "yyyy-MM-dd");
+    return date;
   });
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,7 +84,7 @@ export function AvailableSlots({
     const fetchSlots = async () => {
       if (!selectedDate || durationMinutes <= 0) return;
 
-      const dayOfWeek = new Date(selectedDate).getDay();
+      const dayOfWeek = getBangkokDayOfWeek(selectedDate);
       if (dayOfWeek === SHOP_CLOSED_DAY) {
         setAvailableSlots([]);
         return;
@@ -91,21 +114,20 @@ export function AvailableSlots({
 
   return (
     <div
-      className={`space-y-4 bg-white p-4 border rounded-lg ${error ? "border-red-500" : "border-gray-200"}`}
+      className={cn(
+        "flex flex-col gap-4 rounded-lg border bg-card p-4",
+        error ? "border-destructive" : "border-border",
+      )}
     >
       <div className="flex sm:flex-row flex-col sm:items-end gap-4">
-        <div>
-          <label
-            htmlFor="date-picker"
-            className="block mb-1 font-medium text-sm"
-          >
-            เลือกวันที่
-          </label>
+        <Field className="w-full sm:w-auto" data-invalid={Boolean(error)}>
+          <FieldLabel htmlFor="date-picker">เลือกวันที่</FieldLabel>
           <Input
             id="date-picker"
             type="date"
             value={selectedDate}
-            min={format(new Date(), "yyyy-MM-dd")}
+            min={getBangkokTodayString()}
+            aria-invalid={Boolean(error)}
             onChange={(e) => {
               const val = e.target.value;
               if (val) {
@@ -119,8 +141,8 @@ export function AvailableSlots({
             }}
             className="w-full sm:w-auto"
           />
-        </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        </Field>
+        {error && <FieldError>{error}</FieldError>}
       </div>
 
       <div>
@@ -129,7 +151,7 @@ export function AvailableSlots({
           {formatDurationMinutes(durationMinutes)})
         </h3>
         {isLoading ? (
-          <p className="text-gray-500 text-sm animate-pulse">
+          <p className="text-muted-foreground text-sm animate-pulse">
             กำลังตรวจสอบคิวว่าง...
           </p>
         ) : availableSlots.length > 0 ? (
@@ -150,7 +172,7 @@ export function AvailableSlots({
             })}
           </div>
         ) : (
-          <p className="bg-red-50 p-3 rounded-md text-red-500 text-sm">
+          <p className="rounded-md bg-destructive/10 p-3 text-destructive text-sm">
             ขออภัย ไม่มีคิวว่างสำหรับวันนี้ กรุณาเลือกวันอื่น
           </p>
         )}
@@ -379,7 +401,10 @@ export default function CreateAppointmentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex w-full flex-col gap-6"
+    >
       <FieldGroup>
         <div className="flex items-end gap-2">
           <Controller
@@ -416,41 +441,63 @@ export default function CreateAppointmentForm({
       </FieldGroup>
 
       {searchResults.length > 0 && (
-        <div className="space-y-2">
+        <Field data-invalid={Boolean(errors.customerId)}>
           <FieldLabel>เลือกลูกค้า</FieldLabel>
-          <div className="gap-2 grid grid-cols-1 sm:grid-cols-2">
-            {searchResults.map((customer) => (
-              <label
-                key={customer.id}
-                className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors ${selectedCustomerId === customer.id ? "border-primary bg-primary/5" : "hover:bg-gray-50"}`}
+          <Controller
+            name="customerId"
+            control={control}
+            rules={{ required: "กรุณาเลือกลูกค้า" }}
+            render={({ field }) => (
+              <RadioGroup
+                value={field.value}
+                onValueChange={field.onChange}
+                className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+                aria-invalid={Boolean(errors.customerId)}
               >
-                <input
-                  type="radio"
-                  className="hidden"
-                  value={customer.id}
-                  {...register("customerId", {
-                    required: "กรุณาเลือกลูกค้า",
-                  })}
-                />
-                <span className="font-medium">{customer.nickname}</span>
-                <span className="ml-auto text-gray-500 text-sm">
-                  {customer.pets.length} สัตว์เลี้ยง
-                </span>
-              </label>
-            ))}
-          </div>
+                {searchResults.map((customer) => {
+                  const customerOptionId = `customer-${customer.id}`;
+
+                  return (
+                    <FieldLabel
+                      key={customer.id}
+                      htmlFor={customerOptionId}
+                      className={cn(
+                        "flex w-full cursor-pointer items-center gap-3 rounded-md border p-3 transition-colors",
+                        selectedCustomerId === customer.id
+                          ? "border-primary bg-primary/5"
+                          : "hover:bg-muted/50",
+                      )}
+                    >
+                      <RadioGroupItem
+                        id={customerOptionId}
+                        value={customer.id}
+                      />
+                      <FieldContent className="flex-row items-center justify-between gap-3">
+                        <span className="font-medium">
+                          {customer.nickname}
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          {customer.pets.length} สัตว์เลี้ยง
+                        </span>
+                      </FieldContent>
+                    </FieldLabel>
+                  );
+                })}
+              </RadioGroup>
+            )}
+          />
           {errors.customerId && (
-            <p className="text-red-500 text-sm">{errors.customerId.message}</p>
+            <FieldError>{errors.customerId.message}</FieldError>
           )}
-        </div>
+        </Field>
       )}
 
       {selectedCustomer && selectedCustomer.pets.length > 0 && (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Separator />
           <div>
             <h3 className="font-semibold text-lg">1. เลือกสัตว์เลี้ยง</h3>
-            <p className="text-gray-500 text-sm">
+            <p className="text-muted-foreground text-sm">
               ติ๊กเลือกสัตว์เลี้ยงที่ต้องการนำมารับบริการ
             </p>
           </div>
@@ -460,16 +507,19 @@ export default function CreateAppointmentForm({
               const isSelected = fieldIndex !== -1;
 
               return (
-                <label
+                <FieldLabel
                   key={pet.id}
-                  className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${isSelected ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "bg-white hover:border-gray-300"}`}
+                  className={cn(
+                    "flex w-full cursor-pointer items-center gap-3 rounded-lg border bg-card p-4 transition-colors",
+                    isSelected
+                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                      : "hover:border-primary/50",
+                  )}
                 >
-                  <input
-                    type="checkbox"
-                    className="border-gray-300 rounded focus:ring-primary w-5 h-5 text-primary"
+                  <Checkbox
                     checked={isSelected}
-                    onChange={(e) => {
-                      if (e.target.checked) {
+                    onCheckedChange={(checked) => {
+                      if (checked) {
                         append({
                           petId: pet.id,
                           mainServiceId: "",
@@ -480,14 +530,14 @@ export default function CreateAppointmentForm({
                       }
                     }}
                   />
-                  <div>
-                    <p className="font-medium">{pet.name}</p>
-                    <p className="text-gray-500 text-sm">
+                  <FieldContent>
+                    <span className="font-medium">{pet.name}</span>
+                    <span className="text-muted-foreground text-sm">
                       {PET_TYPE_LABELS[pet.breed.type] || pet.breed.type} -{" "}
                       {pet.breed.name}
-                    </p>
-                  </div>
-                </label>
+                    </span>
+                  </FieldContent>
+                </FieldLabel>
               );
             })}
           </div>
@@ -495,7 +545,7 @@ export default function CreateAppointmentForm({
       )}
 
       {fields.length > 0 && (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <Separator />
           <h3 className="font-semibold text-lg">2. กำหนดรายละเอียดบริการ</h3>
 
@@ -520,44 +570,74 @@ export default function CreateAppointmentForm({
             return (
               <div
                 key={field.id}
-                className="relative space-y-4 bg-gray-50/50 p-5 border border-gray-200 rounded-lg"
+                className="relative flex flex-col gap-4 rounded-lg border border-border bg-muted/30 p-5"
               >
                 <h4 className="font-medium text-primary">
                   ตั้งค่าบริการสำหรับ: {petInfo.name}
                 </h4>
 
                 <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-                  <FieldGroup>
-                    <FieldLabel>บริการหลัก</FieldLabel>
-                    <select
-                      className="flex bg-background px-3 py-2 border border-input rounded-md w-full h-10 text-sm"
-                      {...register(`petBookings.${index}.mainServiceId`, {
-                        required: "กรุณาเลือกบริการหลัก",
-                        onChange: () => {
-                          setValue("startTime", "");
-                        },
-                      })}
-                    >
-                      <option value="">-- เลือกบริการหลัก --</option>
-                      {services
-                        .filter((service) => service.serviceType === "MAIN")
-                        .map((service) => (
-                          <option key={service.id} value={service.id}>
-                            {service.name}
-                          </option>
-                        ))}
-                    </select>
+                  <Field
+                    data-invalid={Boolean(
+                      errors.petBookings?.[index]?.mainServiceId ||
+                      shouldShowMainVariantError,
+                    )}
+                  >
+                    <FieldLabel htmlFor={`main-service-${field.id}`}>
+                      บริการหลัก
+                    </FieldLabel>
+                    <Controller
+                      name={`petBookings.${index}.mainServiceId`}
+                      control={control}
+                      rules={{ required: "กรุณาเลือกบริการหลัก" }}
+                      render={({ field: mainServiceField }) => (
+                        <Select
+                          value={mainServiceField.value}
+                          onValueChange={(value) => {
+                            mainServiceField.onChange(value);
+                            setValue("startTime", "");
+                          }}
+                        >
+                          <SelectTrigger
+                            id={`main-service-${field.id}`}
+                            className="w-full"
+                            aria-invalid={Boolean(
+                              errors.petBookings?.[index]?.mainServiceId ||
+                              shouldShowMainVariantError,
+                            )}
+                          >
+                            <SelectValue placeholder="-- เลือกบริการหลัก --" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {services
+                                .filter(
+                                  (service) => service.serviceType === "MAIN",
+                                )
+                                .map((service) => (
+                                  <SelectItem
+                                    key={service.id}
+                                    value={service.id}
+                                  >
+                                    {service.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                     {errors.petBookings?.[index]?.mainServiceId && (
-                      <p className="text-red-500 text-sm">
+                      <FieldError>
                         {errors.petBookings[index]?.mainServiceId?.message}
-                      </p>
+                      </FieldError>
                     )}
                     {shouldShowMainVariantError && (
-                      <p className="text-red-500 text-sm">
+                      <FieldError>
                         บริการนี้ไม่รองรับขนาดของสัตว์เลี้ยงตัวนี้
-                      </p>
+                      </FieldError>
                     )}
-                  </FieldGroup>
+                  </Field>
                 </div>
 
                 <FieldGroup>
@@ -566,7 +646,7 @@ export default function CreateAppointmentForm({
                     name={`petBookings.${index}.addOnServiceIds`}
                     control={control}
                     render={({ field }) => (
-                      <div className="space-y-2 mt-2">
+                      <div className="mt-2 flex flex-col gap-2">
                         {services
                           .filter((service) => service.serviceType === "ADDON")
                           .map((service) => {
@@ -577,32 +657,30 @@ export default function CreateAppointmentForm({
                             if (!compatibleVariant) return null;
 
                             return (
-                              <label
+                              <FieldLabel
                                 key={service.id}
-                                className="flex items-center gap-2 bg-white p-3 border rounded-md text-sm cursor-pointer"
+                                className="flex w-full cursor-pointer items-center gap-3 rounded-md border bg-card p-3 text-sm"
                               >
-                                <input
-                                  type="checkbox"
-                                  className="border-gray-300 rounded focus:ring-primary text-primary"
+                                <Checkbox
                                   checked={
                                     field.value?.includes(service.id) || false
                                   }
-                                  onChange={(e) => {
-                                    const newValues = e.target.checked
+                                  onCheckedChange={(checked) => {
+                                    const newValues = checked
                                       ? [...(field.value || []), service.id]
                                       : (field.value || []).filter(
-                                          (id) => id !== service.id,
-                                        );
+                                        (id) => id !== service.id,
+                                      );
                                     field.onChange(newValues);
                                     setValue("startTime", "");
                                   }}
                                 />
-                                <span>
+                                <FieldDescription className="text-foreground">
                                   {service.name} (+{compatibleVariant.minPrice}{" "}
                                   บาท / {compatibleVariant.durationMinutes}{" "}
                                   นาที)
-                                </span>
-                              </label>
+                                </FieldDescription>
+                              </FieldLabel>
                             );
                           })}
                       </div>
@@ -634,23 +712,26 @@ export default function CreateAppointmentForm({
 
           <FieldGroup className="pt-4">
             <FieldLabel htmlFor="note">หมายเหตุเพิ่มเติม (ถ้ามี)</FieldLabel>
-            <textarea
+            <Textarea
               {...register("note")}
               id="note"
               rows={3}
               placeholder="เช่น ฝากรับกลับเลท, สุนัขมีอาการหวาดกลัวง่าย, ต้องการช่างคนไหนเป็นพิเศษ..."
-              className="flex bg-background px-3 py-2 border border-input focus-visible:border-transparent rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary w-full text-sm resize-y"
+              className="resize-y"
             />
           </FieldGroup>
 
           <div className="flex justify-end pt-4">
-            <Button
+            <LoadingButton
               type="submit"
-              size="lg"
-              disabled={isSubmitting || hasUnmatchedSelectedService}
+              size="default"
+              variant="default"
+              disabled={hasUnmatchedSelectedService}
+              isLoading={isSubmitting}
+              loadingText="กำลังบันทึก..."
             >
-              {isSubmitting ? "กำลังบันทึก..." : "ยืนยันการจองทั้งหมด"}
-            </Button>
+              ยืนยันการจองทั้งหมด
+            </LoadingButton>
           </div>
         </>
       ) : null}

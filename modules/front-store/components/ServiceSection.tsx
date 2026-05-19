@@ -15,141 +15,113 @@ import {
 const MAIN_SERVICES = [
   {
     title: "อาบน้ำ",
-    icon: <Waves className="text-blue-500" size={20} />,
-    color: "bg-blue-50",
+    description: "ทำความสะอาดล้ำลึก เพื่อผิวหนังและเส้นขนที่สุขภาพดี",
+    icon: <Waves className="text-blue-600" size={24} />,
+    color: "bg-blue-100",
   },
   {
     title: "อาบน้ำตัดขน",
-    icon: <Scissors className="text-orange-500" size={20} />,
-    color: "bg-orange-50",
+    description: "ตัดแต่งทรงมาตรฐานหรือทรงแฟชั่น โดยช่างมืออาชีพ",
+    icon: <Scissors className="text-orange-600" size={24} />,
+    color: "bg-orange-100",
   },
 ];
 
 const DOG_ADDONS = [
-  { name: "แปรงฟัน", icon: <Sparkles size={16} /> },
-  { name: "ไถยกเท้า", icon: <Scissors size={16} /> },
-  { name: "อาบหมักเชื้อรา", icon: <ShieldCheck size={16} /> },
-  { name: "หยอดยาเห็บหมัด", icon: <Bug size={16} /> },
-  { name: "ทำทรีทเม้นท์", icon: <Stethoscope size={16} /> },
+  { name: "แปรงฟัน", icon: <Sparkles size={18} /> },
+  { name: "ไถยกเท้า", icon: <Scissors size={18} /> },
+  { name: "อาบหมักเชื้อรา", icon: <ShieldCheck size={18} /> },
+  { name: "หยอดยาเห็บหมัด", icon: <Bug size={18} /> },
+  { name: "ทำทรีทเม้นท์", icon: <Stethoscope size={18} /> },
 ];
 
 const CAT_ADDONS = [
-  { name: "แปรงฟัน", icon: <Sparkles size={16} /> },
-  { name: "อาบหมักเชื้อรา", icon: <ShieldCheck size={16} /> },
-  { name: "หยอดยาเห็บหมัด", icon: <Bug size={16} /> },
-  { name: "ทำทรีทเม้นท์", icon: <Stethoscope size={16} /> },
-  { name: "ตู้อบแมว", icon: <Wind size={16} /> },
+  { name: "แปรงฟัน", icon: <Sparkles size={18} /> },
+  { name: "อาบหมักเชื้อรา", icon: <ShieldCheck size={18} /> },
+  { name: "หยอดยาเห็บหมัด", icon: <Bug size={18} /> },
+  { name: "ทำทรีทเม้นท์", icon: <Stethoscope size={18} /> },
+  { name: "ตู้อบแมว", icon: <Wind size={18} /> },
 ];
 
 export default function ServiceSection() {
   return (
-    <div className="space-y-6 bg-white shadow-sm p-6 md:p-12 border rounded-3xl font-noto-thai">
+    <div className="mx-auto max-w-5xl font-noto-thai antialiased">
       {/* --- ส่วนบริการหลัก --- */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="bg-primary rounded-full w-1.5 h-8" />
-          <h2 className="font-bold text-primary text-lg md:text-xl">
-            บริการหลัก
-          </h2>
+      <section className="mb-10 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {MAIN_SERVICES.map((service, index) => (
+            <div
+              key={index}
+              className="group relative overflow-hidden bg-white p-8 rounded-2xl border border-slate-100 shadow-sm transition-all"
+            >
+              <div className={`${service.color} w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform`}>
+                {service.icon}
+              </div>
+              <h3 className="text-xl font-bold text-primary mb-2">{service.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{service.description}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="gap-6 grid grid-cols-1 md:px-6">
-          <div className="justify-center items-center gap-6 grid grid-cols-2">
-            {MAIN_SERVICES.map((service, index) => (
-              <div
-                key={index}
-                className="group flex flex-col items-center shadow-sm py-4 border border-slate-100 rounded-3xl text-center"
-              >
-                <div className={`p-3 rounded-2xl ${service.color} mb-4 `}>
-                  {service.icon}
-                </div>
-                <h4 className="font-bold text-primary text-base md:text-lg">
-                  {service.title}
-                </h4>
-              </div>
-            ))}
+        {/* ตารางรายละเอียด (Detail Box) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100">
+            <div className="flex items-center gap-2 mb-3 text-blue-700 font-bold">
+              <Dog size={20} />
+              <span>บริการมาตรฐานสำหรับสุนัข</span>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              ครอบคลุม: ตัดเล็บ, เช็ดหู, ถอนขนหู, ไถก้น/ท้อง/ใต้อุ้งเท้า, ตัดรอบเท้า และบีบต่อมก้น
+            </p>
           </div>
-          <div className="gap-4 grid grid-cols-1 shadow-sm p-6 border border-slate-100 rounded-3xl w-full">
-            {/* รายละเอียดสุนัข */}
-            <div>
-              <div className="flex items-center gap-2 mb-2 font-bold text-blue-600">
-                <Dog size={16} />{" "}
-                <span className="text-sm md:text-base">สำหรับสุนัข:</span>
-              </div>
-              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                รวมตัดเล็บ เช็ดหู ถอนขนหู ไถก้น, ท้อง, ใต้อุ้งเท้า ตัดรอบเท้า
-                และบีบต่อมก้น
-              </p>
+          <div className="bg-pink-50/50 p-6 rounded-3xl border border-pink-100">
+            <div className="flex items-center gap-2 mb-3 text-pink-600 font-bold">
+              <Cat size={20} />
+              <span>บริการมาตรฐานสำหรับแมว</span>
             </div>
-
-            {/* รายละเอียดแมว */}
-            <div>
-              <div className="flex items-center gap-2 mb-2 font-bold text-pink-500">
-                <Cat size={16} />{" "}
-                <span className="text-sm md:text-base">สำหรับแมว:</span>
-              </div>
-              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                รวมตัดเล็บ เช็ดหู ไถใต้อุ้งเท้า ตัดรอบเท้า และบีบต่อมก้น
-              </p>
-            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              ครอบคลุม: ตัดเล็บ, เช็ดหู, ไถใต้อุ้งเท้า, ตัดรอบเท้า และบีบต่อมก้น (เน้นความอ่อนโยนเป็นพิเศษ)
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* --- ส่วนบริการเสริม --- */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="bg-primary rounded-full w-1.5 h-8" />
-          <h3 className="font-bold text-primary text-lg md:text-xl">
-            บริการเสริม
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1">
-          {/* บริการเสริมสุนัข */}
-          <div className="gap-4 grid grid-cols-1 md:px-6">
-            <div className="flex justify-start lg:justify-start items-center gap-2 font-bold text-blue-600">
-              <Dog size={20} />
-              <span className="text-sm md:text-base">สำหรับสุนัข</span>
+      <section>
+        <div className="space-y-6">
+          {/* Dog Add-ons */}
+          <div>
+            <div className="flex items-center gap-2 mb-5 text-blue-600">
+              <div className="p-1.5 bg-blue-100 rounded-lg"><Dog size={18} /></div>
+              <span className="font-bold">บริการเสริมสำหรับสุนัข</span>
             </div>
-            <div className="gap-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {DOG_ADDONS.map((addon, i) => (
-                <div
-                  key={i}
-                  className="group flex flex-col items-center bg-white shadow-sm p-4 border border-slate-100 rounded-2xl transition-all"
-                >
-                  <div className="bg-blue-50 mb-3 p-2.5 rounded-xl text-blue-500 transition-colors">
-                    {addon.icon}
-                  </div>
-                  <span className="font-semibold text-foreground/70 text-sm md:text-base">
-                    {addon.name}
-                  </span>
+                <div key={i} className="flex flex-col items-center p-5 bg-white border border-slate-100 rounded-2xl transition-colors text-center shadow-sm">
+                  <div className="text-blue-500 mb-3">{addon.icon}</div>
+                  <span className="text-sm font-medium text-foreground/80">{addon.name}</span>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="flex justify-start lg:justify-start items-center gap-2 mt-2 font-bold text-pink-500">
-              <Cat size={20} />
-              <span className="text-sm md:text-base">สำหรับแมว</span>
+          {/* Cat Add-ons */}
+          <div>
+            <div className="flex items-center gap-2 mb-5 text-pink-500">
+              <div className="p-1.5 bg-pink-100 rounded-lg"><Cat size={18} /></div>
+              <span className="font-bold">บริการเสริมสำหรับแมว</span>
             </div>
-            <div className="gap-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {CAT_ADDONS.map((addon, i) => (
-                <div
-                  key={i}
-                  className="group flex flex-col items-center bg-white shadow-sm p-4 border border-slate-100 rounded-2xl transition-all"
-                >
-                  <div className="bg-pink-50 mb-3 p-2.5 rounded-xl text-pink-500 transition-colors">
-                    {addon.icon}
-                  </div>
-                  <span className="font-semibold text-foreground/70 text-sm md:text-base">
-                    {addon.name}
-                  </span>
+                <div key={i} className="flex flex-col items-center p-5 bg-white border border-slate-100 rounded-2xl transition-colors text-center shadow-sm">
+                  <div className="text-pink-400 mb-3">{addon.icon}</div>
+                  <span className="text-sm font-medium text-foreground/80">{addon.name}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

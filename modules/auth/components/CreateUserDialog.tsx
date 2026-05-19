@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlusIcon } from "lucide-react";
@@ -16,7 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { createUser } from "@/modules/auth/actions/create-user";
 import { UserForm } from "@/modules/auth/types/create-user-form";
 import { UserFormFields } from "./UserFormFields";
@@ -76,7 +76,7 @@ export function CreateUserDialog() {
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-user">
         <DialogTrigger asChild>
           <Button>
-            <PlusIcon className="size-3.5" />
+            <PlusIcon className="size-4" />
             เพิ่มผู้ใช้ใหม่
           </Button>
         </DialogTrigger>
@@ -92,22 +92,23 @@ export function CreateUserDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
-          <UserFormFields control={form.control} passwordRequired />
+          <UserFormFields
+            control={form.control}
+            passwordRequired
+            requireProfileFields
+          />
 
           <DialogFooter>
             <div className="flex justify-end gap-2">
               <DialogClose asChild>
                 <Button variant="outline">ยกเลิก</Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-user"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

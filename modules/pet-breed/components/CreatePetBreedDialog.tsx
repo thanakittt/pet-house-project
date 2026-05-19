@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,7 +22,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
@@ -91,7 +91,7 @@ export function CreatePetBreedDialog() {
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button type="button">
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มสายพันธุ์
+            <PlusIcon className="size-4" /> เพิ่มสายพันธุ์
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
@@ -108,7 +108,6 @@ export function CreatePetBreedDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Pet Breed Name Field */}
@@ -212,14 +211,12 @@ export function CreatePetBreedDialog() {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-pet-breed"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

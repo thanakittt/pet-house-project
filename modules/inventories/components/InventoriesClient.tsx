@@ -27,7 +27,7 @@ import { CreateInventoryDialog } from "./CreateInventoryDialog";
 import { UpdateInventoryDialog } from "./UpdateInventoryDialog";
 
 const statusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   { value: "NORMAL", label: "ปกติ" },
   { value: "LOW", label: "สินค้าใกล้หมด" },
   { value: "OUT", label: "สินค้าหมด" },
@@ -38,7 +38,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="destructive"
-        className="bg-rose-100 hover:bg-rose-200 p-2 md:p-4 border-rose-300 text-red-500"
+        className="bg-rose-50 hover:bg-rose-100 p-2 md:p-3 border-rose-400 text-red-600"
       >
         สินค้าหมด
       </Badge>
@@ -48,7 +48,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="secondary"
-        className="bg-amber-100 hover:bg-amber-200 p-2 md:p-4 border-amber-300 text-amber-500"
+        className="bg-amber-50 hover:bg-amber-100 p-2 md:p-3 border-amber-400 text-amber-600"
       >
         สินค้าใกล้หมด
       </Badge>
@@ -57,7 +57,7 @@ function getStatusBadge(item: InventoryItem) {
   return (
     <Badge
       variant="secondary"
-      className="bg-green-100 hover:bg-green-200 p-2 md:p-4 border-green-300 text-green-500"
+      className="bg-green-50 hover:bg-green-100 p-2 md:p-3 border-green-400 text-green-600"
     >
       ปกติ
     </Badge>
@@ -90,10 +90,15 @@ export function InventoriesClient({
 
   return (
     <>
-      <div className="gap-6 grid grid-cols-1 md:grid-cols-3 mb-5 w-full md:w-5xl">
+      <div className="gap-6 grid grid-cols-1 md:grid-cols-4 mb-5 w-full">
         <TitleStatus
           title="สินค้าทั้งหมด"
           value={inventoryData.stats.total}
+          color="text-blue-500"
+        />
+        <TitleStatus
+          title="สินค้าปกติ"
+          value={inventoryData.stats.normalStock}
           color="text-green-500"
         />
         <TitleStatus
@@ -135,6 +140,7 @@ export function InventoriesClient({
         createAction={
           <CreateInventoryDialog inventoryCategories={inventoryCategories} />
         }
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -143,10 +149,10 @@ export function InventoriesClient({
             <TableRow>
               <TableHead>ชื่อสินค้า</TableHead>
               <TableHead>หมวดหมู่</TableHead>
-              <TableHead className="text-right">จำนวน</TableHead>
+              <TableHead className="text-center">จำนวน</TableHead>
               <TableHead>หน่วย</TableHead>
               <TableHead className="text-right">จุดสั่งซื้อ</TableHead>
-              <TableHead className="text-center">สถานะ</TableHead>
+              <TableHead className="text-left">สถานะ</TableHead>
               <TableHead className="text-right">จัดการ</TableHead>
             </TableRow>
           </TableHeader>
@@ -156,14 +162,14 @@ export function InventoriesClient({
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.inventoryCategoryName}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     {product.quantity}
                   </TableCell>
-                  <TableCell>{getUnitLabel(product.unit)}</TableCell>
-                  <TableCell className="text-muted-foreground text-right">
+                  <TableCell className="text-center">{getUnitLabel(product.unit)}</TableCell>
+                  <TableCell className="text-center">
                     {product.reorderLevel}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-left">
                     {getStatusBadge(product)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -171,6 +177,7 @@ export function InventoriesClient({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedInventory(product);
                           setIsUpdateDialogOpen(true);
@@ -179,6 +186,7 @@ export function InventoriesClient({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedInventory(product);
                           setIsDeleteDialogOpen(true);
@@ -226,6 +234,7 @@ export function InventoriesClient({
           onConfirm={() => deleteInventory(selectedInventory.id)}
           successMessage="ลบข้อมูลสินค้าคงคลังเรียบร้อย"
           errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลสินค้าคงคลัง"
+          mode="delete"
         />
       )}
     </>

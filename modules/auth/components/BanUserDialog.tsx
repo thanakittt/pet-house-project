@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import {
   Dialog,
   DialogClose,
@@ -14,6 +15,7 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldDescription
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,7 +24,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Separator } from "@/components/ui/separator";
 
 const DAY_TO_SECONDS = 60 * 60 * 24;
 
@@ -43,13 +44,13 @@ export default function BanUserDialog({
     handleSubmit,
     control,
     reset,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       banReason: "",
       banExpiresIn: "",
     },
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: {
@@ -97,12 +98,11 @@ export default function BanUserDialog({
       <form onSubmit={handleSubmit(onSubmit)} id="ban-user-form">
         <DialogContent className="md:max-w-md">
           <DialogHeader className="px-4 pt-4">
-            <DialogTitle>แบนผู้ใช้</DialogTitle>
+            <DialogTitle className="font-bold text-lg">แบนผู้ใช้</DialogTitle>
             <DialogDescription>
               กรุณาระบุเหตุผลและระยะเวลาการแบน
             </DialogDescription>
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             <Controller
@@ -162,6 +162,9 @@ export default function BanUserDialog({
                     placeholder="ระบุระยะเวลาการแบน"
                     autoComplete="off"
                   />
+                  <FieldDescription>
+                    ปล่อยว่างไว้เพื่อแบนถาวร
+                  </FieldDescription>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -174,13 +177,14 @@ export default function BanUserDialog({
               <DialogClose asChild>
                 <Button variant="outline">ยกเลิก</Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="ban-user-form"
-                disabled={isSubmitting || !isValid}
+                isLoading={isSubmitting}
+                loadingText="กำลังแบน..."
               >
-                {isSubmitting ? "กำลังแบน..." : "แบน"}
-              </Button>
+                แบน
+              </LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

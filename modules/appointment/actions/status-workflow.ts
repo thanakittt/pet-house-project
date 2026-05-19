@@ -1,5 +1,11 @@
 import { db } from "@/db";
-import { appointments, lineAppointmentStatusTemplates } from "@/db/schema";
+import {
+  appointments,
+  lineAppointmentStatusTemplates,
+  lineStaffAppointmentStatusTemplates,
+  staffs,
+} from "@/db/schema";
+import { formatThaiDate } from "@/lib/utils";
 import { pushLineTextMessage } from "@/lib/line/messaging";
 import {
   DEFAULT_LINE_APPOINTMENT_STATUS_TEMPLATES,
@@ -9,7 +15,13 @@ import {
   renderLineAppointmentStatusTemplate,
   type LineNotifiableAppointmentStatus,
 } from "@/modules/line-oa/types/appointment-status-template";
-import { eq } from "drizzle-orm";
+import {
+  DEFAULT_STAFF_LINE_CONFIRMED_TEMPLATE,
+  DEFAULT_STAFF_LINE_TEMPLATE_ACTIVE,
+  STAFF_LINE_TEMPLATE_STATUS,
+  renderStaffLineAppointmentStatusTemplate,
+} from "@/modules/line-oa/types/staff-appointment-status-template";
+import { eq, isNotNull } from "drizzle-orm";
 import type { AppointmentStatus } from "../types/status";
 
 export const APPOINTMENT_NOT_FOUND_ERROR = "ไม่พบข้อมูลการจอง";
@@ -146,6 +158,124 @@ export async function notifyCustomerAppointmentStatusChange(input: {
   }
 }
 
+export async function notifyStaffConfirmedAppointment(input: {
+  appointmentId: string;
+  newStatus: AppointmentStatus;
+  statusChanged: boolean;
+}) {
+  try {
+    if (
+      !input.statusChanged ||
+      input.newStatus !== STAFF_LINE_TEMPLATE_STATUS
+    ) {
+      return;
+    }
+
+    const appointment = await db.query.appointments.findFirst({
+      columns: {
+        id: true,
+        appointmentDate: true,
+      },
+      where: eq(appointments.id, input.appointmentId),
+      with: {
+        customer: {
+          columns: {
+            nickname: true,
+            walkInPhoneNumber: true,
+          },
+          with: {
+            user: {
+              columns: {
+                phoneNumber: true,
+              },
+            },
+          },
+        },
+        items: {
+          with: {
+            pet: {
+              columns: {
+                name: true,
+              },
+            },
+            serviceVariant: {
+              with: {
+                service: {
+                  columns: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!appointment) {
+      return;
+    }
+
+    const staffRecipients = await db
+      .select({
+        lineUserId: staffs.lineUserId,
+      })
+      .from(staffs)
+      .where(isNotNull(staffs.lineUserId));
+
+    const lineUserIds = staffRecipients
+      .map((staffRecipient) => staffRecipient.lineUserId)
+      .filter((lineUserId): lineUserId is string => Boolean(lineUserId));
+
+    if (lineUserIds.length === 0) {
+      return;
+    }
+
+    const notificationTemplate =
+      await getStaffConfirmedNotificationTemplate();
+
+    if (!notificationTemplate.isActive) {
+      return;
+    }
+
+    const message = renderStaffLineAppointmentStatusTemplate(
+      notificationTemplate.messageTemplate,
+      {
+        appointmentDate: formatThaiAppointmentDate(
+          appointment.appointmentDate,
+        ),
+        customerName: appointment.customer.nickname || "-",
+        customerPhone:
+          appointment.customer.walkInPhoneNumber ??
+          appointment.customer.user?.phoneNumber ??
+          "-",
+        petNames:
+          summarizeUniqueValues(appointment.items.map((item) => item.pet.name)) ||
+          "-",
+        serviceNames:
+          summarizeUniqueValues(
+            appointment.items.map((item) => item.serviceVariant.service.name),
+          ) || "-",
+      },
+    );
+
+    const results = await Promise.allSettled(
+      lineUserIds.map((lineUserId) => pushLineTextMessage(lineUserId, message)),
+    );
+
+    results.forEach((result, index) => {
+      if (result.status === "rejected") {
+        console.error("send staff confirmed LINE notification failed:", {
+          lineUserId: lineUserIds[index],
+          error: result.reason,
+        });
+      }
+    });
+  } catch (error) {
+    console.error("send staff confirmed LINE notification failed:", error);
+  }
+}
+
 async function getNotificationTemplate(
   status: LineNotifiableAppointmentStatus,
 ): Promise<NotificationTemplateResult> {
@@ -177,6 +307,39 @@ async function getNotificationTemplate(
   }
 }
 
+async function getStaffConfirmedNotificationTemplate(): Promise<NotificationTemplateResult> {
+  const defaultTemplate: NotificationTemplateResult = {
+    messageTemplate: DEFAULT_STAFF_LINE_CONFIRMED_TEMPLATE,
+    isActive: DEFAULT_STAFF_LINE_TEMPLATE_ACTIVE,
+  };
+
+  try {
+    const [storedTemplate] = await db
+      .select({
+        messageTemplate: lineStaffAppointmentStatusTemplates.messageTemplate,
+        isActive: lineStaffAppointmentStatusTemplates.isActive,
+      })
+      .from(lineStaffAppointmentStatusTemplates)
+      .where(
+        eq(
+          lineStaffAppointmentStatusTemplates.status,
+          STAFF_LINE_TEMPLATE_STATUS,
+        ),
+      )
+      .limit(1);
+
+    if (!storedTemplate) {
+      return defaultTemplate;
+    }
+
+    return storedTemplate;
+  } catch (error) {
+    console.error("getStaffConfirmedNotificationTemplate error:", error);
+
+    return defaultTemplate;
+  }
+}
+
 function summarizeUniqueValues(values: string[]) {
   const uniqueValues = Array.from(new Set(values.filter(Boolean)));
 
@@ -184,9 +347,5 @@ function summarizeUniqueValues(values: string[]) {
 }
 
 function formatThaiAppointmentDate(appointmentDate: string) {
-  const date = new Date(`${appointmentDate}T00:00:00`);
-
-  return new Intl.DateTimeFormat("th-TH", {
-    dateStyle: "medium",
-  }).format(date);
+  return formatThaiDate(appointmentDate);
 }

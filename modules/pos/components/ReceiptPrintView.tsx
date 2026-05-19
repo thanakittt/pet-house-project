@@ -1,13 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, Fragment } from "react"; // นำเข้า Fragment จาก react โดยตรง
-import { Printer, CheckCircle2 } from "lucide-react";
+import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ReceiptData } from "@/modules/pos/queries/get-receipt-data";
 import { PET_SIZE_LABELS } from "@/lib/constants/service-type";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 
 interface ReceiptPrintViewProps {
@@ -52,7 +52,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
       {/* แถบเครื่องมือ */}
       <div className="print:hidden flex justify-between items-center mb-6 w-full max-w-sm">
         <BackButton />
-        <Button onClick={handlePrint} className="shadow-sm">
+        <Button onClick={handlePrint} className="max-lg:hidden shadow-sm">
           <Printer className="mr-2" size={16} /> พิมพ์ใบเสร็จ
         </Button>
       </div>
@@ -61,8 +61,15 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
       <div className="bg-white shadow-lg print:shadow-none mx-auto p-6 w-full max-w-sm text-slate-800 print:text-black text-sm">
         {/* Header ร้าน */}
         <div className="mb-6 text-center">
-          <div className="print:hidden flex justify-center mb-2">
-            <CheckCircle2 size={40} className="text-emerald-500" />
+          <div className="flex justify-center mb-2">
+            <Image
+              src="/images/logo/2.png"
+              alt="Pet House logo"
+              width={56}
+              height={56}
+              priority
+              className="rounded-lg w-14 h-14 object-contain"
+            />
           </div>
           <h1 className="mb-1 font-bold text-xl">PET HOUSE</h1>
           <p className="text-muted-foreground print:text-black text-xs">
@@ -84,11 +91,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
           </div>
           <div className="flex justify-between">
             <span>วันที่:</span>
-            <span>
-              {format(new Date(data.paymentDate), "dd MMM yyyy", {
-                locale: th,
-              })}
-            </span>
+            <span>{formatThaiDate(data.paymentDate)}</span>
           </div>
           <div className="flex justify-between">
             <span>แคชเชียร์:</span>
@@ -98,7 +101,8 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
             <span>ลูกค้า:</span>
             <span>
               {data.customer.nickname}{" "}
-              {data.customer.phone && `(${data.customer.phone})`}
+              {data.customer.phone &&
+                `(${formatPhoneNumber(data.customer.phone)})`}
             </span>
           </div>
         </div>

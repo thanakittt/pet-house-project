@@ -45,13 +45,10 @@ export default async function CustomerPetsPage() {
 
   return (
     <main className="space-y-6 mx-auto p-4 md:p-8 pb-20 max-w-5xl min-h-screen overflow-x-hidden font-noto-thai">
-      <header className="space-y-2">
-        <h1 className="font-bold text-2xl md:text-3xl">
+      <header className="mb-5 mt-3">
+        <h1 className="text-pretty text-xl font-bold md:text-2xl">
           สัตว์เลี้ยงของฉัน
         </h1>
-        <p className="text-muted-foreground">
-          เพิ่ม แก้ไข หรือลบข้อมูลสัตว์เลี้ยงของคุณ เพื่อให้การจองคิวและการดูแลทำได้สะดวกขึ้น
-        </p>
       </header>
 
       <PetInfoForm
@@ -60,6 +57,6 @@ export default async function CustomerPetsPage() {
         customerId={profile.data.customerId}
         actionMode="customer"
       />
-    </main>
+    </main >
   );
 }

@@ -51,7 +51,7 @@ export default async function AccountingPage(props: {
       <BackOfficeContainer>
         <div className="space-y-6">
           {/* Header & Filter */}
-          <div className="flex sm:flex-row flex-col justify-end items-start sm:items-center gap-4">
+          <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-end">
             <Suspense>
               <TransactionFilter categories={categories} />
             </Suspense>
@@ -62,11 +62,13 @@ export default async function AccountingPage(props: {
           <div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm">
-                  รายการเคลื่อนไหวล่าสุด
+                <span className="font-bold text-lg md:text-xl ">
+                  รายการล่าสุด
                 </span>
               </div>
-              <CreateTransactionDialog categories={categories} />
+              <div className="hidden lg:block">
+                <CreateTransactionDialog categories={categories} />
+              </div>
             </div>
             <TransactionsBoard
               transactionData={transactions}

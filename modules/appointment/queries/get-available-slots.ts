@@ -3,16 +3,14 @@
 import { db } from "@/db";
 import { appointments, appointmentItems } from "@/db/schema";
 import { and, gte, lte, ne, eq } from "drizzle-orm";
-import {
-  addMinutes,
-  isBefore,
-  parseISO,
-  setHours,
-  setMinutes,
-  startOfDay,
-} from "date-fns";
+import { addMinutes, isBefore } from "date-fns";
 
 import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import {
+  getBangkokDateAtTime,
+  getBangkokDayOfWeek,
+  getBangkokDayRange,
+} from "@/lib/finance/date";
 
 interface GetSlotsParams {
   date: string;
@@ -24,14 +22,12 @@ export async function getAvailableSlots({
   durationMinutes,
 }: GetSlotsParams) {
   try {
-    const targetDate = parseISO(date);
-
-    if (targetDate.getDay() === SHOP_CLOSED_DAY) {
+    if (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
       return { success: true, data: [] };
     }
 
-    const startOfTargetDay = startOfDay(targetDate);
-    const endOfTargetDay = addMinutes(startOfTargetDay, 24 * 60 - 1);
+    const { start: startOfTargetDay, end: endOfTargetDay } =
+      getBangkokDayRange(date);
 
     // 1. Optimize Database Query
     const bookedSlots = await db
@@ -54,8 +50,8 @@ export async function getAvailableSlots({
       );
 
     // 2. กำหนดเวลาเปิด-ปิดร้าน และเงื่อนไขเวลา
-    const openingTime = setMinutes(setHours(targetDate, 9), 0);
-    const closingTime = setMinutes(setHours(targetDate, 18), 0);
+    const openingTime = getBangkokDateAtTime(date, 9, 0);
+    const closingTime = getBangkokDateAtTime(date, 18, 0);
     const slotInterval = 30; // ตัดสล็อตทุกๆ 30 นาที
 
     // [NEW] กำหนดเวลาปัจจุบัน (สามารถตั้ง Lead Time ได้ในอนาคต เช่น addMinutes(now, 30))

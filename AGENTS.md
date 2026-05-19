@@ -4,54 +4,34 @@
 This version has breaking changes: APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-## Beginner-Friendly Code Rules
+# Lessons Learned
 
-- This project is maintained by a beginner-to-intermediate developer.
-- Prioritize readability and maintainability over clever or highly abstract code.
-- Avoid unnecessary advanced patterns unless clearly justified.
-- Prefer explicit and verbose code over compact one-liners.
-- Keep functions small and focused.
-- Avoid over-engineering.
+Keep this section short. Add a new lesson only when it prevents a likely repeated mistake. If a new issue fits an existing rule, update that rule instead of adding a new entry.
 
-### Code Explanation Requirements
+## Rules
 
-When generating or modifying code:
+### Patching mixed-language files
+- Use ASCII-only anchors when patching files with Thai text, mojibake, or mixed encodings.
+- Avoid Thai labels, Thai comments, and rendered mojibake in `apply_patch` context.
+- Anchor patches on component names, prop names, route strings, class names, or identifiers.
 
-- Add inline comments for important logic.
-- Explain the purpose of each major block.
-- Explain data flow step-by-step:
-  - input
-  - processing
-  - output
-- Explain why a solution is implemented this way.
-- When using libraries/framework features, briefly explain them in beginner-friendly language.
+### PowerShell quoting and paths
+- Use `Get-Content -LiteralPath '...'` for paths containing route groups, parentheses, or brackets.
+- Quote `rg` paths containing parentheses or brackets.
+- Wrap full `rg` regex patterns in single quotes when searching JSX props, quotes, pipes, or alternation.
+- Keep fragile JSX searches simple, or split them into separate `rg` calls.
 
-### Architecture & Patterns
+### Package scripts on Windows
+- If `pnpm` is unavailable, try the equivalent `npm.cmd run <script>`.
+- Prefer `npm.cmd run <script>` when PowerShell blocks `npm.ps1`.
 
-- Prefer simple architecture patterns.
-- Avoid premature abstraction.
-- Avoid deeply nested generic utilities unless necessary.
-- Prefer duplication over difficult abstractions when readability would suffer.
-- Reusable components/utilities should remain easy to understand.
+### Next.js docs and build
+- Do not guess local Next.js docs paths. Find them with `rg --files node_modules/next/dist/docs`.
+- If `next build` fails with sandbox `Access is denied` under `node_modules/.pnpm/**/package.json`, retry the same build with escalation before changing imports.
 
-### Teaching-Oriented Responses
+### Browser verification
+- Use `load` or `domcontentloaded` for in-app browser load checks unless `networkidle` support is confirmed.
 
-When possible:
-
-- Teach alongside implementation.
-- Break complex logic into smaller steps.
-- Mention common beginner mistakes.
-- Suggest simpler alternatives if the generated solution is advanced.
-
-### Refactoring Rules
-
-- Do not aggressively refactor working code into highly abstract patterns.
-- Preserve readability during refactors.
-- Minimize cognitive load for future maintainers.
-
-### Output Style
-
-- Use clear naming.
-- Avoid unnecessary shorthand syntax.
-- Prefer beginner-friendly TypeScript patterns.
-- Avoid combining too many concepts in a single block of code.
+### React hooks lint
+- Do not call React state setters synchronously inside effect bodies.
+- For responsive subscriptions, initialize state outside the effect or update state only inside subscription callbacks/user events.

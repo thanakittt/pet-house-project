@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -10,7 +11,6 @@ import { updateHealthReport } from "../actions/update-health-report";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogClose,
@@ -102,7 +102,7 @@ export default function EditHealthReportDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="w-8 h-8 text-muted-foreground hover:text-blue-600"
+            className="max-lg:hidden w-8 h-8 text-muted-foreground hover:bg-blue-100 hover:text-blue-600"
           >
             <Edit2Icon className="w-4 h-4" />
           </Button>
@@ -122,7 +122,6 @@ export default function EditHealthReportDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-4 px-4 pt-2 pb-3">
             <Controller
@@ -189,14 +188,12 @@ export default function EditHealthReportDialog({
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form={`edit-health-report-${report.id}`}
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+                isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

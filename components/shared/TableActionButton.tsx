@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import {
   BanIcon,
   CircleCheckIcon,
   EyeIcon,
-  Loader2Icon,
   PencilIcon,
   SettingsIcon,
   TrashIcon,
@@ -22,6 +22,7 @@ type TableActionButtonProps = Omit<
   "children"
 > & {
   action: TableAction;
+  desktopOnly?: boolean;
   icon?: LucideIcon;
   isLoading?: boolean;
 };
@@ -31,9 +32,13 @@ type TableActionLinkProps = Omit<
   "asChild" | "children" | "onClick"
 > & {
   action: TableAction;
+  desktopOnly?: boolean;
   href: string;
   icon?: LucideIcon;
 };
+
+export const DESKTOP_ONLY_ACTION_CLASS = "max-lg:hidden";
+export const DESKTOP_ONLY_CONTAINER_CLASS = "max-lg:hidden lg:flex";
 
 export const TABLE_ACTION_ICONS = {
   ban: BanIcon,
@@ -58,7 +63,7 @@ export const TABLE_ACTION_CONFIG = {
   edit: {
     icon: TABLE_ACTION_ICONS.edit,
     className:
-      "border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary focus-visible:border-primary/40 focus-visible:ring-primary/20",
+      "border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-200 hover:text-blue-800 focus-visible:border-blue-400 focus-visible:ring-blue-500/20 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-900/50",
   },
   manage: {
     icon: TABLE_ACTION_ICONS.manage,
@@ -90,19 +95,17 @@ function ActionIcon({
   icon: LucideIcon;
   isLoading?: boolean;
 }) {
-  const IconComponent = isLoading ? Loader2Icon : Icon;
+  if (isLoading) {
+    return <Spinner data-icon="inline-start" />;
+  }
 
-  return (
-    <IconComponent
-      data-icon="inline-start"
-      className={isLoading ? "animate-spin" : undefined}
-    />
-  );
+  return <Icon data-icon="inline-start" />;
 }
 
 export function TableActionButton({
   action,
   className,
+  desktopOnly,
   icon,
   isLoading,
   size = "icon",
@@ -115,8 +118,14 @@ export function TableActionButton({
     <Button
       variant={variant}
       size={size}
-      className={cn(config.className, className)}
+      className={cn(
+        config.className,
+        desktopOnly && DESKTOP_ONLY_ACTION_CLASS,
+        className,
+      )}
       {...props}
+      aria-busy={isLoading}
+      disabled={props.disabled || isLoading}
     >
       <ActionIcon icon={icon ?? config.icon} isLoading={isLoading} />
     </Button>
@@ -126,6 +135,7 @@ export function TableActionButton({
 export function TableActionLink({
   action,
   className,
+  desktopOnly,
   href,
   icon,
   size = "icon",
@@ -138,7 +148,11 @@ export function TableActionLink({
     <Button
       variant={variant}
       size={size}
-      className={cn(config.className, className)}
+      className={cn(
+        config.className,
+        desktopOnly && DESKTOP_ONLY_ACTION_CLASS,
+        className,
+      )}
       asChild
       {...props}
     >

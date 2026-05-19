@@ -1,13 +1,13 @@
 "use client";
 
-import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { ManagementPagination } from "@/components/shared/ManagementListControls";
+import { formatThaiDate } from "@/lib/utils";
 import { type CustomerAppointmentHistoryResult } from "@/modules/appointment/queries/get-customer-history";
 import { type ActionResponse } from "@/types/action";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { Calendar, PawPrint, Receipt, Tag } from "lucide-react";
 import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface AppointmentHistoryListProps {
   appointmentHistory: ActionResponse<CustomerAppointmentHistoryResult>;
@@ -16,16 +16,9 @@ interface AppointmentHistoryListProps {
 export function AppointmentHistoryList({
   appointmentHistory,
 }: AppointmentHistoryListProps) {
-  const formatThaiDate = (dateString: string | Date) => {
-    const date = new Date(dateString);
-    const dayAndMonth = format(date, "d MMM", { locale: th });
-    const buddhistYear = date.getFullYear() + 543;
-    return `${dayAndMonth} ${buddhistYear}`;
-  };
-
   if (!appointmentHistory.success) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+      <div className="bg-red-50 p-4 rounded-lg text-red-600 text-sm">
         {appointmentHistory.error}
       </div>
     );
@@ -36,97 +29,96 @@ export function AppointmentHistoryList({
 
   if (appointments.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed bg-gray-50 p-8 text-center text-muted-foreground">
+      <div className="bg-gray-50 p-8 border-2 border-dashed rounded-xl text-muted-foreground text-center">
         ยังไม่มีประวัติการจองสำหรับลูกค้ารายนี้
       </div>
     );
   }
 
   return (
-    <div className="mt-8 space-y-4">
-      <h2 className="flex items-center gap-2 text-lg font-bold">
-        <Calendar size={20} />
-        ประวัติการรับบริการ
-      </h2>
+    <div>
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center gap-2 text-lg font-bold">
+          <Calendar size={18} className="text-cyan-600 rounded-lg bg-cyan-100/50 p-2.5 w-10 h-10" />
+          ประวัติการรับบริการ
+        </CardHeader>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-        {appointments.map((appointment) => {
-          const totalPrice = appointment.items.reduce(
-            (sum, item) => sum + Number(item.price),
-            0,
-          );
+        <CardContent className="grid sm:grid-cols-2 lg:grid-cols-1 gap-4 px-6 py-2">
+          {appointments.map((appointment) => {
+            const totalPrice = appointment.items.reduce(
+              (sum, item) => sum + Number(item.price),
+              0,
+            );
 
-          const uniquePets = Array.from(
-            new Set(
-              appointment.items.map((item) => item.pet?.name || "Unknown"),
-            ),
-          );
-          const petSummary = uniquePets.join(", ");
-
-          const uniqueServices = Array.from(
-            new Set(
-              appointment.items.map(
-                (item) => item.serviceVariant?.service?.name,
+            const uniquePets = Array.from(
+              new Set(
+                appointment.items.map((item) => item.pet?.name || "Unknown"),
               ),
-            ),
-          );
-          const serviceSummary = uniqueServices.join(", ");
+            );
+            const petSummary = uniquePets.join(", ");
 
-          return (
-            <Link
-              key={appointment.id}
-              href={`/back-office/appointments/${appointment.id}`}
-              className="group flex cursor-pointer flex-col justify-between gap-4 rounded-xl border bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md md:flex-row md:items-center"
-            >
-              <div className="flex flex-col gap-1.5 md:w-1/4">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900 transition-colors">
-                    {formatThaiDate(appointment.appointmentDate)}
-                  </span>
-                </div>
-                <div>
-                  <AppointmentStatusBadge status={appointment.status} />
-                </div>
-                <span className="mt-1 font-mono text-xs text-gray-400">
-                  Ref: {appointment.id.split("-")[0]}
-                </span>
-              </div>
+            const uniqueServices = Array.from(
+              new Set(
+                appointment.items.map(
+                  (item) => item.serviceVariant?.service?.name,
+                ),
+              ),
+            );
+            const serviceSummary = uniqueServices.join(", ");
 
-              <div className="flex flex-1 flex-col gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors group-hover:bg-blue-50/50">
-                <div className="flex items-start gap-2 text-sm text-gray-700">
-                  <PawPrint
-                    size={16}
-                    className="mt-0.5 shrink-0 text-gray-400"
-                  />
-                  <span className="line-clamp-1" title={petSummary}>
-                    {petSummary || "-"}
-                  </span>
+            return (
+              <Link
+                key={appointment.id}
+                href={`/back-office/appointments/${appointment.id}`}
+                className="group flex flex-col justify-between items-center w-full gap-4 bg-white shadow-sm hover:shadow-md p-4 border hover:border-gray-300 rounded-xl transition-all cursor-pointer"
+              >
+                <div className="flex flex-row justify-between w-full gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-primary transition-colors">
+                      {formatThaiDate(appointment.appointmentDate)}
+                    </span>
+                  </div>
+                  <div>
+                    <AppointmentStatusBadge status={appointment.status} />
+                  </div>
                 </div>
-                <div className="flex items-start gap-2 text-sm text-gray-600">
-                  <Tag size={16} className="mt-0.5 shrink-0 text-gray-400" />
-                  <span className="line-clamp-1" title={serviceSummary}>
-                    {serviceSummary || "-"}
-                  </span>
-                </div>
-              </div>
+                <div className="flex flex-row justify-between w-full gap-1.5">
+                  <div className="flex flex-col flex-1 gap-2">
+                    <div className="flex items-start gap-2 text-primary/70 text-sm">
+                      <PawPrint
+                        size={16}
+                        className="mt-0.5 shrink-0"
+                      />
+                      <span className="line-clamp-1" title={petSummary}>
+                        {petSummary || "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2 text-primary/70 text-sm">
+                      <Tag size={16} className="mt-0.5 shrink-0" />
+                      <span className="line-clamp-1" title={serviceSummary}>
+                        {serviceSummary || "-"}
+                      </span>
+                    </div>
+                  </div>
 
-              <div className="flex items-center justify-between gap-1 md:w-1/4 md:flex-col md:items-end md:justify-end">
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 md:hidden">
-                  <Receipt size={14} />
-                  <span>ยอดรวม</span>
+                  <div className="flex md:flex-col justify-between md:justify-end items-center md:items-end gap-1 md:w-1/4">
+                    <div className="md:hidden flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <Receipt size={14} />
+                      <span>ยอดรวม</span>
+                    </div>
+                    <div className="font-bold text-primary text-base">
+                      ฿{totalPrice.toLocaleString()}
+                    </div>
+                    <div className="hidden md:flex items-center gap-1 text-muted-foreground text-xs">
+                      <Receipt size={12} /> {appointment.items.length} รายการ
+                    </div>
+                  </div>
                 </div>
-                <div className="text-base font-bold text-gray-900">
-                  ฿{totalPrice.toLocaleString()}
-                </div>
-                <div className="hidden items-center gap-1 text-xs text-gray-500 md:flex">
-                  <Receipt size={12} /> {appointment.items.length} รายการ
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
+              </Link>
+            );
+          })}
+        </CardContent>
+      </Card>
       <ManagementPagination
         page={page}
         pageParamName="historyPage"
@@ -134,6 +126,7 @@ export function AppointmentHistoryList({
         total={total}
         totalPages={totalPages}
       />
+
     </div>
   );
 }

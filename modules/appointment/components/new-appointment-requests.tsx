@@ -1,23 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import AppointmentStatus from "./AppointmentStatus";
-import { CalendarDays, ChevronRight, PawPrint, Scissors } from "lucide-react";
+import { CalendarDays, ChevronRight, Scissors } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatThaiDate } from "@/lib/utils";
 import { type ConfirmedAppointmentRequest } from "../queries/get-confirmed-appointment-requests";
 
 interface NewAppointmentRequestsProps {
   appointments: ConfirmedAppointmentRequest[];
-}
-
-function formatThaiDate(dateString: string) {
-  const date = new Date(dateString);
-  const dayAndMonth = format(date, "d MMM", { locale: th });
-  const buddhistYear = date.getFullYear() + 543;
-
-  return `${dayAndMonth} ${buddhistYear}`;
 }
 
 function formatAppointmentTime(appointment: ConfirmedAppointmentRequest) {
@@ -53,62 +45,63 @@ export default function NewAppointmentRequests({
 }: NewAppointmentRequestsProps) {
   if (appointments.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed bg-slate-50 p-8 text-center text-sm text-muted-foreground">
+      <div className="bg-slate-50 p-8 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
         ยังไม่มีคำขอจองคิวใหม่ที่ยืนยันแล้ว
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-w-0">
       {appointments.map((appointment) => (
-        <div
+        <Link
           key={appointment.id}
-          className="flex flex-col justify-between gap-4 overflow-hidden rounded-lg border border-slate-200 p-5 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center"
+          href={`/back-office/appointments/${appointment.id}`}
+          className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white hover:bg-slate-50/50 shadow-sm hover:shadow-md p-4 sm:p-5 border rounded-lg min-w-0 overflow-hidden transition-all cursor-pointer"
         >
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <h3 className="text-base font-semibold">
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex flex-col gap-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+                <h3 className="min-w-0 font-semibold text-base break-words">
                   {getPetNames(appointment) || "-"}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm break-words">
                   (คุณ {appointment.customer.nickname})
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Scissors size={15} className="shrink-0" />
-                <span>{getServiceNames(appointment) || "-"}</span>
+              <div className="flex items-start gap-2 min-w-0 text-muted-foreground text-sm">
+                <Scissors size={15} className="mt-0.5 shrink-0" />
+                <span className="min-w-0 break-words">
+                  {getServiceNames(appointment) || "-"}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <CalendarDays size={15} />
-                <span>
+            <div className="flex flex-wrap gap-3 min-w-0 text-muted-foreground text-sm">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <CalendarDays size={15} className="shrink-0" />
+                <span className="break-words">
                   {formatThaiDate(appointment.appointmentDate)} เวลา{" "}
                   {formatAppointmentTime(appointment)}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <PawPrint size={15} />
-                <span>{appointment.items.length} รายการบริการ</span>
-              </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex sm:flex-row flex-col md:flex-col items-stretch sm:items-center md:items-end gap-3 md:gap-2">
             <AppointmentStatus status={appointment.status} />
-            {/* ปุ่มกดดูรายละเอียด */}
-            <Link href={`/back-office/appointments/${appointment.id}`}>
-              <Button variant="ghost" size="default">
-                ดูรายละเอียด
-                <ChevronRight size={14} />
-              </Button>
-            </Link>
+
+            {/* เปลี่ยนจากปุ่มเป็นข้อความที่มีไอคอน เพื่อหลีกเลี่ยง Nested Interactive Elements (<button> ใน <a>) */}
+            <div className="flex justify-center sm:justify-end items-center gap-1 py-1 font-medium text-muted-foreground group-hover:text-primary text-sm transition-colors">
+              ดูรายละเอียด
+              <ChevronRight
+                size={16}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </div>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

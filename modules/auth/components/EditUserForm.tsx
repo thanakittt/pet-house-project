@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -216,7 +217,7 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
                     type="password"
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    placeholder="ระบุรหัสผ่าน"
+                    placeholder="ระบุรหัสผ่านอย่างน้อย 8 ตัวอักษร"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -344,13 +345,11 @@ export default function EditUserForm({ user }: { user: AuthUserWithProfile }) {
           <Button type="button" variant="outline" asChild>
             <Link href="/back-office/users">กลับ</Link>
           </Button>
-          <Button
+          <LoadingButton
             type="submit"
             form="edit-user"
-            disabled={isSubmitting || !isValid}
-          >
-            {isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-          </Button>
+            disabled={!isValid}
+           isLoading={isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
         </Field>
       </CardFooter>
     </Card>

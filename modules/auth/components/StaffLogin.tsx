@@ -8,24 +8,24 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 
 export function StaffLoginForm() {
   const router = useRouter();
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       email: "",
       password: "",
     },
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: { email: string; password: string }) => {
@@ -60,7 +60,11 @@ export function StaffLoginForm() {
       const userRole = resultSignIn?.user?.role;
 
       // Redirect based on user role
-      if (userRole === "admin" || userRole === "staff" || userRole === "owner") {
+      if (
+        userRole === "admin" ||
+        userRole === "staff" ||
+        userRole === "owner"
+      ) {
         router.push("/back-office");
       } else {
         // For customer or other roles, redirect to home page
@@ -74,9 +78,9 @@ export function StaffLoginForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="rounded-lg w-sm">
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg md:w-[400px] w-full">
         <Image
-          className="mx-auto mb-2 rounded-sm"
+          className="mx-auto mb-3 rounded-sm"
           src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
@@ -84,11 +88,15 @@ export function StaffLoginForm() {
           loading="eager"
           priority
         />
-        <h1 className="mb-2 font-bold text-2xl text-center">Pet House</h1>
-        <h2 className="mb-5 font-semibold text-lg text-center">
+        <h1 className="mb-1 font-bold text-xl uppercase">Pet House</h1>
+        <h2 className="mb-5 font-semibold text-base md:text-lg">
           เข้าสู่ระบบสำหรับพนักงาน
         </h2>
-        <form id="create-user" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          id="create-user"
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col items-center w-full"
+        >
           <FieldGroup>
             {/* Email Field */}
             <Controller
@@ -113,7 +121,7 @@ export function StaffLoginForm() {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุอีเมล"
-                    autoComplete="off"
+                    autoComplete="email"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -146,7 +154,7 @@ export function StaffLoginForm() {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุรหัสผ่าน"
-                    autoComplete="off"
+                    autoComplete="password"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -155,13 +163,17 @@ export function StaffLoginForm() {
               )}
             />
 
-            <Button
+            <LoadingButton
               type="submit"
-              form="create-user"
-              disabled={isSubmitting || !isValid}
+              variant="default"
+              size="default"
+              className="mt-3"
+              disabled={isSubmitting}
+              isLoading={isSubmitting}
+              loadingText="กำลังเข้าสู่ระบบ..."
             >
-              {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-            </Button>
+              เข้าสู่ระบบ
+            </LoadingButton>
           </FieldGroup>
         </form>
       </section>

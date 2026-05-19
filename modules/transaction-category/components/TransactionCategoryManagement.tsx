@@ -27,7 +27,7 @@ import { CreateTransactionCategoryDialog } from "./CreateTransactionCategoryDial
 import { UpdateTransactionCategoryDialog } from "./UpdateTransactionCategoryDialog";
 
 const typeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   { value: "INCOME", label: TRANSACTION_TYPE_LABELS.INCOME },
   { value: "EXPENSE", label: TRANSACTION_TYPE_LABELS.EXPENSE },
 ];
@@ -64,9 +64,10 @@ export function TransactionCategoryManagement({
           },
         ]}
         createAction={<CreateTransactionCategoryDialog />}
+        createActionDesktopOnly
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -94,6 +95,7 @@ export function TransactionCategoryManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedTransactionCategory(category);
                           setIsUpdateDialogOpen(true);
@@ -103,6 +105,7 @@ export function TransactionCategoryManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedTransactionCategory(category);
                           setIsDeleteDialogOpen(true);
@@ -148,6 +151,7 @@ export function TransactionCategoryManagement({
             }
             successMessage="ลบข้อมูลหมวดหมู่ธุรกรรมเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลหมวดหมู่ธุรกรรม"
+            mode="delete"
           />
         </>
       )}

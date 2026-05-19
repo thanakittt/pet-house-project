@@ -7,6 +7,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -88,18 +89,18 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-svh">
-      <section className="flex flex-col justify-center items-center rounded-lg w-xs">
+    <div className="flex justify-center items-center min-h-screen">
+      <section className="flex-col flex justify-center px-5 rounded-lg md:w-[400px] w-full items-center">
         <Image
-          className="mb-2 rounded-sm"
+          className="mb-3 rounded-sm"
           src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}
           priority
         />
-        <h1 className="mb-2 font-bold text-2xl">Pet House</h1>
-        <h2 className="mb-4 font-semibold text-lg">สมัครสมาชิก</h2>
+        <h1 className="mb-2 font-bold text-xl uppercase ">Pet House</h1>
+        <h2 className="mb-4 font-semibold text-base md:text-lg">สมัครสมาชิก</h2>
 
         <form
           id="sign-up-form"
@@ -218,7 +219,7 @@ export function SignUpForm() {
                       id={field.name}
                       type="password"
                       aria-invalid={fieldState.invalid}
-                      placeholder="รหัสผ่าน"
+                      placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร"
                       autoComplete="new-password"
                     />
                     {fieldState.invalid && (
@@ -260,25 +261,26 @@ export function SignUpForm() {
           </FieldGroup>
 
           <div className="flex justify-center items-center pt-5 w-full">
-            <Button
-              className="py-5 w-full"
+            <LoadingButton
+              className="w-full"
               size="default"
               variant="default"
               type="submit"
               form="sign-up-form"
-              disabled={isSubmitting}
+              isLoading={isSubmitting}
+              loadingText="กำลังดำเนินการ..."
             >
-              {isSubmitting ? "กำลังดำเนินการ..." : "สมัครสมาชิก"}
-            </Button>
+              สมัครสมาชิก
+            </LoadingButton>
           </div>
         </form>
 
-        <div className="pt-5 w-full">
+        <div className="py-6 w-full">
           <FieldSeparator>หรือ</FieldSeparator>
         </div>
 
         <Button
-          className="mt-5 py-5 w-full"
+          className="w-full"
           size="default"
           variant="outline"
           onClick={() => handleSocialSignIn("google")}
@@ -294,7 +296,7 @@ export function SignUpForm() {
         </Button>
 
         <Button
-          className="mt-5 py-5 w-full"
+          className="mt-5 w-full"
           size="default"
           variant="outline"
           onClick={() => handleSocialSignIn("line")}
@@ -309,7 +311,7 @@ export function SignUpForm() {
           สมัครสมาชิกด้วย Line
         </Button>
 
-        <p className="mt-5 text-sm">
+        <p className="my-5 text-sm">
           มีบัญชีอยู่แล้ว?{" "}
           <Link
             href="/sign-in"

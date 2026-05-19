@@ -7,6 +7,7 @@ import {
   type ManagementFilterOption,
 } from "@/components/shared/ManagementListControls";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PetTypeBadge } from "@/components/shared/PetTypeBadge";
 import { TableActionButton } from "@/components/shared/TableActionButton";
 import {
   Table,
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PET_TYPE_LABELS, PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
 import {
   PET_SIZE_LABELS,
   PET_SIZE_OPTIONS,
@@ -29,12 +30,12 @@ import { CreateServiceVariantDialog } from "./CreateServiceVariantDialog";
 import { UpdateServiceVariantDialog } from "./UpdateServiceVariantDialog";
 
 const petTypeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   ...PET_TYPE_OPTIONS,
 ];
 
 const sizeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกขนาด" },
   ...PET_SIZE_OPTIONS.filter((option) => option.value !== "ALL"),
 ];
 
@@ -82,6 +83,7 @@ export default function ServiceVariantsManagement({
           },
         ]}
         createAction={<CreateServiceVariantDialog serviceId={serviceId} />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -100,7 +102,7 @@ export default function ServiceVariantsManagement({
               variants.map((variant) => (
                 <TableRow key={variant.id}>
                   <TableCell>
-                    {PET_TYPE_LABELS[variant.petType] || variant.petType}
+                    <PetTypeBadge type={variant.petType} />
                   </TableCell>
                   <TableCell>
                     {PET_SIZE_LABELS[variant.size] || variant.size}
@@ -116,6 +118,7 @@ export default function ServiceVariantsManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedVariant(variant);
                           setIsEditDialogOpen(true);
@@ -125,6 +128,7 @@ export default function ServiceVariantsManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedVariant(variant);
                           setIsDeleteDialogOpen(true);
@@ -167,6 +171,7 @@ export default function ServiceVariantsManagement({
             onConfirm={() => deleteServiceVariant({ id: selectedVariant.id })}
             successMessage="ลบข้อมูลตัวเลือกบริการเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลตัวเลือกบริการ"
+            mode="delete"
           />
         </>
       )}

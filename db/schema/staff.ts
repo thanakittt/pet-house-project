@@ -11,6 +11,7 @@ export const staffs = p
     nickname: p.text("nickname").notNull(),
     gender: genderEnum("gender").notNull(),
     birthDate: p.date("birth_date"),
+    lineUserId: p.text("line_user_id").unique("staffs_line_user_id_unique"),
     // FK ไปยัง users (account ของพนักงาน)
     // UNIQUE เพื่อบังคับ 1:1 — 1 user เป็นได้ 1 staff เท่านั้น
     userId: p

@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,7 +22,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import {
@@ -87,7 +87,7 @@ export function CreateServiceDialog() {
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button type="button">
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มบริการ
+            <PlusIcon className="size-4" /> เพิ่มบริการ
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
@@ -104,7 +104,6 @@ export function CreateServiceDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Service Name Field */}
@@ -204,14 +203,12 @@ export function CreateServiceDialog() {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-service"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

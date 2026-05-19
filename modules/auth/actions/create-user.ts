@@ -12,8 +12,27 @@ export async function createUser(
   data: UserForm,
 ): Promise<ActionResponse<null>> {
   try {
+    const name = data.name.trim();
+    const email = data.email.trim();
+    const phoneNumber = data.phoneNumber.trim();
+    const gender = data.gender.trim();
+    const birthDate = data.birthDate.trim();
+    const role = data.role.trim();
+
+    if (
+      !name ||
+      !email ||
+      !phoneNumber ||
+      !data.password.trim() ||
+      !gender ||
+      !birthDate ||
+      !role
+    ) {
+      return { success: false, error: "กรุณากรอกข้อมูลให้ครบทุกช่อง" };
+    }
+
     const isPhoneNumberExistsResult = await isPhoneNumberExists(
-      data.phoneNumber,
+      phoneNumber,
     );
 
     if (!isPhoneNumberExistsResult.success) {
@@ -26,12 +45,12 @@ export async function createUser(
 
     const signUpResult = await auth.api.createUser({
       body: {
-        name: data.name,
-        email: data.email,
+        name,
+        email,
         password: data.password,
-        role: data.role as "customer" | "staff" | "admin" | "owner",
+        role: role as "customer" | "staff" | "admin" | "owner",
         data: {
-          phoneNumber: data.phoneNumber,
+          phoneNumber,
         },
       },
     });
@@ -41,14 +60,14 @@ export async function createUser(
     }
 
     if (
-      (data.birthDate || data.gender) &&
-      ["staff", "admin", "owner"].includes(data.role)
+      (birthDate || gender) &&
+      ["staff", "admin", "owner"].includes(role)
     ) {
       const createStaffResult = await createStaff({
         userId: signUpResult.user.id,
-        nickname: data.name,
-        gender: data.gender,
-        birthDate: data.birthDate,
+        nickname: name,
+        gender,
+        birthDate,
       });
 
       // ถ้าสร้าง Staff ล้มเหลว ให้ลบ user ที่เพิ่งสร้างออกเพื่อ rollback สภาพ

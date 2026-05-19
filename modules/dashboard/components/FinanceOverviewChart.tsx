@@ -57,6 +57,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const chartHeightClass =
+  "h-[240px] sm:h-[280px] md:h-[320px] lg:h-[340px]";
+
 export function FinanceOverviewChart({
   data,
   period,
@@ -68,7 +71,7 @@ export function FinanceOverviewChart({
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="md:text-lg text-base font-bold">
               รายรับ-รายจ่าย
             </CardTitle>
             <CardDescription className="text-xs mt-0.5">
@@ -106,9 +109,8 @@ export function FinanceOverviewChart({
                   <TrendingDown className="size-3 text-red-500" />
                 )}
                 <span
-                  className={`text-base font-semibold ${
-                    isProfit ? "text-green-600" : "text-red-500"
-                  }`}
+                  className={`text-base font-semibold ${isProfit ? "text-green-600" : "text-red-500"
+                    }`}
                 >
                   {formatCurrency(Math.abs(data.netProfit))}
                 </span>
@@ -121,11 +123,16 @@ export function FinanceOverviewChart({
       <CardContent className="flex-1 pt-0">
         {/* กรณีไม่มีข้อมูล */}
         {data.points.every((p) => p.income === 0 && p.expense === 0) ? (
-          <div className="flex items-center justify-center h-[200px] text-sm text-muted-foreground">
+          <div
+            className={`flex items-center justify-center ${chartHeightClass} text-sm text-muted-foreground`}
+          >
             ไม่มีข้อมูลธุรกรรมใน{periodLabel[period]}
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+          <ChartContainer
+            config={chartConfig}
+            className={`aspect-auto ${chartHeightClass} w-full`}
+          >
             <BarChart
               accessibilityLayer
               data={data.points}
@@ -139,6 +146,7 @@ export function FinanceOverviewChart({
                 axisLine={false}
                 tickMargin={8}
                 tick={{ fontSize: 11 }}
+
                 // ลด label ถ้ามีหลายจุด
                 interval={
                   data.points.length > 15
@@ -169,13 +177,13 @@ export function FinanceOverviewChart({
               <ChartLegend content={<ChartLegendContent />} />
               <Bar
                 dataKey="income"
-                fill="var(--color-income)"
+                fill="var(--color-emerald-400)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={40}
               />
               <Bar
                 dataKey="expense"
-                fill="var(--color-expense)"
+                fill="var(--color-red-400)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={40}
               />

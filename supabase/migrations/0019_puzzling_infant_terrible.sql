@@ -1,0 +1,1 @@
+ALTER TABLE "staffs" ADD COLUMN "line_user_id" text;

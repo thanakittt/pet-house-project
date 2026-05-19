@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { PlusIcon, Loader2 } from "lucide-react";
+import { PlusIcon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { uploadServiceImages } from "../actions/upload-service-images"; // ปรับ path ตามโปรเจกต์ของคุณ
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/LoadingButton";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -31,10 +31,12 @@ import {
 } from "@/components/ui/dialog";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 
 // 1. เปลี่ยนจากการเก็บ URL เป็นการเก็บ File Object ของจริง
 type UploadImageForm = {
@@ -53,6 +55,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
   const [isUploading, setIsUploading] = useState(false); // ใช้ตอนกด Submit
   const [previews, setPreviews] = useState<{ file: File; url: string }[]>([]); // เก็บจับคู่ File กับ Preview URL
   const [serverError, setServerError] = useState<string | null>(null);
+  const selectedFileCount = previews.length;
 
   const form = useForm<UploadImageForm>({
     defaultValues: {
@@ -161,7 +164,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
     >
       <form onSubmit={form.handleSubmit(onSubmit)} id="upload-image-form">
         <DialogTrigger asChild className="text-sm cursor-pointer">
-          <Button type="button" size="sm" variant="outline">
+          <Button type="button" size="lg" variant="outline">
             <PlusIcon className="mr-2 size-3.5" /> เพิ่มรูปภาพ
           </Button>
         </DialogTrigger>
@@ -180,7 +183,6 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-4 px-4 pt-2 pb-3">
             <Controller
@@ -189,9 +191,7 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
               rules={{ required: "กรุณาเลือกประเภท" }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    ประเภท
-                  </FieldLabel>
+                  <FieldLabel htmlFor={field.name}>ประเภท</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger id={field.name}>
                       <SelectValue placeholder="เลือกประเภท" />
@@ -213,17 +213,53 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
             />
 
             <Field>
-              <FieldLabel>
-                เลือกรูปภาพ
+              <FieldLabel htmlFor="service-image-files">
+                {selectedFileCount > 0 ? "เลือกรูปภาพเพิ่ม" : "เลือกรูปภาพ"}
               </FieldLabel>
+              <label
+                htmlFor="service-image-files"
+                aria-disabled={isUploading || form.formState.isSubmitting}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "w-fit cursor-pointer",
+                  (isUploading || form.formState.isSubmitting) &&
+                  "pointer-events-none cursor-not-allowed opacity-50",
+                )}
+              >
+                <UploadIcon data-icon="inline-start" />
+                อัปโหลด
+              </label>
               <Input
+                id="service-image-files"
                 type="file"
                 multiple
                 accept="image/png, image/jpeg, image/webp"
                 onChange={handleSelectFiles}
                 disabled={isUploading || form.formState.isSubmitting}
-                className="cursor-pointer" 
+                className="sr-only"
               />
+              <FieldDescription>
+                {selectedFileCount > 0
+                  ? `เลือกแล้ว ${selectedFileCount} รูป`
+                  : "ยังไม่ได้เลือกรูปภาพ"}
+              </FieldDescription>
+              {selectedFileCount > 0 && (
+                <div className="space-y-1 bg-muted/20 p-2 border rounded-md">
+                  <p className="font-medium text-muted-foreground text-xs">
+                    ไฟล์ที่เลือกไว้
+                  </p>
+                  <ul className="space-y-1 max-h-24 overflow-y-auto text-muted-foreground text-xs">
+                    {previews.map((preview, index) => (
+                      <li
+                        key={`${preview.file.name}-${index}`}
+                        className="truncate"
+                      >
+                        {index + 1}. {preview.file.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </Field>
 
             {/* แสดง Preview พร้อมปุ่มกากบาทลบรูป */}
@@ -271,21 +307,16 @@ export default function UploadImageDialog({ appointmentId, petId }: Props) {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="upload-image-form"
                 className="px-6 py-5 text-sm cursor-pointer"
                 disabled={isUploading || previews.length === 0}
+                isLoading={isUploading}
+                loadingText="กำลังอัปโหลด..."
               >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />{" "}
-                    กำลังอัปโหลด...
-                  </>
-                ) : (
-                  "อัปโหลดและบันทึก"
-                )}
-              </Button>
+                อัปโหลดและบันทึก
+              </LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -146,7 +147,7 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
                     id={field.name}
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="รหัสผ่านใหม่"
+                    placeholder="ระบุรหัสผ่านใหม่อย่างน้อย 8 ตัวอักษร"
                     autoComplete="new-password"
                   />
                   {fieldState.invalid && (
@@ -184,9 +185,14 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
               )}
             />
 
-            <Button className="mt-2 w-full" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "กำลังรีเซ็ตรหัสผ่าน..." : "รีเซ็ตรหัสผ่าน"}
-            </Button>
+            <LoadingButton
+              className="mt-2 w-full"
+              type="submit"
+              isLoading={isSubmitting}
+              loadingText="กำลังรีเซ็ตรหัสผ่าน..."
+            >
+              รีเซ็ตรหัสผ่าน
+            </LoadingButton>
           </FieldGroup>
         </form>
       </section>

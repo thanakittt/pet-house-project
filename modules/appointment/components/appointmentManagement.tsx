@@ -34,32 +34,35 @@ export default function AppointmentManagement({
   }, [router]);
 
   return (
-    <main>
-      <div className="mx-auto w-full md:w-6xl">
+    <main className="w-full min-w-0">
+      <div className="mx-auto w-full min-w-0 max-w-6xl">
         {/* form card */}
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="mb-5 w-full"
+          className="mb-5 w-full min-w-0"
         >
-          <TabsList className="py-5 w-full md:w-1/2">
+          <TabsList width="half" size="lg" className="mb-4">
             <TabsTrigger
               value="new-appointment-requests"
-              className="gap-2"
+              className="gap-2 min-w-0"
             >
-              จองคิวใหม่
+              <span className="truncate">จองคิวใหม่</span>
               {newAppointmentCount > 0 && (
-                <Badge className="px-1.5 rounded-full min-w-5 h-5">
-                  {newAppointmentCount}
-                </Badge>
+                <Badge>{newAppointmentCount}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="appointment-schedule">ตารางนัดหมาย</TabsTrigger>
+            <TabsTrigger value="appointment-schedule" className="min-w-0">
+              <span className="truncate">ตารางนัดหมาย</span>
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="new-appointment-requests" className="pt-5">
+          <TabsContent
+            value="new-appointment-requests"
+            className="min-w-0"
+          >
             <NewAppointmentRequests appointments={newAppointmentRequests} />
           </TabsContent>
-          <TabsContent value="appointment-schedule">
+          <TabsContent value="appointment-schedule" className="min-w-0">
             <ScheduleCanvas
               initialDate={initialDate}
               appointments={appointments}

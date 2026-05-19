@@ -1,21 +1,17 @@
 "use client";
-
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import {
   Camera,
   ClipboardList,
   Info,
-  Loader2,
   AlertCircle,
   StickyNote, // เพิ่ม StickyNote
 } from "lucide-react";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { AppointmentStatusBadge } from "@/components/StatusBadge";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import HealthReportModal from "./CreateHealthReportDialog";
 import EditHealthReportDialog from "./EditHealthReportDialog";
 import { useRouter } from "next/navigation";
@@ -27,6 +23,8 @@ import Image from "next/image";
 import { useTransition } from "react";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
 import { toast } from "sonner";
+import { cn, formatThaiDate, formatThaiDateTime } from "@/lib/utils";
+import { getAppointmentStatusConfig } from "@/lib/constants/appointment-status";
 
 export type AppointmentStatus =
   | "PENDING_DEPOSIT"
@@ -133,12 +131,12 @@ export default function OperationDetailClient({
 
             {/* แสดงผล Medical Notes */}
             {operation.pet.medicalNotes && (
-              <div className="bg-amber-50 p-3 border border-amber-200 rounded-md">
-                <div className="flex items-center gap-2 mb-1 font-medium text-amber-800 text-sm">
+              <div className="bg-red-50 p-3 border border-red-200 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-red-800 text-sm">
                   <AlertCircle className="w-4 h-4" />
                   ข้อมูลสุขภาพ / ข้อควรระวัง
                 </div>
-                <p className="text-amber-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-red-700 text-sm leading-relaxed whitespace-pre-wrap">
                   {operation.pet.medicalNotes}
                 </p>
               </div>
@@ -154,12 +152,12 @@ export default function OperationDetailClient({
 
             {/* [NEW] แสดงผล Appointment Note (หมายเหตุการจอง) */}
             {operation.appointment.note && (
-              <div className="bg-blue-50 mt-2 p-3 border border-blue-200 rounded-md">
-                <div className="flex items-center gap-2 mb-1 font-medium text-blue-800 text-sm">
+              <div className="bg-yellow-50 mt-2 p-3 border border-yellow-200 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-yellow-800 text-sm">
                   <StickyNote className="w-4 h-4" />
                   หมายเหตุการจอง
                 </div>
-                <p className="text-blue-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-yellow-700 text-sm leading-relaxed whitespace-pre-wrap">
                   {operation.appointment.note}
                 </p>
               </div>
@@ -180,11 +178,7 @@ export default function OperationDetailClient({
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">เวลานัดหมาย</span>
               <span className="font-medium text-sm">
-                {format(
-                  new Date(operation.startTime),
-                  "dd MMM yyyy, HH:mm น.",
-                  { locale: th },
-                )}
+                {formatThaiDateTime(operation.startTime)}
               </span>
             </div>
           </CardContent>
@@ -199,55 +193,52 @@ export default function OperationDetailClient({
             <Info className="w-5 h-5 text-muted-foreground" />
             <CardTitle>การจัดการสถานะ (บิลหลัก)</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <span className="font-medium text-muted-foreground">
                 สถานะปัจจุบัน:
               </span>
-              <AppointmentStatusBadge status={currentStatus} />
+              <AppointmentStatusBadge status={currentStatus} size="lg" />
             </div>
 
             <div className="flex flex-wrap gap-2 pt-4 border-t">
               {currentStatus === "CONFIRMED" && (
-                <Button
+                <LoadingButton
                   onClick={() => handleUpdateStatus("CHECKED_IN")}
-                  disabled={isPendingStatus}
-                  variant="outline"
-                  className="hover:bg-orange-50 border-orange-200 text-orange-700"
+                  isLoading={isPendingStatus}
+                  className={cn(
+                    getAppointmentStatusConfig("CHECKED_IN").colorClass,
+                    "hover:opacity-80",
+                  )}
                 >
-                  {isPendingStatus ? (
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  ) : null}
                   เช็คอิน (ถึงร้านแล้ว)
-                </Button>
+                </LoadingButton>
               )}
 
               {currentStatus === "CHECKED_IN" && (
-                <Button
+                <LoadingButton
                   onClick={() => handleUpdateStatus("IN_PROGRESS")}
-                  disabled={isPendingStatus}
-                  variant="outline"
-                  className="hover:bg-blue-50 border-blue-200 text-blue-700"
+                  isLoading={isPendingStatus}
+                  className={cn(
+                    getAppointmentStatusConfig("IN_PROGRESS").colorClass,
+                    "hover:opacity-80",
+                  )}
                 >
-                  {isPendingStatus ? (
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  ) : null}
                   เริ่มให้บริการ
-                </Button>
+                </LoadingButton>
               )}
 
               {currentStatus === "IN_PROGRESS" && (
-                <Button
+                <LoadingButton
                   onClick={() => handleUpdateStatus("READY_FOR_PICKUP")}
-                  disabled={isPendingStatus}
-                  variant="outline"
-                  className="hover:bg-teal-50 border-teal-200 text-teal-700"
+                  isLoading={isPendingStatus}
+                  className={cn(
+                    getAppointmentStatusConfig("READY_FOR_PICKUP").colorClass,
+                    "hover:opacity-80",
+                  )}
                 >
-                  {isPendingStatus ? (
-                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  ) : null}
                   รอรับกลับ
-                </Button>
+                </LoadingButton>
               )}
             </div>
           </CardContent>
@@ -265,7 +256,7 @@ export default function OperationDetailClient({
               petId={operation.petId}
             />
           </CardHeader>
-          <CardContent className="space-y-6 pt-6">
+          <CardContent className="space-y-6">
             {/* Before Images */}
             <div>
               <h3 className="mb-3 font-medium text-muted-foreground text-sm">
@@ -295,7 +286,7 @@ export default function OperationDetailClient({
                   ))}
                 </div>
               ) : (
-                <p className="bg-muted/20 p-4 border border-dashed rounded text-muted-foreground text-sm text-center">
+                <p className="bg-muted/20 p-4 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
                   ยังไม่มีรูปภาพ
                 </p>
               )}
@@ -330,7 +321,7 @@ export default function OperationDetailClient({
                   ))}
                 </div>
               ) : (
-                <p className="bg-muted/20 p-4 border border-dashed rounded text-muted-foreground text-sm text-center">
+                <p className="bg-muted/20 p-4 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
                   ยังไม่มีรูปภาพ
                 </p>
               )}
@@ -353,42 +344,44 @@ export default function OperationDetailClient({
               petId={operation.petId}
             />
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent>
             {healthReports.length > 0 ? (
               <div className="space-y-4">
                 {healthReports.map((report) => (
                   <div
                     key={report.id}
-                    className="group bg-gray-50/50 p-4 border rounded-lg"
+                    className="group p-4 border bg-muted/60 rounded-lg"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-900">
-                        {report.topic}
-                      </h4>
-                      <div className="flex items-center gap-1">
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col items-start gap-1">
+                        <h4 className="font-semibold text-primary">
+                          {report.topic}
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          {report.description}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
                         <span className="mr-2 text-muted-foreground text-xs">
-                          {format(new Date(report.createdAt), "dd MMM yyyy", {
-                            locale: th,
-                          })}
+                          {formatThaiDate(report.createdAt)}
                         </span>
+                        <div className="flex flex-row items-center gap-2">
+                          <EditHealthReportDialog
+                            report={report}
+                            appointmentId={operation.appointmentId}
+                            petId={operation.petId}
+                          />
 
-                        <EditHealthReportDialog
-                          report={report}
-                          appointmentId={operation.appointmentId}
-                          petId={operation.petId}
-                        />
-
-                        <DeleteHealthReportButton
-                          reportId={report.id}
-                          topic={report.topic}
-                          appointmentId={operation.appointmentId}
-                          petId={operation.petId}
-                        />
+                          <DeleteHealthReportButton
+                            reportId={report.id}
+                            topic={report.topic}
+                            appointmentId={operation.appointmentId}
+                            petId={operation.petId}
+                          />
+                        </div>
                       </div>
                     </div>
-                    <p className="text-gray-700 text-sm">
-                      {report.description}
-                    </p>
                   </div>
                 ))}
               </div>

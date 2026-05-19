@@ -16,8 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { formatThaiDateTime } from "@/lib/utils";
 import Image from "next/image";
 import { useState } from "react";
 import { deleteAnnouncement } from "../actions/delete-announcement";
@@ -33,14 +32,14 @@ import { CreateAnnouncementDialog } from "./CreateAnnouncementDialog";
 import { UpdateAnnouncementDialog } from "./UpdateAnnouncementDialog";
 
 const typeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   { value: "NEWS", label: ANNOUNCEMENT_TYPE_LABELS.NEWS },
   { value: "PROMOTION", label: ANNOUNCEMENT_TYPE_LABELS.PROMOTION },
   { value: "ALERT", label: ANNOUNCEMENT_TYPE_LABELS.ALERT },
 ];
 
 const statusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   { value: "ACTIVE", label: ANNOUNCEMENT_STATUS_LABELS.ACTIVE },
   { value: "SCHEDULED", label: ANNOUNCEMENT_STATUS_LABELS.SCHEDULED },
   { value: "EXPIRED", label: ANNOUNCEMENT_STATUS_LABELS.EXPIRED },
@@ -56,14 +55,6 @@ const statusBadgeVariant: Record<
   EXPIRED: "outline",
   INACTIVE: "destructive",
 };
-
-function formatThaiDateTime(date: Date | null): string {
-  if (!date) {
-    return "-";
-  }
-
-  return format(date, "d MMM yyyy HH:mm", { locale: th });
-}
 
 export function AnnouncementManagement({
   announcements,
@@ -105,6 +96,7 @@ export function AnnouncementManagement({
           },
         ]}
         createAction={<CreateAnnouncementDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -174,6 +166,7 @@ export function AnnouncementManagement({
                         <TableActionButton
                           aria-label="แก้ไขข้อมูล"
                           action="edit"
+                          desktopOnly
                           onClick={() => {
                             setSelectedAnnouncement(announcement);
                             setIsUpdateDialogOpen(true);
@@ -183,6 +176,7 @@ export function AnnouncementManagement({
                         <TableActionButton
                           aria-label="ลบข้อมูล"
                           action="delete"
+                          desktopOnly
                           onClick={() => {
                             setSelectedAnnouncement(announcement);
                             setIsDeleteDialogOpen(true);
@@ -227,6 +221,7 @@ export function AnnouncementManagement({
             onConfirm={() => deleteAnnouncement({ id: selectedAnnouncement.id })}
             successMessage="ลบประกาศเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบประกาศ"
+            mode="delete"
           />
         </>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -14,7 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { updateUser } from "@/modules/auth/actions/update-user";
 import { UserForm } from "@/modules/auth/types/create-user-form";
 import { AuthUserWithProfile } from "@/modules/auth/types/user";
@@ -71,34 +71,15 @@ export function UpdateUserDialog({
 
       const dataUpdate = {
         userId: user.id,
-        name: data.name === user.name ? undefined : data.name,
+        name: data.name,
         nickname: data.name,
-        email: data.email === user.email ? undefined : data.email,
-        phoneNumber:
-          data.phoneNumber === (user.phoneNumber ?? "")
-            ? undefined
-            : data.phoneNumber,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
         password: data.password === "" ? undefined : data.password,
-        gender: data.gender === (user.gender ?? "") ? undefined : data.gender,
-        birthDate:
-          data.birthDate === (user.birthDate ?? "")
-            ? undefined
-            : data.birthDate,
+        gender: data.gender,
+        birthDate: data.birthDate,
         role: data.role,
       };
-
-      if (
-        dataUpdate.name === undefined &&
-        dataUpdate.email === undefined &&
-        dataUpdate.phoneNumber === undefined &&
-        dataUpdate.password === undefined &&
-        dataUpdate.gender === undefined &&
-        dataUpdate.birthDate === undefined &&
-        dataUpdate.role === undefined
-      ) {
-        setServerError("กรุณาระบุข้อมูลที่ต้องการแก้ไข");
-        return;
-      }
 
       const result = await updateUser(dataUpdate);
 
@@ -144,22 +125,23 @@ export function UpdateUserDialog({
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
-          <UserFormFields control={form.control} roleOptions={roleOptions} />
+          <UserFormFields
+            control={form.control}
+            requireProfileFields
+            roleOptions={roleOptions}
+          />
 
           <DialogFooter>
             <div className="flex justify-end gap-2">
               <DialogClose asChild>
                 <Button variant="outline">ยกเลิก</Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form={`update-user-${user.id}`}
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

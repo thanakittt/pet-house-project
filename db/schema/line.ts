@@ -22,7 +22,29 @@ export const lineAppointmentStatusTemplates = p
   )
   .enableRLS();
 
+export const lineStaffAppointmentStatusTemplates = p
+  .pgTable(
+    "line_staff_appointment_status_templates",
+    {
+      id: p.uuid("id").defaultRandom().primaryKey(),
+      status: appointmentStatusEnum("status").notNull(),
+      messageTemplate: p.text("message_template").notNull(),
+      isActive: p.boolean("is_active").default(true).notNull(),
+      ...timestamps,
+    },
+    (table) => [
+      p
+        .uniqueIndex("line_staff_appointment_status_templates_status_unique")
+        .on(table.status),
+    ],
+  )
+  .enableRLS();
+
 export type LineAppointmentStatusTemplate =
   typeof lineAppointmentStatusTemplates.$inferSelect;
 export type LineAppointmentStatusTemplateMutation =
   typeof lineAppointmentStatusTemplates.$inferInsert;
+export type LineStaffAppointmentStatusTemplate =
+  typeof lineStaffAppointmentStatusTemplates.$inferSelect;
+export type LineStaffAppointmentStatusTemplateMutation =
+  typeof lineStaffAppointmentStatusTemplates.$inferInsert;

@@ -1,9 +1,15 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, XIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SearchIcon,
+  XIcon,
+} from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
 import {
   InputGroup,
   InputGroupAddon,
@@ -17,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export type ManagementFilterOption = {
   value: string;
@@ -33,6 +40,7 @@ type SelectFilter = {
 
 type ManagementListControlsProps = {
   createAction?: ReactNode;
+  createActionDesktopOnly?: boolean;
   pageParamName?: string;
   search?: {
     ariaLabel: string;
@@ -81,6 +89,7 @@ function useUrlParamUpdater() {
 
 export function ManagementListControls({
   createAction,
+  createActionDesktopOnly,
   pageParamName = "page",
   search,
   selectFilters = [],
@@ -92,48 +101,68 @@ export function ManagementListControls({
     selectFilters.some((filter) => filter.value !== "ALL");
 
   return (
-    <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      {search ? (
-        <ManagementSearchForm
-          key={search.value}
-          disabled={isPending}
-          hasFilters={hasFilters}
-          pageParamName={pageParamName}
-          search={search}
-          searchParamName={searchParamName}
-          selectFilters={selectFilters}
-          updateUrl={updateUrl}
-        />
-      ) : (
-        <div />
-      )}
+    <div className="mb-2 flex flex-col gap-2" aria-busy={isPending}>
+      <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center gap-3">
+        {/* ฝั่งซ้าย: [filter][search] */}
+        <div className="flex sm:flex-row flex-col flex-1 sm:items-center gap-3">
+          {/* 1. Filters */}
+          {selectFilters.length > 0 && (
+            <div className="flex sm:flex-row flex-col sm:items-center gap-2">
+              {selectFilters.map((filter) => (
+                <Select
+                  key={filter.name}
+                  value={filter.value}
+                  disabled={isPending}
+                  onValueChange={(value) =>
+                    updateUrl({ [filter.name]: value, [pageParamName]: null })
+                  }
+                >
+                  <SelectTrigger
+                    className="w-full sm:w-[160px]"
+                    aria-label={filter.ariaLabel}
+                  >
+                    <SelectValue placeholder={filter.placeholder} />
+                  </SelectTrigger>
+                  <SelectContent position="item-aligned">
+                    <SelectGroup>
+                      {filter.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              ))}
+            </div>
+          )}
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:justify-end">
-        {selectFilters.map((filter) => (
-          <Select
-            key={filter.name}
-            value={filter.value}
-            onValueChange={(value) =>
-              updateUrl({ [filter.name]: value, [pageParamName]: null })
-            }
+          {/* 2. Search */}
+          {search && (
+            <ManagementSearchForm
+              key={search.value}
+              disabled={isPending}
+              hasFilters={hasFilters}
+              pageParamName={pageParamName}
+              search={search}
+              searchParamName={searchParamName}
+              selectFilters={selectFilters}
+              updateUrl={updateUrl}
+            />
+          )}
+        </div>
+
+        {/* ฝั่งขวา: [createAction] */}
+        {createAction && (
+          <div
+            className={`justify-end items-center shrink-0 ${createActionDesktopOnly ? DESKTOP_ONLY_CONTAINER_CLASS : "flex"
+              }`}
           >
-            <SelectTrigger className="w-full sm:w-[160px]" aria-label={filter.ariaLabel}>
-              <SelectValue placeholder={filter.placeholder} />
-            </SelectTrigger>
-            <SelectContent position="item-aligned">
-              <SelectGroup>
-                {filter.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        ))}
-
-        {createAction}
+            {createAction}
+          </div>
+        )}
       </div>
+      <PendingIndicator isPending={isPending} />
     </div>
   );
 }
@@ -166,11 +195,11 @@ function ManagementSearchForm({
           [pageParamName]: null,
         });
       }}
-      className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-2xl"
+      className="flex sm:flex-row flex-col gap-2 w-full lg:max-w-2xl"
     >
       <InputGroup className="sm:flex-1">
         <InputGroupAddon>
-          <SearchIcon />
+          <SearchIcon className="opacity-50 size-4" />
         </InputGroupAddon>
         <InputGroupInput
           value={searchValue}
@@ -181,14 +210,19 @@ function ManagementSearchForm({
       </InputGroup>
 
       <div className="flex gap-2">
-        <Button type="submit" variant="outline" disabled={disabled}>
+        <Button
+          type="submit"
+          variant="outline"
+          size="default"
+          disabled={disabled}>
           ค้นหา
         </Button>
 
         {hasFilters && (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
+            size="default"
             disabled={disabled}
             onClick={() => {
               setSearchValue("");
@@ -202,8 +236,8 @@ function ManagementSearchForm({
             }}
             aria-label="ล้างตัวกรอง"
           >
-            <XIcon data-icon="inline-start" />
-            ล้าง
+            <XIcon data-icon="inline-start" className="size-4" />
+            ล้างตัวกรอง
           </Button>
         )}
       </div>
@@ -225,38 +259,52 @@ export function ManagementPagination({
   const hasNextPage = totalPages > 0 && page < totalPages;
 
   return (
-    <div className="mt-4 flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-      <p>
-        แสดง {resultStart}-{resultEnd} จาก {total} รายการ
-      </p>
+    <div className="mt-4 flex flex-col gap-2" aria-busy={isPending}>
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 text-muted-foreground text-sm">
+        <p>
+          แสดง {resultStart}-{resultEnd} จาก {total} รายการ
+        </p>
 
-      <div className="flex items-center justify-between gap-3 sm:justify-end">
-        <span>
-          หน้า {totalPages === 0 ? 0 : page} จาก {totalPages}
-        </span>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!hasPreviousPage || isPending}
-            onClick={() => updateUrl({ [pageParamName]: String(page - 1) })}
-          >
-            <ChevronLeftIcon data-icon="inline-start" />
-            ก่อนหน้า
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!hasNextPage || isPending}
-            onClick={() => updateUrl({ [pageParamName]: String(page + 1) })}
-          >
-            ถัดไป
-            <ChevronRightIcon data-icon="inline-end" />
-          </Button>
+        <div className="flex justify-between sm:justify-end items-center gap-3">
+          <span>
+            หน้า {totalPages === 0 ? 0 : page} จาก {totalPages}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!hasPreviousPage || isPending}
+              onClick={() => updateUrl({ [pageParamName]: String(page - 1) })}
+            >
+              <ChevronLeftIcon
+                data-icon="inline-start"
+                className="mr-1 w-4 h-4"
+              />
+              ก่อนหน้า
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!hasNextPage || isPending}
+              onClick={() => updateUrl({ [pageParamName]: String(page + 1) })}
+            >
+              ถัดไป
+              <ChevronRightIcon data-icon="inline-end" className="ml-1 w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
+      <PendingIndicator isPending={isPending} />
+    </div>
+  );
+}
+
+function PendingIndicator({ isPending }: { isPending: boolean }) {
+  return (
+    <div className="h-1 w-full" aria-hidden="true">
+      {isPending ? <Skeleton className="h-1 w-full rounded-full" /> : null}
     </div>
   );
 }

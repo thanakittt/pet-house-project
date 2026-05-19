@@ -1,5 +1,7 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { cn } from "@/lib/utils";
@@ -56,12 +58,12 @@ export default function AppointmentStepper({
     const currentBooking =
       formData.petId && formData.mainServiceId
         ? [
-            {
-              petId: formData.petId,
-              mainServiceId: formData.mainServiceId,
-              addOnServiceIds: formData.addOnServiceIds,
-            },
-          ]
+          {
+            petId: formData.petId,
+            mainServiceId: formData.mainServiceId,
+            addOnServiceIds: formData.addOnServiceIds,
+          },
+        ]
         : [];
 
     return [...bookings, ...currentBooking];
@@ -171,26 +173,26 @@ export default function AppointmentStepper({
 
   const renderStepperHeader = () => {
     const stepNames = [
-      "เลือกสัตว์เลี้ยง",
+      "สัตว์เลี้ยง",
       "บริการหลัก",
       "บริการเสริม",
-      "สรุปรายการ",
-      "นัดหมายวันเวลา",
+      "สรุป",
+      "วันเวลา",
     ];
 
     return (
-      <div className="relative mx-auto mb-12 flex max-w-4xl items-start justify-between">
+      <div className="relative mx-auto mb-10 flex max-w-4xl items-start justify-between">
         <div className="absolute left-0 top-6 -z-10 h-1 w-full bg-slate-100" />
         {[1, 2, 3, 4, 5].map((item) => (
           <div key={item} className="flex w-full flex-col items-center gap-3">
             <div
               className={cn(
-                "flex size-12 items-center justify-center rounded-full border-4 font-bold transition-all",
+                "flex size-10 md:size-12 items-center justify-center rounded-full border-4 font-bold transition-all",
                 step === item
-                  ? "border-white bg-primary text-white ring-2 ring-primary"
+                  ? "border-white bg-primary text-white ring-2 text-xs md:text-base ring-primary"
                   : step > item
-                    ? "border-white bg-primary text-white ring-2 ring-green-400/60"
-                    : "border-white bg-muted text-primary/40",
+                    ? "border-white bg-primary text-white ring-2 text-xs md:text-base ring-green-400/60"
+                    : "border-white bg-muted text-xs md:text-base text-primary/40",
               )}
             >
               {item}
@@ -232,7 +234,10 @@ export default function AppointmentStepper({
         {verifiedSlipTransRef ? (
           // verify ผ่านแล้ว appointment ถูกเปลี่ยนเป็น CONFIRMED ฝั่ง server
           <div className="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
-            <p className="font-semibold">สถานะปัจจุบัน: ยืนยันคิวแล้ว</p>
+            <div className="flex flex-wrap items-center gap-2 font-semibold">
+              <span>สถานะปัจจุบัน:</span>
+              <AppointmentStatusBadge status="CONFIRMED" />
+            </div>
             <p className="mt-1">
               ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT} บาทเรียบร้อยแล้ว
             </p>
@@ -254,7 +259,7 @@ export default function AppointmentStepper({
 
   return (
     <div className="mx-auto my-4 h-auto w-full max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h1 className="mb-10 text-2xl font-bold text-slate-900">
+      <h1 className="mb-8 text-pretty text-xl font-bold md:text-2xl">
         จองคิวรับบริการ
       </h1>
 
@@ -306,7 +311,7 @@ export default function AppointmentStepper({
       </div>
 
       {step === 5 ? (
-        <div className="mx-auto mt-6 max-w-4xl">
+        <div className="mx-auto mt-6 max-w-4xl md:px-6">
           <label
             htmlFor="appointment-note"
             className="mb-2 block text-sm font-medium text-primary"
@@ -336,15 +341,16 @@ export default function AppointmentStepper({
           {step > 1 && "ย้อนกลับ"}
         </Button>
 
-        <Button
+        <LoadingButton
           onClick={nextStep}
           disabled={
-            isPending ||
             (step === 1 && (!formData.petId || pets.length === 0)) ||
             (step === 2 && !formData.mainServiceId) ||
             (step === 4 && allBookings.length === 0) ||
             (step === 5 && !formData.startTimeIso)
           }
+          isLoading={isPending}
+          loadingText="กำลังบันทึก..."
           className={cn(
             "px-8 shadow-none transition-colors",
             step === totalSteps
@@ -352,12 +358,8 @@ export default function AppointmentStepper({
               : "bg-primary hover:bg-primary/80",
           )}
         >
-          {isPending
-            ? "กำลังบันทึก..."
-            : step === totalSteps
-              ? "ยืนยันการจอง"
-              : "ถัดไป"}
-        </Button>
+          {step === totalSteps ? "ยืนยันการจอง" : "ถัดไป"}
+        </LoadingButton>
       </div>
     </div>
   );

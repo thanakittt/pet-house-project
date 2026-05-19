@@ -28,9 +28,12 @@ import {
   Info,
   User,
   Phone,
+  ClipboardList,
+  Receipt,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatPhoneNumber } from "@/lib/utils";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -259,16 +262,16 @@ export function POSCheckoutForm({
     <>
       <div className="gap-6 grid grid-cols-1 lg:grid-cols-12">
         {/* --- ฝั่งซ้าย --- */}
-        <div className="space-y-6 lg:col-span-8">
+        <div className=" space-y-6 lg:col-span-8">
           {/* Customer Info Card */}
           <Card className="shadow-sm border-muted/60">
-            <CardContent className="flex sm:flex-row flex-col justify-between sm:items-center gap-4 p-4 sm:p-6">
+            <CardContent className="flex flex-row justify-between sm:items-center gap-4 p-4 ">
               <div className="flex items-center gap-3">
-                <div className="flex justify-center items-center bg-muted rounded-full w-10 h-10 text-muted-foreground">
+                <div className="flex justify-center items-center bg-sky-50 rounded-full w-10 h-10 text-sky-500">
                   <User size={20} />
                 </div>
                 <div>
-                  <p className="mb-0.5 font-bold text-[11px] text-muted-foreground uppercase tracking-wider">
+                  <p className="mb-2 font-semibold text-[12px] text-muted-foreground">
                     ลูกค้า
                   </p>
                   <p className="font-bold text-lg leading-none">
@@ -277,10 +280,10 @@ export function POSCheckoutForm({
                 </div>
               </div>
               {appointment.customer.walkInPhoneNumber && (
-                <div className="flex items-center gap-2 sm:pl-6 sm:border-l text-muted-foreground">
+                <div className="flex items-center gap-2 pl-3 pr-3 border-l text-muted-foreground">
                   <Phone size={16} />
                   <span className="font-medium">
-                    {appointment.customer.walkInPhoneNumber}
+                    {formatPhoneNumber(appointment.customer.walkInPhoneNumber)}
                   </span>
                 </div>
               )}
@@ -289,55 +292,55 @@ export function POSCheckoutForm({
 
           {/* Service Items Card */}
           <Card className="gap-0 shadow-sm border-muted/60">
-            <CardHeader className="bg-muted/20 pb-4 border-b">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Info size={18} className="text-primary" /> รายการบริการทั้งหมด
+            <CardHeader className="bg-muted/20 border-b">
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <ClipboardList size={18} className="text-primary " /> รายการบริการทั้งหมด
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-border/50">
                 {groupedItems.length === 0 ? (
-                  <div className="p-6 text-muted-foreground text-sm text-center">
+                  <div className="p-6 text-muted-foreground text-base text-center">
                     ไม่มีรายการบริการ
                   </div>
                 ) : (
                   groupedItems.map(([petId, group]) => (
                     <div key={petId} className="flex flex-col">
-                      <div className="bg-muted/30 px-4 sm:px-6 py-2 border-border/50 border-b font-bold text-foreground text-sm">
+                      <div className="px-4 pt-2 font-bold text-foreground text-base border-t border-slate-100 ">
                         น้อง: {group.petName}
                       </div>
-                      <div className="divide-y divide-border/50">
+                      <div>
                         {group.items.map((item) => (
                           <div
                             key={item.id}
-                            className="group flex sm:flex-row flex-col justify-between sm:items-center gap-4 hover:bg-muted/10 p-4 sm:p-6 transition-colors"
+                            className="group flex flex-row gap-4 hover:bg-muted/10 p-3 pl-6"
                           >
-                            <div className="flex-1 sm:pl-4">
-                              <p className="flex items-center font-medium text-base">
+                            <div className="flex w-full justify-between items-center ">
+                              <p className="flex items-center font-medium text-sm md:text-base w-full">
                                 {item.serviceVariant.service.name}
                                 {item.serviceVariant.service.serviceType ===
                                   "MAIN" && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="bg-primary/10 hover:bg-primary/20 ml-2 text-[10px] text-primary"
-                                  >
-                                    บริการหลัก
-                                  </Badge>
-                                )}
+                                    <Badge
+                                      variant="secondary"
+                                      className="border-teal-200 bg-teal-50 text-teal-700 ml-2 dark:border-teal-900/50 dark:bg-teal-900/30 dark:text-teal-300"
+                                    >
+                                      บริการหลัก
+                                    </Badge>
+                                  )}
                                 <Badge
                                   variant="outline"
-                                  className="ml-2 text-[10px]"
+                                  className="ml-2 text-xs border-slate-300 bg-slate-50 text-slate-700"
                                 >
                                   {
                                     PET_SIZE_LABELS[
-                                      item.serviceVariant
-                                        .size as keyof typeof PET_SIZE_LABELS
+                                    item.serviceVariant
+                                      .size as keyof typeof PET_SIZE_LABELS
                                     ]
                                   }
                                 </Badge>
                               </p>
                             </div>
-                            <div className="flex justify-between sm:justify-end items-center gap-4 w-full sm:w-auto">
+                            <div className="flex justify-end items-center gap-4 w-auto">
                               {editingItemId === item.id ? (
                                 <div className="flex items-center gap-2">
                                   <Input
@@ -357,7 +360,7 @@ export function POSCheckoutForm({
                                     className="border-primary w-28 font-bold text-right"
                                   />
                                   <Button
-                                    size="sm"
+                                    size="lg"
                                     onClick={() => handleSavePrice(item.id)}
                                   >
                                     บันทึก
@@ -368,11 +371,11 @@ export function POSCheckoutForm({
                                   <span className="min-w-[80px] font-bold text-lg text-right">
                                     ฿{Number(item.price).toLocaleString()}
                                   </span>
-                                  <div className="flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="hidden lg:flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="hover:bg-primary/10 w-8 h-8 text-muted-foreground hover:text-primary"
+                                      className="hover:bg-blue-100 w-8 h-8 text-muted-foreground hover:text-blue-600"
                                       onClick={() => {
                                         setEditingItemId(item.id);
                                         setTempPrice(
@@ -407,7 +410,7 @@ export function POSCheckoutForm({
               </div>
 
               {/* Add Item Section */}
-              <div className="bg-muted/5 p-4 sm:p-6 border-t">
+              <div className="hidden lg:block bg-muted/5 p-6 border-t">
                 {!isAddingItem ? (
                   <Button
                     variant="outline"
@@ -426,7 +429,7 @@ export function POSCheckoutForm({
                     >
                       <X size={14} />
                     </Button>
-                    <p className="mb-4 font-bold text-primary text-sm">
+                    <p className="mb-4 font-bold text-primary text-base">
                       เพิ่มรายการบริการใหม่
                     </p>
 
@@ -476,7 +479,7 @@ export function POSCheckoutForm({
                       </Select>
 
                       <div className="hidden">
-                        <Select value="" onValueChange={() => {}} disabled>
+                        <Select value="" onValueChange={() => { }} disabled>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="ขนาด/รูปแบบ" />
                           </SelectTrigger>
@@ -485,7 +488,7 @@ export function POSCheckoutForm({
                               <SelectItem key={v.id} value={v.id}>
                                 {
                                   PET_SIZE_LABELS[
-                                    v.size as keyof typeof PET_SIZE_LABELS
+                                  v.size as keyof typeof PET_SIZE_LABELS
                                   ]
                                 }{" "}
                                 (฿{Number(v.minPrice).toLocaleString()})
@@ -497,6 +500,7 @@ export function POSCheckoutForm({
 
                       <div className="flex gap-2 w-full">
                         <Input
+                          disabled={!newServiceId}
                           type="number"
                           placeholder="ราคา"
                           value={newPrice}
@@ -523,12 +527,15 @@ export function POSCheckoutForm({
         {/* --- ฝั่งขวา: สรุปยอด & ชำระเงิน --- */}
         <div className="lg:col-span-4">
           <Card className="top-6 sticky shadow-lg border-primary/10">
-            <CardHeader className="bg-muted/30 pb-4 border-b">
-              <CardTitle className="text-lg">สรุปการสั่งซื้อ</CardTitle>
+            <CardHeader className="bg-muted/30 border-b">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <Receipt className="text-primary" size={18} />
+                สรุปการสั่งซื้อ
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6 pt-6">
+            <CardContent className="space-y-4">
               {/* [NEW] UI แสดงยอดรวมแบบแยกบรรทัด */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex justify-between text-muted-foreground text-sm">
                   <span>จำนวนรายการทั้งหมด</span>
                   <span className="font-bold text-foreground">
@@ -555,7 +562,7 @@ export function POSCheckoutForm({
 
                 <Separator className="my-4" />
 
-                <div className="flex justify-between items-end">
+                <div className="flex justify-between items-center">
                   <span className="font-bold text-base uppercase">
                     ยอดชำระสุทธิ
                   </span>
@@ -565,8 +572,8 @@ export function POSCheckoutForm({
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4">
-                <p className="font-bold text-muted-foreground text-xs uppercase">
+              <div className="hidden lg:block space-y-3 border-t pt-4">
+                <p className="font-semibold text-foreground text-sm">
                   วิธีชำระเงิน
                 </p>
                 <div className="gap-3 grid grid-cols-2">
@@ -576,8 +583,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "CASH"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md ring-2 ring-emerald-500 ring-offset-1"
-                        : "border-muted text-muted-foreground hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-600",
+                        ? "border-emerald-500 bg-emerald-50 text-emerald-600 shadow-md ring-emerald-400"
+                        : "border-muted text-muted-foreground hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-500",
                     )}
                     onClick={() => setPaymentMethod("CASH")}
                   >
@@ -591,8 +598,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "TRANSFER"
-                        ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md ring-2 ring-indigo-500 ring-offset-1"
-                        : "border-muted text-muted-foreground hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-600",
+                        ? "border-blue-500 bg-blue-50 text-blue-600 shadow-md ring-blue-400"
+                        : "border-muted text-muted-foreground hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-600",
                     )}
                     onClick={() => setPaymentMethod("TRANSFER")}
                   >
@@ -609,26 +616,22 @@ export function POSCheckoutForm({
               )}
             </CardContent>
 
-            <CardFooter className="bg-muted/10 mt-4 px-6 pt-2 pb-6 border-t">
-              <Button
+            <CardFooter className="hidden lg:block">
+              <LoadingButton
                 size="lg"
                 onClick={() => setIsConfirmDialogOpen(true)}
                 disabled={isPending || appointment.items.length === 0}
+                isLoading={isPending}
+                loadingText="กำลังบันทึก..."
                 className={cn(
-                  "shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
+                  "max-lg:hidden shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
                   paymentMethod === "CASH"
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white",
+                    : "bg-blue-500 hover:bg-blue-600 text-white",
                 )}
               >
-                {isPending ? (
-                  "กำลังบันทึก..."
-                ) : (
-                  <>
-                    <CheckCircle2 size={24} className="mr-2" /> ยืนยันชำระเงิน
-                  </>
-                )}
-              </Button>
+                ยืนยันชำระเงิน
+              </LoadingButton>
             </CardFooter>
           </Card>
         </div>
@@ -647,6 +650,7 @@ export function POSCheckoutForm({
         }}
         successMessage="ลบข้อมูลเรียบร้อย"
         errorMessage="เกิดข้อผิดพลาดในการดำเนินการ"
+        mode="delete"
       />
 
       <ConfirmDialog

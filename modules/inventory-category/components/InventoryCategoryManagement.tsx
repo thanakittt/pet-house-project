@@ -43,6 +43,7 @@ export function InventoryCategoryManagement({
           value: q,
         }}
         createAction={<CreateInventoryCategoryDialog />}
+        createActionDesktopOnly
       />
 
       <div className="overflow-x-auto rounded-md border">
@@ -63,6 +64,7 @@ export function InventoryCategoryManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedInventoryCategory(category);
                           setIsUpdateDialogOpen(true);
@@ -72,6 +74,7 @@ export function InventoryCategoryManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedInventoryCategory(category);
                           setIsDeleteDialogOpen(true);
@@ -117,6 +120,7 @@ export function InventoryCategoryManagement({
             }
             successMessage="ลบข้อมูลหมวดหมู่สินค้าเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลหมวดหมู่สินค้า"
+            mode="delete"
           />
         </>
       )}

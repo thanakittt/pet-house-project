@@ -10,6 +10,8 @@ import {
   TableActionLink,
 } from "@/components/shared/TableActionButton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CustomerChannelBadge } from "@/components/shared/CustomerChannelBadge";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -26,7 +28,7 @@ import { Customer } from "../types/customer";
 import { UpdateCustomerDialog } from "./UpdateCustomerDialog";
 
 const channelOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกช่องทาง" },
   { value: "ONLINE", label: "Online" },
   { value: "WALK_IN", label: "Walk-in" },
 ];
@@ -64,6 +66,7 @@ export default function CustomerManagement({
           },
         ]}
         createAction={<CreateCustomerDialog />}
+        createActionDesktopOnly
       />
 
       <div className="border rounded-md overflow-x-auto">
@@ -84,15 +87,17 @@ export default function CustomerManagement({
                 <TableRow key={customer.id}>
                   <TableCell>{customer.userName ?? customer.nickname}</TableCell>
                   <TableCell>
-                    {customer.userId === null ? "Walk-in" : "Online"}
+                    <CustomerChannelBadge
+                      channel={customer.userId === null ? "WALK_IN" : "ONLINE"}
+                    />
                   </TableCell>
                   <TableCell>
-                    {customer.userPhoneNumber ??
-                      customer.walkInPhoneNumber ??
-                      "-"}
+                    {formatPhoneNumber(
+                      customer.userPhoneNumber ?? customer.walkInPhoneNumber,
+                    )}
                   </TableCell>
                   <TableCell>
-                    {new Date(customer.createdAt).toLocaleDateString("th-TH")}
+                    {formatThaiDate(customer.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -105,6 +110,7 @@ export default function CustomerManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedCustomer(customer);
                           setIsUpdateDialogOpen(true);
@@ -114,6 +120,7 @@ export default function CustomerManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedCustomer(customer);
                           setIsDeleteDialogOpen(true);
@@ -151,6 +158,7 @@ export default function CustomerManagement({
             onConfirm={() => deleteCustomer(selectedCustomer.id)}
             successMessage="ลบข้อมูลลูกค้าเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า"
+            mode="delete"
           />
 
           <UpdateCustomerDialog

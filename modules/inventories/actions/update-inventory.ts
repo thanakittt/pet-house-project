@@ -40,10 +40,24 @@ export async function updateInventory(
       };
     }
 
-    const validationError = validateInventoryNumbers(
-      data.quantity,
-      data.reorderLevel,
-    );
+    if (data.quantity === "") {
+      return {
+        success: false,
+        error: "กรุณาระบุจำนวนสินค้า",
+      };
+    }
+
+    if (data.reorderLevel === "") {
+      return {
+        success: false,
+        error: "กรุณาระบุจุดสั่งซื้อ",
+      };
+    }
+
+    const quantity = data.quantity;
+    const reorderLevel = data.reorderLevel;
+
+    const validationError = validateInventoryNumbers(quantity, reorderLevel);
     if (validationError) {
       return validationError;
     }
@@ -77,9 +91,9 @@ export async function updateInventory(
         .update(inventoryItems)
         .set({
           name: trimmedName,
-          quantity: data.quantity,
+          quantity,
           unit: data.unit,
-          reorderLevel: data.reorderLevel,
+          reorderLevel,
           inventoryCategoryId: data.inventoryCategoryId,
         })
         .where(and(eq(inventoryItems.id, id), isNull(inventoryItems.deletedAt)))

@@ -33,7 +33,7 @@ export default async function OperationDetailPage({ params }: PageProps) {
     <>
       <SiteHeader title="รายละเอียดคิวงาน" />
       <BackOfficeContainer>
-        <BackButton className="mb-4" />
+        <BackButton className="mb-4" href="/back-office/operations" />
         {/* โยนข้อมูลที่ Merge แล้วไปยัง Client Component */}
         <OperationDetailClient initialData={result.data} />
       </BackOfficeContainer>

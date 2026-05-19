@@ -11,21 +11,26 @@ import {
   parseISO,
   isSameDay,
 } from "date-fns";
-import { th } from "date-fns/locale";
 import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
   Clock,
-  Loader2,
-  StickyNote, // เพิ่ม Icon สำหรับโน้ต
+  StickyNote,
+  PlusIcon, // เพิ่ม Icon สำหรับโน้ต
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { ScheduleRecord } from "@/modules/appointment/types/schedule";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { toast } from "sonner";
 import { updateAppointmentStatus } from "@/modules/appointment/actions/update-appointment";
-import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
+import {
+  getAppointmentStatusConfig,
+  STATUS_CONFIG,
+} from "@/lib/constants/appointment-status";
+import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
+import { formatThaiDate } from "@/lib/utils";
 
 const START_HOUR = 9;
 const END_HOUR = 18;
@@ -86,11 +91,7 @@ const InteractiveStatusSelect = ({
     });
   };
 
-  const currentConfig = STATUS_CONFIG[optimisticStatus] ||
-    STATUS_CONFIG[currentStatus] || {
-      label: optimisticStatus,
-      colorClass: "bg-slate-100 text-slate-800 border-slate-200",
-    };
+  const currentConfig = getAppointmentStatusConfig(optimisticStatus);
 
   return (
     <div
@@ -104,7 +105,7 @@ const InteractiveStatusSelect = ({
         value={optimisticStatus}
         onChange={handleStatusChange}
         disabled={isPending}
-        className={`appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${currentConfig.colorClass} ${isPending ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
+        className={`max-w-full appearance-none outline-none cursor-pointer pl-3 pr-8 py-1.5 text-sm font-bold rounded-full border transition-colors ${currentConfig.colorClass} ${isPending ? "opacity-50 cursor-not-allowed" : "hover:brightness-95"}`}
       >
         <optgroup label="ช่วงการจอง" className="bg-background text-foreground">
           <option value="PENDING_DEPOSIT">
@@ -140,7 +141,7 @@ const InteractiveStatusSelect = ({
 
       <div className="top-1/2 right-3 absolute flex items-center -translate-y-1/2 pointer-events-none">
         {isPending ? (
-          <Loader2 size={14} className="opacity-70 text-current animate-spin" />
+          <Spinner className="opacity-70 text-current" />
         ) : (
           <svg
             width="12"
@@ -167,6 +168,72 @@ const InteractiveStatusSelect = ({
 interface ScheduleCanvasProps {
   initialDate: string;
   appointments: ScheduleRecord[];
+}
+
+function MobileScheduleList({
+  appointments,
+}: {
+  appointments: ScheduleRecord[];
+}) {
+  if (appointments.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center bg-muted/50 p-8 border border-dashed rounded-lg text-muted-foreground/50 text-center">
+        <Clock size={30} className="mb-3" />
+        <p className="font-medium text-base">ไม่มีคิวนัดหมายในวันนี้</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {appointments.map((appt) => (
+        <Link
+          key={`${appt.id}-${appt.petId}`}
+          href={`/back-office/appointments/${appt.id}`}
+          className="group block bg-white shadow-sm hover:shadow-md p-4 border border-l-4 border-l-primary rounded-lg min-w-0 transition-shadow"
+        >
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex flex-col gap-2 min-w-0">
+              <div className="flex flex-wrap justify-between items-start gap-2 min-w-0">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 min-w-0 font-bold text-primary text-base leading-tight">
+                    <span className="min-w-0 break-words">{appt.petName}</span>
+                    <span className="font-normal text-muted-foreground break-words">
+                      ({appt.customerName})
+                    </span>
+                    {appt.note && (
+                      <StickyNote
+                        size={14}
+                        className="text-amber-500 shrink-0"
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <AppointmentStatusBadge status={appt.status} />
+              </div>
+
+              <p className="flex items-center gap-1.5 font-medium text-muted-foreground text-sm break-words">
+                <Clock size={14} className="shrink-0" />
+                {format(parseISO(appt.startTimeIso), "HH:mm")} -{" "}
+                {format(parseISO(appt.endTimeIso), "HH:mm")}
+              </p>
+            </div>
+
+            <p className="font-medium text-muted-foreground text-sm break-words">
+              {appt.serviceNames || "-"}
+            </p>
+          </div>
+        </Link>
+      ))}
+      <div className="hidden">
+        <InteractiveStatusSelect
+          appointmentId={appointments[0].id}
+          currentStatus={appointments[0].status}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function ScheduleCanvas({
@@ -230,17 +297,17 @@ export default function ScheduleCanvas({
   };
 
   return (
-    <div className="flex flex-col bg-white shadow-sm mx-auto border border-slate-200 rounded-2xl w-full max-w-6xl h-[800px] overflow-hidden">
+    <div className="flex flex-col bg-white shadow-sm mx-auto border rounded-2xl w-full min-w-0 max-w-6xl overflow-hidden">
       {/* Calendar Header */}
-      <div className="z-20 flex sm:flex-row flex-col justify-between items-center gap-4 bg-white px-6 py-5 border-slate-200 border-b shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block bg-primary/10 p-2 rounded-lg text-primary">
-              <CalendarIcon size={24} />
+      <div className="z-20 flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-white px-4 sm:px-6 py-5 border-b shrink-0">
+        <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:gap-6 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="hidden sm:block bg-amber-50 p-3 rounded-lg text-amber-600">
+              <CalendarIcon size={20} />
             </div>
-            <div>
-              <h2 className="font-bold text-slate-800 text-xl leading-none">
-                {format(currentDate, "d MMMM yyyy", { locale: th })}
+            <div className="min-w-0">
+              <h2 className="font-bold text-xl wrap-break-word leading-tight">
+                {formatThaiDate(currentDate)}
               </h2>
               {isToday && (
                 <p className="mt-1 font-medium text-primary text-sm">วันนี้</p>
@@ -248,7 +315,7 @@ export default function ScheduleCanvas({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ButtonGroup>
               <Button variant="outline" onClick={handlePrevDay}>
                 <ChevronLeft size={18} />
@@ -262,7 +329,7 @@ export default function ScheduleCanvas({
               <Button
                 variant="outline"
                 size="sm"
-                className="hidden sm:flex h-9"
+                className="h-9"
                 onClick={handleToday}
               >
                 กลับไปวันนี้
@@ -271,25 +338,32 @@ export default function ScheduleCanvas({
           </div>
         </div>
 
-        <Button variant="default" className="shadow-sm" asChild>
-          <Link href="/back-office/appointments/create">เพิ่มนัดหมาย</Link>
+        <Button className="max-lg:hidden shadow-sm w-full sm:w-auto" asChild>
+          <Link href="/back-office/appointments/create">
+            <PlusIcon className="size-4" />
+            เพิ่มนัดหมาย
+          </Link>
         </Button>
+      </div>
+
+      <div className="md:hidden bg-muted/40 p-4">
+        <MobileScheduleList appointments={appointments} />
       </div>
 
       {/* Schedule Canvas */}
       <div
         ref={scrollContainerRef}
-        className="relative flex flex-1 bg-slate-50/50 overflow-y-auto scroll-smooth"
+        className="hidden relative md:flex flex-1 bg-white h-[720px] overflow-y-auto scroll-smooth"
       >
         {/* แกนเวลา (Y-Axis) */}
-        <div className="left-0 z-20 sticky flex-shrink-0 bg-white shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-slate-200 border-r w-20">
+        <div className="left-0 z-20 sticky flex-shrink-0 bg-white shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-muted-foreground/30 border-r w-20">
           {hoursGrid.map((hour) => (
             <div
               key={hour}
               className="relative flex justify-center items-start"
               style={{ height: `${ROW_HEIGHT_PX}px` }}
             >
-              <span className="-top-2.5 absolute bg-white px-2 font-medium text-slate-400 text-sm">
+              <span className="-top-2.5 absolute bg-white px-2 font-medium text-muted-foreground text-sm">
                 {hour.toString().padStart(2, "0")}:00
               </span>
             </div>
@@ -301,7 +375,7 @@ export default function ScheduleCanvas({
           {hoursGrid.map((hour) => (
             <div
               key={hour}
-              className="absolute border-slate-200/60 border-t w-full"
+              className="absolute border-muted-foreground/30 border-t w-full"
               style={{
                 top: `${(hour - START_HOUR) * ROW_HEIGHT_PX + CANVAS_PADDING_TOP}px`,
               }}
@@ -321,8 +395,8 @@ export default function ScheduleCanvas({
           )}
 
           {appointments.length === 0 && (
-            <div className="absolute inset-0 flex flex-col justify-center items-center opacity-60 text-slate-400 pointer-events-none">
-              <Clock size={48} className="mb-4 text-slate-300" />
+            <div className="absolute inset-0 flex flex-col justify-center items-center opacity-60 text-muted-foreground/50 pointer-events-none">
+              <Clock size={48} className="mb-4" />
               <p className="font-medium text-lg">ไม่มีคิวนัดหมายในวันนี้</p>
             </div>
           )}
@@ -343,30 +417,29 @@ export default function ScheduleCanvas({
                   height,
                 }}
               >
-                <div className="relative flex flex-col bg-white shadow-sm hover:shadow-lg p-3 border-slate-200 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
+                <div className="relative flex flex-col bg-white shadow-sm hover:shadow-lg p-4 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
                   <div className="flex justify-between items-start gap-2 mb-1.5">
                     <div className="flex items-center gap-1 font-bold text-primary text-base truncate leading-tight">
                       {appt.petName}{" "}
-                      <span className="font-normal text-slate-500 text-base">
-                        ({appt.customerName})
+                      <span className="font-normal text-muted-foreground text-base">
+                        (คุณ {appt.customerName})
                       </span>
                       {/* [NEW] แสดงไอคอนโน้ตหากมีการบันทึกหมายเหตุ */}
                       {appt.note && (
                         <StickyNote size={14} className="text-amber-500" />
                       )}
                     </div>
-
-                    <InteractiveStatusSelect
-                      appointmentId={appt.id}
-                      currentStatus={appt.status}
+                    <AppointmentStatusBadge
+                      status={appt.status}
+                      className="p-3"
                     />
                   </div>
-                  <p className="flex items-center gap-1 font-medium text-slate-500 text-base">
-                    <Clock size={10} />
+                  <p className="flex items-center gap-1 font-medium text-muted-foreground text-base">
+                    <Clock size={14} />
                     {format(parseISO(appt.startTimeIso), "HH:mm")} -{" "}
                     {format(parseISO(appt.endTimeIso), "HH:mm")}
                   </p>
-                  <p className="mt-1 font-medium text-slate-700 text-base truncate">
+                  <p className="mt-1 font-medium text-base truncate">
                     {appt.serviceNames}
                   </p>
                 </div>

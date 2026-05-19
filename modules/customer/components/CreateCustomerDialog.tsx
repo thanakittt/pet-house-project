@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,7 +22,6 @@ import {
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { Controller, useForm } from "react-hook-form";
 import {
   Select,
@@ -92,7 +92,7 @@ export function CreateCustomerDialog() {
         <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
           <Button>
             {" "}
-            <PlusIcon className="size-3.5" /> เพิ่มลูกค้าใหม่
+            <PlusIcon className="size-4" /> เพิ่มลูกค้าใหม่
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
@@ -107,7 +107,6 @@ export function CreateCustomerDialog() {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-3 px-4 pb-3">
             {/* Nickname Field */}
@@ -228,14 +227,12 @@ export function CreateCustomerDialog() {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-customer"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

@@ -25,7 +25,7 @@ import {
 } from "../types/payment-slip-verification";
 
 const statusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   { value: "VERIFIED", label: SLIP_VERIFICATION_STATUS_LABELS.VERIFIED },
   { value: "REJECTED", label: SLIP_VERIFICATION_STATUS_LABELS.REJECTED },
   { value: "ERROR", label: SLIP_VERIFICATION_STATUS_LABELS.ERROR },
@@ -68,7 +68,7 @@ export function PaymentSlipVerificationManagement({
         ]}
       />
 
-      <div className="overflow-x-auto rounded-md border bg-white">
+      <div className="bg-white border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -129,8 +129,8 @@ function VerificationRow({
     <TableRow>
       <TableCell className="min-w-[130px]">
         <div className="flex flex-col gap-1">
-          <span>{formatThaiDate(verification.createdAt, "dd MMM yy")}</span>
-          <span className="text-xs text-muted-foreground">
+          <span>{formatThaiDate(verification.createdAt)}</span>
+          <span className="text-muted-foreground text-xs">
             {verification.provider}
           </span>
         </div>
@@ -140,9 +140,9 @@ function VerificationRow({
           <span className="font-medium">{verification.customerName}</span>
           <Link
             href={`/back-office/appointments/${verification.appointmentId}`}
-            className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+            className="text-muted-foreground text-xs hover:underline underline-offset-4"
           >
-            นัดหมาย {formatThaiDate(verification.appointmentDate, "dd MMM yy")}
+            นัดหมาย {formatThaiDate(verification.appointmentDate)}
           </Link>
         </div>
       </TableCell>
@@ -155,7 +155,7 @@ function VerificationRow({
             <Badge variant="secondary">สลิปซ้ำ</Badge>
           )}
           {verification.redactedAt && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               ลบข้อมูล PII แล้ว
             </span>
           )}
@@ -164,7 +164,7 @@ function VerificationRow({
       <TableCell className="min-w-[140px] text-right">
         <div className="flex flex-col gap-1">
           <span>{amountText}</span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {verification.isAmountMatched === null
               ? "ยังไม่มีผลเทียบยอด"
               : verification.isAmountMatched
@@ -176,7 +176,7 @@ function VerificationRow({
       <TableCell className="max-w-[220px]">
         <div className="flex flex-col gap-1">
           <span className="truncate">{referenceText}</span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {verification.payerNameRedacted ?? "ไม่ระบุผู้โอน"}
             {verification.payerAccountLast4
               ? ` • ****${verification.payerAccountLast4}`
@@ -185,7 +185,7 @@ function VerificationRow({
         </div>
       </TableCell>
       <TableCell className="max-w-[240px]">
-        <span className="line-clamp-2 text-sm">{remarkText}</span>
+        <span className="text-sm line-clamp-2">{remarkText}</span>
       </TableCell>
       <TableCell className="text-right">
         <Button asChild variant="outline" size="sm">

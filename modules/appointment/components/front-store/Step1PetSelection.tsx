@@ -16,9 +16,8 @@ export function PetCard({ pet, onSelect, isSelected }: PetCardProps) {
   return (
     <button
       type="button"
-      className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left shadow-sm transition-colors hover:shadow-md ${
-        isSelected ? "border-black bg-muted" : "hover:bg-muted"
-      }`}
+      className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left shadow-sm transition-colors hover:shadow-md ${isSelected ? "border-black bg-muted" : "hover:bg-muted"
+        }`}
       onClick={() => onSelect(pet)}
     >
       <div className="flex flex-row items-start gap-4">
@@ -49,7 +48,7 @@ export default function Step1PetSelection({
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-col gap-6">
-        <h3 className="font-bold text-primary text-xl">
+        <h3 className="font-bold text-primary text-lg md:text-xl">
           ขั้นตอนที่ 1 : เลือกสัตว์เลี้ยง
         </h3>
 
@@ -74,7 +73,7 @@ export default function Step1PetSelection({
           <Link href="/pets">
             <div className="flex justify-center items-center hover:bg-muted p-4 border-2 border-dashed rounded-lg min-h-[50px] cursor-pointer">
               <div className="flex flex-col items-center gap-2 text-muted-foreground/70">
-                <PlusCircle size={24} />
+                <PlusCircle className="size-5 md:size-6" />
                 <p className="font-semibold text-sm md:text-base">
                   เพิ่มสัตว์เลี้ยง
                 </p>

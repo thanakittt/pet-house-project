@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -10,7 +11,6 @@ import { addHealthReport } from "@/modules/operation/actions/create-health-repor
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogClose,
@@ -90,7 +90,7 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-health-report">
         {/* Trigger Button: ปรับ style ให้เหมาะกับ Header ของ Card */}
         <DialogTrigger asChild className="text-sm cursor-pointer">
-          <Button type="button" size="sm" variant="outline">
+          <Button type="button" size="lg" variant="outline">
             <PlusIcon className="mr-2 size-3.5" /> เพิ่มรายงาน
           </Button>
         </DialogTrigger>
@@ -109,7 +109,6 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
               </DialogDescription>
             )}
           </DialogHeader>
-          <Separator />
 
           <FieldGroup className="gap-4 px-4 pt-2 pb-3">
             {/* Topic Field */}
@@ -180,14 +179,12 @@ export default function HealthReportModal({ appointmentId, petId }: Props) {
                   ยกเลิก
                 </Button>
               </DialogClose>
-              <Button
+              <LoadingButton
                 type="submit"
                 form="create-health-report"
                 className="px-6 py-5 text-sm cursor-pointer"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-              </Button>
+
+                isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>

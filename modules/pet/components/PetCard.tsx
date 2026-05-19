@@ -2,14 +2,21 @@ import { Pet } from "@/modules/pet/types/pet";
 import PetTypeBadge from "./PetTypeBadge";
 import { Button } from "@/components/ui/button";
 import { PencilIcon, TrashIcon } from "lucide-react";
+import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
 
 interface PetCardProps {
   pet: Pet;
+  desktopOnlyActions?: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
+export function PetCard({
+  pet,
+  desktopOnlyActions,
+  onEdit,
+  onDelete,
+}: PetCardProps) {
   return (
     <div
       className="flex justify-between gap-2 p-4 border rounded-lg transition-colors cursor-pointer"
@@ -17,7 +24,7 @@ export function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
       <div className="flex flex-row items-start gap-4">
         <PetTypeBadge
           type={pet.breed.type.toLowerCase()}
-          className="px-3 py-6 rounded-md"
+          display="tile"
         />
         <div className="flex flex-col gap-2 w-full">
           <p className="font-bold text-base md:text-lg">{pet.name}</p>
@@ -27,7 +34,11 @@ export function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
         </div>
       </div>
 
-      <div className="space-x-2">
+      <div
+        className={`space-x-2 ${
+          desktopOnlyActions ? DESKTOP_ONLY_CONTAINER_CLASS : ""
+        }`}
+      >
         <Button
           variant="outline"
           size="icon"

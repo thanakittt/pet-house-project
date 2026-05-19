@@ -1,6 +1,8 @@
 "use client";
 
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
 import {
   Card,
   CardAction,
@@ -81,21 +83,7 @@ type BackOfficeProfileFormProps = {
 };
 
 function formatBirthDate(value: string | null) {
-  if (!value) {
-    return "-";
-  }
-
-  const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-
-  return new Intl.DateTimeFormat("th-TH", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  return formatThaiDate(value);
 }
 
 function formatGender(value: Gender) {
@@ -318,13 +306,11 @@ function ProfileDetailsDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="back-office-profile-details-form"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
-            </Button>
+
+             isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>
@@ -436,13 +422,11 @@ function EmailDialog({
                 ยกเลิก
               </Button>
             </DialogClose>
-            <Button
+            <LoadingButton
               type="submit"
               form="back-office-profile-email-form"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "กำลังส่ง..." : "ส่งลิงก์ยืนยัน"}
-            </Button>
+
+             isLoading={form.formState.isSubmitting} loadingText="กำลังส่ง...">ส่งลิงก์ยืนยัน</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </form>
@@ -680,7 +664,7 @@ export default function BackOfficeProfileForm({
               />
               <ProfileRow
                 label="เบอร์โทรศัพท์"
-                value={displayValue(profile.phoneNumber)}
+                value={formatPhoneNumber(profile.phoneNumber)}
               />
               <ProfileRow
                 label="วันเกิด"

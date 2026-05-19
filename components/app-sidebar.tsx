@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -14,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { NAVIGATION_ITEMS, UserRole } from "@/lib/navigation"; // นำเข้าจาก Config
@@ -21,6 +21,7 @@ import { NAVIGATION_ITEMS, UserRole } from "@/lib/navigation"; // นำเข�
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+  const skeletonWidths = ["72%", "58%", "84%", "66%", "76%", "62%", "80%", "68%"];
 
   const navMain = React.useMemo(() => {
     if (!user?.role) return [];
@@ -48,8 +49,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent>
         {isPending ? (
-          <div className="flex justify-center items-center h-32">
-            <Loader2 className="size-6 text-muted-foreground animate-spin" />
+          <div className="flex flex-col gap-1 px-2 py-2" aria-busy="true">
+            {skeletonWidths.map((width, index) => (
+              <SidebarMenuSkeleton key={index} showIcon width={width} />
+            ))}
           </div>
         ) : (
           <NavMain items={navMain} />

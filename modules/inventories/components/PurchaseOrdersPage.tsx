@@ -31,9 +31,10 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { ListPurchaseOrdersResult } from "@/modules/inventories/queries/list-purchase-orders";
 import { PurchaseOrderSummary } from "@/modules/inventories/types/purchase-order";
 import { useState } from "react";
+import { formatThaiDate } from "@/lib/utils";
 
 const orderStatusOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกสถานะ" },
   ...PURCHASE_ORDER_STATUS_KEYS.map((status) => ({
     value: status,
     label: PURCHASE_ORDER_STATUS_CONFIG[status].title,
@@ -47,12 +48,6 @@ function formatCurrency(value: string): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-}
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "-";
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
 }
 
 export default function PurchaseOrdersPage({
@@ -94,17 +89,18 @@ export default function PurchaseOrdersPage({
               </Link>
             </Button>
           }
+          createActionDesktopOnly
         />
 
         <div className="border rounded-md overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>
-                <TableHead>เลขที่</TableHead>
+                <TableHead className="text-center">เลขที่</TableHead>
                 <TableHead>พนักงาน</TableHead>
                 <TableHead>วันที่สั่งซื้อ</TableHead>
                 <TableHead className="text-right">ยอดรวม</TableHead>
-                <TableHead>สถานะ</TableHead>
+                <TableHead className="text-right">สถานะ</TableHead>
                 <TableHead className="text-right">จัดการ</TableHead>
               </TableRow>
             </TableHeader>
@@ -121,21 +117,24 @@ export default function PurchaseOrdersPage({
               ) : (
                 orderData.orders.map((order, index) => (
                   <TableRow key={order.id}>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell className="text-center">
                       {rowOffset + index + 1}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell>
                       {order.staffNickname}
                     </TableCell>
-                    <TableCell>{formatDate(order.orderDate)}</TableCell>
-                    <TableCell className="font-semibold tabular-nums text-right">
+                    <TableCell>{formatThaiDate(order.orderDate)}</TableCell>
+                    <TableCell className="tabular-nums text-right">
                       {formatCurrency(order.totalAmount)}
                     </TableCell>
-                    <TableCell>
-                      <StatusUpdate
-                        orderId={order.id}
-                        currentStatus={order.status as PurchaseOrderStatus}
-                      />
+                    <TableCell className="text-right">
+                      <div className="flex justify-end items-center">
+                        <StatusUpdate
+                          orderId={order.id}
+                          currentStatus={order.status as PurchaseOrderStatus}
+                          desktopOnly
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-1">
@@ -149,6 +148,7 @@ export default function PurchaseOrdersPage({
                           <TableActionButton
                             aria-label="ลบใบสั่งซื้อ"
                             action="delete"
+                            desktopOnly
                             onClick={() => {
                               setDeleteTarget(order);
                               setIsDeleteDialogOpen(true);
@@ -178,10 +178,11 @@ export default function PurchaseOrdersPage({
           open={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}
           title="ยืนยันการลบใบสั่งซื้อ"
-          description={`คุณต้องการลบใบสั่งซื้อของ "${deleteTarget.staffNickname}" วันที่ ${formatDate(deleteTarget.orderDate)} หรือไม่?`}
+          description={`คุณต้องการลบใบสั่งซื้อของ "${deleteTarget.staffNickname}" วันที่ ${formatThaiDate(deleteTarget.orderDate)} หรือไม่?`}
           onConfirm={() => deletePurchaseOrder(deleteTarget.id)}
           successMessage="ลบใบสั่งซื้อเรียบร้อย"
           errorMessage="เกิดข้อผิดพลาดในการลบใบสั่งซื้อ"
+          mode="delete"
         />
       )}
     </>

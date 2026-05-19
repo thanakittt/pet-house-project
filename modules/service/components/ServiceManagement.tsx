@@ -10,6 +10,7 @@ import {
   TableActionButton,
   TableActionLink,
 } from "@/components/shared/TableActionButton";
+import { ServiceTypeBadge } from "@/components/shared/ServiceTypeBadge";
 import {
   Table,
   TableBody,
@@ -18,10 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  SERVICE_TYPE_LABELS,
-  SERVICE_TYPE_OPTIONS,
-} from "@/lib/constants/service-type";
+import { SERVICE_TYPE_OPTIONS } from "@/lib/constants/service-type";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { deleteService } from "../actions/delete-service";
@@ -31,7 +29,7 @@ import { CreateServiceDialog } from "./CreateServiceDialog";
 import { UpdateServiceDialog } from "./UpdateServiceDialog";
 
 const serviceTypeOptions: ManagementFilterOption[] = [
-  { value: "ALL", label: "ทั้งหมด" },
+  { value: "ALL", label: "ทุกประเภท" },
   ...SERVICE_TYPE_OPTIONS,
 ];
 
@@ -70,9 +68,10 @@ export default function ServiceManagement({
           },
         ]}
         createAction={<CreateServiceDialog />}
+        createActionDesktopOnly
       />
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -88,7 +87,7 @@ export default function ServiceManagement({
                 <TableRow key={service.id}>
                   <TableCell>{service.name}</TableCell>
                   <TableCell>
-                    {SERVICE_TYPE_LABELS[service.serviceType] || "อื่นๆ"}
+                    <ServiceTypeBadge serviceType={service.serviceType} />
                   </TableCell>
                   <TableCell>{service.description || "-"}</TableCell>
                   <TableCell className="text-right">
@@ -102,6 +101,7 @@ export default function ServiceManagement({
                       <TableActionButton
                         aria-label="แก้ไขข้อมูล"
                         action="edit"
+                        desktopOnly
                         onClick={() => {
                           setSelectedService(service);
                           setIsEditDialogOpen(true);
@@ -111,6 +111,7 @@ export default function ServiceManagement({
                       <TableActionButton
                         aria-label="ลบข้อมูล"
                         action="delete"
+                        desktopOnly
                         onClick={() => {
                           setSelectedService(service);
                           setIsDeleteDialogOpen(true);
@@ -153,6 +154,7 @@ export default function ServiceManagement({
             onConfirm={() => deleteService({ id: selectedService.id })}
             successMessage="ลบข้อมูลบริการเรียบร้อย"
             errorMessage="เกิดข้อผิดพลาดในการลบข้อมูลบริการ"
+            mode="delete"
           />
         </>
       )}
