@@ -96,11 +96,11 @@ export default function PurchaseOrdersPage({
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>
-                <TableHead>เลขที่</TableHead>
+                <TableHead className="text-center">เลขที่</TableHead>
                 <TableHead>พนักงาน</TableHead>
                 <TableHead>วันที่สั่งซื้อ</TableHead>
                 <TableHead className="text-right">ยอดรวม</TableHead>
-                <TableHead>สถานะ</TableHead>
+                <TableHead className="text-right">สถานะ</TableHead>
                 <TableHead className="text-right">จัดการ</TableHead>
               </TableRow>
             </TableHeader>
@@ -117,22 +117,24 @@ export default function PurchaseOrdersPage({
               ) : (
                 orderData.orders.map((order, index) => (
                   <TableRow key={order.id}>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {rowOffset + index + 1}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell>
                       {order.staffNickname}
                     </TableCell>
                     <TableCell>{formatThaiDate(order.orderDate)}</TableCell>
-                    <TableCell className="font-semibold tabular-nums text-right">
+                    <TableCell className="tabular-nums text-right">
                       {formatCurrency(order.totalAmount)}
                     </TableCell>
-                    <TableCell>
-                      <StatusUpdate
-                        orderId={order.id}
-                        currentStatus={order.status as PurchaseOrderStatus}
-                        desktopOnly
-                      />
+                    <TableCell className="text-right">
+                      <div className="flex justify-end items-center">
+                        <StatusUpdate
+                          orderId={order.id}
+                          currentStatus={order.status as PurchaseOrderStatus}
+                          desktopOnly
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-1">
