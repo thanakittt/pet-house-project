@@ -149,10 +149,10 @@ export function InventoriesClient({
             <TableRow>
               <TableHead>ชื่อสินค้า</TableHead>
               <TableHead>หมวดหมู่</TableHead>
-              <TableHead className="text-right">จำนวน</TableHead>
+              <TableHead className="text-center">จำนวน</TableHead>
               <TableHead>หน่วย</TableHead>
               <TableHead className="text-right">จุดสั่งซื้อ</TableHead>
-              <TableHead className="text-center">สถานะ</TableHead>
+              <TableHead className="text-left">สถานะ</TableHead>
               <TableHead className="text-right">จัดการ</TableHead>
             </TableRow>
           </TableHeader>
@@ -162,14 +162,14 @@ export function InventoriesClient({
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.inventoryCategoryName}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     {product.quantity}
                   </TableCell>
-                  <TableCell>{getUnitLabel(product.unit)}</TableCell>
-                  <TableCell className="text-muted-foreground text-right">
+                  <TableCell className="text-center">{getUnitLabel(product.unit)}</TableCell>
+                  <TableCell className="text-center">
                     {product.reorderLevel}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-left">
                     {getStatusBadge(product)}
                   </TableCell>
                   <TableCell className="text-right">
