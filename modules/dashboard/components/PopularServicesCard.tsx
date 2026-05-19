@@ -48,14 +48,14 @@ export function PopularServicesCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="md:text-lg text-base font-bold">
             บริการยอดนิยม
           </CardTitle>
           <CardDescription className="text-xs mt-0.5">
             TOP 5 — {periodLabel[period]}
           </CardDescription>
         </div>
-        <div className="bg-yellow-500/10 p-2 rounded-lg">
+        <div className="bg-yellow-500/10 p-2.5 rounded-lg">
           <Trophy className="size-4 text-yellow-500" />
         </div>
       </CardHeader>

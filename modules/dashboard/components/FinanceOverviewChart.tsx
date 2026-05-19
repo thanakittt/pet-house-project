@@ -71,7 +71,7 @@ export function FinanceOverviewChart({
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="md:text-lg text-base font-bold">
               รายรับ-รายจ่าย
             </CardTitle>
             <CardDescription className="text-xs mt-0.5">
@@ -109,9 +109,8 @@ export function FinanceOverviewChart({
                   <TrendingDown className="size-3 text-red-500" />
                 )}
                 <span
-                  className={`text-base font-semibold ${
-                    isProfit ? "text-green-600" : "text-red-500"
-                  }`}
+                  className={`text-base font-semibold ${isProfit ? "text-green-600" : "text-red-500"
+                    }`}
                 >
                   {formatCurrency(Math.abs(data.netProfit))}
                 </span>

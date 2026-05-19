@@ -36,11 +36,10 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`${sizeClass} ${
-            star <= rating
-              ? "fill-yellow-400 text-yellow-400"
-              : "fill-muted text-muted"
-          }`}
+          className={`${sizeClass} ${star <= rating
+            ? "fill-yellow-400 text-yellow-400"
+            : "fill-muted text-muted"
+            }`}
         />
       ))}
     </div>
@@ -55,14 +54,14 @@ export function ReviewSummaryCard({ summary, period }: ReviewSummaryCardProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="md:text-lg text-base font-bold">
             รีวิวลูกค้า
           </CardTitle>
           <CardDescription className="text-xs mt-0.5">
             {periodLabel[period]}
           </CardDescription>
         </div>
-        <div className="bg-yellow-400/10 p-2 rounded-lg">
+        <div className="bg-yellow-400/10 p-2.5 rounded-lg">
           <Star className="size-4 text-yellow-400 fill-yellow-400" />
         </div>
       </CardHeader>
@@ -72,11 +71,11 @@ export function ReviewSummaryCard({ summary, period }: ReviewSummaryCardProps) {
         <div className="flex gap-4">
           {/* คะแนนเฉลี่ย */}
           <div className="flex flex-col items-center justify-center min-w-[80px]">
-            <span className="text-4xl font-bold">
+            <span className="text-3xl font-bold">
               {summary.averageRating.toFixed(1)}
             </span>
             <StarRating rating={Math.round(summary.averageRating)} size="md" />
-            <span className="text-xs text-muted-foreground mt-1">
+            <span className="text-xs text-muted-foreground my-2">
               {summary.totalReviews.toLocaleString()} รีวิว
             </span>
           </div>
@@ -116,12 +115,12 @@ export function ReviewSummaryCard({ summary, period }: ReviewSummaryCardProps) {
 
         {/* รีวิวล่าสุด */}
         {summary.recentReviews.length > 0 && (
-          <div className="flex flex-col gap-2 pt-2 border-t">
-            <span className="text-xs font-medium text-muted-foreground">
-              รีวิวล่าสุด
+          <div className="flex flex-col gap-2 pt-4 border-t">
+            <span className="text-sm font-semibold">
+              ล่าสุด
             </span>
             {summary.recentReviews.map((review) => (
-              <div key={review.id} className="flex flex-col gap-0.5">
+              <div key={review.id} className="flex flex-col gap-0.5 pl-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">{review.customerName}</span>
                   <div className="flex items-center gap-1.5">
