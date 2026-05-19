@@ -30,7 +30,7 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const currentPeriod = (searchParams.get("period") as TransactionPeriod) || "MONTHLY";
   const currentCategoryId = searchParams.get("categoryId") || "ALL";
   const currentDate = searchParams.get("date") || "";
@@ -43,7 +43,7 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
   const updateFilters = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
-    
+
     Object.entries(updates).forEach(([key, value]) => {
       if (
         value === null ||
