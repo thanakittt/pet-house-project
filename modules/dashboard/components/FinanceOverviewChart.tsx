@@ -146,6 +146,7 @@ export function FinanceOverviewChart({
                 axisLine={false}
                 tickMargin={8}
                 tick={{ fontSize: 11 }}
+
                 // ลด label ถ้ามีหลายจุด
                 interval={
                   data.points.length > 15
@@ -176,13 +177,13 @@ export function FinanceOverviewChart({
               <ChartLegend content={<ChartLegendContent />} />
               <Bar
                 dataKey="income"
-                fill="var(--color-income)"
+                fill="var(--color-emerald-400)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={40}
               />
               <Bar
                 dataKey="expense"
-                fill="var(--color-expense)"
+                fill="var(--color-red-400)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={40}
               />
