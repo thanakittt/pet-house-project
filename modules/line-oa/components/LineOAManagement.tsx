@@ -230,7 +230,7 @@ export function LineOAManagement({
               </CardFooter>
             </Card>
 
-            <Alert>
+            <Alert className="p-4 ">
               <MegaphoneIcon />
               <AlertTitle>Broadcast จะส่งถึงเพื่อน OA ทั้งหมด</AlertTitle>
               <AlertDescription>
