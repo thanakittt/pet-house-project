@@ -20,12 +20,10 @@ import {
 import {
   Banknote,
   QrCode,
-  CheckCircle2,
   Pencil,
   Plus,
   Trash2,
   X,
-  Info,
   User,
   Phone,
   ClipboardList,
@@ -267,7 +265,7 @@ export function POSCheckoutForm({
           <Card className="shadow-sm border-muted/60">
             <CardContent className="flex flex-row justify-between sm:items-center gap-4 p-4 ">
               <div className="flex items-center gap-3">
-                <div className="flex justify-center items-center bg-sky-50 rounded-full w-10 h-10 text-sky-500">
+                <div className="flex justify-center items-center bg-primary/10 rounded-full w-10 h-10 text-primary">
                   <User size={20} />
                 </div>
                 <div>
@@ -306,7 +304,7 @@ export function POSCheckoutForm({
                 ) : (
                   groupedItems.map(([petId, group]) => (
                     <div key={petId} className="flex flex-col">
-                      <div className="px-4 pt-2 font-bold text-foreground text-base border-t border-slate-100 ">
+                      <div className="px-4 pt-2 font-bold text-foreground text-base border-t ">
                         น้อง: {group.petName}
                       </div>
                       <div>
@@ -322,14 +320,14 @@ export function POSCheckoutForm({
                                   "MAIN" && (
                                     <Badge
                                       variant="secondary"
-                                      className="border-teal-200 bg-teal-50 text-teal-700 ml-2 dark:border-teal-900/50 dark:bg-teal-900/30 dark:text-teal-300"
+                                  className="ml-2"
                                     >
                                       บริการหลัก
                                     </Badge>
                                   )}
                                 <Badge
                                   variant="outline"
-                                  className="ml-2 text-xs border-slate-300 bg-slate-50 text-slate-700"
+                                  className="ml-2 text-xs"
                                 >
                                   {
                                     PET_SIZE_LABELS[
@@ -375,7 +373,7 @@ export function POSCheckoutForm({
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="hover:bg-blue-100 w-8 h-8 text-muted-foreground hover:text-blue-600"
+                                      className="hover:bg-primary/10 w-8 h-8 text-muted-foreground hover:text-primary"
                                       onClick={() => {
                                         setEditingItemId(item.id);
                                         setTempPrice(
@@ -552,7 +550,7 @@ export function POSCheckoutForm({
 
                 {/* แสดงส่วนลด/หักมัดจำเฉพาะเมื่อมีค่ามัดจำมากกว่า 0 */}
                 {depositAmount > 0 && (
-                  <div className="flex justify-between text-emerald-600 text-sm">
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400 text-sm">
                     <span>หักมัดจำล่วงหน้า</span>
                     <span className="font-bold">
                       -฿{depositAmount.toLocaleString()}
@@ -583,8 +581,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "CASH"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-600 shadow-md ring-emerald-400"
-                        : "border-muted text-muted-foreground hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-500",
+                        ? "border-primary bg-primary/10 text-primary shadow-md ring-primary/40"
+                        : "border-muted text-muted-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
                     )}
                     onClick={() => setPaymentMethod("CASH")}
                   >
@@ -598,8 +596,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "TRANSFER"
-                        ? "border-blue-500 bg-blue-50 text-blue-600 shadow-md ring-blue-400"
-                        : "border-muted text-muted-foreground hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-600",
+                        ? "border-primary bg-primary/10 text-primary shadow-md ring-primary/40"
+                        : "border-muted text-muted-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
                     )}
                     onClick={() => setPaymentMethod("TRANSFER")}
                   >
@@ -626,8 +624,8 @@ export function POSCheckoutForm({
                 className={cn(
                   "max-lg:hidden shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
                   paymentMethod === "CASH"
-                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-blue-500 hover:bg-blue-600 text-white",
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                    : "bg-primary hover:bg-primary/90 text-primary-foreground",
                 )}
               >
                 ยืนยันชำระเงิน

@@ -31,7 +31,7 @@ export default async function POSPage({ params }: POSPageProps) {
   if (!result.success || !result.data) {
     return (
       <div className="flex flex-col justify-center items-center min-h-[50vh]">
-        <div className="bg-red-50 shadow-sm p-6 border border-red-100 rounded-xl max-w-md text-red-600 text-center">
+        <div className="bg-destructive/10 shadow-sm p-6 border border-destructive/20 rounded-xl max-w-md text-destructive text-center">
           <p className="mb-1 font-bold text-lg">ไม่สามารถโหลดข้อมูลได้</p>
           <p className="text-sm">
             {result.error || "ไม่พบข้อมูลการจองนี้ในระบบ"}

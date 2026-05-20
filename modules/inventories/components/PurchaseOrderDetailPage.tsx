@@ -1,11 +1,9 @@
 "use client";
 
 import {
-  Package,
   User,
   Calendar,
   Hash,
-  Receipt,
   ShoppingCart,
   Pencil,
   Check,
@@ -26,7 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -299,7 +296,7 @@ export default function PurchaseOrderDetailPage({
             <CardContent className="px-4">
               <div className="flex flex-col  space-y-4">
                 <div className="flex items-start gap-4 bg-muted/50 p-4 rounded-lg">
-                  <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
                     <Calendar size={18} />
                   </div>
                   <div className="flex flex-col gap-0.5">
@@ -313,7 +310,7 @@ export default function PurchaseOrderDetailPage({
                 </div>
 
                 <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
-                  <div className="p-2.5 bg-orange-50 text-orange-600 rounded-lg shrink-0">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
                     <User size={18} />
                   </div>
                   <div className="flex flex-col gap-0.5">
@@ -326,7 +323,7 @@ export default function PurchaseOrderDetailPage({
                   </div>
                 </div>
                 <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
-                  <div className="p-2.5 bg-purple-50 text-purple-600 rounded-lg shrink-0">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
                     <Hash size={18} />
                   </div>
                   <div className="flex flex-col gap-0.5">
@@ -387,7 +384,7 @@ export default function PurchaseOrderDetailPage({
                       </Button>
                       <LoadingButton
                         size="sm"
-                        className="gap-1.5 h-8 bg-primary hover:bg-primary text-white"
+                        className="gap-1.5 h-8"
                         disabled={isPending || editItems.length === 0}
                         isLoading={isPending}
                         loadingText="กำลังบันทึก..."
@@ -443,7 +440,7 @@ export default function PurchaseOrderDetailPage({
                                     editItems.some(
                                       (e) => e.inventoryItemId === item.id,
                                     )
-                                      ? "opacity-100 text-green-500"
+                                      ? "opacity-100 text-primary"
                                       : "opacity-0",
                                   )}
                                 />

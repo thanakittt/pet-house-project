@@ -111,12 +111,12 @@ export default function DailyAppointmentsBoard({ initialAppointments }: Props) {
         <SummaryCard
           title="กำลังทำ"
           count={inProgressItems.length}
-          colorText="text-blue-500"
+          colorText="text-primary"
         />
         <SummaryCard
           title="เสร็จสิ้น / รอรับกลับ"
           count={completedItems.length}
-          colorText="text-green-500"
+          colorText="text-emerald-600 dark:text-emerald-400"
         />
       </div>
 
@@ -218,11 +218,11 @@ function Column({
               asChild
               variant="ghost"
               size="sm"
-              className="hover:bg-blue-50 h-8 text-blue-600 hover:text-blue-700"
+              className="h-8 text-primary hover:bg-primary/10 hover:text-primary"
             >
               <Link href={`/back-office/operations/${item.appointmentId}/${item.petId}`}>
                 ดูรายละเอียด
-                <ChevronRight className="ml-1 w-4 h-4" />
+                <ChevronRight className="ml-1" />
               </Link>
             </Button>
           </CardFooter>

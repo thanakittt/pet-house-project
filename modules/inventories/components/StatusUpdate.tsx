@@ -105,7 +105,7 @@ export default function StatusUpdate({
 
           <DropdownMenuContent
             align="start"
-            className="z-50 bg-white shadow-xl p-2 border-slate-200 rounded-xl w-56"
+            className="z-50 bg-popover shadow-xl p-2 border rounded-xl w-56"
           >
             {groups.map((group) => {
               const groupItems = PURCHASE_ORDER_STATUS_KEYS.filter(
@@ -131,8 +131,8 @@ export default function StatusUpdate({
                         key={key}
                         onClick={() => handleStatusChange(key)}
                         className={`mb-0.5 flex cursor-pointer items-center justify-between rounded-md px-2 py-2 ${isSelected
-                          ? "bg-slate-50 font-bold text-slate-900"
-                          : "text-slate-600 hover:bg-slate-50"
+                          ? "bg-accent font-bold text-accent-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                           }`}
                       >
                         <div className="flex items-center gap-2">
@@ -155,7 +155,7 @@ export default function StatusUpdate({
                         </div>
 
                         {isSelected && (
-                          <Check size={14} className="text-blue-500" />
+                          <Check size={14} className="text-primary" />
                         )}
                       </DropdownMenuItem>
                     );

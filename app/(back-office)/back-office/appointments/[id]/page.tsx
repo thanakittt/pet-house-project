@@ -76,7 +76,7 @@ export default async function AppointmentDetailPage({
         <BackButton />
         <div className="space-y-6">
           {/* 1. Header & Status Manager */}
-          <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
+          <div className="bg-card shadow-sm p-6 border rounded-2xl">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <div className="flex items-center gap-2">
@@ -104,22 +104,22 @@ export default async function AppointmentDetailPage({
           </div>
 
           {/* 2. ข้อมูลลูกค้า */}
-          <div className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl">
+          <div className="bg-card shadow-sm p-6 border rounded-2xl">
             <h2 className="mb-4 font-semibold text-primary text-lg">
               ข้อมูลลูกค้า
             </h2>
             <div className="gap-4 grid grid-cols-2 items-center">
               <div className="flex items-center pl-2">
-                <div className="bg-sky-50 p-2 rounded-full">
-                  <User className="text-sky-600" size={16} />
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <User className="text-primary" size={16} />
                 </div>
 
                 <p className="pl-2 font-medium text-primary text-base md:text-lg">{appointment.customer.name}</p>
 
               </div>
               <div className="flex items-center">
-                <div className="bg-emerald-50 p-2 rounded-full">
-                  <Phone className="text-emerald-600" size={16} />
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <Phone className="text-primary" size={16} />
                 </div>
 
                 <p className="pl-2 font-medium text-primary text-base md:text-lg">
@@ -128,7 +128,7 @@ export default async function AppointmentDetailPage({
               </div>
               <div className="col-span-2">
                 {appointment.note && (
-                  <div className="bg-yellow-50 p-3 border border-yellow-200 rounded-md text-yellow-800 text-sm">
+                  <div className="bg-muted/50 p-3 border rounded-md text-foreground text-sm">
                     <span className="font-semibold">หมายเหตุ: </span>{" "}
                     {appointment.note}
                   </div>
@@ -154,10 +154,10 @@ export default async function AppointmentDetailPage({
               return (
                 <div
                   key={pet.petId}
-                  className="bg-white shadow-sm p-6 border border-slate-200 rounded-2xl"
+                  className="bg-card shadow-sm p-6 border rounded-2xl"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="flex justify-center items-center bg-primary rounded-full w-10 h-10 font-bold text-white">
+                    <div className="flex justify-center items-center bg-primary rounded-full w-10 h-10 font-bold text-primary-foreground">
                       {index + 1}
                     </div>
                     <div>
@@ -203,7 +203,7 @@ export default async function AppointmentDetailPage({
                         {pet.healthReports.map((report) => (
                           <div
                             key={report.id}
-                            className="bg-slate-50 p-4 border border-slate-200 rounded-lg"
+                            className="bg-muted/50 p-4 border rounded-lg"
                           >
                             <h5 className="mb-1 font-semibold text-primary text-sm">
                               {report.topic}
@@ -234,7 +234,7 @@ export default async function AppointmentDetailPage({
                               {beforeImages.map((img) => (
                                 <div
                                   key={img.id}
-                                  className="relative border border-slate-200 rounded-md w-24 h-24 overflow-hidden"
+                                  className="relative border rounded-md w-24 h-24 overflow-hidden"
                                 >
                                   <ImageLightbox
                                     src={img.imageUrl}
@@ -282,7 +282,7 @@ export default async function AppointmentDetailPage({
 
                         {issueImages.length > 0 && (
                           <div>
-                            <p className="flex items-center gap-1 mb-2 font-medium text-red-500 text-sm">
+                            <p className="flex items-center gap-1 mb-2 font-medium text-destructive text-sm">
                               <AlertTriangle className="w-3 h-3" /> แจ้งปัญหา
                               (Issue)
                             </p>
@@ -290,7 +290,7 @@ export default async function AppointmentDetailPage({
                               {issueImages.map((img) => (
                                 <div
                                   key={img.id}
-                                  className="relative border border-red-200 rounded-md w-24 h-24 overflow-hidden"
+                                  className="relative border border-destructive/30 rounded-md w-24 h-24 overflow-hidden"
                                 >
                                   <ImageLightbox src={img.imageUrl} alt="Issue">
                                     <Image

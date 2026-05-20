@@ -8,9 +8,9 @@ import { Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const ANNOUNCEMENT_TAG_COLORS: Record<AnnouncementType, string> = {
-  NEWS: "bg-blue-100 text-blue-600 border-blue-200",
-  PROMOTION: "bg-orange-100 text-orange-600 border-orange-200",
-  ALERT: "bg-red-100 text-red-600 border-red-200",
+  NEWS: "bg-primary/10 text-primary border-primary/20",
+  PROMOTION: "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-300",
+  ALERT: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 function formatAnnouncementDate(announcement: Announcement): string {
@@ -34,7 +34,7 @@ export default function AnnouncementList({
 }) {
   if (announcements.length === 0) {
     return (
-      <div className="bg-white shadow-sm p-8 border border-slate-100 rounded-3xl text-center">
+      <div className="bg-card shadow-sm p-8 border rounded-3xl text-center">
         <h2 className="font-bold text-primary text-base md:text-lg">
           ยังไม่มีประกาศในขณะนี้
         </h2>
@@ -55,7 +55,7 @@ export default function AnnouncementList({
             href={`/news/${announcement.id}`}
             className="group block h-full"
           >
-            <div className="relative flex justify-between items-center bg-white shadow-sm hover:shadow-md border border-slate-100 hover:border-primary/40 rounded-3xl h-full overflow-hidden transition-all duration-300">
+            <div className="relative flex justify-between items-center bg-card shadow-sm hover:shadow-md border hover:border-primary/40 rounded-3xl h-full overflow-hidden transition-all duration-300">
               {/* Content Section */}
               <div className="flex flex-col gap-2 p-6 pr-0 w-full">
                 {/* Tag & Category */}
@@ -86,7 +86,7 @@ export default function AnnouncementList({
 
               {/* Action Icon Section */}
               <div className="flex pr-6">
-                <div className="flex justify-center items-center bg-primary/5 group-hover:bg-primary shadow-inner border border-primary/10 group-hover:border-primary rounded-full size-9 text-primary/50 group-hover:text-white transition-all duration-300">
+                <div className="flex justify-center items-center bg-primary/5 group-hover:bg-primary shadow-inner border border-primary/10 group-hover:border-primary rounded-full size-9 text-primary/50 group-hover:text-primary-foreground transition-all duration-300">
                   <ChevronRight
                     size={18}
                     className="transition-transform group-hover:translate-x-0.5"

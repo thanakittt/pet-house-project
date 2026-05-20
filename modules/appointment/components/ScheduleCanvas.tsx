@@ -190,7 +190,7 @@ function MobileScheduleList({
         <Link
           key={`${appt.id}-${appt.petId}`}
           href={`/back-office/appointments/${appt.id}`}
-          className="group block bg-white shadow-sm hover:shadow-md p-4 border border-l-4 border-l-primary rounded-lg min-w-0 transition-shadow"
+          className="group block bg-card shadow-sm hover:shadow-md p-4 border border-l-4 border-l-primary rounded-lg min-w-0 transition-shadow"
         >
           <div className="flex flex-col gap-3 min-w-0">
             <div className="flex flex-col gap-2 min-w-0">
@@ -297,9 +297,9 @@ export default function ScheduleCanvas({
   };
 
   return (
-    <div className="flex flex-col bg-white shadow-sm mx-auto border rounded-2xl w-full min-w-0 max-w-6xl overflow-hidden">
+    <div className="flex flex-col bg-card shadow-sm mx-auto border rounded-2xl w-full min-w-0 max-w-6xl overflow-hidden">
       {/* Calendar Header */}
-      <div className="z-20 flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-white px-4 sm:px-6 py-5 border-b shrink-0">
+      <div className="z-20 flex sm:flex-row flex-col justify-between items-stretch sm:items-center gap-4 bg-card px-4 sm:px-6 py-5 border-b shrink-0">
         <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:gap-6 min-w-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="hidden sm:block bg-amber-50 p-3 rounded-lg text-amber-600">
@@ -353,17 +353,17 @@ export default function ScheduleCanvas({
       {/* Schedule Canvas */}
       <div
         ref={scrollContainerRef}
-        className="hidden relative md:flex flex-1 bg-white h-[720px] overflow-y-auto scroll-smooth"
+        className="hidden relative md:flex flex-1 bg-background h-[720px] overflow-y-auto scroll-smooth"
       >
         {/* แกนเวลา (Y-Axis) */}
-        <div className="left-0 z-20 sticky flex-shrink-0 bg-white shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-muted-foreground/30 border-r w-20">
+        <div className="left-0 z-20 sticky flex-shrink-0 bg-card shadow-[1px_0_5px_rgba(0,0,0,0.02)] pt-4 border-muted-foreground/30 border-r w-20">
           {hoursGrid.map((hour) => (
             <div
               key={hour}
               className="relative flex justify-center items-start"
               style={{ height: `${ROW_HEIGHT_PX}px` }}
             >
-              <span className="-top-2.5 absolute bg-white px-2 font-medium text-muted-foreground text-sm">
+              <span className="-top-2.5 absolute bg-card px-2 font-medium text-muted-foreground text-sm">
                 {hour.toString().padStart(2, "0")}:00
               </span>
             </div>
@@ -417,7 +417,7 @@ export default function ScheduleCanvas({
                   height,
                 }}
               >
-                <div className="relative flex flex-col bg-white shadow-sm hover:shadow-lg p-4 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
+                <div className="relative flex flex-col bg-card shadow-sm hover:shadow-lg p-4 border-y border-r border-l-4 border-l-primary rounded-md w-full h-full transition-all group-hover:-translate-y-0.5 duration-200">
                   <div className="flex justify-between items-start gap-2 mb-1.5">
                     <div className="flex items-center gap-1 font-bold text-primary text-base truncate leading-tight">
                       {appt.petName}{" "}

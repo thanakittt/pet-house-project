@@ -68,7 +68,7 @@ export function PaymentSlipVerificationManagement({
         ]}
       />
 
-      <div className="bg-white border rounded-md overflow-x-auto">
+      <div className="bg-card border rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>

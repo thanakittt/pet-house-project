@@ -45,8 +45,8 @@ export function SalesOverviewCard({ summary, period }: SalesOverviewCardProps) {
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}
-        <div className="bg-green-500/10 p-2.5 rounded-lg">
-          <ShoppingCart className="size-4 text-green-500" />
+        <div className="bg-primary/10 p-2.5 rounded-lg">
+          <ShoppingCart className="text-primary" />
         </div>
       </CardHeader>
 

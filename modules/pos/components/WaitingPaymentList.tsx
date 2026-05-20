@@ -10,7 +10,6 @@ import {
   User,
   Phone,
   ArrowRight,
-  Dog,
   Receipt,
   CheckCircle2,
   PawPrint,
@@ -28,7 +27,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
   if (appointments.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center bg-muted/20 mx-auto mt-8 p-12 sm:p-16 border-2 border-muted-foreground/20 border-dashed rounded-2xl max-w-2xl text-center">
-        <div className="flex justify-center items-center bg-emerald-100 mb-6 rounded-full w-20 h-20 text-emerald-600">
+        <div className="flex justify-center items-center bg-primary/10 mb-6 rounded-full w-20 h-20 text-primary">
           <CheckCircle2 size={40} strokeWidth={2.5} />
         </div>
         <h3 className="mb-2 font-bold text-foreground text-xl tracking-tight">
@@ -65,7 +64,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
                 <AppointmentStatusBadge
                   status="READY_FOR_PICKUP"
                   withIcon
-                  className="hover:bg-amber-50"
+                  className="hover:bg-muted"
                 />
                 <span className="font-medium text-[13px] text-muted-foreground">
                   {formatThaiDate(apt.appointmentDate)}
@@ -76,7 +75,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
               <div className="space-y-4">
                 {/* Customer */}
                 <div className="flex items-start gap-3.5">
-                  <div className="flex justify-center items-center bg-sky-50 rounded-full w-9 h-9 text-sky-500 shrink-0">
+                  <div className="flex justify-center items-center bg-primary/10 rounded-full w-9 h-9 text-primary shrink-0">
                     <User size={18} />
                   </div>
                   <div className="flex flex-col overflow-hidden">
@@ -100,7 +99,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
 
                 {/* Pets */}
                 <div className="flex items-start gap-3.5">
-                  <div className="flex justify-center items-center bg-taupe-100 rounded-full w-9 h-9 text-taupe-600 shrink-0">
+                  <div className="flex justify-center items-center bg-secondary rounded-full w-9 h-9 text-secondary-foreground shrink-0">
                     <PawPrint size={18} />
                   </div>
                   <div className="flex flex-col overflow-hidden">
@@ -117,7 +116,7 @@ export function WaitingPaymentList({ appointments }: WaitingPaymentListProps) {
             </CardContent>
 
             {/* 3. Footer Design: เน้นตัวเลขราคาให้ชัดเจน และปุ่มมี Affordance */}
-            <CardFooter className="flex justify-between items-end bg-slate-50/50 dark:bg-slate-900/20 p-6 pt-5 border-border/50 border-t">
+            <CardFooter className="flex justify-between items-end bg-muted/40 p-6 pt-5 border-border/50 border-t">
               <div>
                 <p className="mb-1 font-medium text-[11px] text-muted-foreground uppercase tracking-wider">
                   ยอดรวมเบื้องต้น

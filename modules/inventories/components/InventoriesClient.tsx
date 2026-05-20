@@ -38,7 +38,7 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="destructive"
-        className="bg-rose-50 hover:bg-rose-100 p-2 md:p-3 border-rose-400 text-red-600"
+        className="p-2 md:p-3"
       >
         สินค้าหมด
       </Badge>
@@ -48,16 +48,16 @@ function getStatusBadge(item: InventoryItem) {
     return (
       <Badge
         variant="secondary"
-        className="bg-amber-50 hover:bg-amber-100 p-2 md:p-3 border-amber-400 text-amber-600"
+        className="bg-amber-500/10 hover:bg-amber-500/20 p-2 md:p-3 border-amber-500/50 text-amber-700 dark:text-amber-300"
       >
         สินค้าใกล้หมด
       </Badge>
     );
   }
   return (
-    <Badge
-      variant="secondary"
-      className="bg-green-50 hover:bg-green-100 p-2 md:p-3 border-green-400 text-green-600"
+      <Badge
+        variant="secondary"
+      className="bg-emerald-500/10 hover:bg-emerald-500/20 p-2 md:p-3 border-emerald-500/50 text-emerald-700 dark:text-emerald-300"
     >
       ปกติ
     </Badge>
@@ -94,12 +94,12 @@ export function InventoriesClient({
         <TitleStatus
           title="สินค้าทั้งหมด"
           value={inventoryData.stats.total}
-          color="text-blue-500"
+          color="text-primary"
         />
         <TitleStatus
           title="สินค้าปกติ"
           value={inventoryData.stats.normalStock}
-          color="text-green-500"
+          color="text-emerald-600 dark:text-emerald-400"
         />
         <TitleStatus
           title="สินค้าใกล้หมด"
@@ -109,7 +109,7 @@ export function InventoriesClient({
         <TitleStatus
           title="สินค้าหมด"
           value={inventoryData.stats.outOfStock}
-          color="text-red-500"
+          color="text-destructive"
         />
       </div>
 

@@ -44,8 +44,8 @@ export function AppointmentSummaryCard({
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}
-        <div className="bg-blue-500/10 p-2.5 rounded-lg">
-          <CalendarCheck className="size-4 text-blue-500" />
+        <div className="bg-primary/10 p-2.5 rounded-lg">
+          <CalendarCheck className="text-primary" />
         </div>
       </CardHeader>
 
@@ -57,7 +57,7 @@ export function AppointmentSummaryCard({
         <div className="flex flex-wrap gap-2 text-xs">
           {/* กำลังดำเนินการ */}
           <div className="flex items-center gap-1.5">
-            <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 py-0 px-2">
+            <Badge variant="outline" className="py-0 px-2">
               {summary.active}
             </Badge>
             <span className="text-muted-foreground">กำลังดำเนินการ</span>
@@ -65,7 +65,7 @@ export function AppointmentSummaryCard({
 
           {/* เสร็จสิ้น */}
           <div className="flex items-center gap-1.5">
-            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 py-0 px-2">
+            <Badge variant="outline" className="py-0 px-2">
               {summary.completed}
             </Badge>
             <span className="text-muted-foreground">เสร็จสิ้น</span>
@@ -73,7 +73,7 @@ export function AppointmentSummaryCard({
 
           {/* ยกเลิก/ไม่มา */}
           <div className="flex items-center gap-1.5">
-            <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 py-0 px-2">
+            <Badge variant="outline" className="py-0 px-2">
               {summary.cancelled}
             </Badge>
             <span className="text-muted-foreground">ยกเลิก</span>

@@ -103,8 +103,8 @@ export function AppointmentScheduleSkeleton() {
           <Skeleton className="h-full rounded-md bg-muted-foreground/10" />
         </div>
 
-        <section className="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="z-20 flex shrink-0 flex-col items-stretch justify-between gap-4 border-b border-slate-200 bg-white px-4 py-5 sm:flex-row sm:items-center sm:px-6">
+        <section className="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-2xl border bg-card shadow-sm">
+          <div className="z-20 flex shrink-0 flex-col items-stretch justify-between gap-4 border-b bg-card px-4 py-5 sm:flex-row sm:items-center sm:px-6">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <div className="flex min-w-0 items-center gap-3">
                 <Skeleton className="hidden size-11 rounded-lg sm:block" />
@@ -121,7 +121,7 @@ export function AppointmentScheduleSkeleton() {
             <Skeleton className="hidden h-10 w-36 lg:block" />
           </div>
 
-          <div className="bg-slate-50/50 p-4 md:hidden">
+          <div className="bg-muted/40 p-4 md:hidden">
             <div className="flex flex-col gap-3">
               {Array.from({ length: 3 }, (_, index) => (
                 <ScheduleListItemSkeleton key={index} />
@@ -129,8 +129,8 @@ export function AppointmentScheduleSkeleton() {
             </div>
           </div>
 
-          <div className="relative hidden h-[720px] flex-1 overflow-hidden bg-slate-50/50 md:flex">
-            <div className="sticky left-0 z-20 w-20 flex-shrink-0 border-r border-slate-200 bg-white pt-4 shadow-[1px_0_5px_rgba(0,0,0,0.02)]">
+          <div className="relative hidden h-[720px] flex-1 overflow-hidden bg-muted/40 md:flex">
+            <div className="sticky left-0 z-20 w-20 flex-shrink-0 border-r bg-card pt-4 shadow-[1px_0_5px_rgba(0,0,0,0.02)]">
               {Array.from({ length: 10 }, (_, index) => (
                 <div
                   key={index}
@@ -145,13 +145,13 @@ export function AppointmentScheduleSkeleton() {
               {Array.from({ length: 10 }, (_, index) => (
                 <div
                   key={index}
-                  className="absolute w-full border-t border-slate-200/60"
+                  className="absolute w-full border-t border-border/60"
                   style={{ top: `${index * 120 + 16}px` }}
                 />
               ))}
-              <Skeleton className="absolute left-2 right-4 top-[64px] h-24 rounded-md border-l-4 border-l-primary bg-white" />
-              <Skeleton className="absolute left-2 right-4 top-[244px] h-32 rounded-md border-l-4 border-l-primary bg-white" />
-              <Skeleton className="absolute left-2 right-4 top-[456px] h-28 rounded-md border-l-4 border-l-primary bg-white" />
+              <Skeleton className="absolute left-2 right-4 top-[64px] h-24 rounded-md border-l-4 border-l-primary bg-card" />
+              <Skeleton className="absolute left-2 right-4 top-[244px] h-32 rounded-md border-l-4 border-l-primary bg-card" />
+              <Skeleton className="absolute left-2 right-4 top-[456px] h-28 rounded-md border-l-4 border-l-primary bg-card" />
             </div>
           </div>
         </section>
@@ -518,7 +518,7 @@ function getRouteTitleWidth(variant: BackOfficeSkeletonVariant) {
 
 function ScheduleListItemSkeleton() {
   return (
-    <section className="rounded-lg border border-l-4 border-l-primary bg-white p-4 shadow-sm">
+    <section className="rounded-lg border border-l-4 border-l-primary bg-card p-4 shadow-sm">
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-1 flex-col gap-2">
@@ -560,7 +560,7 @@ function PaymentCardSkeleton() {
           </div>
         </div>
       </div>
-      <div className="flex items-end justify-between border-t border-border/50 bg-slate-50/50 p-6 pt-5">
+      <div className="flex items-end justify-between border-t border-border/50 bg-muted/40 p-6 pt-5">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-3 w-28" />
           <Skeleton className="h-7 w-24" />
