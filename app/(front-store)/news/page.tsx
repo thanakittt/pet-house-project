@@ -99,7 +99,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   }
 
   return (
-    <div className="space-y-4 mx-auto p-4 md:p-8 max-w-5xl">
+    <div className="mx-auto flex max-w-5xl flex-col gap-4 p-4 md:p-8">
       <header className="mb-5 mt-3">
         <h1 className="text-pretty text-xl font-bold md:text-2xl">
           ข่าวสารทั้งหมด

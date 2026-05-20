@@ -12,9 +12,9 @@ import { notFound } from "next/navigation";
 import BackButton from "@/components/BackButton";
 
 const ANNOUNCEMENT_TAG_COLORS: Record<AnnouncementType, string> = {
-  NEWS: "bg-blue-100 text-blue-600 border-blue-200",
-  PROMOTION: "bg-orange-100 text-orange-600 border-orange-200",
-  ALERT: "bg-red-100 text-red-600 border-red-200",
+  NEWS: "bg-blue-100 text-blue-600 border-blue-200 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300",
+  PROMOTION: "bg-orange-100 text-orange-600 border-orange-200 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-300",
+  ALERT: "bg-red-100 text-red-600 border-red-200 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300",
 };
 
 type NewsDetailPageProps = {
@@ -57,12 +57,12 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const announcement = result.data;
 
   return (
-    <main className="space-y-6 mx-auto p-4 md:p-8 max-w-5xl">
+    <main className="mx-auto flex max-w-5xl flex-col gap-6 p-4 md:p-8">
       <BackButton />
 
-      <article className="bg-white shadow-sm border border-slate-100 rounded-2xl overflow-hidden">
+      <article className="overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
         {announcement.imageUrl ? (
-          <div className="relative bg-muted border-slate-100 border-b w-full aspect-video">
+          <div className="relative aspect-video w-full border-b bg-muted">
             <Image
               src={announcement.imageUrl}
               alt={announcement.title}
@@ -74,7 +74,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
           </div>
         ) : null}
 
-        <div className="space-y-5 p-6 md:p-8">
+        <div className="flex flex-col gap-5 p-6 md:p-8">
           <div className="flex flex-wrap items-center gap-3">
             <span
               className={`rounded-full border px-2.5 pb-0.5 pt-1 text-[10px] font-bold uppercase tracking-wider ${ANNOUNCEMENT_TAG_COLORS[announcement.type]}`}
@@ -88,7 +88,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <h1 className="font-bold text-primary text-2xl">
               {announcement.title}
             </h1>

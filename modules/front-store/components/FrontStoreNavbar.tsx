@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -148,7 +149,7 @@ export function FrontStoreNavbar() {
           : "border-b border-border bg-background shadow-sm",
       )}
     >
-      <div className="items-center gap-4 grid grid-cols-[1fr_auto] md:grid-cols-[1fr_auto_1fr] mx-auto px-4 md:px-8 max-w-5xl h-16 md:h-18">
+      <div className="mx-auto grid h-16 max-w-5xl grid-cols-[1fr_auto] items-center gap-4 px-4 md:h-18 md:grid-cols-[1fr_auto_1fr] md:px-8">
         <div className="flex justify-start min-w-0">
           <BrandLink />
         </div>
@@ -178,7 +179,7 @@ export function FrontStoreNavbar() {
           })}
         </nav>
 
-        <div className="hidden md:flex justify-end gap-2">
+        <div className="hidden items-center justify-end gap-2 md:flex">
           {!isPending && !isLoggedIn && (
             <>
               <Button asChild variant="outline">
@@ -232,6 +233,10 @@ export function FrontStoreNavbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
+          <div className="ml-1 border-l border-border pl-2">
+            <ThemeToggle />
+          </div>
         </div>
 
         <Sheet>
@@ -352,6 +357,13 @@ export function FrontStoreNavbar() {
                   </Button>
                 </>
               )}
+
+              <div className="mt-3 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-3 py-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  โหมดการแสดงผล
+                </span>
+                <ThemeToggle />
+              </div>
             </nav>
           </SheetContent>
         </Sheet>

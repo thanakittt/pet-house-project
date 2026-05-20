@@ -8,7 +8,9 @@ export default function FrontStoreLayout({
   return (
     <>
       <FrontStoreNavbar />
-      <div className="pt-16">{children}</div>
+      <div className="min-h-screen bg-background pt-16 text-foreground">
+        {children}
+      </div>
     </>
   );
 }

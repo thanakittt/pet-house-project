@@ -219,7 +219,7 @@ export default function DepositSlipUpload({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-5 bg-white p-5 border border-amber-200 rounded-2xl w-full text-left"
+      className="flex w-full flex-col gap-5 rounded-2xl border border-amber-200 bg-card p-5 text-left text-card-foreground dark:border-amber-800"
     >
       <div className="flex flex-col">
         <>
@@ -241,8 +241,8 @@ export default function DepositSlipUpload({
       <div
         className={
           isDepositExpired
-            ? "flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-800 sm:flex-row sm:items-center sm:justify-between"
-            : "flex flex-col gap-3 rounded-2xl border border-primary bg-white p-4 text-primary sm:flex-row sm:items-center sm:justify-between"
+            ? "flex flex-col gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-destructive sm:flex-row sm:items-center sm:justify-between"
+            : "flex flex-col gap-3 rounded-2xl border border-primary bg-primary/5 p-4 text-primary sm:flex-row sm:items-center sm:justify-between"
         }
       >
         <div className="flex items-start gap-3">
@@ -266,7 +266,7 @@ export default function DepositSlipUpload({
             type="button"
             size="lg"
             variant="outline"
-            className="bg-white hover:bg-red-100 border-red-300 text-red-800"
+            className="border-destructive/30 bg-background text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={() => router.refresh()}
           >
             <RefreshCw data-icon="inline-start" />
@@ -282,14 +282,14 @@ export default function DepositSlipUpload({
           "--deposit-qr-size": `${DEPOSIT_QR_IMAGE_SIZE_PX}px`,
         } as CSSProperties}
       >
-        <div className="flex flex-col gap-4 bg-white/90 p-4 border border-slate-100 rounded-2xl text-center shadow-sm">
+        <div className="flex flex-col gap-4 rounded-2xl border bg-card/90 p-4 text-center shadow-sm">
           <div
-            className="relative bg-white mx-auto w-full aspect-square overflow-hidden"
+            className="relative mx-auto aspect-square w-full overflow-hidden rounded-xl bg-background"
             style={{ maxWidth: DEPOSIT_QR_IMAGE_SIZE_PX }}
           >
             {isQrImageError ? (
               // fallback นี้ทำให้ flow ไม่พังแม้รูป QR ใน public/images หายหรือโหลดไม่ได้
-              <div className="flex justify-center items-center p-6 h-full font-medium text-amber-900 text-sm">
+              <div className="flex h-full items-center justify-center p-6 text-sm font-medium text-amber-900 dark:text-amber-200">
                 ไม่สามารถแสดง QR Code ได้
               </div>
             ) : (
@@ -304,10 +304,10 @@ export default function DepositSlipUpload({
             )}
           </div>
           <div>
-            <p className="font-semibold text-amber-950 text-sm">
+            <p className="text-sm font-semibold text-amber-950 dark:text-amber-200">
               Scan เพื่อชำระมัดจำ
             </p>
-            <p className="mt-1 text-amber-800 text-xs">
+            <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
               ชำระ {APPOINTMENT_DEPOSIT_AMOUNT} บาท ก่อนอัปโหลดสลิป
             </p>
           </div>
@@ -319,7 +319,7 @@ export default function DepositSlipUpload({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
           <FieldGroup>
             <Field>
               <div className="flex items-start justify-between  gap-3">
@@ -336,7 +336,7 @@ export default function DepositSlipUpload({
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     disabled={isPending || isDepositExpired}
                     onClick={handleClearFile}
                   >
@@ -366,21 +366,21 @@ export default function DepositSlipUpload({
             aria-disabled={isPending || isDepositExpired}
             className={
               isPending || isDepositExpired
-                ? "flex min-h-72 cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-amber-200 bg-amber-50/60 p-4 text-center opacity-70"
-                : "flex min-h-72 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 p-4 text-center transition-colors hover:border-amber-400 hover:bg-amber-100/60"
+                ? "flex min-h-72 cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-amber-200 bg-amber-50/60 p-4 text-center opacity-70 dark:border-amber-800 dark:bg-amber-950/20"
+                : "flex min-h-72 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 p-4 text-center transition-colors hover:border-amber-400 hover:bg-amber-100/60 dark:border-amber-800 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
             }
           >
             {previewUrl ? (
               <>
-                <div className="flex w-full justify-between gap-3 rounded-lg border border-amber-200 bg-white px-3 py-2 text-left text-sm">
-                  <span className="min-w-0 truncate font-medium text-amber-950">
+                <div className="flex w-full justify-between gap-3 rounded-lg border border-amber-200 bg-background px-3 py-2 text-left text-sm dark:border-amber-800">
+                  <span className="min-w-0 truncate font-medium text-amber-950 dark:text-amber-200">
                     {selectedFile?.name}
                   </span>
-                  <span className="shrink-0 text-amber-800">
+                  <span className="shrink-0 text-amber-800 dark:text-amber-300">
                     {selectedFile ? formatFileSize(selectedFile.size) : ""}
                   </span>
                 </div>
-                <div className="flex w-full justify-center items-center bg-white border border-amber-100 rounded-lg max-h-80 overflow-hidden">
+                <div className="flex max-h-80 w-full items-center justify-center overflow-hidden rounded-lg border border-amber-100 bg-background dark:border-amber-800">
                   {/* ใช้ img ธรรมดาเพราะ previewUrl เป็น blob URL จากเครื่องลูกค้า ไม่ใช่รูป static ของ Next.js */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -389,25 +389,25 @@ export default function DepositSlipUpload({
                     className="w-full max-h-80 object-contain"
                   />
                 </div>
-                <span className="inline-flex items-center gap-1.5 text-amber-900 text-xs">
+                <span className="inline-flex items-center gap-1.5 text-xs text-amber-900 dark:text-amber-200">
                   <UploadCloud className="size-3.5" />
                   คลิกเพื่อเปลี่ยนรูปสลิป
                 </span>
               </>
             ) : (
               <>
-                <div className="flex size-14 items-center justify-center rounded-full bg-white text-amber-700 ring-1 ring-amber-200">
+                <div className="flex size-14 items-center justify-center rounded-full bg-background text-amber-700 ring-1 ring-amber-200 dark:text-amber-300 dark:ring-amber-800">
                   <ImageIcon className="size-6" />
                 </div>
                 <div>
-                  <p className="font-semibold text-amber-950 text-sm">
+                  <p className="text-sm font-semibold text-amber-950 dark:text-amber-200">
                     เลือกรูปสลิปเพื่อแสดงตัวอย่าง
                   </p>
-                  <p className="mt-1 text-amber-800 text-xs">
+                  <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
                     แตะที่กล่องนี้เพื่อเลือกรูปจากเครื่องของคุณ
                   </p>
                 </div>
-                <span className="inline-flex min-h-8 items-center justify-center rounded-lg bg-white px-3 text-amber-900 text-xs font-medium ring-1 ring-amber-200">
+                <span className="inline-flex min-h-8 items-center justify-center rounded-lg bg-background px-3 text-xs font-medium text-amber-900 ring-1 ring-amber-200 dark:text-amber-200 dark:ring-amber-800">
                   เลือกรูปสลิป
                 </span>
               </>
@@ -415,7 +415,7 @@ export default function DepositSlipUpload({
           </label>
 
           {fileError ? (
-            <p aria-live="polite" className="text-red-700 text-sm">
+            <p aria-live="polite" className="text-sm text-destructive">
               {fileError}
             </p>
           ) : null}
@@ -429,7 +429,7 @@ export default function DepositSlipUpload({
             }
             isLoading={isPending}
             loadingText="กำลังตรวจสอบสลิป..."
-            className="bg-green-600 hover:bg-green-700 shadow-none w-full"
+            className="w-full bg-emerald-600 shadow-none hover:bg-emerald-700 dark:bg-emerald-500 dark:text-emerald-950 dark:hover:bg-emerald-400"
           >
             <UploadCloud data-icon="inline-start" />
             {isDepositExpired
@@ -437,7 +437,7 @@ export default function DepositSlipUpload({
               : "อัปโหลดและตรวจสอบสลิป"}
           </LoadingButton>
 
-          <div className="flex items-start gap-2 text-amber-900 text-xs">
+          <div className="flex items-start gap-2 text-xs text-amber-900 dark:text-amber-200">
             <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
             <span>
               เมื่อสลิปผ่าน ระบบจะเปลี่ยนสถานะเป็นยืนยันคิวให้อัตโนมัติ

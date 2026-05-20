@@ -37,14 +37,14 @@ const petGroups = [
     petType: "DOG",
     label: "บริการหลักสำหรับสุนัข",
     icon: <DogIcon className="size-5" />,
-    styles: "bg-blue-50 text-blue-600",
+    styles: "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300",
   },
   {
     type: "cat",
     petType: "CAT",
     label: "บริการหลักสำหรับแมว",
     icon: <CatIcon className="size-5" />,
-    styles: "bg-orange-50 text-orange-600",
+    styles: "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300",
   },
 ] as const;
 
@@ -81,7 +81,7 @@ function getServicesForPet(
 
 function EmptyServices() {
   return (
-    <Card className="shadow-sm border-slate-200 border-dashed">
+    <Card className="border-dashed shadow-sm">
       <CardContent className="p-6 text-muted-foreground text-sm text-center">
         ยังไม่มีข้อมูลบริการสำหรับหมวดนี้
       </CardContent>
@@ -90,24 +90,24 @@ function EmptyServices() {
 }
 function ServiceCard({ service }: { service: DisplayService }) {
   const getServiceIcon = (name: string) => {
-    if (name.includes("อาบน้ำตัดขน")) return <Scissors className="text-orange-600" size={20} />;
-    if (name.includes("อาบน้ำ")) return <Waves className="text-blue-600" size={20} />;
+    if (name.includes("อาบน้ำตัดขน")) return <Scissors className="text-orange-600 dark:text-orange-300" size={20} />;
+    if (name.includes("อาบน้ำ")) return <Waves className="text-blue-600 dark:text-blue-300" size={20} />;
     return null;
   };
 
-  const iconBaseColor = service.name.includes("อาบน้ำตัดขน") ? "bg-orange-50" : "bg-blue-50";
+  const iconBaseColor = service.name.includes("อาบน้ำตัดขน") ? "bg-orange-50 dark:bg-orange-950/40" : "bg-blue-50 dark:bg-blue-950/40";
 
   return (
-    <div className="group relative bg-white rounded-2xl p-2 border border-slate-100 shadow-sm transition-all duration-500">
+    <div className="group relative rounded-2xl border bg-card p-2 text-card-foreground shadow-sm transition-all duration-500">
       <div className="p-4">
         <header className="mb-6">
           <div className="flex flex-col justify-between items-start gap-4">
             <div className="flex flex-row  gap-4 items-center">
               {/* เพิ่มส่วนแสดงไอคอนบริการหลัก */}
-              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", iconBaseColor)}>
+              <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", iconBaseColor)}>
                 {getServiceIcon(service.name)}
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <h3 className="text-xl font-bold text-primary tracking-tight mb-1 group-hover:text-primary transition-colors">
                   {service.name}
                 </h3>
@@ -122,7 +122,7 @@ function ServiceCard({ service }: { service: DisplayService }) {
           </div>
         </header>
 
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {/* ส่วน variants คงเดิมตามที่ส่งมา */}
           {service.variants.map((variant) => (
             <div
@@ -184,12 +184,12 @@ export function MainServicesForm({
                   className={cn(
                     "flex items-center justify-center gap-3 mb-6 rounded-xl w-full mx-auto py-3 transition-all border",
                     group.type === 'dog'
-                      ? "bg-blue-50/50 border-blue-100/50 text-blue-500"
-                      : "bg-orange-50/50 border-orange-100/50 text-orange-500"
+                      ? "bg-blue-50/50 border-blue-100/50 text-blue-500 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300"
+                      : "bg-orange-50/50 border-orange-100/50 text-orange-500 dark:border-orange-800 dark:bg-orange-950/30 dark:text-orange-300"
                   )}
                 >
                   <div className={cn(
-                    group.type === 'dog' ? "text-blue-500" : "text-orange-500"
+                    group.type === 'dog' ? "text-blue-500 dark:text-blue-300" : "text-orange-500 dark:text-orange-300"
                   )}>
                     {group.type === 'dog' ? (
                       <Dog className="size-6" />

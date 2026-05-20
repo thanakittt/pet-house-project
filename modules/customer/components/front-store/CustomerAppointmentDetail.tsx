@@ -51,16 +51,16 @@ export default function CustomerAppointmentDetails({
   );
 
   return (
-    <main className="space-y-8 mx-auto max-w-5xl p-6 lg:p-8">
-      <BackButton href="/" />
+    <main className="flex flex-col gap-8 mx-auto p-6 lg:p-8 max-w-5xl">
+      <BackButton />
       <div className="animate-in fade-in">
-        <div className="gap-6 md:gap-8 grid grid-cols-1 lg:grid-cols-3 ">
-          <div className="space-y-6 lg:col-span-2">
-            <div className="overflow-hidden bg-white shadow-sm border rounded-2xl transition-all duration-300">
-              <div className="space-y-6 p-6">
-                <div className="flex items-start gap-3 justify-between">
+        <div className="gap-6 md:gap-8 grid grid-cols-1 lg:grid-cols-3">
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            <div className="bg-card shadow-sm border rounded-2xl overflow-hidden text-card-foreground transition-all duration-300">
+              <div className="flex flex-col gap-6 p-6">
+                <div className="flex justify-between items-start gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="bg-indigo-50 p-2 rounded-lg text-indigo-500">
+                    <div className="bg-indigo-50 dark:bg-indigo-950/40 p-2 rounded-lg text-indigo-500 dark:text-indigo-300">
                       <CalendarCheck className="size-5" />
                     </div>
                     <h2 className="font-bold text-primary text-lg md:text-xl">
@@ -73,22 +73,22 @@ export default function CustomerAppointmentDetails({
                   />
                 </div>
 
-                <div className="flex gap-2 items-center px-4">
-                  <div className="space-y-2 w-full">
+                <div className="flex items-center gap-2 px-4">
+                    <div className="flex flex-col gap-2 w-full">
                     <div className="flex items-center gap-1 font-medium text-muted-foreground text-sm">
                       <Calendar className="size-3" />
                       วันที่เข้ารับบริการ
                     </div>
-                    <p className="font-bold text-primary text-lg md:text-xl text-start pl-2">
+                    <p className="pl-2 font-bold text-primary text-lg md:text-xl text-start">
                       {formatDate(appointment.date)}
                     </p>
                   </div>
-                  <div className="space-y-2 w-full">
+                  <div className="flex flex-col gap-2 w-full">
                     <div className="flex items-center gap-1 font-medium text-muted-foreground text-sm">
                       <Clock className="size-3" />
                       เวลาเข้าใช้บริการ
                     </div>
-                    <p className="font-bold text-primary text-lg md:text-xl text-start pl-2">
+                    <p className="pl-2 font-bold text-primary text-lg md:text-xl text-start">
                       {formatTime(appointment.startTime)} น.
                     </p>
                   </div>
@@ -113,11 +113,11 @@ export default function CustomerAppointmentDetails({
                 ) : null}
 
                 {appointment.pets.length > 1 ? (
-                  <div className="space-y-3">
+                  <div className="flex flex-col gap-3">
                     {appointment.pets.slice(1).map((pet) => (
                       <div
                         key={pet.petId}
-                        className="flex items-center gap-4 p-4 bg-muted/80 rounded-xl"
+                        className="flex items-center gap-4 bg-muted/80 p-4 rounded-xl"
                       >
                         <PetTypeBadge type={getPetTypeForBadge(pet.species)} />
                         <div>
@@ -137,27 +137,27 @@ export default function CustomerAppointmentDetails({
               href="https://maps.app.goo.gl/4zDGa6djFfVKGq5RA"
               target="_blank"
               rel="noopener noreferrer"
-              className="group block overflow-hidden bg-white p-6 shadow-sm border rounded-2xl transition-all duration-300 hover:shadow-md"
+              className="group block bg-card hover:bg-muted/30 shadow-sm hover:shadow-md p-6 border rounded-2xl overflow-hidden text-card-foreground transition-all duration-300"
             >
               <div className="flex md:flex-row flex-col justify-between gap-6">
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <div className="flex flex-col items-start gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="bg-fuchsia-50 p-2 rounded-lg  text-fuchsia-500">
+                      <div className="bg-fuchsia-50 dark:bg-fuchsia-950/40 p-2 rounded-lg text-fuchsia-500 dark:text-fuchsia-300">
                         <Store className="size-5" />
                       </div>
-                      <p className=" font-bold text-lg text-primary uppercase ">
+                      <p className="font-bold text-primary text-lg uppercase">
                         Pet House
                       </p>
                     </div >
-                    <p className="mt-2  px-4 text-primary text-base leading-relaxed text-left">
+                    <p className="mt-2 px-4 text-primary text-base text-left leading-relaxed">
                         181/262 ม.3 ถ.โพธาราม ต.ช้างเผือก อ.เชียงใหม่ จ.เชียงใหม่
                         50300
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex size-11 items-center justify-center rounded-md border bg-background transition-colors group-hover:bg-muted">
+                  <span className="inline-flex justify-center items-center bg-background group-hover:bg-muted border rounded-md size-11 transition-colors">
                     <ExternalLink className="size-5" />
                   </span>
                 </div>
@@ -166,8 +166,8 @@ export default function CustomerAppointmentDetails({
           </div>
 
           <div className="lg:col-span-1">
-            <div className="lg:top-24 relative lg:sticky overflow-hidden bg-white p-6 shadow-sm border rounded-2xl transition-all duration-300 hover:shadow-md">
-              <div className="-left-10 -bottom-10 absolute opacity-5 rotate-12 pointer-events-none">
+            <div className="lg:top-24 relative lg:sticky bg-card shadow-sm hover:shadow-md p-6 border rounded-2xl overflow-hidden text-card-foreground transition-all duration-300">
+              <div className="-bottom-10 -left-10 absolute opacity-5 rotate-12 pointer-events-none">
                 <Scissors className="size-44" />
               </div>
 
@@ -175,7 +175,7 @@ export default function CustomerAppointmentDetails({
                 สรุปยอดชำระ
               </h2>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 {receiptItems.map((service) => (
                   <div
                     key={service.id}
@@ -191,9 +191,9 @@ export default function CustomerAppointmentDetails({
                   </div>
                 ))}
 
-                <div className="space-y-4 mt-6 pt-6 border-muted border-t">
+                <div className="flex flex-col gap-4 mt-6 pt-6 border-muted border-t">
                   <div className="flex justify-between items-end">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <p className="font-bold text-primary text-lg">
                         รวมทั้งหมด
                       </p>
@@ -205,7 +205,7 @@ export default function CustomerAppointmentDetails({
                 </div>
               </div>
 
-              <div className="z-10 relative space-y-4 mt-10">
+              <div className="z-10 relative flex flex-col gap-4 mt-10">
                 {appointment.status === "COMPLETED" ? (
                   <Button
                     asChild
@@ -235,7 +235,7 @@ export default function CustomerAppointmentDetails({
                 {[...Array(20)].map((_, index) => (
                   <div
                     key={index}
-                    className="flex-1 bg-slate-200 rounded-full translate-y-1/2"
+                    className="flex-1 bg-muted rounded-full translate-y-1/2"
                   />
                 ))}
               </div>

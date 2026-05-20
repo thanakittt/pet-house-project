@@ -186,7 +186,7 @@ export default function Step5DateTime({
               })}
             </div>
           ) : (
-            <p className="bg-red-50 p-4 rounded-lg text-red-500 text-sm">
+            <p className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
               ขออภัย ไม่มีคิวว่างสำหรับวันนี้ กรุณาเลือกวันอื่น
             </p>
           )}

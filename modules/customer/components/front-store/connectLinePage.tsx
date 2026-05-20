@@ -80,7 +80,7 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="text-center">
-          <p className="mb-4 text-gray-600">กำลังโหลด...</p>
+          <p className="mb-4 text-muted-foreground">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -89,12 +89,12 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="text-center">
-        <h1 className="mb-4 font-bold text-green-600 text-2xl">
+        <h1 className="mb-4 text-2xl font-bold text-emerald-600 dark:text-emerald-300">
           เชื่อมต่อกับ LINE
         </h1>
         {isConnected ? (
           <div>
-            <p className="mb-4 text-gray-600">คุณได้เชื่อมต่อกับ LINE แล้ว</p>
+            <p className="mb-4 text-muted-foreground">คุณได้เชื่อมต่อกับ LINE แล้ว</p>
             <LoadingButton
               size="lg"
               onClick={handleDisconnect}
@@ -106,7 +106,7 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
           </div>
         ) : (
           <div>
-            <p className="mb-4 text-gray-600">
+            <p className="mb-4 text-muted-foreground">
               กรุณาคลิกที่ปุ่มด้านล่างเพื่อเชื่อมต่อกับ LINE
             </p>
             <LoadingButton

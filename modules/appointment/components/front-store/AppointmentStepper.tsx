@@ -182,17 +182,17 @@ export default function AppointmentStepper({
 
     return (
       <div className="relative mx-auto mb-10 flex max-w-4xl items-start justify-between">
-        <div className="absolute left-0 top-6 -z-10 h-1 w-full bg-slate-100" />
+        <div className="absolute left-0 top-6 -z-10 h-1 w-full bg-muted" />
         {[1, 2, 3, 4, 5].map((item) => (
           <div key={item} className="flex w-full flex-col items-center gap-3">
             <div
               className={cn(
                 "flex size-10 md:size-12 items-center justify-center rounded-full border-4 font-bold transition-all",
                 step === item
-                  ? "border-white bg-primary text-white ring-2 text-xs md:text-base ring-primary"
+                  ? "border-background bg-primary text-primary-foreground ring-2 text-xs md:text-base ring-primary"
                   : step > item
-                    ? "border-white bg-primary text-white ring-2 text-xs md:text-base ring-green-400/60"
-                    : "border-white bg-muted text-xs md:text-base text-primary/40",
+                    ? "border-background bg-primary text-primary-foreground ring-2 text-xs md:text-base ring-emerald-400/60"
+                    : "border-background bg-muted text-xs md:text-base text-muted-foreground",
               )}
             >
               {item}
@@ -215,8 +215,8 @@ export default function AppointmentStepper({
     // เมื่อสร้าง appointment แล้ว ไม่กลับไปแสดง stepper อีกใน session นี้
     // ลูกค้าจะเห็น QR/upload slip ต่อทันที เพราะ appointment อยู่สถานะ PENDING_DEPOSIT
     return (
-      <div className="mx-auto my-4 flex h-auto w-full max-w-5xl flex-col items-center gap-6 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <div className="flex size-16 items-center justify-center rounded-full bg-green-100 text-green-700">
+      <div className="mx-auto my-4 flex h-auto w-full max-w-5xl flex-col items-center gap-6 rounded-2xl border bg-card p-8 text-center text-card-foreground shadow-sm">
+        <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
           {verifiedSlipTransRef ? (
             <ShieldCheck className="size-8" />
           ) : (
@@ -224,7 +224,7 @@ export default function AppointmentStepper({
           )}
         </div>
         <div>
-          <h1 className="mb-2 text-2xl font-bold text-slate-900">
+          <h1 className="mb-2 text-2xl font-bold text-foreground">
             {verifiedSlipTransRef ? "ยืนยันคิวแล้ว" : "จองคิวสำเร็จ"}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -233,7 +233,7 @@ export default function AppointmentStepper({
         </div>
         {verifiedSlipTransRef ? (
           // verify ผ่านแล้ว appointment ถูกเปลี่ยนเป็น CONFIRMED ฝั่ง server
-          <div className="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-5 text-left text-sm text-green-900">
+          <div className="w-full max-w-xl rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left text-sm text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200">
             <div className="flex flex-wrap items-center gap-2 font-semibold">
               <span>สถานะปัจจุบัน:</span>
               <AppointmentStatusBadge status="CONFIRMED" />
@@ -241,7 +241,7 @@ export default function AppointmentStepper({
             <p className="mt-1">
               ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT} บาทเรียบร้อยแล้ว
             </p>
-            <p className="mt-2 text-xs text-green-800">
+            <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-300">
               เลขอ้างอิงสลิป: {verifiedSlipTransRef}
             </p>
           </div>
@@ -258,7 +258,7 @@ export default function AppointmentStepper({
   }
 
   return (
-    <div className="mx-auto my-4 h-auto w-full max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="mx-auto my-4 h-auto w-full max-w-5xl rounded-2xl border bg-card p-8 text-card-foreground shadow-sm">
       <h1 className="mb-8 text-pretty text-xl font-bold md:text-2xl">
         จองคิวรับบริการ
       </h1>

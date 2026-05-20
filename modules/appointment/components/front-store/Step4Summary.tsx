@@ -105,13 +105,13 @@ export default function Step4Summary({
           return (
             <div
               key={`${booking.petId}-${index}`}
-              className="relative bg-white shadow-sm px-6 pt-6 pb-4 border border-primary/40 hover:border-primary rounded-2xl transition-all"
+              className="relative rounded-2xl border border-primary/40 bg-card px-6 pb-4 pt-6 text-card-foreground shadow-sm transition-all hover:border-primary"
             >
               <div className="top-4 right-4 absolute flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 hover:text-blue-600 transition-all"
+                  className="bg-blue-500/10 text-blue-500 transition-all hover:bg-blue-500/20 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-200"
                   onClick={() => handleEdit(index)}
                   title={`แก้ไขรายการของ ${pet.name}`}
                 >
@@ -192,7 +192,7 @@ export default function Step4Summary({
         <span className="text-sm md:text-base">เพิ่มสัตว์เลี้ยงอีกตัว</span>
       </div>
 
-      <div className="flex justify-between items-center bg-white shadow-lg p-6 border border-primary/20 rounded-2xl text-primary">
+      <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-card p-6 text-primary shadow-lg">
         <div>
           <p className="font-medium text-primary text-sm">
             ยอดชำระสุทธิ ({allBookings.length} รายการ)
