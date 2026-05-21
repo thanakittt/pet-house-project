@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { appointments, pets, services, serviceVariants } from "@/db/schema";
+import { appointments, services, serviceVariants } from "@/db/schema";
 import { requireStaff } from "@/lib/session";
 import { eq, isNull } from "drizzle-orm";
 
@@ -34,6 +34,14 @@ export async function getPOSCheckoutData(appointmentId: string) {
                 id: true,
                 name: true,
               },
+              with: {
+                breed: {
+                  columns: {
+                    type: true,
+                    size: true,
+                  },
+                },
+              },
             },
             serviceVariant: {
               columns: {
@@ -59,22 +67,12 @@ export async function getPOSCheckoutData(appointmentId: string) {
       return { success: false, error: "ไม่พบข้อมูลออเดอร์หรือการจองนี้" };
     }
 
-    // 3. ดึงข้อมูลสัตว์เลี้ยง "ทั้งหมด" ของลูกค้ารายนี้ (สำหรับ Dropdown เพิ่มรายการ)
-    const availablePetsData = await db.query.pets.findMany({
-      where: eq(pets.customerId, appointmentData.customerId),
-      columns: {
-        id: true,
-        name: true,
-      },
-      with: {
-        breed: {
-          columns: {
-            type: true,
-            size: true,
-          },
-        },
-      },
-    });
+    // 3. Build the pet dropdown from pets already present on this appointment only.
+    const availablePetsData = Array.from(
+      new Map(
+        appointmentData.items.map((item) => [item.pet.id, item.pet]),
+      ).values(),
+    );
 
     // 4. ดึงข้อมูลบริการ "ทั้งหมด" ของร้าน (สำหรับ Dropdown เพิ่มรายการ)
     const availableServices = await db.query.services.findMany({

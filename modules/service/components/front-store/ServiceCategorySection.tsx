@@ -25,7 +25,7 @@ export function ServiceCategorySection({
     desktopContent,
 }: ServiceCategorySectionProps) {
     return (
-        <section className="space-y-6">
+        <section className="flex flex-col gap-6">
             {/* Header Section */}
             <header className="flex items-center gap-3">
                 <div className={`size-10 rounded-xl ${iconBgColor} flex items-center justify-center text-white shadow-md`}>
@@ -41,15 +41,15 @@ export function ServiceCategorySection({
                         <TabsTrigger
                             value={`${defaultTabValue.split('-')[0]}-dog`}
                         >
-                            <Dog data-icon="inline-start" className="text-blue-500" />
-                            <span className="truncate text-blue-500">สุนัข</span>
+                            <Dog data-icon="inline-start" className="text-blue-500 dark:text-blue-300" />
+                            <span className="truncate text-blue-500 dark:text-blue-300">สุนัข</span>
                         </TabsTrigger>
 
                         <TabsTrigger
                             value={`${defaultTabValue.split('-')[0]}-cat`}
                         >
-                            <Cat data-icon="inline-start" className="text-orange-500" />
-                            <span className="truncate text-orange-500" >แมว</span>
+                            <Cat data-icon="inline-start" className="text-orange-500 dark:text-orange-300" />
+                            <span className="truncate text-orange-500 dark:text-orange-300" >แมว</span>
                         </TabsTrigger>
                     </TabsList>
 

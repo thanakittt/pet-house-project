@@ -88,8 +88,11 @@ export function CreateTransactionDialog({ categories }: CreateTransactionDialogP
     >
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-transaction-form">
         <DialogTrigger asChild>
-          <Button type="button">
-            <PlusIcon className="size-3.5 mr-2" /> สร้างรายการ
+          <Button 
+            type="button"
+            variant="default"
+          >
+            <PlusIcon className="size-4" />สร้างรายการ
           </Button>
         </DialogTrigger>
         <DialogContent className="md:max-w-md">

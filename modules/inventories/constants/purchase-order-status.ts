@@ -27,28 +27,28 @@ export const PURCHASE_ORDER_STATUS_CONFIG: Record<
   DRAFT: {
     title: "ร่าง",
     group: "Not Started",
-    color: "bg-gray-50 text-gray-600 border-gray-400 hover:bg-gray-100",
-    dot: "border-slate-400 border-dashed",
+    color: "bg-muted text-muted-foreground border-border hover:bg-muted/80",
+    dot: "border-muted-foreground border-dashed",
     next: "ORDERED",
   },
   ORDERED: {
     title: "สั่งซื้อแล้ว",
     group: "Active",
-    color: "bg-amber-50 text-amber-600 border-amber-400 hover:bg-amber-100",
+    color: "bg-amber-500/10 text-amber-700 border-amber-500/50 hover:bg-amber-500/20 dark:text-amber-300",
     dot: "bg-amber-400 border-amber-400",
     next: "RECEIVED",
   },
   RECEIVED: {
     title: "รับของแล้ว",
     group: "Closed",
-    color: "bg-green-50 text-green-600 border-green-400 hover:bg-green-100",
-    dot: "bg-green-400 border-green-400",
+    color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/50 hover:bg-emerald-500/20 dark:text-emerald-300",
+    dot: "bg-emerald-400 border-emerald-400",
     next: null, // terminal state
   },
   CANCELLED: {
     title: "ยกเลิก",
     group: "Closed",
-    color: "bg-rose-50 text-rose-600 border-rose-400 hover:bg-rose-100",
+    color: "bg-destructive/10 text-destructive border-destructive/50 hover:bg-destructive/20",
     dot: "bg-rose-400 border-rose-400",
     next: null, // terminal state
   },

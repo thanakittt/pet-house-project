@@ -69,7 +69,7 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
       <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
         <Input
           type="date"
-          className="h-9 w-full text-sm md:w-[150px]"
+          className="h-10 w-full text-sm md:w-[150px]"
           value={currentDate}
           onChange={(e) => {
             if (e.target.value) {
@@ -85,10 +85,10 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
               <Button
                 key={period.value}
                 variant="ghost"
-                size="sm"
+                size="default"
                 onClick={() => updateFilters({ period: period.value, date: null })}
                 className={cn(
-                  "rounded-md px-4 py-1.5 text-sm font-medium transition-colors h-7",
+                  "rounded-md text-sm font-medium transition-colors h-8",
                   currentPeriod === period.value
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -122,13 +122,13 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
       {hasActiveFilters && (
         <Button
           type="button"
-          variant="ghost"
-          size="sm"
+          variant="outline"
+          size="default"
           onClick={clearFilters}
           aria-label="ล้างตัวกรอง"
         >
-          <XIcon data-icon="inline-start" />
-          ล้าง
+          <XIcon data-icon="inline-start" className="size-4"/>
+          ล้างตัวกรอง
         </Button>
       )}
     </div>

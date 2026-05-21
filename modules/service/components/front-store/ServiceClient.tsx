@@ -19,12 +19,12 @@ export function ServiceClient({ services }: ServiceClientProps) {
 
   return (
     <main className="mx-auto p-4 md:p-8 pb-20 max-w-5xl min-h-screen overflow-x-hidden font-noto-thai">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* --- หมวดหมู่บริการหลัก --- */}
         <ServiceCategorySection
           title="บริการหลัก"
           icon={Scissors}
-          iconBgColor="bg-blue-500"
+          iconBgColor="bg-blue-500 dark:bg-blue-600"
           defaultTabValue="main-dog"
           dogContent={<MainServicesForm services={mainServices} type="dog" />}
           catContent={<MainServicesForm services={mainServices} type="cat" />}
@@ -35,7 +35,7 @@ export function ServiceClient({ services }: ServiceClientProps) {
         <ServiceCategorySection
           title="บริการเสริม"
           icon={Star}
-          iconBgColor="bg-amber-500"
+          iconBgColor="bg-amber-500 dark:bg-amber-600"
           defaultTabValue="addon-dog"
           dogContent={<AddOnServicesForm services={addonServices} type="dog" />}
           catContent={<AddOnServicesForm services={addonServices} type="cat" />}

@@ -84,7 +84,7 @@ export function FinanceOverviewChart({
             {/* รายรับ */}
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">รายรับรวม</span>
-              <span className="text-base font-semibold text-green-600">
+              <span className="text-base font-semibold text-emerald-600 dark:text-emerald-400">
                 {formatCurrency(data.totalIncome)}
               </span>
             </div>
@@ -92,7 +92,7 @@ export function FinanceOverviewChart({
             {/* รายจ่าย */}
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">รายจ่ายรวม</span>
-              <span className="text-base font-semibold text-red-500">
+              <span className="text-base font-semibold text-destructive">
                 {formatCurrency(data.totalExpense)}
               </span>
             </div>
@@ -104,12 +104,12 @@ export function FinanceOverviewChart({
               </span>
               <div className="flex items-center gap-1">
                 {isProfit ? (
-                  <TrendingUp className="size-3 text-green-600" />
+                  <TrendingUp className="text-emerald-600 dark:text-emerald-400" />
                 ) : (
-                  <TrendingDown className="size-3 text-red-500" />
+                  <TrendingDown className="text-destructive" />
                 )}
                 <span
-                  className={`text-base font-semibold ${isProfit ? "text-green-600" : "text-red-500"
+                  className={`text-base font-semibold ${isProfit ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
                     }`}
                 >
                   {formatCurrency(Math.abs(data.netProfit))}

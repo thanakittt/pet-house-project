@@ -8,6 +8,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { ThemeLogo } from "@/components/theme-logo";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -82,17 +83,16 @@ export function SignInForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="flex flex-col justify-center items-center px-5 rounded-lg md:w-[400px] w-full">
-        <Image
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg w-full md:w-[400px]">
+        <ThemeLogo
           className="mx-auto mb-3 rounded-sm"
-          src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}
           priority
         />
-        <h1 className="mb-2 font-bold text-xl  uppercase">Pet House</h1>
-        <h2 className="mb-5 font-semibold text-base md:text-lg ">เข้าสู่ระบบ</h2>
+        <h1 className="mb-2 font-bold text-xl uppercase">Pet House</h1>
+        <h2 className="mb-5 font-semibold text-base md:text-lg">เข้าสู่ระบบ</h2>
 
         <form
           id="sign-in-form"

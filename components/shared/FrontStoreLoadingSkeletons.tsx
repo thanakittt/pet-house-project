@@ -57,11 +57,11 @@ function SectionHeadingSkeleton({
 
 function ActionCardSkeleton() {
   return (
-    <div className="rounded-3xl border bg-white p-6 shadow-sm md:p-8">
+    <div className="rounded-3xl border bg-card p-6 text-card-foreground shadow-sm md:p-8">
       <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-muted">
         <Skeleton className="size-7 rounded-lg" />
       </div>
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <Skeleton className="mx-auto h-5 w-32" />
         <Skeleton className="mx-auto h-4 w-full max-w-52" />
         <Skeleton className="mx-auto h-4 w-4/5 max-w-44" />
@@ -72,8 +72,8 @@ function ActionCardSkeleton() {
 
 function CompactNewsCardSkeleton() {
   return (
-    <div className="flex items-center justify-between rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-      <div className="min-w-0 flex-1 space-y-3 pr-4">
+    <div className="flex items-center justify-between rounded-3xl border bg-card p-6 text-card-foreground shadow-sm">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 pr-4">
         <Skeleton className="h-5 w-20 rounded-full" />
         <Skeleton className="h-5 w-44 max-w-full" />
         <Skeleton className="h-4 w-full max-w-56" />
@@ -86,7 +86,7 @@ function CompactNewsCardSkeleton() {
 
 function ServiceCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border bg-card p-5 text-card-foreground shadow-sm">
       <div className="flex items-start gap-4">
         <Skeleton className="size-12 rounded-xl" />
         <div className="min-w-0 flex-1 space-y-3">
@@ -111,7 +111,7 @@ function ServiceCategorySkeleton({
   return (
     <section className="space-y-5">
       <SectionHeadingSkeleton iconClassName={iconClassName} />
-      <div className="flex gap-2 rounded-2xl border bg-white p-2 shadow-sm md:max-w-sm">
+      <div className="flex gap-2 rounded-2xl border bg-card p-2 shadow-sm md:max-w-sm">
         <Skeleton className="h-10 flex-1 rounded-xl" />
         <Skeleton className="h-10 flex-1 rounded-xl" />
       </div>
@@ -126,7 +126,7 @@ function ServiceCategorySkeleton({
 
 function AppointmentCardSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+    <div className="relative overflow-hidden rounded-2xl border bg-card p-5 text-card-foreground shadow-sm md:p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-4">
           <Skeleton className="size-11 shrink-0 rounded-xl md:size-12" />
@@ -161,7 +161,7 @@ function ProfileInfoCardSkeleton({
   withAction?: boolean;
 }) {
   return (
-    <div className="rounded-xl border bg-white shadow-sm">
+    <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
       <div className="flex items-center justify-between gap-4 p-6">
         <div className="flex items-center gap-2">
           <Skeleton className="size-8 rounded-md" />
@@ -221,7 +221,7 @@ function AuthFormSkeleton({ fields = 2 }: { fields?: number }) {
 export function FrontStoreHomeSkeleton() {
   return (
     <PageShell busyLabel="Loading home page" className="space-y-6">
-      <section className="relative min-h-[200px] overflow-hidden rounded-3xl border bg-white shadow-sm md:min-h-[280px]">
+      <section className="relative min-h-[200px] overflow-hidden rounded-3xl border bg-card text-card-foreground shadow-sm md:min-h-[280px]">
         <div className="relative z-10 flex w-full flex-col items-start gap-3 px-6 py-6 md:w-2/3 md:py-10 md:pl-10">
           <Skeleton className="h-6 w-40 rounded-full" />
           <div className="space-y-2">
@@ -256,7 +256,7 @@ export function FrontStoreHomeSkeleton() {
 
       <section className="space-y-6">
         <SectionHeadingSkeleton iconClassName="bg-amber-300" />
-        <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm md:grid-cols-3">
+        <div className="grid grid-cols-1 overflow-hidden rounded-3xl border bg-card text-card-foreground shadow-sm md:grid-cols-3">
           <div className="flex flex-col items-center justify-center border-b p-8 md:border-b-0 md:border-r">
             <Skeleton className="h-14 w-24" />
             <Skeleton className="my-3 h-5 w-32" />
@@ -313,7 +313,7 @@ export function FrontStoreAppointmentDetailSkeleton() {
       <Skeleton className="h-10 w-24 rounded-md" />
       <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
             <div className="mb-6 flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 <Skeleton className="size-9 rounded-lg" />
@@ -339,7 +339,7 @@ export function FrontStoreAppointmentDetailSkeleton() {
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
             <div className="flex flex-col justify-between gap-6 md:flex-row">
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export function FrontStoreAppointmentDetailSkeleton() {
           </div>
         </div>
         <div className="lg:col-span-1">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
             <Skeleton className="mb-6 h-6 w-36" />
             <div className="space-y-3">
               {[0, 1, 2].map((item) => (
@@ -381,7 +381,7 @@ export function FrontStoreBookingSkeleton() {
   return (
     <PageShell busyLabel="Loading booking form" className="my-4 max-w-5xl space-y-4 px-4 py-0">
       <Skeleton className="h-20 w-full rounded-2xl" />
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+      <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm md:p-8">
         <Skeleton className="mb-8 h-8 w-56" />
         <div className="relative mx-auto mb-10 flex max-w-4xl items-start justify-between">
           <Skeleton className="absolute left-0 top-6 h-1 w-full" />
@@ -423,7 +423,7 @@ export function FrontStorePetsSkeleton() {
       <header className="mb-5 mt-3">
         <Skeleton className="h-8 w-48" />
       </header>
-      <div className="rounded-2xl border bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border bg-card p-5 text-card-foreground shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-10 w-28 rounded-md" />
@@ -491,7 +491,7 @@ export function FrontStoreNewsDetailSkeleton() {
   return (
     <PageShell busyLabel="Loading news detail" className="space-y-6">
       <Skeleton className="h-10 w-24 rounded-md" />
-      <article className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+      <article className="overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
         <Skeleton className="aspect-video w-full rounded-none" />
         <div className="space-y-5 p-6 md:p-8">
           <div className="flex flex-wrap items-center gap-3">
@@ -517,7 +517,7 @@ export function FrontStoreAssistantSkeleton() {
       aria-label="Loading assistant"
       className="flex min-h-screen items-center justify-center p-4"
     >
-      <section className="flex h-[min(720px,calc(100vh-8rem))] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <section className="flex h-[min(720px,calc(100vh-8rem))] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
         <div className="flex items-center gap-3 border-b p-4">
           <Skeleton className="size-10 rounded-full" />
           <div className="space-y-2">

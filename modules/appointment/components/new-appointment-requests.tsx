@@ -45,7 +45,7 @@ export default function NewAppointmentRequests({
 }: NewAppointmentRequestsProps) {
   if (appointments.length === 0) {
     return (
-      <div className="bg-slate-50 p-8 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
+      <div className="bg-muted/40 p-8 border border-dashed rounded-lg text-muted-foreground text-sm text-center">
         ยังไม่มีคำขอจองคิวใหม่ที่ยืนยันแล้ว
       </div>
     );
@@ -57,7 +57,7 @@ export default function NewAppointmentRequests({
         <Link
           key={appointment.id}
           href={`/back-office/appointments/${appointment.id}`}
-          className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-white hover:bg-slate-50/50 shadow-sm hover:shadow-md p-4 sm:p-5 border rounded-lg min-w-0 overflow-hidden transition-all cursor-pointer"
+          className="group flex md:flex-row flex-col justify-between md:items-center gap-4 bg-card hover:bg-muted/40 shadow-sm hover:shadow-md p-4 sm:p-5 border rounded-lg min-w-0 overflow-hidden transition-all cursor-pointer"
         >
           <div className="flex flex-col gap-3 min-w-0">
             <div className="flex flex-col gap-1 min-w-0">

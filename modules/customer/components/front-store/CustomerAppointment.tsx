@@ -144,7 +144,7 @@ function CustomerReviewDialog({
                       "size-7 transition-colors",
                       star <= rating
                         ? "fill-amber-400 text-amber-400"
-                        : "text-slate-200",
+                        : "text-muted-foreground/30",
                     )}
                   />
                 </button>
@@ -161,7 +161,7 @@ function CustomerReviewDialog({
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               placeholder="เล่าความประทับใจ หรือสิ่งที่อยากให้ร้านปรับปรุง..."
-              className="min-h-24 resize-none rounded-xl border-slate-200 focus-visible:ring-primary/20"
+              className="min-h-24 resize-none rounded-xl focus-visible:ring-primary/20"
               disabled={isPending}
             />
           </div>
@@ -202,7 +202,7 @@ export default function CustomerAppointment({
   const hasNextPage = totalPages > 0 && page < totalPages;
 
   return (
-    <div className="space-y-6 mx-auto p-4 max-w-4xl animate-in duration-500 fade-in-50">
+    <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4 duration-500 animate-in fade-in-50">
       <header className="mb-5 mt-3">
         <h1 className="text-pretty text-xl font-bold md:text-2xl">
           ประวัติการใช้บริการ
@@ -212,9 +212,9 @@ export default function CustomerAppointment({
       {!appointmentData.hasLineConnection ? <LineNotificationAlert /> : null}
 
       {appointments.length === 0 ? (
-        <div className="bg-white p-12 border border-slate-100 rounded-2xl text-center shadow-sm">
-          <div className="mx-auto mb-4 size-12 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
-            <Calendar className="size-5 text-slate-400" />
+        <div className="rounded-2xl border bg-card p-12 text-center text-card-foreground shadow-sm">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full border bg-muted">
+            <Calendar className="size-5 text-muted-foreground" />
           </div>
           <h2 className="font-semibold text-primary text-lg">
             ยังไม่มีประวัติการใช้บริการ
@@ -227,7 +227,7 @@ export default function CustomerAppointment({
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {appointments.map((item) => {
             const review = item.review;
             const hasReview = item.status === "COMPLETED" && review;
@@ -236,7 +236,7 @@ export default function CustomerAppointment({
             return (
               <div
                 key={item.id}
-                className="group relative bg-white border border-slate-100 rounded-2xl transition-all duration-300 hover:-translate-y-0.5 overflow-hidden shadow-sm hover:shadow-md"
+                className="group relative overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-muted/30 hover:shadow-md"
               >
                 {/* Main clickable area linking to details */}
                 <Link href={`/appointments/${item.id}`} className="block p-5 md:p-6">
@@ -245,10 +245,10 @@ export default function CustomerAppointment({
                     {/* Top block: Header info */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="size-11 md:size-12 bg-taupe-100 border border-slate-100 rounded-xl flex items-center justify-center shrink-0 shadow-inner text-taupe-800">
+                        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-muted text-muted-foreground shadow-inner md:size-12">
                           <PawPrint className="size-5 md:size-6 stroke-[1.5]" />
                         </div>
-                        <div className="space-y-0.5">
+                        <div className="flex flex-col gap-0.5">
                           <h3 className="font-semibold text-primary text-lg md:text-xl tracking-tight">
                             {item.petName || "-"}
                             {item.breed && (
@@ -292,7 +292,7 @@ export default function CustomerAppointment({
                       {/* Left: Star Review Status */}
                       <div className="flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
                         {hasReview ? (
-                          <div className="flex items-center gap-1 bg-amber-50/40 border border-amber-100/50 px-2.5 py-1 rounded-lg w-fit">
+                          <div className="flex w-fit items-center gap-1 rounded-lg border border-amber-100/50 bg-amber-50/40 px-2.5 py-1 dark:border-amber-800 dark:bg-amber-950/30">
                             <div className="flex gap-0.5">
                               {[...Array(5)].map((_, idx) => (
                                 <Star
@@ -301,13 +301,13 @@ export default function CustomerAppointment({
                                     "size-3",
                                     idx < review.rating
                                       ? "fill-amber-400 text-amber-400"
-                                      : "text-slate-200",
+                                      : "text-muted-foreground/30",
                                   )}
                                 />
                               ))}
                             </div>
                             {review.comment && (
-                              <span className="text-[11px] text-amber-700/80 font-medium ml-1 truncate max-w-[120px] md:max-w-[240px] hidden sm:inline">
+                              <span className="ml-1 hidden max-w-[120px] truncate text-[11px] font-medium text-amber-700/80 sm:inline md:max-w-[240px] dark:text-amber-300/80">
                                 &quot;{review.comment}&quot;
                               </span>
                             )}

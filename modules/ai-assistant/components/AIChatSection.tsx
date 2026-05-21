@@ -38,7 +38,7 @@ const ChatBubble = ({ msg, isLoading = false }: { msg?: Message; isLoading?: boo
         )}>
             <div className={cn(
                 "flex justify-center items-center border rounded-full size-8 transition-all shrink-0",
-                isUser ? "bg-primary text-primary-foreground border-primary" : "bg-white border-primary/10 text-primary shadow-sm"
+                isUser ? "bg-primary text-primary-foreground border-primary" : "bg-card border-primary/10 text-primary shadow-sm"
             )}>
                 {isUser ? <User size={16} /> : <Bot size={16} />}
             </div>
@@ -46,7 +46,7 @@ const ChatBubble = ({ msg, isLoading = false }: { msg?: Message; isLoading?: boo
                 "shadow-sm px-3 py-2 rounded-2xl text-sm leading-relaxed",
                 isUser
                     ? "bg-primary text-primary-foreground rounded-tr-none"
-                    : "bg-white text-primary rounded-tl-none border border-slate-100"
+                    : "bg-card text-card-foreground rounded-tl-none border"
             )}>
                 {isLoading ? (
                     <div className="flex items-center gap-2 text-muted-foreground italic">
@@ -158,7 +158,7 @@ export default function AIChatSection() {
 
                 {/* Chat Area */}
                 <ScrollArea ref={scrollRef} className="flex-1 bg-muted/30 p-6 min-h-0 overflow-hidden">
-                    <div className="space-y-6 pb-4">
+                    <div className="flex flex-col gap-6 pb-4">
                         {messages.map((msg, idx) => (
                             <ChatBubble key={idx} msg={msg} />
                         ))}

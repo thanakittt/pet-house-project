@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { ThemeLogo } from "@/components/theme-logo";
 import { Input } from "@/components/ui/input";
 import {
   Field,
@@ -19,7 +20,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { setupProfile } from "../actions/setup-profile";
 
 const GENDER_OPTIONS = [
@@ -80,9 +80,8 @@ export function SetupProfileForm({ name }: SetupProfileFormProps) {
     <div className="flex flex-col justify-center items-center p-4 min-h-svh">
       <section className="rounded-lg w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
-          <Image
+          <ThemeLogo
             className="mb-4 rounded-sm"
-            src="/images/logo/1.png"
             alt="Logo Pet House"
             width={60}
             height={60}

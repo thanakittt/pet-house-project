@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { ThemeLogo } from "@/components/theme-logo";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
@@ -80,9 +80,8 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
     return (
       <div className="flex justify-center items-center px-4 min-h-svh">
         <section className="flex flex-col items-center rounded-lg w-full max-w-sm text-center">
-          <Image
+          <ThemeLogo
             className="mb-2 rounded-sm"
-            src="/images/logo/1.png"
             alt="Logo Pet House"
             width={60}
             height={60}
@@ -109,9 +108,8 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
   return (
     <div className="flex justify-center items-center px-4 min-h-svh">
       <section className="flex flex-col items-center rounded-lg w-full max-w-sm">
-        <Image
+        <ThemeLogo
           className="mb-2 rounded-sm"
-          src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}

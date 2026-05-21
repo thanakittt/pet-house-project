@@ -25,14 +25,14 @@ export function TransactionsTable({
 }: TransactionsTableProps) {
   if (transactions.length === 0) {
     return (
-      <div className="flex justify-center items-center p-8 text-muted-foreground border rounded-md bg-white">
+      <div className="flex justify-center items-center p-8 text-muted-foreground border rounded-md bg-card">
         ไม่พบรายการเคลื่อนไหว
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border bg-white">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -47,7 +47,7 @@ export function TransactionsTable({
           {transactions.map((tx) => (
             <TableRow key={tx.id}>
               <TableCell>{formatThaiDate(tx.transactionDate)}</TableCell>
-              <TableCell className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px] md:max-w-[400px]">
+              <TableCell className="truncate max-w-[200px] md:max-w-[400px]">
                 {tx.note || "-"}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
@@ -55,7 +55,7 @@ export function TransactionsTable({
                 </span>
               </TableCell>
               <TableCell
-                className={`text-right font-medium ${tx.categoryType === "INCOME" ? "text-green-600" : "text-red-600"}`}
+                className={`text-right font-medium ${tx.categoryType === "INCOME" ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}
               >
                 {tx.categoryType === "INCOME" ? "+" : "-"}
                 {formatCurrency(tx.amount).replace("฿", "")}

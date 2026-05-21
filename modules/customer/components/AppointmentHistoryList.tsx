@@ -18,7 +18,7 @@ export function AppointmentHistoryList({
 }: AppointmentHistoryListProps) {
   if (!appointmentHistory.success) {
     return (
-      <div className="bg-red-50 p-4 rounded-lg text-red-600 text-sm">
+      <div className="bg-destructive/10 p-4 rounded-lg text-destructive text-sm">
         {appointmentHistory.error}
       </div>
     );
@@ -29,7 +29,7 @@ export function AppointmentHistoryList({
 
   if (appointments.length === 0) {
     return (
-      <div className="bg-gray-50 p-8 border-2 border-dashed rounded-xl text-muted-foreground text-center">
+      <div className="bg-muted/40 p-8 border-2 border-dashed rounded-xl text-muted-foreground text-center">
         ยังไม่มีประวัติการจองสำหรับลูกค้ารายนี้
       </div>
     );
@@ -39,7 +39,7 @@ export function AppointmentHistoryList({
     <div>
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-center gap-2 text-lg font-bold">
-          <Calendar size={18} className="text-cyan-600 rounded-lg bg-cyan-100/50 p-2.5 w-10 h-10" />
+          <Calendar size={18} className="text-primary rounded-lg bg-primary/10 p-2.5 w-10 h-10" />
           ประวัติการรับบริการ
         </CardHeader>
 
@@ -70,7 +70,7 @@ export function AppointmentHistoryList({
               <Link
                 key={appointment.id}
                 href={`/back-office/appointments/${appointment.id}`}
-                className="group flex flex-col justify-between items-center w-full gap-4 bg-white shadow-sm hover:shadow-md p-4 border hover:border-gray-300 rounded-xl transition-all cursor-pointer"
+                className="group flex flex-col justify-between items-center w-full gap-4 bg-card shadow-sm hover:shadow-md p-4 border hover:border-primary/40 rounded-xl transition-all cursor-pointer"
               >
                 <div className="flex flex-row justify-between w-full gap-1.5">
                   <div className="flex items-center gap-2">

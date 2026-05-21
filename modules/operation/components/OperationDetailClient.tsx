@@ -131,12 +131,12 @@ export default function OperationDetailClient({
 
             {/* แสดงผล Medical Notes */}
             {operation.pet.medicalNotes && (
-              <div className="bg-red-50 p-3 border border-red-200 rounded-md">
-                <div className="flex items-center gap-2 mb-1 font-medium text-red-800 text-sm">
+              <div className="bg-destructive/10 p-3 border border-destructive/20 rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-destructive text-sm">
                   <AlertCircle className="w-4 h-4" />
                   ข้อมูลสุขภาพ / ข้อควรระวัง
                 </div>
-                <p className="text-red-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-destructive text-sm leading-relaxed whitespace-pre-wrap">
                   {operation.pet.medicalNotes}
                 </p>
               </div>
@@ -152,12 +152,12 @@ export default function OperationDetailClient({
 
             {/* [NEW] แสดงผล Appointment Note (หมายเหตุการจอง) */}
             {operation.appointment.note && (
-              <div className="bg-yellow-50 mt-2 p-3 border border-yellow-200 rounded-md">
-                <div className="flex items-center gap-2 mb-1 font-medium text-yellow-800 text-sm">
+              <div className="bg-muted/50 mt-2 p-3 border rounded-md">
+                <div className="flex items-center gap-2 mb-1 font-medium text-foreground text-sm">
                   <StickyNote className="w-4 h-4" />
                   หมายเหตุการจอง
                 </div>
-                <p className="text-yellow-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
                   {operation.appointment.note}
                 </p>
               </div>

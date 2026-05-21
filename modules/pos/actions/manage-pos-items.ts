@@ -77,6 +77,41 @@ export async function addAppointmentItem(data: {
       return { success: false, error: "ราคาไม่ถูกต้อง" };
     }
 
+    const appointment = await db.query.appointments.findFirst({
+      where: eq(appointments.id, data.appointmentId),
+      with: {
+        items: {
+          columns: {
+            startTime: true,
+            endTime: true,
+          },
+          orderBy: (t, { desc }) => [desc(t.endTime)],
+          limit: 1,
+        },
+      },
+    });
+
+    if (!appointment) {
+      return { success: false, error: "ไม่พบข้อมูลการจอง" };
+    }
+
+    const appointmentPetItem = await db.query.appointmentItems.findFirst({
+      where: and(
+        eq(appointmentItems.appointmentId, data.appointmentId),
+        eq(appointmentItems.petId, data.petId),
+      ),
+      columns: {
+        id: true,
+      },
+    });
+
+    if (!appointmentPetItem) {
+      return {
+        success: false,
+        error: "ไม่สามารถเพิ่มสัตว์เลี้ยงใหม่ในหน้า POS ได้",
+      };
+    }
+
     const pet = await db.query.pets.findFirst({
       where: eq(pets.id, data.petId),
       columns: {
@@ -114,24 +149,6 @@ export async function addAppointmentItem(data: {
         success: false,
         error: "ไม่พบบริการที่รองรับขนาดสัตว์เลี้ยงตัวนี้",
       };
-    }
-
-    const appointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, data.appointmentId),
-      with: {
-        items: {
-          columns: {
-            startTime: true,
-            endTime: true,
-          },
-          orderBy: (t, { desc }) => [desc(t.endTime)],
-          limit: 1,
-        },
-      },
-    });
-
-    if (!appointment) {
-      return { success: false, error: "ไม่พบข้อมูลการจอง" };
     }
 
     let newStartTime = new Date();

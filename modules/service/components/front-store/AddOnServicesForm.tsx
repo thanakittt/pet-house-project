@@ -33,14 +33,14 @@ const petGroups = [
     petType: "DOG",
     label: "บริการเสริมสำหรับสุนัข",
     icon: <DogIcon className="size-6" />,
-    styles: "bg-blue-50/50 border-blue-100/50 text-blue-500",
+    styles: "bg-blue-50/50 border-blue-100/50 text-blue-500 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300",
   },
   {
     type: "cat",
     petType: "CAT",
     label: "บริการเสริมสำหรับแมว",
     icon: <CatIcon className="size-6" />,
-    styles: "bg-orange-50/50 border-orange-100/50 text-orange-500",
+    styles: "bg-orange-50/50 border-orange-100/50 text-orange-500 dark:border-orange-800 dark:bg-orange-950/30 dark:text-orange-300",
   },
 ] as const;
 
@@ -75,7 +75,7 @@ function getServicesForPet(
 
 function EmptyAddOns() {
   return (
-    <Card className="shadow-sm border-slate-200 border-dashed">
+    <Card className="border-dashed shadow-sm">
       <CardContent className="p-12 text-muted-foreground text-sm text-center">
         ยังไม่มีข้อมูลบริการเสริมสำหรับหมวดนี้
       </CardContent>
@@ -98,13 +98,13 @@ function AddOnCard({ service }: { service: DisplayService }) {
 
   // กำหนดสีตาม petType ของ variant แรก (ว่าเป็นหมาหรือแมว)
   const isCat = service.variants[0]?.petType === "CAT";
-  const iconBgColor = isCat ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500";
+  const iconBgColor = isCat ? "bg-pink-50 text-pink-500 dark:bg-pink-950/40 dark:text-pink-300" : "bg-blue-50 text-blue-500 dark:bg-blue-950/40 dark:text-blue-300";
   return (
-    <div className="group relative bg-white rounded-2xl p-2 border border-slate-100 shadow-sm transition-all duration-500">
+    <div className="group relative rounded-2xl border bg-card p-2 text-card-foreground shadow-sm transition-all duration-500">
       <div className="p-4">
         <header className="mb-4">
           <div className="flex flex-row items-center gap-3">
-            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", iconBgColor)}>
+            <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", iconBgColor)}>
               {getAddOnIcon(service.name)}
             </div>
             <div>
@@ -120,7 +120,7 @@ function AddOnCard({ service }: { service: DisplayService }) {
           </div>
         </header>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {service.variants.map((variant) => (
             <div
               key={variant.id}

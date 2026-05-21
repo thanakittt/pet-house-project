@@ -90,7 +90,7 @@ export function PopularServicesCard({
                       <span className="text-muted-foreground">
                         {service.count} ครั้ง
                       </span>
-                      <span className="font-medium text-green-600">
+                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {formatCurrency(service.revenue)}
                       </span>
                     </div>

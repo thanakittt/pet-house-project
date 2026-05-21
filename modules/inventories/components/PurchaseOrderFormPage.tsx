@@ -197,7 +197,7 @@ export default function PurchaseOrderFormPage({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="bg-white px-6 md:px-8 py-2">
+        <CardContent className="bg-card px-6 md:px-8 py-2">
           <FieldGroup className="gap-6 grid grid-cols-1 md:grid-cols-2 pb-4">
             <Field>
               <FieldLabel className="font-medium text-muted-foreground text-xs md:text-sm uppercase">
@@ -388,7 +388,7 @@ export default function PurchaseOrderFormPage({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8 text-muted-foreground hover:text-red-500"
+                            className="size-8 text-muted-foreground hover:text-destructive"
                             onClick={() => removeItem(item.inventoryItemId)}
                             aria-label={`ลบรายการ ${item.inventoryItemName}`}
                             title="ลบรายการ"
@@ -404,7 +404,7 @@ export default function PurchaseOrderFormPage({
             </div>
           </div>
 
-          <div className="flex md:flex-row flex-col justify-end gap-10 bg-white pt-4">
+          <div className="flex md:flex-row flex-col justify-end gap-10 bg-card pt-4">
             <div className="flex flex-col gap-3 w-full md:w-80">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-primary text-lg">
