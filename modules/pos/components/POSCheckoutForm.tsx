@@ -96,6 +96,33 @@ interface POSCheckoutProps {
 type AvailableService = POSCheckoutProps["availableServices"][number];
 type AvailablePet = POSCheckoutProps["availablePets"][number];
 type AvailableVariant = AvailableService["variants"][number];
+type PaymentMethod = ProcessPaymentInput["paymentMethod"];
+
+const paymentMethodStyles: Record<
+  PaymentMethod,
+  {
+    selected: string;
+    idle: string;
+    confirmButton: string;
+  }
+> = {
+  CASH: {
+    selected:
+      "border-emerald-500 bg-emerald-500/10 text-emerald-700 shadow-md ring-emerald-500/40 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300",
+    idle:
+      "border-muted text-muted-foreground hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:border-emerald-500/40 dark:hover:text-emerald-300",
+    confirmButton:
+      "bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600",
+  },
+  TRANSFER: {
+    selected:
+      "border-blue-500 bg-blue-500/10 text-blue-700 shadow-md ring-blue-500/40 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-300",
+    idle:
+      "border-muted text-muted-foreground hover:border-blue-500/40 hover:bg-blue-500/10 hover:text-blue-700 dark:hover:border-blue-500/40 dark:hover:text-blue-300",
+    confirmButton:
+      "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600",
+  },
+};
 
 function findMatchingVariant(
   service: AvailableService | undefined,
@@ -581,8 +608,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "CASH"
-                        ? "border-primary bg-primary/10 text-primary shadow-md ring-primary/40"
-                        : "border-muted text-muted-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
+                        ? paymentMethodStyles.CASH.selected
+                        : paymentMethodStyles.CASH.idle,
                     )}
                     onClick={() => setPaymentMethod("CASH")}
                   >
@@ -596,8 +623,8 @@ export function POSCheckoutForm({
                     className={cn(
                       "flex flex-col gap-3 border-2 rounded-xl h-24 transition-all",
                       paymentMethod === "TRANSFER"
-                        ? "border-primary bg-primary/10 text-primary shadow-md ring-primary/40"
-                        : "border-muted text-muted-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
+                        ? paymentMethodStyles.TRANSFER.selected
+                        : paymentMethodStyles.TRANSFER.idle,
                     )}
                     onClick={() => setPaymentMethod("TRANSFER")}
                   >
@@ -623,9 +650,7 @@ export function POSCheckoutForm({
                 loadingText="กำลังบันทึก..."
                 className={cn(
                   "max-lg:hidden shadow-lg mt-4 rounded-xl w-full h-16 font-bold text-lg transition-colors",
-                  paymentMethod === "CASH"
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                    : "bg-primary hover:bg-primary/90 text-primary-foreground",
+                  paymentMethodStyles[paymentMethod].confirmButton,
                 )}
               >
                 ยืนยันชำระเงิน
