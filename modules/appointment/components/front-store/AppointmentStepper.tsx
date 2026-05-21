@@ -41,8 +41,7 @@ export default function AppointmentStepper({
 }) {
   const [step, setStep] = useState(1);
   const [bookings, setBookings] = useState<FrontStoreBooking[]>([]);
-  const [formData, setFormData] =
-    useState<FrontStoreFormData>(initialFormData);
+  const [formData, setFormData] = useState<FrontStoreFormData>(initialFormData);
   const [createdAppointmentId, setCreatedAppointmentId] = useState("");
   const [createdAppointmentTime, setCreatedAppointmentTime] = useState("");
   // หลังลูกค้าจองสำเร็จแล้ว component เดิมจะเปลี่ยนเป็นหน้าจ่ายมัดจำ
@@ -58,12 +57,12 @@ export default function AppointmentStepper({
     const currentBooking =
       formData.petId && formData.mainServiceId
         ? [
-          {
-            petId: formData.petId,
-            mainServiceId: formData.mainServiceId,
-            addOnServiceIds: formData.addOnServiceIds,
-          },
-        ]
+            {
+              petId: formData.petId,
+              mainServiceId: formData.mainServiceId,
+              addOnServiceIds: formData.addOnServiceIds,
+            },
+          ]
         : [];
 
     return [...bookings, ...currentBooking];
@@ -181,17 +180,17 @@ export default function AppointmentStepper({
     ];
 
     return (
-      <div className="relative mx-auto mb-10 flex max-w-4xl items-start justify-between">
-        <div className="absolute left-0 top-6 -z-10 h-1 w-full bg-muted" />
+      <div className="relative flex justify-between items-start mx-auto mb-10 max-w-4xl">
+        <div className="top-6 left-0 -z-10 absolute bg-muted w-full h-1" />
         {[1, 2, 3, 4, 5].map((item) => (
-          <div key={item} className="flex w-full flex-col items-center gap-3">
+          <div key={item} className="flex flex-col items-center gap-3 w-full">
             <div
               className={cn(
-                "flex size-10 md:size-12 items-center justify-center rounded-full border-4 font-bold transition-all",
+                "flex justify-center items-center rounded-full size-10 md:size-12 font-bold transition-all",
                 step === item
-                  ? "border-background bg-primary text-primary-foreground ring-2 text-xs md:text-base ring-primary"
+                  ? "border-4 border-background bg-primary text-primary-foreground ring-2 text-xs md:text-base ring-primary"
                   : step > item
-                    ? "border-background bg-primary text-primary-foreground ring-2 text-xs md:text-base ring-emerald-400/60"
+                    ? "border-4 border-background bg-primary text-primary-foreground ring-2 text-xs md:text-base ring-emerald-400/60"
                     : "border-background bg-muted text-xs md:text-base text-muted-foreground",
               )}
             >
@@ -199,7 +198,7 @@ export default function AppointmentStepper({
             </div>
             <span
               className={cn(
-                "text-center text-[10px] font-medium md:text-xs",
+                "font-medium text-[10px] md:text-xs text-center",
                 step >= item ? "text-primary" : "text-primary/40",
               )}
             >
@@ -215,8 +214,8 @@ export default function AppointmentStepper({
     // เมื่อสร้าง appointment แล้ว ไม่กลับไปแสดง stepper อีกใน session นี้
     // ลูกค้าจะเห็น QR/upload slip ต่อทันที เพราะ appointment อยู่สถานะ PENDING_DEPOSIT
     return (
-      <div className="mx-auto my-4 flex h-auto w-full max-w-5xl flex-col items-center gap-6 rounded-2xl border bg-card p-8 text-center text-card-foreground shadow-sm">
-        <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+      <div className="flex flex-col items-center gap-6 bg-card shadow-sm mx-auto my-4 p-8 border rounded-2xl w-full max-w-5xl h-auto text-card-foreground text-center">
+        <div className="flex justify-center items-center bg-emerald-100 dark:bg-emerald-950/40 rounded-full size-16 text-emerald-700 dark:text-emerald-300">
           {verifiedSlipTransRef ? (
             <ShieldCheck className="size-8" />
           ) : (
@@ -224,24 +223,25 @@ export default function AppointmentStepper({
           )}
         </div>
         <div>
-          <h1 className="mb-2 text-2xl font-bold text-foreground">
+          <h1 className="mb-2 font-bold text-foreground text-2xl">
             {verifiedSlipTransRef ? "ยืนยันคิวแล้ว" : "จองคิวสำเร็จ"}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             รหัสการจอง #{createdAppointmentId.split("-")[0].toUpperCase()}
           </p>
         </div>
         {verifiedSlipTransRef ? (
           // verify ผ่านแล้ว appointment ถูกเปลี่ยนเป็น CONFIRMED ฝั่ง server
-          <div className="w-full max-w-xl rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left text-sm text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200">
+          <div className="bg-emerald-50 dark:bg-emerald-950/30 p-5 border border-emerald-200 dark:border-emerald-800 rounded-2xl w-full max-w-xl text-emerald-900 dark:text-emerald-200 text-sm text-left">
             <div className="flex flex-wrap items-center gap-2 font-semibold">
               <span>สถานะปัจจุบัน:</span>
               <AppointmentStatusBadge status="CONFIRMED" />
             </div>
             <p className="mt-1">
-              ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT} บาทเรียบร้อยแล้ว
+              ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT}{" "}
+              บาทเรียบร้อยแล้ว
             </p>
-            <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-300">
+            <p className="mt-2 text-emerald-800 dark:text-emerald-300 text-xs">
               เลขอ้างอิงสลิป: {verifiedSlipTransRef}
             </p>
           </div>
@@ -258,14 +258,14 @@ export default function AppointmentStepper({
   }
 
   return (
-    <div className="mx-auto my-4 h-auto w-full max-w-5xl rounded-2xl border bg-card p-8 text-card-foreground shadow-sm">
-      <h1 className="mb-8 text-pretty text-xl font-bold md:text-2xl">
+    <div className="bg-card shadow-sm mx-auto my-4 p-8 border rounded-2xl w-full max-w-5xl h-auto text-card-foreground">
+      <h1 className="mb-8 font-bold text-xl md:text-2xl text-pretty">
         จองคิวรับบริการ
       </h1>
 
       {renderStepperHeader()}
 
-      <div className="h-auto md:mx-10">
+      <div className="md:mx-10 h-auto">
         {step === 1 && (
           <Step1PetSelection
             data={formData}
@@ -311,10 +311,10 @@ export default function AppointmentStepper({
       </div>
 
       {step === 5 ? (
-        <div className="mx-auto mt-6 max-w-4xl md:px-6">
+        <div className="mx-auto mt-6 md:px-6 max-w-4xl">
           <label
             htmlFor="appointment-note"
-            className="mb-2 block text-sm font-medium text-primary"
+            className="block mb-2 font-medium text-primary text-sm"
           >
             หมายเหตุเพิ่มเติม (ถ้ามี)
           </label>
@@ -325,18 +325,18 @@ export default function AppointmentStepper({
               setFormData((prev) => ({ ...prev, note: event.target.value }))
             }
             rows={3}
-            className="flex w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex bg-background px-3 py-2 border border-input rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary w-full text-sm resize-y"
             placeholder="เช่น ฝากรับกลับเลท, สัตว์เลี้ยงกลัวง่าย, ต้องการแจ้งข้อมูลเพิ่มเติม..."
           />
         </div>
       ) : null}
 
-      <div className="mt-6 flex items-center justify-between border-t border-muted-foreground/20 pt-6">
+      <div className="flex justify-between items-center mt-6 pt-6 border-muted-foreground/20 border-t">
         <Button
           variant="link"
           onClick={prevStep}
           disabled={step === 1 || isPending}
-          className="px-0 text-muted-foreground no-underline hover:text-primary"
+          className="px-0 text-muted-foreground hover:text-primary no-underline"
         >
           {step > 1 && "ย้อนกลับ"}
         </Button>
@@ -352,7 +352,7 @@ export default function AppointmentStepper({
           isLoading={isPending}
           loadingText="กำลังบันทึก..."
           className={cn(
-            "px-8 shadow-none transition-colors",
+            "shadow-none px-8 transition-colors",
             step === totalSteps
               ? "bg-green-600 hover:bg-green-700"
               : "bg-primary hover:bg-primary/80",
