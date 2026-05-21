@@ -8,6 +8,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { ThemeLogo } from "@/components/theme-logo";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -82,9 +83,8 @@ export function LIFFSignInForm() {
   return (
     <div className="flex justify-center items-center min-h-svh">
       <section className="flex flex-col items-center rounded-lg w-sm">
-        <Image
+        <ThemeLogo
           className="mx-auto mb-2 rounded-sm"
-          src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}

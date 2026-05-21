@@ -8,6 +8,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { ThemeLogo } from "@/components/theme-logo";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -90,16 +91,15 @@ export function SignUpForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="flex-col flex justify-center px-5 rounded-lg md:w-[400px] w-full items-center">
-        <Image
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg w-full md:w-[400px]">
+        <ThemeLogo
           className="mb-3 rounded-sm"
-          src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}
           priority
         />
-        <h1 className="mb-2 font-bold text-xl uppercase ">Pet House</h1>
+        <h1 className="mb-2 font-bold text-xl uppercase">Pet House</h1>
         <h2 className="mb-4 font-semibold text-base md:text-lg">สมัครสมาชิก</h2>
 
         <form

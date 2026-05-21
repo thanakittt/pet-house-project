@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ThemeLogo } from "@/components/theme-logo";
 import { useMemo, Fragment } from "react"; // นำเข้า Fragment จาก react โดยตรง
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,8 +62,7 @@ export function ReceiptPrintView({ data }: ReceiptPrintViewProps) {
         {/* Header ร้าน */}
         <div className="mb-6 text-center">
           <div className="flex justify-center mb-2">
-            <Image
-              src="/images/logo/2.png"
+            <ThemeLogo
               alt="Pet House logo"
               width={56}
               height={56}

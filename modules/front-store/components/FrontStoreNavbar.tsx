@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ThemeLogo } from "@/components/theme-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,8 +77,7 @@ function BrandLink() {
       className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 min-w-0"
       aria-label="กลับไปหน้าแรก Pet House"
     >
-      <Image
-        src="/images/logo/2.png"
+      <ThemeLogo
         alt="โลโก้ Pet House"
         width={44}
         height={44}

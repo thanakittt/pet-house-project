@@ -7,12 +7,12 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { ThemeLogo } from "@/components/theme-logo";
 
 export function StaffLoginForm() {
   const router = useRouter();
@@ -78,10 +78,9 @@ export function StaffLoginForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <section className="flex flex-col justify-center items-center px-5 rounded-lg md:w-[400px] w-full">
-        <Image
+      <section className="flex flex-col justify-center items-center px-5 rounded-lg w-full md:w-[400px]">
+        <ThemeLogo
           className="mx-auto mb-3 rounded-sm"
-          src="/images/logo/1.png"
           alt="Logo Pet House"
           width={60}
           height={60}
