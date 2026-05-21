@@ -16,8 +16,8 @@ export function TransactionSummaryCards({ summary }: TransactionSummaryCardsProp
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm md:text-base font-medium">รายรับรวม</CardTitle>
-          <div className="bg-emerald-500/10 p-2 rounded-full">
-            <TrendingUp className="text-emerald-600 dark:text-emerald-400" />
+          <div className="bg-emerald-500/10 p-2.5 rounded-full">
+            <TrendingUp className="text-emerald-600 dark:text-emerald-400" size={20} />
           </div>
         </CardHeader>
         <CardContent>
@@ -31,8 +31,8 @@ export function TransactionSummaryCards({ summary }: TransactionSummaryCardsProp
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm md:text-base font-medium">รายจ่ายรวม</CardTitle>
-          <div className="bg-destructive/10 p-2 rounded-full">
-            <TrendingDown className="text-destructive" />
+          <div className="bg-destructive/10 p-2.5 rounded-full">
+            <TrendingDown className="text-destructive" size={20} />
           </div>
         </CardHeader>
         <CardContent>
@@ -46,8 +46,8 @@ export function TransactionSummaryCards({ summary }: TransactionSummaryCardsProp
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm md:text-base font-medium">กำไรสุทธิ</CardTitle>
-          <div className={`${isNetProfitPositive ? "bg-emerald-500/10" : "bg-destructive/10"} p-2 rounded-full`}>
-            <DollarSign className={isNetProfitPositive ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"} />
+          <div className={`${isNetProfitPositive ? "bg-emerald-500/10" : "bg-destructive/10"} p-2.5 rounded-full`}>
+            <DollarSign className={isNetProfitPositive ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"} size={20} />
           </div>
         </CardHeader>
         <CardContent>
