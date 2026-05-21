@@ -122,13 +122,13 @@ export function TransactionFilter({ categories }: TransactionFilterProps) {
       {hasActiveFilters && (
         <Button
           type="button"
-          variant="ghost"
-          size="sm"
+          variant="outline"
+          size="default"
           onClick={clearFilters}
           aria-label="ล้างตัวกรอง"
         >
-          <XIcon data-icon="inline-start" />
-          ล้าง
+          <XIcon data-icon="inline-start" className="size-4"/>
+          ล้างตัวกรอง
         </Button>
       )}
     </div>
