@@ -35,17 +35,17 @@ export function SalesOverviewCard({ summary, period }: SalesOverviewCardProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="flex flex-row justify-between items-center pb-2">
         <div>
-          <CardTitle className="md:text-base text-sm font-bold">
+          <CardTitle className="font-bold text-sm md:text-base">
             ยอดขาย
           </CardTitle>
-          <CardDescription className="text-xs mt-0.5">
+          <CardDescription className="mt-0.5 text-xs">
             {periodLabel[period]}
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}
-        <div className="flex items-center justify-center bg-emerald-500/10 p-2 rounded-lg dark:bg-emerald-500/15">
+        <div className="flex justify-center items-center bg-emerald-500/10 dark:bg-emerald-500/15 p-2.5 rounded-lg">
           <ShoppingCart
             className="text-emerald-600 dark:text-emerald-300"
             size={20}
@@ -55,16 +55,16 @@ export function SalesOverviewCard({ summary, period }: SalesOverviewCardProps) {
 
       <CardContent className="flex flex-col gap-2">
         {/* ยอดขายรวม */}
-        <div className="text-2xl font-bold">
+        <div className="font-bold text-2xl">
           {formatCurrency(summary.totalRevenue)}
         </div>
 
         {/* จำนวนรายการ + % เปลี่ยนแปลง */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground text-xs">
           <span>{summary.transactionCount} รายการ</span>
           <Badge
             variant={isPositive ? "default" : "destructive"}
-            className="text-xs py-0 px-1.5 gap-0.5"
+            className="gap-0.5 px-1.5 py-0 text-xs"
           >
             <TrendIcon className="size-3" />
             {Math.abs(summary.changePercent).toFixed(1)}%
