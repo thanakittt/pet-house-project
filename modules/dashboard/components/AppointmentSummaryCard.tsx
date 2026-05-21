@@ -44,8 +44,11 @@ export function AppointmentSummaryCard({
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}
-        <div className="flex items-center justify-center bg-primary/10 p-2.5 rounded-lg">
-          <CalendarCheck className="text-primary" size={20} />
+        <div className="flex items-center justify-center bg-blue-500/10 p-2.5 rounded-lg dark:bg-blue-500/15">
+          <CalendarCheck
+            className="text-blue-600 dark:text-blue-300"
+            size={20}
+          />
         </div>
       </CardHeader>
 
