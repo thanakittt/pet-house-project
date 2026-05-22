@@ -7,18 +7,23 @@ import { ac, owner, staff, customer, admin as adminRole } from "./permissions";
 import { requiredEnv } from "./utils";
 import { sendPasswordResetEmail, sendVerificationEmail } from "./mail";
 
+const baseURL =
+  requiredEnv("VERCEL_ENV") === "production"
+    ? "https://pet-house-eight.vercel.app"
+    : requiredEnv("VERCEL_URL")
+      ? `https://${requiredEnv("VERCEL_URL")}`
+      : "http://localhost:3000";
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  baseURL: {
-    allowedHosts: [
-      "localhost:*",
-      "pet-house-eight.vercel.app",
-      "*.vercel.app",
-    ],
-    protocol: requiredEnv("NODE_ENV") === "production" ? "https" : "http",
-  },
+  baseURL,
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://pet-house-eight.vercel.app",
+    "https://*.vercel.app",
+  ],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
