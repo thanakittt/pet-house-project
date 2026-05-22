@@ -21,6 +21,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
@@ -46,12 +47,14 @@ interface CreatePetDialogProps {
   petBreeds: PetBreed[];
   customerId: string;
   actionMode?: PetActionMode;
+  trigger?: ReactNode;
 }
 
 export function CreatePetDialog({
   petBreeds,
   customerId,
   actionMode = "staff",
+  trigger,
 }: CreatePetDialogProps) {
   const router = useRouter();
   const dialogContentRef = useRef<HTMLDivElement | null>(null);
@@ -118,11 +121,13 @@ export function CreatePetDialog({
       }}
     >
       <form onSubmit={form.handleSubmit(onSubmit)} id="create-pet">
-        <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
-          <Button>
-            {" "}
-            <PlusIcon className="size-4" /> เพิ่มสัตว์เลี้ยง
-          </Button>
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button type="button" className="px-6 py-5 text-sm cursor-pointer">
+              {" "}
+              <PlusIcon className="size-4" /> เพิ่มสัตว์เลี้ยง
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="md:max-w-md">
           <div ref={dialogContentRef} className="contents">

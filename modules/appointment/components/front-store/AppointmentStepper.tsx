@@ -7,6 +7,7 @@ import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { cn } from "@/lib/utils";
 import { createCustomerAppointment } from "@/modules/appointment/actions/create-customer-appointment";
 import type { Pet } from "@/modules/pet/types/pet";
+import type { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
@@ -34,9 +35,13 @@ const initialFormData: FrontStoreFormData = {
 
 export default function AppointmentStepper({
   pets,
+  petBreeds,
+  customerId,
   services,
 }: {
   pets: Pet[];
+  petBreeds: PetBreed[];
+  customerId: string;
   services: ServiceWithVariants[];
 }) {
   const [step, setStep] = useState(1);
@@ -52,6 +57,16 @@ export default function AppointmentStepper({
   const totalSteps = 5;
 
   const selectedPet = pets.find((pet) => pet.id === formData.petId);
+
+  const summaryPetIds = useMemo(() => {
+    const petIds = new Set(bookings.map((booking) => booking.petId));
+
+    if (formData.petId) {
+      petIds.add(formData.petId);
+    }
+
+    return Array.from(petIds);
+  }, [bookings, formData.petId]);
 
   const allBookings = useMemo(() => {
     const currentBooking =
@@ -73,6 +88,16 @@ export default function AppointmentStepper({
     [allBookings, pets, services],
   );
 
+  const canAddMorePet = useMemo(() => {
+    const selectedPetIds = new Set(summaryPetIds);
+    return pets.some((pet) => !selectedPetIds.has(pet.id));
+  }, [pets, summaryPetIds]);
+
+  const unavailablePetIds = useMemo(
+    () => summaryPetIds.filter((petId) => petId !== formData.petId),
+    [formData.petId, summaryPetIds],
+  );
+
   const updateFormData = (newData: FrontStoreFormData) => {
     setFormData(newData);
   };
@@ -89,7 +114,16 @@ export default function AppointmentStepper({
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleAddMorePet = () => {
-    if (!formData.petId || !formData.mainServiceId) return;
+    if (!formData.petId || !formData.mainServiceId) {
+      setStep(1);
+      return;
+    }
+
+    if (bookings.some((booking) => booking.petId === formData.petId)) {
+      toast.error("สัตว์เลี้ยงตัวนี้อยู่ในรายการจองแล้ว");
+      setStep(1);
+      return;
+    }
 
     setBookings((prev) => [
       ...prev,
@@ -129,6 +163,40 @@ export default function AppointmentStepper({
     if (newBookings.length === 0 && !formData.petId) {
       setStep(1);
     }
+  };
+
+  const handleEditPet = (index: number, isCurrentFormData: boolean) => {
+    if (isCurrentFormData) {
+      setFormData((prev) => ({ ...prev, startTimeIso: "" }));
+      setStep(1);
+      return;
+    }
+
+    const bookingToEdit = bookings[index];
+
+    if (!bookingToEdit) return;
+
+    const currentBooking =
+      formData.petId &&
+        formData.mainServiceId &&
+        formData.petId !== bookingToEdit.petId
+        ? {
+          petId: formData.petId,
+          mainServiceId: formData.mainServiceId,
+          addOnServiceIds: formData.addOnServiceIds,
+        }
+        : null;
+
+    setBookings([
+      ...bookings.filter((_, itemIndex) => itemIndex !== index),
+      ...(currentBooking ? [currentBooking] : []),
+    ]);
+    setFormData((prev) => ({
+      ...prev,
+      ...bookingToEdit,
+      startTimeIso: "",
+    }));
+    setStep(1);
   };
 
   const handleSubmit = () => {
@@ -271,6 +339,9 @@ export default function AppointmentStepper({
             data={formData}
             update={updateFormData}
             pets={pets}
+            petBreeds={petBreeds}
+            customerId={customerId}
+            unavailablePetIds={unavailablePetIds}
           />
         )}
         {step === 2 && (
@@ -293,11 +364,11 @@ export default function AppointmentStepper({
           <Step4Summary
             data={formData}
             bookings={bookings}
-            update={updateFormData}
             pets={pets}
             services={services}
-            setStep={setStep}
+            canAddMorePet={canAddMorePet}
             onAddMore={handleAddMorePet}
+            onEditPet={handleEditPet}
             onRemovePet={handleRemovePet}
           />
         )}

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
@@ -19,18 +20,18 @@ export default function Step4Summary({
   bookings = [],
   pets = [],
   services = [],
-  setStep,
-  update,
+  canAddMorePet = true,
   onAddMore,
+  onEditPet,
   onRemovePet,
 }: {
   data: FrontStoreFormData;
   bookings: FrontStoreBooking[];
   pets: Pet[];
   services: ServiceWithVariants[];
-  setStep: (step: number) => void;
-  update: (data: FrontStoreFormData) => void;
+  canAddMorePet?: boolean;
   onAddMore: () => void;
+  onEditPet: (index: number, isCurrentFormData: boolean) => void;
   onRemovePet: (index: number, isCurrentFormData: boolean) => void;
 }) {
   const allBookings = [
@@ -69,17 +70,7 @@ export default function Step4Summary({
 
   const handleEdit = (index: number) => {
     const item = allBookings[index];
-
-    if (!item.isCurrentFormData) {
-      update({
-        ...data,
-        ...bookings[item.index],
-        startTimeIso: "",
-      });
-      onRemovePet(item.index, false);
-    }
-
-    setStep(1);
+    onEditPet(item.index, item.isCurrentFormData);
   };
 
   return (
@@ -105,17 +96,17 @@ export default function Step4Summary({
           return (
             <div
               key={`${booking.petId}-${index}`}
-              className="relative rounded-2xl border border-primary/40 bg-card px-6 pb-4 pt-6 text-card-foreground shadow-sm transition-all hover:border-primary"
+              className="relative bg-card shadow-sm px-6 pt-6 pb-4 border border-primary/40 hover:border-primary rounded-2xl text-card-foreground transition-all"
             >
               <div className="top-4 right-4 absolute flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="bg-blue-500/10 text-blue-500 transition-all hover:bg-blue-500/20 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-200"
+                  className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 hover:text-blue-600 dark:hover:text-blue-200 dark:text-blue-300 transition-all"
                   onClick={() => handleEdit(index)}
                   title={`แก้ไขรายการของ ${pet.name}`}
                 >
-                  <Edit2 className="md:size-5 size-4" />
+                  <Edit2 className="size-3.5" />
                 </Button>
                 <Button
                   variant="destructive"
@@ -123,7 +114,7 @@ export default function Step4Summary({
                   onClick={() => handleRemove(index)}
                   title={`ลบรายการของ ${pet.name}`}
                 >
-                  <Trash2 className="md:size-5 size-4" />
+                  <Trash2 className="size-3.5" />
                 </Button>
               </div>
 
@@ -184,15 +175,22 @@ export default function Step4Summary({
         })}
       </div>
 
-      <div
+      <button
+        type="button"
         onClick={onAddMore}
-        className="group flex justify-center items-center gap-2 hover:bg-muted py-5 border-2 border-muted-foreground/30 hover:border-primary border-dashed rounded-2xl w-full font-bold text-muted-foreground/80 hover:text-primary transition-all"
+        disabled={!canAddMorePet}
+        className={cn(
+          "group flex justify-center items-center gap-2 py-5 border-2 border-muted-foreground/30 border-dashed rounded-2xl w-full font-bold text-muted-foreground/80 transition-all",
+          canAddMorePet
+            ? "hover:bg-muted hover:border-primary hover:text-primary"
+            : "cursor-not-allowed opacity-50",
+        )}
       >
-        <PlusCircle className="md:size-5 size-4" />
+        <PlusCircle className="size-4 md:size-5" />
         <span className="text-sm md:text-base">เพิ่มสัตว์เลี้ยงอีกตัว</span>
-      </div>
+      </button>
 
-      <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-card p-6 text-primary shadow-lg">
+      <div className="flex justify-between items-center bg-card shadow-lg p-6 border border-primary/20 rounded-2xl text-primary">
         <div>
           <p className="font-medium text-primary text-sm">
             ยอดชำระสุทธิ ({allBookings.length} รายการ)
