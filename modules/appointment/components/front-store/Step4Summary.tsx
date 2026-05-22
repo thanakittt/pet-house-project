@@ -19,18 +19,16 @@ export default function Step4Summary({
   bookings = [],
   pets = [],
   services = [],
-  setStep,
-  update,
   onAddMore,
+  onEditPet,
   onRemovePet,
 }: {
   data: FrontStoreFormData;
   bookings: FrontStoreBooking[];
   pets: Pet[];
   services: ServiceWithVariants[];
-  setStep: (step: number) => void;
-  update: (data: FrontStoreFormData) => void;
   onAddMore: () => void;
+  onEditPet: (index: number, isCurrentFormData: boolean) => void;
   onRemovePet: (index: number, isCurrentFormData: boolean) => void;
 }) {
   const allBookings = [
@@ -69,17 +67,7 @@ export default function Step4Summary({
 
   const handleEdit = (index: number) => {
     const item = allBookings[index];
-
-    if (!item.isCurrentFormData) {
-      update({
-        ...data,
-        ...bookings[item.index],
-        startTimeIso: "",
-      });
-      onRemovePet(item.index, false);
-    }
-
-    setStep(1);
+    onEditPet(item.index, item.isCurrentFormData);
   };
 
   return (

@@ -131,6 +131,40 @@ export default function AppointmentStepper({
     }
   };
 
+  const handleEditPet = (index: number, isCurrentFormData: boolean) => {
+    if (isCurrentFormData) {
+      setFormData((prev) => ({ ...prev, startTimeIso: "" }));
+      setStep(1);
+      return;
+    }
+
+    const bookingToEdit = bookings[index];
+
+    if (!bookingToEdit) return;
+
+    const currentBooking =
+      formData.petId &&
+        formData.mainServiceId &&
+        formData.petId !== bookingToEdit.petId
+        ? {
+          petId: formData.petId,
+          mainServiceId: formData.mainServiceId,
+          addOnServiceIds: formData.addOnServiceIds,
+        }
+        : null;
+
+    setBookings([
+      ...bookings.filter((_, itemIndex) => itemIndex !== index),
+      ...(currentBooking ? [currentBooking] : []),
+    ]);
+    setFormData((prev) => ({
+      ...prev,
+      ...bookingToEdit,
+      startTimeIso: "",
+    }));
+    setStep(1);
+  };
+
   const handleSubmit = () => {
     if (allBookings.length === 0) {
       toast.error("กรุณาเลือกสัตว์เลี้ยงอย่างน้อย 1 ตัว");
@@ -293,11 +327,10 @@ export default function AppointmentStepper({
           <Step4Summary
             data={formData}
             bookings={bookings}
-            update={updateFormData}
             pets={pets}
             services={services}
-            setStep={setStep}
             onAddMore={handleAddMorePet}
+            onEditPet={handleEditPet}
             onRemovePet={handleRemovePet}
           />
         )}
