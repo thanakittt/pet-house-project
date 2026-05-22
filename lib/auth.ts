@@ -25,10 +25,8 @@ export const auth = betterAuth({
     // ยกเลิก session อื่นๆ ทั้งหมดเมื่อผู้ใช้รีเซ็ตรหัสผ่านสำเร็จ
     // เพื่อป้องกันไม่ให้ session ที่ถูกขโมยไปก่อนหน้ายังใช้งานได้
     revokeSessionsOnPasswordReset: true,
-    // ใช้ void แทน await เพื่อป้องกัน timing side-channel leak
-    // หากใช้ await ผู้โจมตีอาจวัดเวลา response และเดาได้ว่า email มีอยู่จริงหรือไม่
     async sendResetPassword({ user, url }) {
-      void sendPasswordResetEmail({
+      await sendPasswordResetEmail({
         to: user.email,
         url,
       });
