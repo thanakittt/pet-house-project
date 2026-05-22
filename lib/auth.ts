@@ -11,7 +11,14 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  baseURL: requiredEnv("BETTER_AUTH_URL"),
+  baseURL: {
+    allowedHosts: [
+      "localhost:*",
+      "pet-house-eight.vercel.app",
+      "*.vercel.app",
+    ],
+    protocol: requiredEnv("NODE_ENV") === "production" ? "https" : "http",
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
