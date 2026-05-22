@@ -75,7 +75,7 @@ export default function Step2MainService({
                     className={cn(
                       "p-3 rounded-xl transition-colors shrink-0",
                       isSelected
-                        ? "bg-primary text-white"
+                        ? "bg-primary text-white dark:text-black"
                         : "bg-muted text-primary group-hover:bg-primary/10",
                     )}
                   >

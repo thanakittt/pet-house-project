@@ -75,7 +75,7 @@ export default function Step3AddOnService({
                     className={cn(
                       "flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
                       isSelected
-                        ? "border-primary bg-primary text-white"
+                        ? "border-primary bg-primary text-white dark:text-black"
                         : "border-foreground/20 text-transparent group-hover:border-primary/50",
                     )}
                   >

@@ -2,6 +2,7 @@
 
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import type { Pet } from "@/modules/pet/types/pet";
+import { cn } from "@/lib/utils";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import type { FrontStoreFormData } from "./booking-utils";
@@ -16,8 +17,12 @@ export function PetCard({ pet, onSelect, isSelected }: PetCardProps) {
   return (
     <button
       type="button"
-      className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left shadow-sm transition-colors hover:shadow-md ${isSelected ? "border-black bg-muted" : "hover:bg-muted"
-        }`}
+      className={cn(
+        "flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left shadow-sm transition-colors hover:shadow-md",
+        isSelected
+          ? "border-primary bg-muted dark:border-white"
+          : "hover:bg-muted",
+      )}
       onClick={() => onSelect(pet)}
     >
       <div className="flex flex-row items-start gap-4">
