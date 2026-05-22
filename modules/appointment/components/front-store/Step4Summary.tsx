@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
@@ -19,6 +20,7 @@ export default function Step4Summary({
   bookings = [],
   pets = [],
   services = [],
+  canAddMorePet = true,
   onAddMore,
   onEditPet,
   onRemovePet,
@@ -27,6 +29,7 @@ export default function Step4Summary({
   bookings: FrontStoreBooking[];
   pets: Pet[];
   services: ServiceWithVariants[];
+  canAddMorePet?: boolean;
   onAddMore: () => void;
   onEditPet: (index: number, isCurrentFormData: boolean) => void;
   onRemovePet: (index: number, isCurrentFormData: boolean) => void;
@@ -172,13 +175,20 @@ export default function Step4Summary({
         })}
       </div>
 
-      <div
+      <button
+        type="button"
         onClick={onAddMore}
-        className="group flex justify-center items-center gap-2 hover:bg-muted py-5 border-2 border-muted-foreground/30 hover:border-primary border-dashed rounded-2xl w-full font-bold text-muted-foreground/80 hover:text-primary transition-all"
+        disabled={!canAddMorePet}
+        className={cn(
+          "group flex justify-center items-center gap-2 py-5 border-2 border-muted-foreground/30 border-dashed rounded-2xl w-full font-bold text-muted-foreground/80 transition-all",
+          canAddMorePet
+            ? "hover:bg-muted hover:border-primary hover:text-primary"
+            : "cursor-not-allowed opacity-50",
+        )}
       >
         <PlusCircle className="md:size-5 size-4" />
         <span className="text-sm md:text-base">เพิ่มสัตว์เลี้ยงอีกตัว</span>
-      </div>
+      </button>
 
       <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-card p-6 text-primary shadow-lg">
         <div>

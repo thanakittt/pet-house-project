@@ -53,6 +53,16 @@ export default function AppointmentStepper({
 
   const selectedPet = pets.find((pet) => pet.id === formData.petId);
 
+  const summaryPetIds = useMemo(() => {
+    const petIds = new Set(bookings.map((booking) => booking.petId));
+
+    if (formData.petId) {
+      petIds.add(formData.petId);
+    }
+
+    return Array.from(petIds);
+  }, [bookings, formData.petId]);
+
   const allBookings = useMemo(() => {
     const currentBooking =
       formData.petId && formData.mainServiceId
@@ -73,6 +83,16 @@ export default function AppointmentStepper({
     [allBookings, pets, services],
   );
 
+  const canAddMorePet = useMemo(() => {
+    const selectedPetIds = new Set(summaryPetIds);
+    return pets.some((pet) => !selectedPetIds.has(pet.id));
+  }, [pets, summaryPetIds]);
+
+  const unavailablePetIds = useMemo(
+    () => summaryPetIds.filter((petId) => petId !== formData.petId),
+    [formData.petId, summaryPetIds],
+  );
+
   const updateFormData = (newData: FrontStoreFormData) => {
     setFormData(newData);
   };
@@ -89,7 +109,16 @@ export default function AppointmentStepper({
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleAddMorePet = () => {
-    if (!formData.petId || !formData.mainServiceId) return;
+    if (!formData.petId || !formData.mainServiceId) {
+      setStep(1);
+      return;
+    }
+
+    if (bookings.some((booking) => booking.petId === formData.petId)) {
+      toast.error("สัตว์เลี้ยงตัวนี้อยู่ในรายการจองแล้ว");
+      setStep(1);
+      return;
+    }
 
     setBookings((prev) => [
       ...prev,
@@ -305,6 +334,7 @@ export default function AppointmentStepper({
             data={formData}
             update={updateFormData}
             pets={pets}
+            unavailablePetIds={unavailablePetIds}
           />
         )}
         {step === 2 && (
@@ -329,6 +359,7 @@ export default function AppointmentStepper({
             bookings={bookings}
             pets={pets}
             services={services}
+            canAddMorePet={canAddMorePet}
             onAddMore={handleAddMorePet}
             onEditPet={handleEditPet}
             onRemovePet={handleRemovePet}

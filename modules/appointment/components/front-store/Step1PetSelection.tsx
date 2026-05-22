@@ -40,11 +40,16 @@ export default function Step1PetSelection({
   data,
   update,
   pets,
+  unavailablePetIds = [],
 }: {
   data: FrontStoreFormData;
   update: (data: FrontStoreFormData) => void;
   pets: Pet[];
+  unavailablePetIds?: string[];
 }) {
+  const unavailablePetIdSet = new Set(unavailablePetIds);
+  const availablePets = pets.filter((pet) => !unavailablePetIdSet.has(pet.id));
+
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-col gap-6">
@@ -53,7 +58,7 @@ export default function Step1PetSelection({
         </h3>
 
         <div className="gap-4 grid grid-cols-1 sm:grid-cols-2">
-          {pets.map((pet) => (
+          {availablePets.map((pet) => (
             <PetCard
               key={pet.id}
               pet={pet}
@@ -85,6 +90,12 @@ export default function Step1PetSelection({
         {pets.length === 0 ? (
           <div className="bg-muted/40 p-6 border border-dashed rounded-xl text-muted-foreground text-sm text-center">
             ยังไม่มีข้อมูลสัตว์เลี้ยงในโปรไฟล์ กรุณาเพิ่มสัตว์เลี้ยงก่อนจองคิว
+          </div>
+        ) : null}
+
+        {pets.length > 0 && availablePets.length === 0 ? (
+          <div className="bg-muted/40 p-6 border border-dashed rounded-xl text-muted-foreground text-sm text-center">
+            ไม่มีสัตว์เลี้ยงที่ยังไม่ได้เพิ่มในรายการจอง
           </div>
         ) : null}
       </div>
