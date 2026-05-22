@@ -7,6 +7,7 @@ import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { cn } from "@/lib/utils";
 import { createCustomerAppointment } from "@/modules/appointment/actions/create-customer-appointment";
 import type { Pet } from "@/modules/pet/types/pet";
+import type { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
@@ -34,9 +35,13 @@ const initialFormData: FrontStoreFormData = {
 
 export default function AppointmentStepper({
   pets,
+  petBreeds,
+  customerId,
   services,
 }: {
   pets: Pet[];
+  petBreeds: PetBreed[];
+  customerId: string;
   services: ServiceWithVariants[];
 }) {
   const [step, setStep] = useState(1);
@@ -334,6 +339,8 @@ export default function AppointmentStepper({
             data={formData}
             update={updateFormData}
             pets={pets}
+            petBreeds={petBreeds}
+            customerId={customerId}
             unavailablePetIds={unavailablePetIds}
           />
         )}

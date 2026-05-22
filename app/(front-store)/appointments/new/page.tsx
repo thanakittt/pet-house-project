@@ -5,6 +5,7 @@ import { getLatestPendingDepositAppointment } from "@/modules/appointment/querie
 import { requireCustomer } from "@/lib/session";
 import { getCustomerProfile } from "@/modules/customer/queries/get-profile";
 import LineNotificationAlert from "@/modules/customer/components/front-store/LineNotificationAlert";
+import { listAllPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { listPets } from "@/modules/pet/queries/list-pets";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { redirect } from "next/navigation";
@@ -58,8 +59,9 @@ export default async function Page() {
   }
 
   // ถึงจุดนี้แปลว่าลูกค้าไม่มีคิวค้างมัดจำแล้ว จึงค่อยโหลดข้อมูลสำหรับเริ่มจองคิวใหม่
-  const [pets, services] = await Promise.all([
+  const [pets, petBreeds, services] = await Promise.all([
     listPets(profile.data.customerId),
+    listAllPetBreeds(),
     listServicesWithVariants(),
   ]);
 
@@ -71,11 +73,17 @@ export default async function Page() {
     throw new Error(pets.error);
   }
 
+  if (!petBreeds.success) {
+    throw new Error(petBreeds.error);
+  }
+
   return (
     <div className="mx-auto my-4 flex w-full max-w-5xl flex-col gap-4 px-4">
       {!profile.data.hasLineConnection ? <LineNotificationAlert /> : null}
       <AppointmentStepper
         pets={pets.data}
+        petBreeds={petBreeds.data}
+        customerId={profile.data.customerId}
         services={services.data}
       />
     </div>

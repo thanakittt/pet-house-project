@@ -1,10 +1,11 @@
 "use client";
 
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
+import { CreatePetDialog } from "@/modules/pet/components/CreatePetDialog";
 import type { Pet } from "@/modules/pet/types/pet";
+import type { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { cn } from "@/lib/utils";
 import { PlusCircle } from "lucide-react";
-import Link from "next/link";
 import type { FrontStoreFormData } from "./booking-utils";
 
 interface PetCardProps {
@@ -18,7 +19,7 @@ export function PetCard({ pet, onSelect, isSelected }: PetCardProps) {
     <button
       type="button"
       className={cn(
-        "flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left shadow-sm transition-colors hover:shadow-md",
+        "flex flex-col gap-2 shadow-sm hover:shadow-md p-4 border rounded-lg text-left transition-colors cursor-pointer",
         isSelected
           ? "border-primary bg-muted dark:border-white"
           : "hover:bg-muted",
@@ -45,11 +46,15 @@ export default function Step1PetSelection({
   data,
   update,
   pets,
+  petBreeds,
+  customerId,
   unavailablePetIds = [],
 }: {
   data: FrontStoreFormData;
   update: (data: FrontStoreFormData) => void;
   pets: Pet[];
+  petBreeds: PetBreed[];
+  customerId: string;
   unavailablePetIds?: string[];
 }) {
   const unavailablePetIdSet = new Set(unavailablePetIds);
@@ -80,16 +85,24 @@ export default function Step1PetSelection({
             />
           ))}
 
-          <Link href="/pets">
-            <div className="flex justify-center items-center hover:bg-muted p-4 border-2 border-dashed rounded-lg min-h-[50px] cursor-pointer">
-              <div className="flex flex-col items-center gap-2 text-muted-foreground/70">
-                <PlusCircle className="size-5 md:size-6" />
-                <p className="font-semibold text-sm md:text-base">
-                  เพิ่มสัตว์เลี้ยง
-                </p>
-              </div>
-            </div>
-          </Link>
+          <CreatePetDialog
+            petBreeds={petBreeds}
+            customerId={customerId}
+            actionMode="customer"
+            trigger={
+              <button
+                type="button"
+                className="flex justify-center items-center hover:bg-muted p-4 border-2 border-dashed rounded-lg w-full min-h-[50px] cursor-pointer"
+              >
+                <div className="flex flex-col items-center gap-2 text-muted-foreground/70">
+                  <PlusCircle className="size-5 md:size-6" />
+                  <p className="font-semibold text-sm md:text-base">
+                    เพิ่มสัตว์เลี้ยง
+                  </p>
+                </div>
+              </button>
+            }
+          />
         </div>
 
         {pets.length === 0 ? (
