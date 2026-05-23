@@ -6,7 +6,7 @@ import {
   getBangkokDayRange,
   getBangkokTodayString,
 } from "@/lib/finance/date";
-import { formatThaiDate, formatThaiDateTime } from "@/lib/utils";
+import { formatThaiDate, formatThaiDateTime, formatThaiTime } from "@/lib/utils";
 import {
   normalizeAnnouncementInput,
   toDateTimeLocalValue,
@@ -104,6 +104,22 @@ assertEqual(
   formatThaiDateTime(announcementInput.data.startDisplayAt).endsWith("18:30"),
   true,
   "Thai datetime display uses Bangkok time",
+);
+assertEqual(
+  formatThaiTime("2026-05-19T02:00:00.000Z"),
+  "09:00",
+  "Thai time display uses Bangkok time for morning appointment",
+);
+assertEqual(
+  formatThaiTime("2026-05-19T11:30:00.000Z"),
+  "18:30",
+  "Thai time display uses Bangkok time for evening appointment",
+);
+assertEqual(formatThaiTime(null), "-", "Thai time display handles null input");
+assertEqual(
+  formatThaiTime("invalid-date"),
+  "-",
+  "Thai time display handles invalid input",
 );
 
 const invalidRangeInput = normalizeAnnouncementInput({

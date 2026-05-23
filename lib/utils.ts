@@ -111,6 +111,13 @@ export function formatThaiDateTime(
   return formatThaiDateValue(value, "d MMM yyyy HH:mm", fallback);
 }
 
+export function formatThaiTime(
+  value: ThaiDateInput,
+  fallback: string = "-",
+): string {
+  return formatThaiDateValue(value, "HH:mm", fallback);
+}
+
 /**
  * ใช้สำหรับแสดงวันที่แบบสั้น
  *

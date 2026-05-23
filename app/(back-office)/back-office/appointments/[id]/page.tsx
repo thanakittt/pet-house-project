@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { format, parseISO } from "date-fns";
 import { getAppointmentDetail } from "@/modules/appointment/queries/get-appointment-detail";
 import AppointmentStatusManager from "@/modules/appointment/components/AppointmentStatusManage";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
-import { formatPhoneNumber, formatThaiDate } from "@/lib/utils";
+import { formatPhoneNumber, formatThaiDate, formatThaiTime } from "@/lib/utils";
 
 import { requireStaff } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
@@ -181,8 +180,8 @@ export default async function AppointmentDetailPage({
                             {service.name}
                           </p>
                           <p className="mt-1 text-muted-foreground text-xs">
-                            เวลา: {format(parseISO(service.startTime), "HH:mm")}{" "}
-                            - {format(parseISO(service.endTime), "HH:mm")}
+                            เวลา: {formatThaiTime(service.startTime)}{" "}
+                            - {formatThaiTime(service.endTime)}
                           </p>
                         </div>
                         <p className="font-semibold text-primary">
