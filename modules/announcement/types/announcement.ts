@@ -1,4 +1,6 @@
-import { format, isAfter, isBefore, isValid, parseISO } from "date-fns";
+import { APP_TIME_ZONE } from "@/lib/finance/date";
+import { isAfter, isBefore, isValid } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
 export const ANNOUNCEMENT_TYPES = ["NEWS", "PROMOTION", "ALERT"] as const;
 
@@ -90,8 +92,10 @@ export function normalizeAnnouncementInput(
 ): NormalizedAnnouncementInput {
   const title = data.title.trim();
   const content = data.content.trim();
-  const startDisplayAt = parseISO(data.startDisplayAt);
-  const endDisplayAt = data.endDisplayAt ? parseISO(data.endDisplayAt) : null;
+  const startDisplayAt = parseAnnouncementDateTimeLocal(data.startDisplayAt);
+  const endDisplayAt = data.endDisplayAt
+    ? parseAnnouncementDateTimeLocal(data.endDisplayAt)
+    : null;
 
   if (!title) {
     return { success: false, error: "กรุณาระบุหัวข้อประกาศ" };
@@ -139,7 +143,11 @@ export function toDateTimeLocalValue(date: Date | null): string {
     return "";
   }
 
-  return format(date, "yyyy-MM-dd'T'HH:mm");
+  return formatInTimeZone(date, APP_TIME_ZONE, "yyyy-MM-dd'T'HH:mm");
+}
+
+function parseAnnouncementDateTimeLocal(value: string): Date {
+  return fromZonedTime(value.trim(), APP_TIME_ZONE);
 }
 
 export function announcementFormFromFormData(

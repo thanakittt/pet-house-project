@@ -2,6 +2,8 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format, isValid, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatInTimeZone } from "date-fns-tz";
+import { APP_TIME_ZONE } from "./finance/date";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -76,9 +78,7 @@ export function formatThaiDate(
   value: ThaiDateInput,
   fallback: string = "-",
 ): string {
-  const date = getDisplayDate(value);
-
-  return date ? format(date, "d MMM yyyy", { locale: th }) : fallback;
+  return formatThaiDateValue(value, "d MMM yyyy", fallback);
 }
 
 /**
@@ -108,9 +108,7 @@ export function formatThaiDateTime(
   value: ThaiDateInput,
   fallback: string = "-",
 ): string {
-  const date = getDisplayDate(value);
-
-  return date ? format(date, "d MMM yyyy HH:mm", { locale: th }) : fallback;
+  return formatThaiDateValue(value, "d MMM yyyy HH:mm", fallback);
 }
 
 /**
@@ -137,9 +135,25 @@ export function formatThaiCompactDate(
   value: ThaiDateInput,
   fallback: string = "-",
 ): string {
+  return formatThaiDateValue(value, "d MMM", fallback);
+}
+
+function formatThaiDateValue(
+  value: ThaiDateInput,
+  pattern: string,
+  fallback: string,
+): string {
   const date = getDisplayDate(value);
 
-  return date ? format(date, "d MMM", { locale: th }) : fallback;
+  if (!date) {
+    return fallback;
+  }
+
+  if (typeof value === "string" && isDateOnlyString(value.trim())) {
+    return format(date, pattern, { locale: th });
+  }
+
+  return formatInTimeZone(date, APP_TIME_ZONE, pattern, { locale: th });
 }
 
 /**
@@ -181,7 +195,7 @@ function getDisplayDate(value: ThaiDateInput): Date | null {
 
   // วันที่แบบไม่มีเวลาจากฐานข้อมูลควรถูกอ่านเป็นวันที่ตามปฏิทินของร้าน
   // เพื่อไม่ให้วันแสดงผลคลาดเคลื่อนจาก timezone ของ JavaScript
-  const valueToParse = /^\d{4}-\d{2}-\d{2}$/.test(trimmedValue)
+  const valueToParse = isDateOnlyString(trimmedValue)
     ? `${trimmedValue}T00:00:00`
     : trimmedValue;
 
@@ -194,4 +208,8 @@ function getDisplayDate(value: ThaiDateInput): Date | null {
   const fallbackDate = new Date(trimmedValue);
 
   return isValid(fallbackDate) ? fallbackDate : null;
+}
+
+function isDateOnlyString(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
