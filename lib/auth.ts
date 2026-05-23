@@ -8,10 +8,10 @@ import { requiredEnv } from "./utils";
 import { sendPasswordResetEmail, sendVerificationEmail } from "./mail";
 
 const baseURL =
-  requiredEnv("VERCEL_ENV") === "production"
+  process.env.VERCEL_ENV === "production"
     ? "https://pet-house-eight.vercel.app"
-    : requiredEnv("VERCEL_URL")
-      ? `https://${requiredEnv("VERCEL_URL")}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000";
 
 export const auth = betterAuth({
