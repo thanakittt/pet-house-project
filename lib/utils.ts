@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format, isValid, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { APP_TIME_ZONE } from "./finance/date";
 
 export function cn(...inputs: ClassValue[]) {
@@ -195,9 +195,14 @@ function getDisplayDate(value: ThaiDateInput): Date | null {
 
   // วันที่แบบไม่มีเวลาจากฐานข้อมูลควรถูกอ่านเป็นวันที่ตามปฏิทินของร้าน
   // เพื่อไม่ให้วันแสดงผลคลาดเคลื่อนจาก timezone ของ JavaScript
-  const valueToParse = isDateOnlyString(trimmedValue)
-    ? `${trimmedValue}T00:00:00`
-    : trimmedValue;
+  const isDateOnly = isDateOnlyString(trimmedValue);
+  const valueToParse = isDateOnly ? `${trimmedValue}T00:00:00` : trimmedValue;
+
+  if (!isDateOnly && isLocalDateTimeString(valueToParse)) {
+    const zonedDate = fromZonedTime(valueToParse, APP_TIME_ZONE);
+
+    return isValid(zonedDate) ? zonedDate : null;
+  }
 
   const parsedDate = parseISO(valueToParse);
 
@@ -212,4 +217,10 @@ function getDisplayDate(value: ThaiDateInput): Date | null {
 
 function isDateOnlyString(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function isLocalDateTimeString(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?$/.test(
+    value,
+  );
 }
