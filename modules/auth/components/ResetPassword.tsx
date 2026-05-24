@@ -9,7 +9,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -140,10 +140,9 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
                   <FieldLabel htmlFor={field.name} className="text-sm">
                     รหัสผ่านใหม่
                   </FieldLabel>
-                  <Input
+                  <PasswordInput
                     {...field}
                     id={field.name}
-                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุรหัสผ่านใหม่อย่างน้อย 8 ตัวอักษร"
                     autoComplete="new-password"
@@ -168,10 +167,9 @@ export function ResetPassword({ token, error }: ResetPasswordProps) {
                   <FieldLabel htmlFor={field.name} className="text-sm">
                     ยืนยันรหัสผ่าน
                   </FieldLabel>
-                  <Input
+                  <PasswordInput
                     {...field}
                     id={field.name}
-                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="ยืนยันรหัสผ่าน"
                     autoComplete="new-password"

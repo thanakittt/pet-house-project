@@ -9,6 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Select,
   SelectContent,
@@ -143,9 +144,8 @@ export function UserFormFields({
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={field.name}>รหัสผ่าน</FieldLabel>
-            <Input
+            <PasswordInput
               {...field}
-              type="password"
               id={field.name}
               aria-invalid={fieldState.invalid}
               placeholder="ระบุรหัสผ่านอย่างน้อย 8 ตัวอักษร"

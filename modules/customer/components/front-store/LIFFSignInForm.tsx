@@ -25,6 +25,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
 
 type SignInFormValues = {
@@ -175,10 +176,9 @@ export function LIFFSignInForm() {
                         ลืมรหัสผ่าน?
                       </Link>
                     </div>
-                    <Input
+                    <PasswordInput
                       {...field}
                       id={field.name}
-                      type="password"
                       aria-invalid={fieldState.invalid}
                       placeholder="รหัสผ่าน"
                       autoComplete="current-password"

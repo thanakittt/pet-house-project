@@ -7,6 +7,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -147,9 +148,8 @@ export function StaffLoginForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>รหัสผ่าน</FieldLabel>
-                  <Input
+                  <PasswordInput
                     {...field}
-                    type="password"
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="ระบุรหัสผ่าน"

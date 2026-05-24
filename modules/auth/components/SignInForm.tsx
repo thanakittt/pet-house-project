@@ -10,6 +10,7 @@ import {
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { ThemeLogo } from "@/components/theme-logo";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -148,10 +149,9 @@ export function SignInForm() {
                       ลืมรหัสผ่าน?
                     </Link>
                   </div>
-                  <Input
+                  <PasswordInput
                     {...field}
                     id={field.name}
-                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="รหัสผ่าน"
                     autoComplete="current-password"

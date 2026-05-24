@@ -10,6 +10,7 @@ import {
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { ThemeLogo } from "@/components/theme-logo";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -214,10 +215,9 @@ export function SignUpForm() {
                     <FieldLabel htmlFor={field.name} className="text-sm">
                       รหัสผ่าน
                     </FieldLabel>
-                    <Input
+                    <PasswordInput
                       {...field}
                       id={field.name}
-                      type="password"
                       aria-invalid={fieldState.invalid}
                       placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร"
                       autoComplete="new-password"
@@ -243,10 +243,9 @@ export function SignUpForm() {
                     <FieldLabel htmlFor={field.name} className="text-sm">
                       ยืนยันรหัสผ่าน
                     </FieldLabel>
-                    <Input
+                    <PasswordInput
                       {...field}
                       id={field.name}
-                      type="password"
                       aria-invalid={fieldState.invalid}
                       placeholder="ยืนยันรหัสผ่าน"
                       autoComplete="new-password"

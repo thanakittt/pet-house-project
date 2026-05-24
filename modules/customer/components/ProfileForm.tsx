@@ -26,6 +26,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Select,
   SelectContent,
@@ -41,7 +42,7 @@ import {
   updateCustomerProfile,
 } from "@/modules/customer/actions/profile";
 import { CustomerProfile } from "@/modules/customer/queries/get-profile";
-import { LockKeyholeIcon, PencilIcon, User2 } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -521,10 +522,9 @@ function PasswordDialog({
                     <FieldLabel htmlFor={field.name}>
                       รหัสผ่านปัจจุบัน
                     </FieldLabel>
-                    <Input
+                    <PasswordInput
                       {...field}
                       id={field.name}
-                      type="password"
                       aria-invalid={fieldState.invalid}
                       autoComplete="current-password"
                     />
@@ -549,10 +549,9 @@ function PasswordDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>รหัสผ่านใหม่</FieldLabel>
-                  <Input
+                  <PasswordInput
                     {...field}
                     id={field.name}
-                    type="password"
                     aria-invalid={fieldState.invalid}
                     autoComplete="new-password"
                   />
@@ -577,10 +576,9 @@ function PasswordDialog({
                   <FieldLabel htmlFor={field.name}>
                     ยืนยันรหัสผ่านใหม่
                   </FieldLabel>
-                  <Input
+                  <PasswordInput
                     {...field}
                     id={field.name}
-                    type="password"
                     aria-invalid={fieldState.invalid}
                     autoComplete="new-password"
                   />
