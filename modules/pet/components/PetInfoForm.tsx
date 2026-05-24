@@ -44,7 +44,7 @@ export function PetInfoForm({
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
-            <PawPrintIcon size={18} className="text-taupe-600 rounded-lg bg-taupe-100 p-2.5 w-10 h-10" />
+            <PawPrintIcon size={18} className="text-taupe-600 rounded-lg bg-taupe-100 p-1.5 w-8 h-8 mr-1" />
             ข้อมูลสัตว์เลี้ยง
           </CardTitle>
           {shouldShowHeaderCreateButton && (
