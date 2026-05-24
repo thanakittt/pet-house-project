@@ -90,9 +90,9 @@ function displayValue(value: string | null | undefined) {
 
 function ProfileRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
-      <dt className="shrink-0 text-sm font-medium">{label}</dt>
-      <dd className="min-w-0 truncate text-sm text-muted-foreground">
+    <div className="flex justify-between items-center gap-4 px-4 py-3 border border-border rounded-lg">
+      <dt className="font-medium text-sm shrink-0">{label}</dt>
+      <dd className="min-w-0 text-muted-foreground text-sm truncate">
         {value}
       </dd>
     </div>
@@ -186,9 +186,7 @@ function ProfileDetailsDialog({
               }}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    ชื่อ-นามสกุล
-                  </FieldLabel>
+                  <FieldLabel htmlFor={field.name}>ชื่อ-นามสกุล</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
@@ -456,12 +454,12 @@ function PasswordDialog({
 
       const result = hasPassword
         ? await changeCustomerPassword({
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        })
+            currentPassword: data.currentPassword,
+            newPassword: data.newPassword,
+          })
         : await setCustomerPassword({
-          newPassword: data.newPassword,
-        });
+            newPassword: data.newPassword,
+          });
 
       if (!result.success) {
         setServerError(result.error);
@@ -624,18 +622,18 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
     : "ตั้งรหัสผ่าน";
 
   return (
-    <main className="mx-auto max-w-4xl p-5">
-      <header className="mb-5 mt-3">
-        <h1 className="text-pretty text-xl font-bold md:text-2xl">
+    <main className="mx-auto p-5 max-w-4xl">
+      <header className="mt-3 mb-5">
+        <h1 className="font-bold text-xl md:text-2xl text-pretty">
           บัญชีผู้ใช้
         </h1>
       </header>
 
       <div className="mx-auto max-w-4xl">
-        <Card className="w-full ">
+        <Card className="w-full">
           <CardHeader>
-            <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
-              <User2 size={20} className="text-blue-600 rounded-md bg-blue-100 p-1.5 w-8 h-8" /> ข้อมูลส่วนตัว
+            <CardTitle className="flex flex-row items-center gap-2 font-bold text-lg">
+              ข้อมูลส่วนตัว
             </CardTitle>
             <CardAction>
               <Button
@@ -670,19 +668,21 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
         <Card className="mt-5 w-full">
           <CardHeader>
-            <CardTitle className="flex flex-row items-center gap-2 text-lg font-bold">
-              <LockKeyholeIcon size={20} className="text-emerald-600 rounded-md bg-emerald-100 p-1.5 w-8 h-8" /> ความปลอดภัยและการเข้าถึง
+            <CardTitle className="flex flex-row items-center gap-2 font-bold text-lg">
+              ความปลอดภัยและการเข้าถึง
             </CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-3">
             <div className="flex flex-col gap-4">
-              <div className="flex items-start justify-between gap-4 rounded-lg border border-border px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm md:text-basefont-medium">อีเมล</p>
-                  <p className="text-sm text-muted-foreground">
+              <div className="flex justify-between items-start gap-4 px-4 py-3 border border-border rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="md:text-basefont-medium text-sm">อีเมล</p>
+                  <p className="text-muted-foreground text-sm">
                     ใช้สำหรับเข้าสู่ระบบและรับการแจ้งเตือน
                   </p>
-                  <p className="mt-1 truncate text-sm md:text-base">{profile.email}</p>
+                  <p className="mt-1 text-sm md:text-base truncate">
+                    {profile.email}
+                  </p>
                 </div>
                 <Button
                   variant="outline"
@@ -695,10 +695,10 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
                 </Button>
               </div>
 
-              <div className="flex items-start justify-between gap-4 rounded-lg border border-border px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm md:text-base font-medium">รหัสผ่าน</p>
-                  <p className="text-sm text-muted-foreground">
+              <div className="flex justify-between items-start gap-4 px-4 py-3 border border-border rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm md:text-base">รหัสผ่าน</p>
+                  <p className="text-muted-foreground text-sm">
                     {profile.hasPassword
                       ? "เปลี่ยนรหัสผ่านเพื่อความปลอดภัย"
                       : "ตั้งรหัสผ่านเพื่อเข้าสู่ระบบด้วยอีเมลได้"}
