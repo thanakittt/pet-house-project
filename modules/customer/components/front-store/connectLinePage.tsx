@@ -127,7 +127,6 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
         return;
       }
 
-      router.push("/sign-in");
       router.refresh();
     } catch (error) {
       console.error("Connect LINE sign out error:", error);
