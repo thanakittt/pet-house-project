@@ -18,7 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BannedBadge } from "./BannedBadge";
+import { LineConnectionBadge } from "./LineConnectionBadge";
 import { RoleBadge } from "./RoleBadge";
+import { SignupProviderBadge } from "./SignupProviderBadge";
 import type { AuthUserWithProfile } from "../types/user";
 import type {
   ListUsersResult,
@@ -134,7 +136,15 @@ export default function UserManagement({
             {users.length > 0 ? (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{user.name}</div>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      <LineConnectionBadge
+                        connected={user.hasLineConnection}
+                      />
+                      <SignupProviderBadge provider={user.signupProvider} />
+                    </div>
+                  </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{formatPhoneNumber(user.phoneNumber, "—")}</TableCell>
                   <TableCell>

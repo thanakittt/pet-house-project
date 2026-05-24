@@ -1,7 +1,17 @@
 import { db } from "@/db";
-import { users } from "@/db/schema";
-import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
-import type { AuthUser } from "../types/user";
+import { accounts, customers, staffs, users } from "@/db/schema";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  or,
+  type SQL,
+} from "drizzle-orm";
+import type { AuthSignupProvider, AuthUser } from "../types/user";
 
 export const USER_MANAGEMENT_PAGE_SIZE = 10;
 
@@ -30,6 +40,13 @@ export type ListUsersResult = {
   q: string;
   role: UserRoleFilter;
 };
+
+function toSignupProvider(providerId: string | undefined): AuthSignupProvider {
+  if (providerId === "credential") return "email";
+  if (providerId === "google") return "google";
+  if (providerId === "line") return "line";
+  return "unknown";
+}
 
 export function parseUserRoleFilter(value: unknown): UserRoleFilter {
   return typeof value === "string" &&
@@ -89,8 +106,77 @@ export async function listUsers({
     .limit(USER_MANAGEMENT_PAGE_SIZE)
     .offset(offset);
 
+  const userIds = data.map((user) => user.id);
+
+  if (userIds.length === 0) {
+    return {
+      users: [],
+      total,
+      page: currentPage,
+      pageSize: USER_MANAGEMENT_PAGE_SIZE,
+      totalPages,
+      q: search,
+      role,
+    };
+  }
+
+  const [customerLineConnections, staffLineConnections, userAccounts] =
+    await Promise.all([
+      db
+        .select({
+          userId: customers.userId,
+          lineUserId: customers.lineUserId,
+        })
+        .from(customers)
+        .where(inArray(customers.userId, userIds)),
+      db
+        .select({
+          userId: staffs.userId,
+          lineUserId: staffs.lineUserId,
+        })
+        .from(staffs)
+        .where(inArray(staffs.userId, userIds)),
+      db
+        .select({
+          userId: accounts.userId,
+          providerId: accounts.providerId,
+        })
+        .from(accounts)
+        .where(inArray(accounts.userId, userIds))
+        .orderBy(asc(accounts.createdAt)),
+    ]);
+
+  const lineConnectionByUserId = new Map<string, boolean>();
+
+  customerLineConnections.forEach((customer) => {
+    if (customer.userId) {
+      lineConnectionByUserId.set(customer.userId, Boolean(customer.lineUserId));
+    }
+  });
+
+  staffLineConnections.forEach((staff) => {
+    lineConnectionByUserId.set(staff.userId, Boolean(staff.lineUserId));
+  });
+
+  const signupProviderByUserId = new Map<string, AuthSignupProvider>();
+
+  userAccounts.forEach((account) => {
+    if (!signupProviderByUserId.has(account.userId)) {
+      signupProviderByUserId.set(
+        account.userId,
+        toSignupProvider(account.providerId),
+      );
+    }
+  });
+
+  const enrichedUsers = data.map((user) => ({
+    ...user,
+    hasLineConnection: lineConnectionByUserId.get(user.id) ?? false,
+    signupProvider: signupProviderByUserId.get(user.id) ?? "unknown",
+  }));
+
   return {
-    users: data as AuthUser[],
+    users: enrichedUsers as AuthUser[],
     total,
     page: currentPage,
     pageSize: USER_MANAGEMENT_PAGE_SIZE,
