@@ -6,4 +6,4 @@ This version has breaking changes: APIs, conventions, and file structure may all
 
 ## Thai Text
 
-- If PowerShell displays Thai text incorrectly, use Node to read the file as `utf8` to verify the actual contents.
+- use Node to read the file as `utf8` to verify the actual contents.
