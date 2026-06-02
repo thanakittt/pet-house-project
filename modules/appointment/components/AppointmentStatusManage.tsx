@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Receipt } from "lucide-react";
+import { CircleCheck, Receipt, Wallet } from "lucide-react";
 import Link from "next/link";
 import {
   LoadingButton,
@@ -30,11 +31,24 @@ import {
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@/modules/appointment/types/status";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
+import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
+import { formatCurrency, formatThaiDate } from "@/lib/utils";
+import { recordAppointmentDeposit } from "../actions/record-appointment-deposit";
 import { updateAppointmentStatus } from "../actions/update-appointment";
+
+type DepositPaymentMethod = "CASH" | "TRANSFER";
+
+type DepositPayment = {
+  id: string;
+  amount: number;
+  paymentMethod: DepositPaymentMethod;
+  paymentDate: string;
+};
 
 interface Props {
   appointmentId: string;
   currentStatus: AppointmentStatus;
+  depositPayment: DepositPayment | null;
 }
 
 const PATH_FLOW: AppointmentStatus[] = [
@@ -64,16 +78,27 @@ const FINAL_STATUS_OPTIONS: AppointmentStatus[] = [
   "NO_SHOW",
 ];
 
+const PAYMENT_METHOD_LABELS: Record<DepositPaymentMethod, string> = {
+  CASH: "เงินสด",
+  TRANSFER: "โอนเงิน",
+};
+
 export default function AppointmentStatusManager({
   appointmentId,
   currentStatus,
+  depositPayment,
 }: Props) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDepositLoading, setIsDepositLoading] = useState(false);
+  const [isDepositDialogOpen, setIsDepositDialogOpen] = useState(false);
+  const [depositPaymentMethod, setDepositPaymentMethod] =
+    useState<DepositPaymentMethod>("TRANSFER");
   const [confirmStatus, setConfirmStatus] = useState<AppointmentStatus | null>(
     null,
   );
 
-  const isWorking = isLoading;
+  const isWorking = isLoading || isDepositLoading;
 
   const getNextStatus = (): AppointmentStatus | null => {
     const currentIndex = PATH_FLOW.indexOf(currentStatus);
@@ -87,16 +112,9 @@ export default function AppointmentStatusManager({
   const isFinished = ["COMPLETED", "CANCELLED", "NO_SHOW"].includes(
     currentStatus,
   );
+  const canRecordDeposit = !isFinished && !depositPayment;
 
   const showSuccessToast = (newStatus: AppointmentStatus) => {
-    // สถานะ CONFIRMED มี side effect เรื่องค่ามัดจำ จึงต้องแจ้งรายละเอียดเพิ่มให้ผู้ใช้รู้
-    if (newStatus === "CONFIRMED") {
-      toast.success(
-        `อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" และบันทึกค่ามัดจำ 100 บาท เรียบร้อยแล้ว`,
-      );
-      return;
-    }
-
     toast.success(`อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`);
   };
 
@@ -113,6 +131,7 @@ export default function AppointmentStatusManager({
       const result = await updateAppointmentStatus(appointmentId, newStatus);
       if (result.success) {
         showSuccessToast(newStatus);
+        router.refresh();
         return true;
       }
 
@@ -123,6 +142,34 @@ export default function AppointmentStatusManager({
       return false;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRecordDeposit = async () => {
+    setIsDepositLoading(true);
+    try {
+      const result = await recordAppointmentDeposit({
+        appointmentId,
+        paymentMethod: depositPaymentMethod,
+      });
+
+      if (result.success) {
+        if (result.data?.alreadyRecorded) {
+          toast.info("คิวนี้มีการบันทึกค่ามัดจำแล้ว");
+        } else {
+          toast.success("บันทึกค่ามัดจำเรียบร้อยแล้ว");
+        }
+
+        setIsDepositDialogOpen(false);
+        router.refresh();
+        return;
+      }
+
+      toast.error(result.error || "เกิดข้อผิดพลาดในการบันทึกค่ามัดจำ");
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการบันทึกค่ามัดจำ");
+    } finally {
+      setIsDepositLoading(false);
     }
   };
 
@@ -217,6 +264,32 @@ export default function AppointmentStatusManager({
         </div>
 
         <div className="flex flex-wrap justify-end gap-2 w-full sm:w-auto">
+          {depositPayment ? (
+            <div className="flex items-center gap-2 bg-background/80 px-3 py-2 border rounded-md text-sm">
+              <CircleCheck className="text-green-600" size={16} />
+              <div className="text-left">
+                <p className="font-medium text-foreground">
+                  บันทึกมัดจำแล้ว {formatCurrency(depositPayment.amount)}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {PAYMENT_METHOD_LABELS[depositPayment.paymentMethod]} ·{" "}
+                  {formatThaiDate(depositPayment.paymentDate)}
+                </p>
+              </div>
+            </div>
+          ) : (
+            canRecordDeposit && (
+              <Button
+                variant="outline"
+                disabled={isWorking}
+                onClick={() => setIsDepositDialogOpen(true)}
+              >
+                <Wallet data-icon="inline-start" />
+                บันทึกค่ามัดจำ
+              </Button>
+            )
+          )}
+
           {!isFinished && (
             <>
               {currentStatus === "CONFIRMED" && (
@@ -304,6 +377,68 @@ export default function AppointmentStatusManager({
                 loadingText="กำลังอัปเดต..."
               >
                 ยืนยัน
+              </LoadingButtonContent>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isDepositDialogOpen}
+        onOpenChange={(open) => {
+          if (!isDepositLoading) {
+            setIsDepositDialogOpen(open);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>บันทึกค่ามัดจำ</AlertDialogTitle>
+            <AlertDialogDescription>
+              เลือกช่องทางชำระเงินสำหรับค่ามัดจำ{" "}
+              {formatCurrency(APPOINTMENT_DEPOSIT_AMOUNT)}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="space-y-2">
+            <span className="font-medium text-muted-foreground text-sm">
+              ช่องทางชำระเงิน
+            </span>
+            <Select
+              value={depositPaymentMethod}
+              onValueChange={(value) =>
+                setDepositPaymentMethod(value as DepositPaymentMethod)
+              }
+              disabled={isDepositLoading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TRANSFER">
+                  {PAYMENT_METHOD_LABELS.TRANSFER}
+                </SelectItem>
+                <SelectItem value="CASH">{PAYMENT_METHOD_LABELS.CASH}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDepositLoading}>
+              ยกเลิก
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDepositLoading}
+              onClick={(event) => {
+                event.preventDefault();
+                handleRecordDeposit();
+              }}
+            >
+              <LoadingButtonContent
+                isLoading={isDepositLoading}
+                loadingText="กำลังบันทึก..."
+              >
+                ยืนยันบันทึกมัดจำ
               </LoadingButtonContent>
             </AlertDialogAction>
           </AlertDialogFooter>

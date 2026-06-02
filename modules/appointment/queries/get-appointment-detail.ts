@@ -41,6 +41,21 @@ export async function getAppointmentDetail(appointmentId: string) {
             }, // [NEW] ดึงข้อมูลรายงานสุขภาพ
           },
         },
+        payments: {
+          where: (payment, { and, eq, isNull }) =>
+            and(
+              eq(payment.paymentType, "DEPOSIT"),
+              eq(payment.status, "PAID"),
+              isNull(payment.deletedAt),
+            ),
+          orderBy: (payment, { desc }) => [desc(payment.createdAt)],
+          columns: {
+            id: true,
+            amount: true,
+            paymentMethod: true,
+            paymentDate: true,
+          },
+        },
       },
     });
 
@@ -88,6 +103,15 @@ export async function getAppointmentDetail(appointmentId: string) {
       }
     });
 
+    const depositPayment = appointmentData.payments[0]
+      ? {
+          id: appointmentData.payments[0].id,
+          amount: Number(appointmentData.payments[0].amount),
+          paymentMethod: appointmentData.payments[0].paymentMethod,
+          paymentDate: appointmentData.payments[0].paymentDate,
+        }
+      : null;
+
     // 3. ส่งข้อมูลที่จัดรูปแบบแล้ว
     const formattedData = {
       id: appointmentData.id,
@@ -100,6 +124,7 @@ export async function getAppointmentDetail(appointmentId: string) {
         walkInPhoneNumber: appointmentData.customer.walkInPhoneNumber,
       },
       totalPrice,
+      depositPayment,
       pets: Array.from(petsMap.values()),
     };
 
