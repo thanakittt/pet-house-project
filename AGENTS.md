@@ -3,3 +3,7 @@
 
 This version has breaking changes: APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+## Thai Text
+
+- If PowerShell displays Thai text incorrectly, use Node to read the file as `utf8` to verify the actual contents.
