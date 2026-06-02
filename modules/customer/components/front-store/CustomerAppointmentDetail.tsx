@@ -4,6 +4,7 @@ import BackButton from "@/components/BackButton";
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
 import { formatThaiDate } from "@/lib/utils";
+import CustomerCancelAppointmentButton from "@/modules/appointment/components/front-store/CustomerCancelAppointmentButton";
 import type { CustomerAppointmentDetail } from "@/modules/appointment/queries/get-customer-appointment-detail";
 import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import { format, parseISO } from "date-fns";
@@ -206,6 +207,14 @@ export default function CustomerAppointmentDetails({
               </div>
 
               <div className="z-10 relative flex flex-col gap-4 mt-10">
+                {appointment.status === "PENDING_DEPOSIT" ? (
+                  <CustomerCancelAppointmentButton
+                    appointmentId={appointment.id}
+                    size="default"
+                    className="w-full transition-all"
+                  />
+                ) : null}
+
                 {appointment.status === "COMPLETED" ? (
                   <Button
                     asChild

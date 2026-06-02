@@ -4,6 +4,7 @@ import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBad
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { ShieldCheck, Wallet } from "lucide-react";
 import { useState } from "react";
+import CustomerCancelAppointmentButton from "./CustomerCancelAppointmentButton";
 import DepositSlipUpload from "./DepositSlipUpload";
 
 export default function PendingDepositPaymentScreen({
@@ -73,6 +74,11 @@ export default function PendingDepositPaymentScreen({
             appointmentId={appointmentId}
             appointmentCreatedAt={appointmentCreatedAt}
             onVerified={(transRef) => setVerifiedSlipTransRef(transRef || "-")}
+          />
+          <CustomerCancelAppointmentButton
+            appointmentId={appointmentId}
+            size="lg"
+            className="w-full rounded-xl"
           />
         </>
       )}

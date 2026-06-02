@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatThaiDate } from "@/lib/utils";
 import { createCustomerReview } from "@/modules/appointment/actions/create-customer-review";
+import CustomerCancelAppointmentButton from "@/modules/appointment/components/front-store/CustomerCancelAppointmentButton";
 import type { CustomerAppointmentsResult } from "@/modules/appointment/queries/get-customer-appointments";
 import LineNotificationAlert from "./LineNotificationAlert";
 import { format, parseISO } from "date-fns";
@@ -342,17 +343,23 @@ export default function CustomerAppointment({
                   )}
 
                   {item.status === "PENDING_DEPOSIT" && (
-                    <Button
-                      asChild
-                      variant="default"
-                      size="sm"
-                      className="gap-1.5 shadow-sm px-4 rounded-xl h-10 text-xs transition-all"
-                    >
-                      <Link href="/appointments/new">
-                        <Wallet className="size-3.5" />
-                        ชำระเงิน
-                      </Link>
-                    </Button>
+                    <>
+                      <Button
+                        asChild
+                        variant="default"
+                        size="sm"
+                        className="gap-1.5 shadow-sm px-4 rounded-xl h-10 text-xs transition-all"
+                      >
+                        <Link href="/appointments/new">
+                          <Wallet className="size-3.5" />
+                          ชำระเงิน
+                        </Link>
+                      </Button>
+                      <CustomerCancelAppointmentButton
+                        appointmentId={item.id}
+                        className="shadow-sm px-4 rounded-xl h-10 text-xs"
+                      />
+                    </>
                   )}
                 </div>
 
