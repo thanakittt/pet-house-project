@@ -82,8 +82,7 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
 
         if (!result.success) {
           toast.error(
-            result.error ||
-              "เกิดข้อผิดพลาดในการเชื่อมต่อบัญชีกับ LINE",
+            result.error || "เกิดข้อผิดพลาดในการเชื่อมต่อบัญชีกับ LINE",
           );
           return;
         }
@@ -147,7 +146,8 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
             <div className="space-y-2">
               <h1 className="font-semibold text-xl">กำลังเปิด LINE</h1>
               <p className="text-muted-foreground text-sm leading-6">
-                ระบบกำลังตรวจสอบบัญชี LINE ของคุณเพื่อเตรียมเชื่อมต่อกับ Pet House
+                ระบบกำลังตรวจสอบบัญชี LINE ของคุณเพื่อเตรียมเชื่อมต่อกับ Pet
+                House
               </p>
             </div>
           </CardContent>
@@ -162,7 +162,10 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
       เชื่อมต่อแล้ว
     </Badge>
   ) : (
-    <Badge variant="outline" className="border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300">
+    <Badge
+      variant="outline"
+      className="border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300"
+    >
       <Unlink data-icon="inline-start" />
       ยังไม่เชื่อมต่อ
     </Badge>
@@ -187,7 +190,8 @@ export default function Page({ isConnected }: ConnectLinePageProps) {
               เชื่อมต่อ LINE กับ Pet House
             </CardTitle>
             <CardDescription className="mx-auto max-w-sm leading-6">
-              ใช้ LINE เพื่อรับแจ้งเตือนสถานะนัดหมายและบริการจาก Pet House ได้ทันที
+              ใช้ LINE เพื่อรับแจ้งเตือนสถานะนัดหมายและบริการจาก Pet House
+              ได้ทันที
             </CardDescription>
           </div>
         </CardHeader>

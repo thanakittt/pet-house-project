@@ -24,6 +24,7 @@ import Step2MainService from "./Step2MainService";
 import Step3AddOnService from "./Step3AddOnService";
 import Step4Summary from "./Step4Summary";
 import Step5DateTime from "./Step5DateTime";
+import ServiceRulesConsent from "./ServiceRulesConsent";
 
 const initialFormData: FrontStoreFormData = {
   petId: "",
@@ -49,6 +50,8 @@ export default function AppointmentStepper({
   const [formData, setFormData] = useState<FrontStoreFormData>(initialFormData);
   const [createdAppointmentId, setCreatedAppointmentId] = useState("");
   const [createdAppointmentTime, setCreatedAppointmentTime] = useState("");
+  const [hasAcceptedRules, setHasAcceptedRules] = useState(false);
+  const [hasRejectedRules, setHasRejectedRules] = useState(false);
   // หลังลูกค้าจองสำเร็จแล้ว component เดิมจะเปลี่ยนเป็นหน้าจ่ายมัดจำ
   // state นี้ใช้จำเลขอ้างอิงสลิปเมื่อ Thunder verify ผ่าน เพื่อสลับเป็นหน้าสถานะยืนยันคิวแล้ว
   const [verifiedSlipTransRef, setVerifiedSlipTransRef] = useState("");
@@ -210,6 +213,12 @@ export default function AppointmentStepper({
       return;
     }
 
+    if (!hasAcceptedRules) {
+      setHasRejectedRules(true);
+      toast.error("กรุณายอมรับกฎการเข้ารับบริการก่อนยืนยันการจอง");
+      return;
+    }
+
     const hasInvalidBooking = allBookings.some((booking) => {
       const details = getBookingDetails(booking, pets, services);
       return !details.pet || !details.mainService || !details.mainVariant;
@@ -225,6 +234,7 @@ export default function AppointmentStepper({
         startTimeIso: formData.startTimeIso,
         note: formData.note,
         petBookings: allBookings,
+        acceptedServiceRules: hasAcceptedRules,
       });
 
       if (!result.success) {
@@ -402,6 +412,25 @@ export default function AppointmentStepper({
         </div>
       ) : null}
 
+      {step === 5 ? (
+        <ServiceRulesConsent
+          accepted={hasAcceptedRules}
+          rejected={hasRejectedRules}
+          disabled={isPending}
+          onAcceptedChange={(accepted) => {
+            setHasAcceptedRules(accepted);
+            if (accepted) {
+              setHasRejectedRules(false);
+            }
+          }}
+          onReject={() => {
+            setHasAcceptedRules(false);
+            setHasRejectedRules(true);
+            toast.error("ไม่สามารถจองคิวได้หากไม่ยอมรับกฎการเข้ารับบริการ");
+          }}
+        />
+      ) : null}
+
       <div className="flex justify-between items-center mt-6 pt-6 border-muted-foreground/20 border-t">
         <Button
           variant="link"
@@ -418,7 +447,7 @@ export default function AppointmentStepper({
             (step === 1 && (!formData.petId || pets.length === 0)) ||
             (step === 2 && !formData.mainServiceId) ||
             (step === 4 && allBookings.length === 0) ||
-            (step === 5 && !formData.startTimeIso)
+            (step === 5 && (!formData.startTimeIso || !hasAcceptedRules))
           }
           isLoading={isPending}
           loadingText="กำลังบันทึก..."

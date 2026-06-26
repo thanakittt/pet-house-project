@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: sha256-DZTgyq185p6GqOdq5MgDj6SNlWTGIUSDKp8Y58XMCkw=
+
 importers:
 
   .:
@@ -6159,6 +6161,7 @@ snapshots:
       '@liff/scan-code': 2.28.0(tslib@2.8.1)
       '@liff/store': 2.28.0(tslib@2.8.1)
       '@liff/types': 2.28.0
+      '@liff/use': 2.28.0(tslib@2.8.1)
       '@liff/util': 2.28.0(tslib@2.8.1)
     transitivePeerDependencies:
       - tslib

@@ -36,6 +36,7 @@ export interface CreateCustomerAppointmentInput {
   startTimeIso: string;
   petBookings: CustomerPetBookingInput[];
   note?: string;
+  acceptedServiceRules?: boolean;
 }
 
 // หา variant ที่เหมาะกับสัตว์เลี้ยงตัวนั้นจาก service ที่ลูกค้าเลือก
@@ -83,6 +84,13 @@ export async function createCustomerAppointment(
       return {
         success: false,
         error: "กรุณาเลือกวันและเวลาที่ต้องการจอง",
+      };
+    }
+
+    if (data.acceptedServiceRules !== true) {
+      return {
+        success: false,
+        error: "กรุณายอมรับกฎการเข้ารับบริการก่อนยืนยันการจอง",
       };
     }
 
