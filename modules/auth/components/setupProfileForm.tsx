@@ -37,9 +37,10 @@ type setupProfileFormData = {
 interface SetupProfileFormProps {
   userId: string;
   name: string;
+  returnTo?: string | null;
 }
 
-export function SetupProfileForm({ name }: SetupProfileFormProps) {
+export function SetupProfileForm({ name, returnTo }: SetupProfileFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -68,7 +69,7 @@ export function SetupProfileForm({ name }: SetupProfileFormProps) {
       }
 
       toast.success("บันทึกข้อมูลโปรไฟล์สำเร็จ");
-      router.push("/"); // หรือไปหน้าที่ต้องการหลังจากตั้งค่าเสร็จ
+      router.push(returnTo ?? "/");
 
     } catch (error) {
       console.error("SetupProfile Error:", error);

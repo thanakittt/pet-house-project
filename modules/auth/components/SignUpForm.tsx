@@ -21,7 +21,11 @@ import Link from "next/link";
 import { SignUpFormData } from "../types/sign-up";
 import { signUpCustomer } from "../actions/sign-up-customer";
 
-export function SignUpForm() {
+interface SignUpFormProps {
+  returnTo?: string | null;
+}
+
+export function SignUpForm({ returnTo }: SignUpFormProps) {
   const router = useRouter();
   const {
     handleSubmit,
@@ -58,7 +62,7 @@ export function SignUpForm() {
         },
         {
           onSuccess: () => {
-            router.push("/");
+            router.push(returnTo ?? "/");
           },
           onError: () => {
             toast.error("สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบอีกครั้ง");
@@ -74,10 +78,15 @@ export function SignUpForm() {
 
   const handleSocialSignIn = async (provider: "google" | "line") => {
     try {
+      const newUserCallbackURL = returnTo
+        ? `/setup-profile?returnTo=${encodeURIComponent(returnTo)}`
+        : "/setup-profile";
+
       await authClient.signIn.social(
         {
           provider,
-          newUserCallbackURL: "/setup-profile",
+          ...(returnTo ? { callbackURL: returnTo } : {}),
+          newUserCallbackURL,
         },
         {
           onError: () => {

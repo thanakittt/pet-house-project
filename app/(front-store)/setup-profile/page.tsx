@@ -3,13 +3,22 @@ import { requireCustomer } from "@/lib/session";
 import { SetupProfileForm } from "@/modules/auth/components/setupProfileForm";
 import { isCustomerExisted } from "@/modules/customer/queries/get-customer";
 import { redirect } from "next/navigation";
+import { getSafeReturnTo } from "@/lib/safe-return-to";
 
 export const metadata: Metadata = {
   title: "ตั้งค่าโปรไฟล์",
   description: "กรอกข้อมูลลูกค้าเพื่อเริ่มใช้งานบัญชี Pet House",
 };
 
-export default async function SetupProfile() {
+type SetupProfileProps = {
+  searchParams: Promise<{
+    returnTo?: string | string[];
+  }>;
+};
+
+export default async function SetupProfile({ searchParams }: SetupProfileProps) {
+  const { returnTo } = await searchParams;
+  const safeReturnTo = getSafeReturnTo(returnTo);
   const session = await requireCustomer();
   const user = session?.user;
 
@@ -25,8 +34,14 @@ export default async function SetupProfile() {
   }
 
   if (profileExisted.data.exists) {
-    redirect("/");
+    redirect(safeReturnTo ?? "/");
   }
 
-  return <SetupProfileForm userId={user.id} name={user.name} />;
+  return (
+    <SetupProfileForm
+      userId={user.id}
+      name={user.name}
+      returnTo={safeReturnTo}
+    />
+  );
 }

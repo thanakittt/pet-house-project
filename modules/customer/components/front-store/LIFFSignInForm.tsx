@@ -77,7 +77,7 @@ export function LIFFSignInForm() {
         {
           provider,
           callbackURL: "/connect-line",
-          newUserCallbackURL: "/setup-profile",
+          newUserCallbackURL: "/setup-profile?returnTo=/connect-line",
         },
         {
           onError: () => {
@@ -108,7 +108,8 @@ export function LIFFSignInForm() {
               เข้าสู่ระบบเพื่อเชื่อมต่อ LINE
             </CardTitle>
             <CardDescription className="mx-auto max-w-sm leading-6">
-              เชื่อมบัญชี Pet House กับ LINE เพื่อรับแจ้งเตือนสถานะนัดหมายและบริการ
+              เชื่อมบัญชี Pet House กับ LINE
+              เพื่อรับแจ้งเตือนสถานะนัดหมายและบริการ
             </CardDescription>
           </div>
         </CardHeader>
@@ -240,7 +241,7 @@ export function LIFFSignInForm() {
           <div className="flex flex-col gap-2 pt-4 border-t text-muted-foreground text-sm text-center">
             <p>ยังไม่มีบัญชี?</p>
             <Button asChild variant="link" className="p-0 h-auto">
-              <Link href="/sign-up">
+              <Link href="/sign-up?returnTo=/connect-line">
                 <LinkIcon data-icon="inline-start" />
                 สมัครสมาชิก Pet House
               </Link>
