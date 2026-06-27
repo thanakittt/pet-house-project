@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { lineAppointmentStatusTemplates } from "@/db/schema";
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import {
   getDefaultLineTemplateView,
   LINE_NOTIFIABLE_APPOINTMENT_STATUSES,
@@ -25,9 +25,12 @@ export async function listAppointmentStatusTemplates(): Promise<
       })
       .from(lineAppointmentStatusTemplates)
       .where(
-        inArray(
-          lineAppointmentStatusTemplates.status,
-          LINE_NOTIFIABLE_APPOINTMENT_STATUSES,
+        and(
+          eq(lineAppointmentStatusTemplates.type, "customer"),
+          inArray(
+            lineAppointmentStatusTemplates.status,
+            LINE_NOTIFIABLE_APPOINTMENT_STATUSES,
+          ),
         ),
       );
 

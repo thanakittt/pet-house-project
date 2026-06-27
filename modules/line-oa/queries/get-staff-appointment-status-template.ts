@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { lineStaffAppointmentStatusTemplates } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { lineAppointmentStatusTemplates } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import {
   getDefaultStaffLineTemplateView,
   STAFF_LINE_TEMPLATE_STATUS,
@@ -13,16 +13,19 @@ export async function getStaffAppointmentStatusTemplate(): Promise<StaffLineAppo
   try {
     const [storedTemplate] = await db
       .select({
-        id: lineStaffAppointmentStatusTemplates.id,
-        status: lineStaffAppointmentStatusTemplates.status,
-        messageTemplate: lineStaffAppointmentStatusTemplates.messageTemplate,
-        isActive: lineStaffAppointmentStatusTemplates.isActive,
+        id: lineAppointmentStatusTemplates.id,
+        status: lineAppointmentStatusTemplates.status,
+        messageTemplate: lineAppointmentStatusTemplates.messageTemplate,
+        isActive: lineAppointmentStatusTemplates.isActive,
       })
-      .from(lineStaffAppointmentStatusTemplates)
+      .from(lineAppointmentStatusTemplates)
       .where(
-        eq(
-          lineStaffAppointmentStatusTemplates.status,
-          STAFF_LINE_TEMPLATE_STATUS,
+        and(
+          eq(lineAppointmentStatusTemplates.type, "staff"),
+          eq(
+            lineAppointmentStatusTemplates.status,
+            STAFF_LINE_TEMPLATE_STATUS,
+          ),
         ),
       )
       .limit(1);

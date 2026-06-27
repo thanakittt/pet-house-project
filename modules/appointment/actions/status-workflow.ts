@@ -2,7 +2,6 @@ import { db } from "@/db";
 import {
   appointments,
   lineAppointmentStatusTemplates,
-  lineStaffAppointmentStatusTemplates,
   staffs,
 } from "@/db/schema";
 import { formatThaiDate } from "@/lib/utils";
@@ -21,7 +20,7 @@ import {
   STAFF_LINE_TEMPLATE_STATUS,
   renderStaffLineAppointmentStatusTemplate,
 } from "@/modules/line-oa/types/staff-appointment-status-template";
-import { eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import type { AppointmentStatus } from "../types/status";
 
 export const APPOINTMENT_NOT_FOUND_ERROR = "ไม่พบข้อมูลการจอง";
@@ -291,7 +290,12 @@ async function getNotificationTemplate(
         isActive: lineAppointmentStatusTemplates.isActive,
       })
       .from(lineAppointmentStatusTemplates)
-      .where(eq(lineAppointmentStatusTemplates.status, status))
+      .where(
+        and(
+          eq(lineAppointmentStatusTemplates.type, "customer"),
+          eq(lineAppointmentStatusTemplates.status, status),
+        ),
+      )
       .limit(1);
 
     if (!storedTemplate) {
@@ -316,14 +320,17 @@ async function getStaffConfirmedNotificationTemplate(): Promise<NotificationTemp
   try {
     const [storedTemplate] = await db
       .select({
-        messageTemplate: lineStaffAppointmentStatusTemplates.messageTemplate,
-        isActive: lineStaffAppointmentStatusTemplates.isActive,
+        messageTemplate: lineAppointmentStatusTemplates.messageTemplate,
+        isActive: lineAppointmentStatusTemplates.isActive,
       })
-      .from(lineStaffAppointmentStatusTemplates)
+      .from(lineAppointmentStatusTemplates)
       .where(
-        eq(
-          lineStaffAppointmentStatusTemplates.status,
-          STAFF_LINE_TEMPLATE_STATUS,
+        and(
+          eq(lineAppointmentStatusTemplates.type, "staff"),
+          eq(
+            lineAppointmentStatusTemplates.status,
+            STAFF_LINE_TEMPLATE_STATUS,
+          ),
         ),
       )
       .limit(1);

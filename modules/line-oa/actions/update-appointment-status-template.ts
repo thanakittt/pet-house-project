@@ -42,12 +42,16 @@ export async function updateAppointmentStatusTemplate(input: {
     await db
       .insert(lineAppointmentStatusTemplates)
       .values({
+        type: "customer",
         status: input.status,
         messageTemplate: validatedTemplate.messageTemplate,
         isActive: input.isActive,
       })
       .onConflictDoUpdate({
-        target: lineAppointmentStatusTemplates.status,
+        target: [
+          lineAppointmentStatusTemplates.type,
+          lineAppointmentStatusTemplates.status,
+        ],
         set: {
           messageTemplate: validatedTemplate.messageTemplate,
           isActive: input.isActive,

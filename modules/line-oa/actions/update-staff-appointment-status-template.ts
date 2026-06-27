@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { lineStaffAppointmentStatusTemplates } from "@/db/schema";
+import { lineAppointmentStatusTemplates } from "@/db/schema";
 import { requireAdminAndOwner } from "@/lib/session";
 import type { ActionResponse } from "@/types/action";
 import { revalidatePath } from "next/cache";
@@ -33,14 +33,18 @@ export async function updateStaffAppointmentStatusTemplate(input: {
     }
 
     await db
-      .insert(lineStaffAppointmentStatusTemplates)
+      .insert(lineAppointmentStatusTemplates)
       .values({
+        type: "staff",
         status: STAFF_LINE_TEMPLATE_STATUS,
         messageTemplate: validatedTemplate.messageTemplate,
         isActive: input.isActive,
       })
       .onConflictDoUpdate({
-        target: lineStaffAppointmentStatusTemplates.status,
+        target: [
+          lineAppointmentStatusTemplates.type,
+          lineAppointmentStatusTemplates.status,
+        ],
         set: {
           messageTemplate: validatedTemplate.messageTemplate,
           isActive: input.isActive,

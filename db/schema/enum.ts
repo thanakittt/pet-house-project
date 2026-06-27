@@ -14,6 +14,10 @@ export const appointmentStatusEnum = pgEnum("appointment_status", [
   "CANCELLED",
   "NO_SHOW",
 ]);
+export const lineAppointmentTemplateTypeEnum = pgEnum(
+  "line_appointment_template_type",
+  ["customer", "staff"],
+);
 export const serviceImageTypeEnum = pgEnum("service_image_type", [
   "BEFORE",
   "AFTER",
