@@ -60,7 +60,7 @@ export function PetTypeBadge({
       <Badge
         variant="outline"
         className={cn(
-          "size-12 flex-col gap-1 rounded-md font-bold",
+          "size-16 flex-col gap-1 rounded-md font-bold",
           config?.className ??
             "border-border bg-muted text-muted-foreground",
           className,

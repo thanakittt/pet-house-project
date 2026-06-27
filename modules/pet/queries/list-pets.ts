@@ -23,6 +23,8 @@ export async function listPets(customerId: string): Promise<ActionResponse<Pet[]
         id: true,
         name: true,
         medicalNotes: true,
+        imageUrl: true,
+        imageStorageKey: true,
         petBreedId: true,
       },
       where: and(eq(pets.customerId, customerId), isNull(pets.deletedAt)),

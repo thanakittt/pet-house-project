@@ -40,6 +40,7 @@ import { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { createPet } from "../actions/create-pet";
 import { createCustomerPet } from "../actions/customer-pet";
 import { createPetBreedComboboxOptions } from "../utils/pet-breed-combobox-options";
+import { PetImageUploadField } from "./PetImageUploadField";
 
 type PetActionMode = "staff" | "customer";
 
@@ -60,6 +61,7 @@ export function CreatePetDialog({
   const dialogContentRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [petImageFile, setPetImageFile] = useState<File | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -86,7 +88,9 @@ export function CreatePetDialog({
 
       const result =
         actionMode === "customer"
-          ? await createCustomerPet(data)
+          ? await createCustomerPet(
+              buildCustomerPetFormData(data, petImageFile),
+            )
           : await createPet({
               name: data.name,
               medicalNotes: data.medicalNotes,
@@ -101,6 +105,7 @@ export function CreatePetDialog({
 
       setOpen(false);
       form.reset();
+      setPetImageFile(null);
       toast.success("สร้างสัตว์เลี้ยงสำเร็จ");
       router.refresh();
     } catch (error) {
@@ -116,6 +121,7 @@ export function CreatePetDialog({
         if (!value) {
           form.reset();
           setServerError(null);
+          setPetImageFile(null);
         }
         setOpen(value);
       }}
@@ -144,6 +150,13 @@ export function CreatePetDialog({
             </DialogHeader>
 
             <FieldGroup className="gap-3 px-4 pb-3">
+            {actionMode === "customer" && (
+              <PetImageUploadField
+                imageFile={petImageFile}
+                onImageFileChange={setPetImageFile}
+              />
+            )}
+
             {/* Name Field */}
             <Controller
               name="name"
@@ -307,4 +320,22 @@ export function CreatePetDialog({
       </form>
     </Dialog>
   );
+}
+
+function buildCustomerPetFormData(
+  data: CreatePetForm,
+  petImageFile: File | null,
+) {
+  const formData = new FormData();
+
+  formData.set("name", data.name);
+  formData.set("petType", data.petType);
+  formData.set("petBreedId", data.petBreedId);
+  formData.set("medicalNotes", data.medicalNotes);
+
+  if (petImageFile) {
+    formData.set("petImage", petImageFile);
+  }
+
+  return formData;
 }

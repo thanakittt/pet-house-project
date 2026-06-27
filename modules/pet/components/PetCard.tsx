@@ -1,8 +1,8 @@
 import { Pet } from "@/modules/pet/types/pet";
-import PetTypeBadge from "./PetTypeBadge";
 import { Button } from "@/components/ui/button";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
+import { PetAvatar } from "./PetAvatar";
 
 interface PetCardProps {
   pet: Pet;
@@ -22,9 +22,10 @@ export function PetCard({
       className="flex justify-between gap-2 p-4 border rounded-lg transition-colors cursor-pointer"
     >
       <div className="flex flex-row items-start gap-4">
-        <PetTypeBadge
-          type={pet.breed.type.toLowerCase()}
-          display="tile"
+        <PetAvatar
+          imageUrl={pet.imageUrl}
+          name={pet.name}
+          type={pet.breed.type}
         />
         <div className="flex flex-col gap-2 w-full">
           <p className="font-bold text-base md:text-lg">{pet.name}</p>

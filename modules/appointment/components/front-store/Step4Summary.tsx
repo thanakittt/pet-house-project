@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
+import { PetAvatar } from "@/modules/pet/components/PetAvatar";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
 import { Edit2, PlusCircle, Trash2 } from "lucide-react";
@@ -119,9 +119,10 @@ export default function Step4Summary({
               </div>
 
               <div className="flex items-center gap-3 mb-4">
-                <PetTypeBadge
-                  type={pet.breed.type.toLowerCase()}
-                  className="px-3 py-6 rounded-xl"
+                <PetAvatar
+                  imageUrl={pet.imageUrl}
+                  name={pet.name}
+                  type={pet.breed.type}
                 />
                 <div>
                   <span className="block font-bold text-primary text-lg">

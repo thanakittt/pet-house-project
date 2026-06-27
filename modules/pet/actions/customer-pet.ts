@@ -4,16 +4,24 @@ import { db } from "@/db";
 import { pets } from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
-import { CreatePetForm, UpdatePetForm } from "../types/pet";
 import {
   getCurrentCustomerId,
   sanitizePetInput,
   validateActivePetBreed,
 } from "./pet-action-helpers";
+import {
+  getPetProfileImageStorageKeyFromUrl,
+  isAllowedPetProfileImageMimeType,
+  MAX_PET_PROFILE_IMAGE_SIZE_BYTES,
+  removePetProfileImagesFromStorage,
+  uploadPetProfileImageToStorage,
+} from "../utils/pet-profile-image-storage";
 
 export async function createCustomerPet(
-  data: CreatePetForm,
+  formData: FormData,
 ): Promise<ActionResponse<null>> {
+  let uploadedStorageKey: string | null = null;
+
   try {
     const customerId = await getCurrentCustomerId();
 
@@ -21,7 +29,13 @@ export async function createCustomerPet(
       return customerId;
     }
 
-    const sanitized = sanitizePetInput(data);
+    const parsed = parseCustomerPetFormData(formData);
+
+    if (!parsed.success) {
+      return parsed;
+    }
+
+    const sanitized = sanitizePetInput(parsed.data);
 
     if (!sanitized.success) {
       return sanitized;
@@ -33,11 +47,31 @@ export async function createCustomerPet(
       return activeBreed;
     }
 
+    const petImage = getPetProfileImageFile(formData);
+    const imageValidation = validatePetProfileImageFile(petImage);
+
+    if (!imageValidation.success) {
+      return imageValidation;
+    }
+
+    const petId = crypto.randomUUID();
+    const uploadedImage = petImage
+      ? await uploadPetProfileImageToStorage({
+          petId,
+          imageFile: petImage,
+        })
+      : null;
+
+    uploadedStorageKey = uploadedImage?.storageKey ?? null;
+
     await db.insert(pets).values({
+      id: petId,
       name: sanitized.data.name,
       medicalNotes: sanitized.data.medicalNotes,
       petBreedId: sanitized.data.petBreedId,
       customerId: customerId.data,
+      imageUrl: uploadedImage?.publicUrl ?? null,
+      imageStorageKey: uploadedImage?.storageKey ?? null,
     });
 
     return {
@@ -46,6 +80,11 @@ export async function createCustomerPet(
     };
   } catch (error) {
     console.error("createCustomerPet error:", error);
+
+    if (uploadedStorageKey) {
+      await removePetProfileImagesFromStorage([uploadedStorageKey]);
+    }
+
     return {
       success: false,
       error: "เกิดข้อผิดพลาดในการสร้างสัตว์เลี้ยง",
@@ -54,8 +93,10 @@ export async function createCustomerPet(
 }
 
 export async function updateCustomerPet(
-  data: UpdatePetForm,
+  formData: FormData,
 ): Promise<ActionResponse<null>> {
+  let uploadedStorageKey: string | null = null;
+
   try {
     const customerId = await getCurrentCustomerId();
 
@@ -63,7 +104,22 @@ export async function updateCustomerPet(
       return customerId;
     }
 
-    const sanitized = sanitizePetInput(data);
+    const parsed = parseCustomerPetFormData(formData);
+
+    if (!parsed.success) {
+      return parsed;
+    }
+
+    const petId = getRequiredFormDataString(formData, "petId");
+
+    if (!petId) {
+      return {
+        success: false,
+        error: "ไม่พบรหัสสัตว์เลี้ยง",
+      };
+    }
+
+    const sanitized = sanitizePetInput(parsed.data);
 
     if (!sanitized.success) {
       return sanitized;
@@ -75,16 +131,64 @@ export async function updateCustomerPet(
       return activeBreed;
     }
 
+    const currentPet = await db.query.pets.findFirst({
+      columns: {
+        id: true,
+        imageUrl: true,
+        imageStorageKey: true,
+      },
+      where: and(
+        eq(pets.id, petId),
+        eq(pets.customerId, customerId.data),
+        isNull(pets.deletedAt),
+      ),
+    });
+
+    if (!currentPet) {
+      return {
+        success: false,
+        error: "ไม่พบสัตว์เลี้ยงที่ต้องการแก้ไข",
+      };
+    }
+
+    const petImage = getPetProfileImageFile(formData);
+    const imageValidation = validatePetProfileImageFile(petImage);
+
+    if (!imageValidation.success) {
+      return imageValidation;
+    }
+
+    const shouldRemoveImage = formData.get("removeImage") === "true";
+    const uploadedImage = petImage
+      ? await uploadPetProfileImageToStorage({
+          petId,
+          imageFile: petImage,
+        })
+      : null;
+
+    uploadedStorageKey = uploadedImage?.storageKey ?? null;
+
     const result = await db
       .update(pets)
       .set({
         name: sanitized.data.name,
         medicalNotes: sanitized.data.medicalNotes,
         petBreedId: sanitized.data.petBreedId,
+        ...(uploadedImage
+          ? {
+              imageUrl: uploadedImage.publicUrl,
+              imageStorageKey: uploadedImage.storageKey,
+            }
+          : shouldRemoveImage
+            ? {
+                imageUrl: null,
+                imageStorageKey: null,
+              }
+            : {}),
       })
       .where(
         and(
-          eq(pets.id, data.petId),
+          eq(pets.id, petId),
           eq(pets.customerId, customerId.data),
           isNull(pets.deletedAt),
         ),
@@ -98,12 +202,27 @@ export async function updateCustomerPet(
       };
     }
 
+    if (uploadedImage || shouldRemoveImage) {
+      const oldStorageKey =
+        currentPet.imageStorageKey ??
+        getPetProfileImageStorageKeyFromUrl(currentPet.imageUrl);
+
+      if (oldStorageKey) {
+        await removePetProfileImagesFromStorage([oldStorageKey]);
+      }
+    }
+
     return {
       success: true,
       data: null,
     };
   } catch (error) {
     console.error("updateCustomerPet error:", error);
+
+    if (uploadedStorageKey) {
+      await removePetProfileImagesFromStorage([uploadedStorageKey]);
+    }
+
     return {
       success: false,
       error: "เกิดข้อผิดพลาดในการแก้ไขข้อมูลสัตว์เลี้ยง",
@@ -123,9 +242,33 @@ export async function deleteCustomerPet({
       return customerId;
     }
 
+    const currentPet = await db.query.pets.findFirst({
+      columns: {
+        id: true,
+        imageUrl: true,
+        imageStorageKey: true,
+      },
+      where: and(
+        eq(pets.id, id),
+        eq(pets.customerId, customerId.data),
+        isNull(pets.deletedAt),
+      ),
+    });
+
+    if (!currentPet) {
+      return {
+        success: false,
+        error: "ไม่พบข้อมูลสัตว์เลี้ยงที่ต้องการลบ",
+      };
+    }
+
     const result = await db
       .update(pets)
-      .set({ deletedAt: new Date() })
+      .set({
+        deletedAt: new Date(),
+        imageUrl: null,
+        imageStorageKey: null,
+      })
       .where(
         and(
           eq(pets.id, id),
@@ -142,6 +285,14 @@ export async function deleteCustomerPet({
       };
     }
 
+    const storageKey =
+      currentPet.imageStorageKey ??
+      getPetProfileImageStorageKeyFromUrl(currentPet.imageUrl);
+
+    if (storageKey) {
+      await removePetProfileImagesFromStorage([storageKey]);
+    }
+
     return {
       success: true,
       data: null,
@@ -153,4 +304,87 @@ export async function deleteCustomerPet({
       error: "เกิดข้อผิดพลาดในการลบข้อมูลสัตว์เลี้ยง",
     };
   }
+}
+
+type ParsedCustomerPetFormData = {
+  name: string;
+  medicalNotes: string;
+  petBreedId: string;
+};
+
+function parseCustomerPetFormData(
+  formData: FormData,
+): ActionResponse<ParsedCustomerPetFormData> {
+  const name = getRequiredFormDataString(formData, "name");
+  const medicalNotes = getRequiredFormDataString(formData, "medicalNotes");
+  const petBreedId = getRequiredFormDataString(formData, "petBreedId");
+
+  if (name === null || medicalNotes === null || petBreedId === null) {
+    return {
+      success: false,
+      error: "ข้อมูลสัตว์เลี้ยงไม่ถูกต้อง",
+    };
+  }
+
+  return {
+    success: true,
+    data: {
+      name,
+      medicalNotes,
+      petBreedId,
+    },
+  };
+}
+
+function getRequiredFormDataString(
+  formData: FormData,
+  key: string,
+): string | null {
+  const value = formData.get(key);
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  return value;
+}
+
+function getPetProfileImageFile(formData: FormData): File | null {
+  const value = formData.get("petImage");
+
+  if (!(value instanceof File) || value.size === 0) {
+    return null;
+  }
+
+  return value;
+}
+
+function validatePetProfileImageFile(
+  imageFile: File | null,
+): ActionResponse<null> {
+  if (!imageFile) {
+    return {
+      success: true,
+      data: null,
+    };
+  }
+
+  if (!isAllowedPetProfileImageMimeType(imageFile.type)) {
+    return {
+      success: false,
+      error: "รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP",
+    };
+  }
+
+  if (imageFile.size > MAX_PET_PROFILE_IMAGE_SIZE_BYTES) {
+    return {
+      success: false,
+      error: "ขนาดรูปภาพต้องไม่เกิน 4MB",
+    };
+  }
+
+  return {
+    success: true,
+    data: null,
+  };
 }

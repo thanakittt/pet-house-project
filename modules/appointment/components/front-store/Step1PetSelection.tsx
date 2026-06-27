@@ -1,7 +1,7 @@
 "use client";
 
-import PetTypeBadge from "@/modules/pet/components/PetTypeBadge";
 import { CreatePetDialog } from "@/modules/pet/components/CreatePetDialog";
+import { PetAvatar } from "@/modules/pet/components/PetAvatar";
 import type { Pet } from "@/modules/pet/types/pet";
 import type { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import { cn } from "@/lib/utils";
@@ -27,9 +27,10 @@ export function PetCard({ pet, onSelect, isSelected }: PetCardProps) {
       onClick={() => onSelect(pet)}
     >
       <div className="flex flex-row items-start gap-4">
-        <PetTypeBadge
-          type={pet.breed.type.toLowerCase()}
-          className="px-3 py-6 rounded-xl"
+        <PetAvatar
+          imageUrl={pet.imageUrl}
+          name={pet.name}
+          type={pet.breed.type}
         />
         <div className="flex flex-col w-full">
           <p className="font-bold text-base md:text-lg">{pet.name}</p>

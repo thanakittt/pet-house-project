@@ -41,6 +41,7 @@ import { Pet } from "../types/pet";
 import { updatePet } from "../actions/update-pet";
 import { updateCustomerPet } from "../actions/customer-pet";
 import { createPetBreedComboboxOptions } from "../utils/pet-breed-combobox-options";
+import { PetImageUploadField } from "./PetImageUploadField";
 
 type PetActionMode = "staff" | "customer";
 
@@ -62,6 +63,8 @@ export function UpdatePetDialog({
   const router = useRouter();
   const dialogContentRef = useRef<HTMLDivElement | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [petImageFile, setPetImageFile] = useState<File | null>(null);
+  const [removeCurrentImage, setRemoveCurrentImage] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -106,7 +109,14 @@ export function UpdatePetDialog({
 
       const result =
         actionMode === "customer"
-          ? await updateCustomerPet(payload)
+          ? await updateCustomerPet(
+              buildCustomerPetUpdateFormData({
+                data,
+                petId: pet.id,
+                petImageFile,
+                removeCurrentImage,
+              }),
+            )
           : await updatePet(payload);
 
       if (!result.success) {
@@ -116,6 +126,8 @@ export function UpdatePetDialog({
 
       onOpenChange(false);
       form.reset();
+      setPetImageFile(null);
+      setRemoveCurrentImage(false);
       toast.success("แก้ไขสัตว์เลี้ยงสำเร็จ");
       router.refresh();
     } catch (error) {
@@ -131,6 +143,8 @@ export function UpdatePetDialog({
         if (!value) {
           form.reset();
           setServerError(null);
+          setPetImageFile(null);
+          setRemoveCurrentImage(false);
         }
         onOpenChange(value);
       }}
@@ -151,6 +165,16 @@ export function UpdatePetDialog({
             </DialogHeader>
 
             <FieldGroup className="gap-3 px-4 pb-3">
+            {actionMode === "customer" && (
+              <PetImageUploadField
+                imageFile={petImageFile}
+                currentImageUrl={pet.imageUrl}
+                removeCurrentImage={removeCurrentImage}
+                onImageFileChange={setPetImageFile}
+                onRemoveCurrentImageChange={setRemoveCurrentImage}
+              />
+            )}
+
             {/* Name Field */}
             <Controller
               name="name"
@@ -314,4 +338,34 @@ export function UpdatePetDialog({
       </form>
     </Dialog>
   );
+}
+
+function buildCustomerPetUpdateFormData({
+  data,
+  petId,
+  petImageFile,
+  removeCurrentImage,
+}: {
+  data: CreatePetForm;
+  petId: string;
+  petImageFile: File | null;
+  removeCurrentImage: boolean;
+}) {
+  const formData = new FormData();
+
+  formData.set("petId", petId);
+  formData.set("name", data.name);
+  formData.set("petType", data.petType);
+  formData.set("petBreedId", data.petBreedId);
+  formData.set("medicalNotes", data.medicalNotes);
+
+  if (petImageFile) {
+    formData.set("petImage", petImageFile);
+  }
+
+  if (removeCurrentImage) {
+    formData.set("removeImage", "true");
+  }
+
+  return formData;
 }

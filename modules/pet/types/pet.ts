@@ -16,6 +16,8 @@ export type Pet = {
   id: string;
   name: string;
   medicalNotes: string | null;
+  imageUrl: string | null;
+  imageStorageKey: string | null;
   petBreedId: string;
   breed: {
     name: string;

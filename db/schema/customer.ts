@@ -39,6 +39,8 @@ export const pets = p
       id: p.uuid("id").defaultRandom().primaryKey(),
       name: p.text("name").notNull(),
       medicalNotes: p.text("medical_notes"),
+      imageUrl: p.text("image_url"),
+      imageStorageKey: p.text("image_storage_key"),
       // FK ไปยัง customers (เจ้าของสัตว์เลี้ยง)
       customerId: p
         .uuid("customer_id")
