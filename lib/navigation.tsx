@@ -14,7 +14,6 @@ import {
   CircleDollarSign,
   Megaphone,
   MessageCircle,
-  ReceiptText,
   Package,
 } from "lucide-react";
 
@@ -123,13 +122,6 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     title: "จัดการบัญชี",
     url: "/back-office/accounting",
     icon: <CircleDollarSign className="size-5" />,
-    allowedUserRoles: ["owner"],
-    desktopOnly: true,
-  },
-  {
-    title: "ตรวจสลิปโอนเงิน",
-    url: "/back-office/payment-slip-verifications",
-    icon: <ReceiptText className="size-5" />,
     allowedUserRoles: ["owner"],
     desktopOnly: true,
   },

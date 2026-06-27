@@ -4,12 +4,18 @@ import { requireCustomer } from "@/lib/session";
 import { getCustomerProfile } from "@/modules/customer/queries/get-profile";
 import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
+import {
+  isAllowedPetProfileImageMimeType,
+  MAX_PET_PROFILE_IMAGE_SIZE_BYTES,
+} from "../utils/pet-profile-image-storage";
 
 type PetInput = {
   name: string;
   medicalNotes: string;
   petBreedId: string;
 };
+
+export type ParsedPetFormData = PetInput;
 
 export type SanitizedPetInput = {
   name: string;
@@ -114,5 +120,82 @@ export async function getCurrentCustomerId(): Promise<ActionResponse<string>> {
   return {
     success: true,
     data: profile.data.customerId,
+  };
+}
+
+export function parsePetFormData(
+  formData: FormData,
+): ActionResponse<ParsedPetFormData> {
+  const name = getRequiredFormDataString(formData, "name");
+  const medicalNotes = getRequiredFormDataString(formData, "medicalNotes");
+  const petBreedId = getRequiredFormDataString(formData, "petBreedId");
+
+  if (name === null || medicalNotes === null || petBreedId === null) {
+    return {
+      success: false,
+      error: "ข้อมูลสัตว์เลี้ยงไม่ถูกต้อง",
+    };
+  }
+
+  return {
+    success: true,
+    data: {
+      name,
+      medicalNotes,
+      petBreedId,
+    },
+  };
+}
+
+export function getRequiredFormDataString(
+  formData: FormData,
+  key: string,
+): string | null {
+  const value = formData.get(key);
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  return value;
+}
+
+export function getPetProfileImageFile(formData: FormData): File | null {
+  const value = formData.get("petImage");
+
+  if (!(value instanceof File) || value.size === 0) {
+    return null;
+  }
+
+  return value;
+}
+
+export function validatePetProfileImageFile(
+  imageFile: File | null,
+): ActionResponse<null> {
+  if (!imageFile) {
+    return {
+      success: true,
+      data: null,
+    };
+  }
+
+  if (!isAllowedPetProfileImageMimeType(imageFile.type)) {
+    return {
+      success: false,
+      error: "รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP",
+    };
+  }
+
+  if (imageFile.size > MAX_PET_PROFILE_IMAGE_SIZE_BYTES) {
+    return {
+      success: false,
+      error: "ขนาดรูปภาพต้องไม่เกิน 4MB",
+    };
+  }
+
+  return {
+    success: true,
+    data: null,
   };
 }

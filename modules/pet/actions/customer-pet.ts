@@ -6,13 +6,15 @@ import { ActionResponse } from "@/types/action";
 import { and, eq, isNull } from "drizzle-orm";
 import {
   getCurrentCustomerId,
+  getPetProfileImageFile,
+  getRequiredFormDataString,
+  parsePetFormData,
   sanitizePetInput,
   validateActivePetBreed,
+  validatePetProfileImageFile,
 } from "./pet-action-helpers";
 import {
   getPetProfileImageStorageKeyFromUrl,
-  isAllowedPetProfileImageMimeType,
-  MAX_PET_PROFILE_IMAGE_SIZE_BYTES,
   removePetProfileImagesFromStorage,
   uploadPetProfileImageToStorage,
 } from "../utils/pet-profile-image-storage";
@@ -29,7 +31,7 @@ export async function createCustomerPet(
       return customerId;
     }
 
-    const parsed = parseCustomerPetFormData(formData);
+    const parsed = parsePetFormData(formData);
 
     if (!parsed.success) {
       return parsed;
@@ -104,7 +106,7 @@ export async function updateCustomerPet(
       return customerId;
     }
 
-    const parsed = parseCustomerPetFormData(formData);
+    const parsed = parsePetFormData(formData);
 
     if (!parsed.success) {
       return parsed;
@@ -304,87 +306,4 @@ export async function deleteCustomerPet({
       error: "เกิดข้อผิดพลาดในการลบข้อมูลสัตว์เลี้ยง",
     };
   }
-}
-
-type ParsedCustomerPetFormData = {
-  name: string;
-  medicalNotes: string;
-  petBreedId: string;
-};
-
-function parseCustomerPetFormData(
-  formData: FormData,
-): ActionResponse<ParsedCustomerPetFormData> {
-  const name = getRequiredFormDataString(formData, "name");
-  const medicalNotes = getRequiredFormDataString(formData, "medicalNotes");
-  const petBreedId = getRequiredFormDataString(formData, "petBreedId");
-
-  if (name === null || medicalNotes === null || petBreedId === null) {
-    return {
-      success: false,
-      error: "ข้อมูลสัตว์เลี้ยงไม่ถูกต้อง",
-    };
-  }
-
-  return {
-    success: true,
-    data: {
-      name,
-      medicalNotes,
-      petBreedId,
-    },
-  };
-}
-
-function getRequiredFormDataString(
-  formData: FormData,
-  key: string,
-): string | null {
-  const value = formData.get(key);
-
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  return value;
-}
-
-function getPetProfileImageFile(formData: FormData): File | null {
-  const value = formData.get("petImage");
-
-  if (!(value instanceof File) || value.size === 0) {
-    return null;
-  }
-
-  return value;
-}
-
-function validatePetProfileImageFile(
-  imageFile: File | null,
-): ActionResponse<null> {
-  if (!imageFile) {
-    return {
-      success: true,
-      data: null,
-    };
-  }
-
-  if (!isAllowedPetProfileImageMimeType(imageFile.type)) {
-    return {
-      success: false,
-      error: "รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP",
-    };
-  }
-
-  if (imageFile.size > MAX_PET_PROFILE_IMAGE_SIZE_BYTES) {
-    return {
-      success: false,
-      error: "ขนาดรูปภาพต้องไม่เกิน 4MB",
-    };
-  }
-
-  return {
-    success: true,
-    data: null,
-  };
 }

@@ -128,13 +128,6 @@ const QUICK_ACCESS_MODULE_STYLES: Record<string, QuickAccessModuleStyle> = {
     hoverIconText: "group-hover:text-white",
     hoverBorder: "group-hover:border-teal-300 dark:group-hover:border-teal-700",
   },
-  "/back-office/payment-slip-verifications": {
-    iconBackground: "bg-fuchsia-50 dark:bg-fuchsia-950/40",
-    iconText: "text-fuchsia-600 dark:text-fuchsia-300",
-    hoverIconBackground: "group-hover:bg-fuchsia-600 dark:group-hover:bg-fuchsia-500",
-    hoverIconText: "group-hover:text-white",
-    hoverBorder: "group-hover:border-fuchsia-300 dark:group-hover:border-fuchsia-700",
-  },
 };
 
 export default async function BackOfficeHomePage() {

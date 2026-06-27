@@ -86,17 +86,15 @@ export function CreatePetDialog({
     try {
       setServerError(null);
 
+      const formData = buildPetFormData({
+        data,
+        customerId,
+        petImageFile,
+      });
       const result =
         actionMode === "customer"
-          ? await createCustomerPet(
-              buildCustomerPetFormData(data, petImageFile),
-            )
-          : await createPet({
-              name: data.name,
-              medicalNotes: data.medicalNotes,
-              petBreedId: data.petBreedId,
-              customerId,
-            });
+          ? await createCustomerPet(formData)
+          : await createPet(formData);
 
       if (!result.success) {
         setServerError(result.error);
@@ -150,12 +148,10 @@ export function CreatePetDialog({
             </DialogHeader>
 
             <FieldGroup className="gap-3 px-4 pb-3">
-            {actionMode === "customer" && (
-              <PetImageUploadField
-                imageFile={petImageFile}
-                onImageFileChange={setPetImageFile}
-              />
-            )}
+            <PetImageUploadField
+              imageFile={petImageFile}
+              onImageFileChange={setPetImageFile}
+            />
 
             {/* Name Field */}
             <Controller
@@ -322,16 +318,22 @@ export function CreatePetDialog({
   );
 }
 
-function buildCustomerPetFormData(
-  data: CreatePetForm,
-  petImageFile: File | null,
-) {
+function buildPetFormData({
+  data,
+  customerId,
+  petImageFile,
+}: {
+  data: CreatePetForm;
+  customerId: string;
+  petImageFile: File | null;
+}) {
   const formData = new FormData();
 
   formData.set("name", data.name);
   formData.set("petType", data.petType);
   formData.set("petBreedId", data.petBreedId);
   formData.set("medicalNotes", data.medicalNotes);
+  formData.set("customerId", customerId);
 
   if (petImageFile) {
     formData.set("petImage", petImageFile);

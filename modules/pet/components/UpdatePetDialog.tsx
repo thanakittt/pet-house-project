@@ -100,24 +100,16 @@ export function UpdatePetDialog({
     try {
       setServerError(null);
 
-      const payload = {
+      const formData = buildPetUpdateFormData({
+        data,
         petId: pet.id,
-        name: data.name,
-        petBreedId: data.petBreedId,
-        medicalNotes: data.medicalNotes,
-      };
-
+        petImageFile,
+        removeCurrentImage,
+      });
       const result =
         actionMode === "customer"
-          ? await updateCustomerPet(
-              buildCustomerPetUpdateFormData({
-                data,
-                petId: pet.id,
-                petImageFile,
-                removeCurrentImage,
-              }),
-            )
-          : await updatePet(payload);
+          ? await updateCustomerPet(formData)
+          : await updatePet(formData);
 
       if (!result.success) {
         setServerError(result.error);
@@ -165,15 +157,13 @@ export function UpdatePetDialog({
             </DialogHeader>
 
             <FieldGroup className="gap-3 px-4 pb-3">
-            {actionMode === "customer" && (
-              <PetImageUploadField
-                imageFile={petImageFile}
-                currentImageUrl={pet.imageUrl}
-                removeCurrentImage={removeCurrentImage}
-                onImageFileChange={setPetImageFile}
-                onRemoveCurrentImageChange={setRemoveCurrentImage}
-              />
-            )}
+            <PetImageUploadField
+              imageFile={petImageFile}
+              currentImageUrl={pet.imageUrl}
+              removeCurrentImage={removeCurrentImage}
+              onImageFileChange={setPetImageFile}
+              onRemoveCurrentImageChange={setRemoveCurrentImage}
+            />
 
             {/* Name Field */}
             <Controller
@@ -340,7 +330,7 @@ export function UpdatePetDialog({
   );
 }
 
-function buildCustomerPetUpdateFormData({
+function buildPetUpdateFormData({
   data,
   petId,
   petImageFile,
