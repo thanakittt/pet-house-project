@@ -3,6 +3,7 @@
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { ShieldCheck, Wallet } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CustomerCancelAppointmentButton from "./CustomerCancelAppointmentButton";
 import DepositSlipUpload from "./DepositSlipUpload";
@@ -14,6 +15,7 @@ export default function PendingDepositPaymentScreen({
   appointmentId: string;
   appointmentCreatedAt: string;
 }) {
+  const router = useRouter();
   // เมื่อ verify slip ผ่านแล้ว DepositSlipUpload จะส่ง transRef กลับมา
   // component นี้ใช้ state นี้เพื่อสลับจากหน้ารอจ่ายเงินเป็นหน้าสถานะยืนยันคิวแล้วทันที
   const [verifiedSlipTransRef, setVerifiedSlipTransRef] = useState("");
@@ -73,7 +75,10 @@ export default function PendingDepositPaymentScreen({
           <DepositSlipUpload
             appointmentId={appointmentId}
             appointmentCreatedAt={appointmentCreatedAt}
-            onVerified={(transRef) => setVerifiedSlipTransRef(transRef || "-")}
+            onVerified={(transRef) => {
+              setVerifiedSlipTransRef(transRef || "-");
+              router.push("/appointments");
+            }}
           />
           <CustomerCancelAppointmentButton
             appointmentId={appointmentId}

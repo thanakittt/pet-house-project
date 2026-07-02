@@ -10,6 +10,7 @@ import type { Pet } from "@/modules/pet/types/pet";
 import type { PetBreed } from "@/modules/pet-breed/types/pet-breed";
 import type { ServiceWithVariants } from "@/modules/service/types/service";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -45,6 +46,7 @@ export default function AppointmentStepper({
   customerId: string;
   services: ServiceWithVariants[];
 }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [bookings, setBookings] = useState<FrontStoreBooking[]>([]);
   const [formData, setFormData] = useState<FrontStoreFormData>(initialFormData);
@@ -328,7 +330,10 @@ export default function AppointmentStepper({
           <DepositSlipUpload
             appointmentId={createdAppointmentId}
             appointmentCreatedAt={createdAppointmentTime}
-            onVerified={(transRef) => setVerifiedSlipTransRef(transRef || "-")}
+            onVerified={(transRef) => {
+              setVerifiedSlipTransRef(transRef || "-");
+              router.push("/appointments");
+            }}
           />
         )}
       </div>
