@@ -12,7 +12,10 @@ import { addMinutes, parseISO } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import {
+  getBusinessRules,
+  validateBookingTime,
+} from "@/modules/business-rules/business-rules";
 
 type PetBookingInput = {
   petId: string;
@@ -85,16 +88,12 @@ export async function createAppointment(
     }
 
     const initialStartTime = parseISO(data.startTimeIso);
-    const dateString = data.startTimeIso.split("T")[0];
-    const appointmentDate = new Date(`${dateString}T00:00:00Z`);
-    const appointmentDateValue = dateString;
-
-    if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
-      return {
-        success: false,
-        error: "ไม่สามารถจองคิวในวันหยุดของร้านได้",
-      };
+    if (Number.isNaN(initialStartTime.getTime())) {
+      return { success: false, error: "รูปแบบวันและเวลาไม่ถูกต้อง" };
     }
+    const dateString = data.startTimeIso.split("T")[0];
+    const appointmentDateValue = dateString;
+    const rules = await getBusinessRules();
 
     const allPetIds = new Set<string>();
     const allServiceIds = new Set<string>();
@@ -211,6 +210,17 @@ export async function createAppointment(
 
           currentStartTime = addOnEndTime;
         }
+      }
+
+      const bookingValidationError = validateBookingTime({
+        rules,
+        startTime: initialStartTime,
+        durationMinutes: Math.round(
+          (currentStartTime.getTime() - initialStartTime.getTime()) / 60_000,
+        ),
+      });
+      if (bookingValidationError) {
+        throw new Error(bookingValidationError);
       }
 
       if (itemsToInsert.length > 0) {

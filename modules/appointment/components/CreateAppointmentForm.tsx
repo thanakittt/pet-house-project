@@ -3,7 +3,7 @@
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { format, parseISO } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { getBangkokDayOfWeek, getBangkokTodayString } from "@/lib/finance/date";
+import { getBangkokTodayString } from "@/lib/finance/date";
 
 import { searchCustomer } from "@/modules/customer/actions/search-customer";
 import { CustomerSearchResult } from "@/modules/customer/types/customer";
@@ -39,13 +39,17 @@ import { ServiceWithVariants } from "@/modules/service/types/service";
 import { getAvailableSlots } from "../queries/get-available-slots";
 import { PET_TYPE_LABELS } from "@/lib/constants/pet-type";
 import { createAppointment } from "../actions/create-appointment";
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import type { BusinessRules } from "@/modules/business-rules/types/business-rules";
 
 interface AvailableSlotsProps {
   durationMinutes: number;
   selectedTime: string | null;
   onSelectSlot: (startTime: string) => void;
   error?: string;
+  bookingRules: Pick<
+    BusinessRules,
+    "minBookingLeadMinutes" | "maxAdvanceBookingDays"
+  >;
 }
 
 export function formatDurationMinutes(duration: number): string {
@@ -67,28 +71,15 @@ export function AvailableSlots({
   selectedTime,
   onSelectSlot,
   error,
+  bookingRules,
 }: AvailableSlotsProps) {
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    let date = getBangkokTodayString();
-    while (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
-      const nextDate = new Date(`${date}T00:00:00`);
-      nextDate.setDate(nextDate.getDate() + 1);
-      date = format(nextDate, "yyyy-MM-dd");
-    }
-    return date;
-  });
+  const [selectedDate, setSelectedDate] = useState(getBangkokTodayString);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSlots = async () => {
       if (!selectedDate || durationMinutes <= 0) return;
-
-      const dayOfWeek = getBangkokDayOfWeek(selectedDate);
-      if (dayOfWeek === SHOP_CLOSED_DAY) {
-        setAvailableSlots([]);
-        return;
-      }
 
       setIsLoading(true);
       onSelectSlot("");
@@ -127,18 +118,15 @@ export function AvailableSlots({
             type="date"
             value={selectedDate}
             min={getBangkokTodayString()}
+            max={format(
+              addDays(
+                new Date(`${getBangkokTodayString()}T00:00:00`),
+                bookingRules.maxAdvanceBookingDays,
+              ),
+              "yyyy-MM-dd",
+            )}
             aria-invalid={Boolean(error)}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val) {
-                const day = new Date(val).getDay();
-                if (day === SHOP_CLOSED_DAY) {
-                  toast.error("ไม่สามารถจองคิวในวันหยุดของร้านได้");
-                  return;
-                }
-              }
-              setSelectedDate(val);
-            }}
+            onChange={(e) => setSelectedDate(e.target.value)}
             className="w-full sm:w-auto"
           />
         </Field>
@@ -150,6 +138,12 @@ export function AvailableSlots({
           เวลาที่สามารถจองได้ (ใช้เวลารวม{" "}
           {formatDurationMinutes(durationMinutes)})
         </h3>
+        <p className="mb-2 text-muted-foreground text-sm">
+          จองล่วงหน้าได้สูงสุด {bookingRules.maxAdvanceBookingDays} วัน
+          {bookingRules.minBookingLeadMinutes > 0
+            ? ` และต้องจองก่อนอย่างน้อย ${bookingRules.minBookingLeadMinutes} นาที`
+            : ""}
+        </p>
         {isLoading ? (
           <p className="text-muted-foreground text-sm animate-pulse">
             กำลังตรวจสอบคิวว่าง...
@@ -200,6 +194,7 @@ type ServiceVariant = ServiceWithVariants["variants"][number];
 
 interface CreateAppointmentFormProps {
   services: ServiceWithVariants[];
+  bookingRules: BusinessRules;
 }
 
 function findMatchingVariant(
@@ -221,6 +216,7 @@ function findMatchingVariant(
 
 export default function CreateAppointmentForm({
   services,
+  bookingRules,
 }: CreateAppointmentFormProps) {
   const router = useRouter();
   const [searchResults, setSearchResults] = useState<CustomerSearchResult[]>(
@@ -706,6 +702,7 @@ export default function CreateAppointmentForm({
                 selectedTime={field.value}
                 error={errors.startTime?.message}
                 onSelectSlot={(startTime) => field.onChange(startTime)}
+                bookingRules={bookingRules}
               />
             )}
           />

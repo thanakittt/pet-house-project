@@ -26,6 +26,7 @@ import Step3AddOnService from "./Step3AddOnService";
 import Step4Summary from "./Step4Summary";
 import Step5DateTime from "./Step5DateTime";
 import ServiceRulesConsent from "./ServiceRulesConsent";
+import type { BusinessRules } from "@/modules/business-rules/types/business-rules";
 
 const initialFormData: FrontStoreFormData = {
   petId: "",
@@ -40,11 +41,13 @@ export default function AppointmentStepper({
   petBreeds,
   customerId,
   services,
+  bookingRules,
 }: {
   pets: Pet[];
   petBreeds: PetBreed[];
   customerId: string;
   services: ServiceWithVariants[];
+  bookingRules: BusinessRules;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -392,6 +395,7 @@ export default function AppointmentStepper({
             data={formData}
             update={updateFormData}
             durationMinutes={totalDurationMinutes}
+            bookingRules={bookingRules}
           />
         )}
       </div>

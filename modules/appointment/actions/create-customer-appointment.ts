@@ -9,12 +9,15 @@ import {
   services,
   serviceVariants,
 } from "@/db/schema";
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
 import { requireCustomer } from "@/lib/session";
 import { ActionResponse } from "@/types/action";
 import { addMinutes, parseISO } from "date-fns";
 import { and, eq, gt, inArray, isNull, lt, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import {
+  getBusinessRules,
+  validateBookingTime,
+} from "@/modules/business-rules/business-rules";
 
 type CustomerPetBookingInput = {
   petId: string;
@@ -127,26 +130,7 @@ export async function createCustomerAppointment(
     }
 
     const dateString = data.startTimeIso.split("T")[0];
-    const appointmentDate = new Date(`${dateString}T00:00:00Z`);
-
-    // ตรวจ server-side ว่าเวลานัดหมายต้องไม่ผ่านมาแล้ว
-    // ทำหลัง isNaN check เพราะต้องแน่ใจว่า initialStartTime อ่านได้ก่อน
-    // ป้องกัน user ที่ bypass UI date-picker แล้วส่ง ISO ในอดีตมาตรง ๆ
-    if (initialStartTime.getTime() <= Date.now()) {
-      return {
-        success: false,
-        error: "ไม่สามารถจองคิวในเวลาที่ผ่านมาแล้วได้",
-      };
-    }
-
-    // ใช้ค่ากลาง SHOP_CLOSED_DAY เพื่อให้ UI และ server ปิดวันเดียวกัน
-    // server check สำคัญเพราะ user อาจ bypass UI แล้วเรียก action ตรง ๆ
-    if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
-      return {
-        success: false,
-        error: "ไม่สามารถจองคิวในวันหยุดของร้านได้",
-      };
-    }
+    const rules = await getBusinessRules();
 
     const allPetIds = new Set<string>();
     const allServiceIds = new Set<string>();
@@ -352,6 +336,17 @@ export async function createCustomerAppointment(
 
           currentStartTime = addOnEndTime;
         }
+      }
+
+      const bookingValidationError = validateBookingTime({
+        rules,
+        startTime: initialStartTime,
+        durationMinutes: Math.round(
+          (currentStartTime.getTime() - initialStartTime.getTime()) / 60_000,
+        ),
+      });
+      if (bookingValidationError) {
+        throw new Error(bookingValidationError);
       }
 
       const overlapConditions = itemsToInsert.map((item) =>

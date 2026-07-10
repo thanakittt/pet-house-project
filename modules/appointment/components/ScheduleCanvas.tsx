@@ -31,17 +31,10 @@ import {
 } from "@/lib/constants/appointment-status";
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { formatThaiDate } from "@/lib/utils";
+import type { OperatingInterval } from "@/modules/business-rules/types/business-rules";
 
-const START_HOUR = 9;
-const END_HOUR = 18;
-const TOTAL_HOURS = END_HOUR - START_HOUR;
 const ROW_HEIGHT_PX = 120;
 const CANVAS_PADDING_TOP = 16;
-
-const hoursGrid = Array.from(
-  { length: TOTAL_HOURS + 1 },
-  (_, i) => START_HOUR + i,
-);
 
 // ----------------------------------------------------------------------
 // 1. Component ใหม่: Interactive Status Select
@@ -168,6 +161,7 @@ const InteractiveStatusSelect = ({
 interface ScheduleCanvasProps {
   initialDate: string;
   appointments: ScheduleRecord[];
+  operatingIntervals: OperatingInterval[];
 }
 
 function MobileScheduleList({
@@ -239,21 +233,52 @@ function MobileScheduleList({
 export default function ScheduleCanvas({
   initialDate,
   appointments,
+  operatingIntervals,
 }: ScheduleCanvasProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentDate = parseISO(initialDate);
+  const intervalHours = operatingIntervals.flatMap((interval) => [
+    Number(interval.startTime.slice(0, 2)),
+    Math.ceil(
+      Number(interval.endTime.slice(0, 2)) +
+        Number(interval.endTime.slice(3, 5)) / 60,
+    ),
+  ]);
+  const appointmentHours = appointments.flatMap((appointment) => {
+    const start = parseISO(appointment.startTimeIso);
+    const end = parseISO(appointment.endTimeIso);
+    return [start.getHours(), Math.ceil(end.getHours() + end.getMinutes() / 60)];
+  });
+  const timeBounds = [...intervalHours, ...appointmentHours];
+  const startHour = timeBounds.length ? Math.min(...timeBounds) : 9;
+  const endHour = timeBounds.length
+    ? Math.max(...timeBounds, startHour + 1)
+    : 18;
+  const hoursGrid = Array.from(
+    { length: endHour - startHour + 1 },
+    (_, index) => startHour + index,
+  );
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isToday = isSameDay(currentDate, new Date());
 
   const getCurrentTimePosition = () => {
     const now = new Date();
-    if (now.getHours() < START_HOUR || now.getHours() >= END_HOUR) return null;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const isWithinOperatingTime = operatingIntervals.some((interval) => {
+      const [startHourValue, startMinute] = interval.startTime.split(":").map(Number);
+      const [endHourValue, endMinute] = interval.endTime.split(":").map(Number);
+      return (
+        currentMinutes >= startHourValue * 60 + startMinute &&
+        currentMinutes < endHourValue * 60 + endMinute
+      );
+    });
+    if (!isWithinOperatingTime) return null;
 
     const dayStart = new Date(now);
-    dayStart.setHours(START_HOUR, 0, 0, 0);
+    dayStart.setHours(startHour, 0, 0, 0);
     const minutesFromStart = differenceInMinutes(now, dayStart);
     return (minutesFromStart / 60) * ROW_HEIGHT_PX;
   };
@@ -285,7 +310,7 @@ export default function ScheduleCanvas({
     const start = parseISO(startTimeIso);
     const end = parseISO(endTimeIso);
     const dayStart = new Date(start);
-    dayStart.setHours(START_HOUR, 0, 0, 0);
+    dayStart.setHours(startHour, 0, 0, 0);
 
     const minutesFromStart = differenceInMinutes(start, dayStart);
     const durationMinutes = differenceInMinutes(end, start);
@@ -347,6 +372,11 @@ export default function ScheduleCanvas({
       </div>
 
       <div className="md:hidden bg-muted/40 p-4">
+        {operatingIntervals.length === 0 ? (
+          <p className="mb-3 text-center text-muted-foreground text-sm">
+            ร้านปิดในวันนี้
+          </p>
+        ) : null}
         <MobileScheduleList appointments={appointments} />
       </div>
 
@@ -377,10 +407,27 @@ export default function ScheduleCanvas({
               key={hour}
               className="absolute border-muted-foreground/30 border-t w-full"
               style={{
-                top: `${(hour - START_HOUR) * ROW_HEIGHT_PX + CANVAS_PADDING_TOP}px`,
+                top: `${(hour - startHour) * ROW_HEIGHT_PX + CANVAS_PADDING_TOP}px`,
               }}
             />
           ))}
+
+          {operatingIntervals.map((interval) => {
+            const [startHourValue, startMinute] = interval.startTime.split(":").map(Number);
+            const [endHourValue, endMinute] = interval.endTime.split(":").map(Number);
+            const intervalStart = startHourValue + startMinute / 60;
+            const intervalEnd = endHourValue + endMinute / 60;
+            return (
+              <div
+                key={`${interval.startTime}-${interval.endTime}`}
+                className="absolute bg-primary/5 border-primary/20 border-y w-full pointer-events-none"
+                style={{
+                  top: `${(intervalStart - startHour) * ROW_HEIGHT_PX + CANVAS_PADDING_TOP}px`,
+                  height: `${(intervalEnd - intervalStart) * ROW_HEIGHT_PX}px`,
+                }}
+              />
+            );
+          })}
 
           {isToday && currentTimePosition !== null && (
             <div

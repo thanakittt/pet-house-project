@@ -8,17 +8,20 @@ import NewAppointmentRequests from "./new-appointment-requests";
 import { ScheduleRecord } from "../types/schedule";
 import ScheduleCanvas from "./ScheduleCanvas";
 import { type ConfirmedAppointmentRequest } from "../queries/get-confirmed-appointment-requests";
+import type { OperatingInterval } from "@/modules/business-rules/types/business-rules";
 
 interface AppointmentManagementProps {
   initialDate: string;
   appointments: ScheduleRecord[];
   newAppointmentRequests: ConfirmedAppointmentRequest[];
+  operatingIntervals: OperatingInterval[];
 }
 
 export default function AppointmentManagement({
   initialDate,
   appointments,
   newAppointmentRequests,
+  operatingIntervals,
 }: AppointmentManagementProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("appointment-schedule");
@@ -66,6 +69,7 @@ export default function AppointmentManagement({
             <ScheduleCanvas
               initialDate={initialDate}
               appointments={appointments}
+              operatingIntervals={operatingIntervals}
             />
           </TabsContent>
         </Tabs>

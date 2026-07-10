@@ -5,6 +5,7 @@ import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import CreateAppointmentForm from "@/modules/appointment/components/CreateAppointmentForm";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { requireStaff } from "@/lib/session";
+import { getBusinessRules } from "@/modules/business-rules/business-rules";
 
 export const metadata: Metadata = {
   title: "เพิ่มนัดหมายใหม่",
@@ -14,7 +15,10 @@ export const metadata: Metadata = {
 export default async function CreateAppointmentPage() {
   await requireStaff();
 
-  const servicesWithVariants = await listServicesWithVariants();
+  const [servicesWithVariants, bookingRules] = await Promise.all([
+    listServicesWithVariants(),
+    getBusinessRules(),
+  ]);
 
   if (!servicesWithVariants.success) {
     throw new Error(
@@ -27,7 +31,10 @@ export default async function CreateAppointmentPage() {
       <SiteHeader title="เพิ่มนัดหมายใหม่" />
       <BackOfficeContainer>
         <BackButton className="mb-4" />
-        <CreateAppointmentForm services={servicesWithVariants.data} />
+        <CreateAppointmentForm
+          services={servicesWithVariants.data}
+          bookingRules={bookingRules}
+        />
       </BackOfficeContainer>
     </div>
   );
