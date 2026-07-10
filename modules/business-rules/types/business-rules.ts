@@ -18,6 +18,7 @@ export type BusinessRules = {
   minBookingLeadMinutes: number;
   maxAdvanceBookingDays: number;
   slotIntervalMinutes: number;
+  depositAmount: number;
   weeklyHours: WeeklyBusinessHours[];
   dateOverrides: BusinessDateOverride[];
 };

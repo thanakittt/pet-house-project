@@ -7,7 +7,6 @@ import {
   payments,
   paymentSlipVerifications,
 } from "@/db/schema";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { formatDateOnly } from "@/lib/finance/date";
 import { recordTransaction } from "@/lib/finance/record-transaction";
 import { requireCustomer } from "@/lib/session";
@@ -143,9 +142,11 @@ async function uploadDepositSlip({
 async function verifySlipWithThunder({
   imageFile,
   remark,
+  depositAmount,
 }: {
   imageFile: File;
   remark: string;
+  depositAmount: number;
 }) {
   // API key อยู่ใน .env เท่านั้น ห้ามส่งลง client เพราะเป็น secret สำหรับเรียก Thunder
   const apiKey = process.env.THUNDER_API_KEY;
@@ -160,7 +161,7 @@ async function verifySlipWithThunder({
   // ให้ Thunder ตรวจทั้งบัญชีปลายทาง, จำนวนเงิน และสลิปซ้ำ
   // ฝั่งเรายังตรวจซ้ำอีกรอบด้านล่างเพื่อกัน response ผิดรูปหรือ edge case
   formData.append("matchAccount", "true");
-  formData.append("matchAmount", APPOINTMENT_DEPOSIT_AMOUNT.toString());
+  formData.append("matchAmount", depositAmount.toString());
   formData.append("checkDuplicate", "true");
 
   // สร้าง AbortController เพื่อใช้ยกเลิก request ถ้า Thunder ไม่ตอบภายใน timeout
@@ -246,11 +247,13 @@ function buildBaseVerificationValues({
   slipImageUrl,
   remark,
   payload,
+  depositAmount,
 }: {
   appointmentId: string;
   slipImageUrl: string;
   remark: string;
   payload: ThunderVerifyBankResponse;
+  depositAmount: number;
 }): Omit<SlipVerificationInsert, "status" | "provider"> {
   // function นี้ normalize response จาก Thunder ให้เป็น shape ของตารางเรา
   // สำคัญ: ไม่เก็บ JSON เต็ม (matchedAccount, rawSlip, providerResponse)
@@ -280,7 +283,7 @@ function buildBaseVerificationValues({
     amountInOrder:
       typeof payload.data.amountInOrder === "number"
         ? payload.data.amountInOrder.toFixed(2)
-        : APPOINTMENT_DEPOSIT_AMOUNT.toFixed(2),
+        : depositAmount.toFixed(2),
     isAmountMatched: payload.data.isAmountMatched ?? null,
     isDuplicate: payload.data.isDuplicate,
     // แทนที่จะเก็บ matchedAccount JSON เต็ม → เก็บแค่ชื่อ redacted + 4 หลักท้ายบัญชี
@@ -296,11 +299,13 @@ async function finalizeVerifiedDeposit({
   slipImageUrl,
   remark,
   payload,
+  depositAmount,
 }: {
   appointmentId: string;
   slipImageUrl: string;
   remark: string;
   payload: ThunderVerifyBankSuccess;
+  depositAmount: number;
 }) {
   return await db.transaction(async (tx) => {
     // lock แถว appointment ก่อนเปลี่ยนสถานะ เพื่อกัน race condition จากการ upload slip พร้อมกันหลาย browser/tab
@@ -308,6 +313,7 @@ async function finalizeVerifiedDeposit({
       .select({
         id: appointments.id,
         status: appointments.status,
+        depositAmount: appointments.depositAmount,
       })
       .from(appointments)
       .where(
@@ -322,6 +328,10 @@ async function finalizeVerifiedDeposit({
 
     if (appointment.status !== "PENDING_DEPOSIT") {
       throw new Error("การจองนี้ไม่อยู่ในสถานะรอชำระมัดจำ");
+    }
+
+    if (appointment.depositAmount !== depositAmount || depositAmount <= 0) {
+      throw new Error("ยอดมัดจำของการจองไม่ถูกต้อง");
     }
 
     const existingDeposit = await tx.query.payments.findFirst({
@@ -351,7 +361,7 @@ async function finalizeVerifiedDeposit({
       .insert(payments)
       .values({
         appointmentId,
-        amount: APPOINTMENT_DEPOSIT_AMOUNT.toFixed(2),
+        amount: depositAmount.toFixed(2),
         paymentMethod: "TRANSFER",
         paymentDate: formatDateOnly(today),
         status: "PAID",
@@ -366,6 +376,7 @@ async function finalizeVerifiedDeposit({
         slipImageUrl,
         remark,
         payload,
+        depositAmount,
       }),
       paymentId: payment.id,
       provider: "THUNDER",
@@ -380,7 +391,7 @@ async function finalizeVerifiedDeposit({
 
     // บันทึก transaction รายรับ เพื่อให้หน้าการเงินเห็นค่ามัดจำนี้ด้วย
     await recordTransaction(tx, {
-      amount: APPOINTMENT_DEPOSIT_AMOUNT,
+      amount: depositAmount,
       transactionDate: today,
       categoryType: "INCOME",
       categoryName: "รายรับมัดจำการนัดหมาย",
@@ -465,6 +476,7 @@ export async function verifyCustomerDepositSlip(formData: FormData): Promise<
         // เพิ่ม createdAt เพื่อตรวจ TTL 15 นาทีฝั่ง server
         // ป้องกันกรณีที่ appointment ยังสถานะ PENDING_DEPOSIT แต่เลยเวลาแล้ว
         createdAt: true,
+        depositAmount: true,
       },
       where: and(
         eq(appointments.id, appointmentId),
@@ -520,7 +532,11 @@ export async function verifyCustomerDepositSlip(formData: FormData): Promise<
     let payload: ThunderVerifyBankResponse;
 
     try {
-      payload = await verifySlipWithThunder({ imageFile, remark });
+      payload = await verifySlipWithThunder({
+        imageFile,
+        remark,
+        depositAmount: appointment.depositAmount,
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -545,6 +561,7 @@ export async function verifyCustomerDepositSlip(formData: FormData): Promise<
       slipImageUrl,
       remark,
       payload,
+      depositAmount: appointment.depositAmount,
     });
 
     // Thunder ตอบ success=false เช่น ไม่พบ QR, รูปไม่ถูกต้อง หรือ slip pending
@@ -583,13 +600,13 @@ export async function verifyCustomerDepositSlip(formData: FormData): Promise<
     // ตรวจยอดเงินจาก provider และตรวจซ้ำเองด้วย tolerance 0.01 เผื่อ decimal precision
     if (
       payload.data.isAmountMatched === false ||
-      Math.abs(payload.data.amountInSlip - APPOINTMENT_DEPOSIT_AMOUNT) > 0.01
+      Math.abs(payload.data.amountInSlip - appointment.depositAmount) > 0.01
     ) {
       await recordSlipVerificationAttempt("REJECTED", baseVerificationValues);
 
       return {
         success: false,
-        error: `ยอดเงินในสลิปต้องตรงกับค่ามัดจำ ${APPOINTMENT_DEPOSIT_AMOUNT} บาท`,
+        error: `ยอดเงินในสลิปต้องตรงกับค่ามัดจำ ${appointment.depositAmount} บาท`,
       };
     }
 
@@ -602,6 +619,7 @@ export async function verifyCustomerDepositSlip(formData: FormData): Promise<
         slipImageUrl,
         remark,
         payload,
+        depositAmount: appointment.depositAmount,
       });
     } catch (error) {
       const errorMessage =

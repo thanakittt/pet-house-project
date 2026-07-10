@@ -63,7 +63,12 @@ function findMatchingVariant(
 
 export async function createCustomerAppointment(
   data: CreateCustomerAppointmentInput,
-): Promise<ActionResponse<{ appointmentId: string; appointmentCreatedAt: string }>> {
+): Promise<ActionResponse<{
+  appointmentId: string;
+  appointmentCreatedAt: string;
+  requiresDeposit: boolean;
+  depositAmount: number;
+}>> {
   try {
     // action นี้เป็น customer-facing จึงใช้ requireCustomer แทน requireStaff
     // และต้องตรวจ owner ของ pet ทุกตัวใน server อีกครั้ง
@@ -147,6 +152,7 @@ export async function createCustomerAppointment(
 
     let appointmentId = "";
     let appointmentCreatedAt = "";
+    const requiresDeposit = rules.depositAmount > 0;
 
     await db.transaction(async (tx) => {
       // ดึงเฉพาะ pet ที่เป็นของ customer คนนี้เท่านั้น
@@ -253,14 +259,14 @@ export async function createCustomerAppointment(
         );
       }
 
-      // จองจากหน้าลูกค้าจะเริ่มที่ PENDING_DEPOSIT เสมอ
-      // หลัง upload slip และ Thunder verify ผ่าน จึงเปลี่ยนเป็น CONFIRMED
+      // snapshot ยอดมัดจำไว้กับคิว และยืนยันทันทีเมื่อร้านปิดการเก็บมัดจำ
       const [newAppointment] = await tx
         .insert(appointments)
         .values({
           appointmentDate: dateString,
           customerId: customer.id,
-          status: "PENDING_DEPOSIT",
+          status: requiresDeposit ? "PENDING_DEPOSIT" : "CONFIRMED",
+          depositAmount: rules.depositAmount,
           note: data.note?.trim() || null,
         })
         .returning({
@@ -394,7 +400,15 @@ export async function createCustomerAppointment(
     revalidatePath("/appointments/new");
     revalidatePath("/back-office/appointments");
 
-    return { success: true, data: { appointmentId, appointmentCreatedAt } };
+    return {
+      success: true,
+      data: {
+        appointmentId,
+        appointmentCreatedAt,
+        requiresDeposit,
+        depositAmount: rules.depositAmount,
+      },
+    };
   } catch (error) {
     console.error("createCustomerAppointment error:", error);
 

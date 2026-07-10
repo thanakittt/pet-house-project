@@ -1,4 +1,5 @@
 import * as p from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { appointmentStatusEnum, serviceImageTypeEnum } from "./enum";
 import { customers, pets } from "./customer";
 import { timestamps } from "./column.helper";
@@ -14,6 +15,8 @@ export const appointments = p
       appointmentDate: p.date("appointment_date", { mode: "string" }).notNull(),
       note: p.text("note"),
       status: appointmentStatusEnum("status").notNull(),
+      // เก็บยอดมัดจำ ณ เวลาสร้างคิว เพื่อไม่ให้การแก้ตั้งค่าร้านกระทบคิวเดิม
+      depositAmount: p.integer("deposit_amount").default(1).notNull(),
       // FK ไปยัง customers (เจ้าของนัดหมาย)
       customerId: p
         .uuid("customer_id")
@@ -28,6 +31,10 @@ export const appointments = p
       p.index("appointments_customer_id_idx").on(table.customerId),
       // index สำหรับค้นหานัดหมายตามวันที่ (หน้า calendar/schedule)
       p.index("appointments_date_idx").on(table.appointmentDate),
+      p.check(
+        "appointments_deposit_amount_check",
+        sql`${table.depositAmount} BETWEEN 0 AND 100000`,
+      ),
     ],
   )
   .enableRLS();

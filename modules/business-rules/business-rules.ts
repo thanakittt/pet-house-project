@@ -35,6 +35,7 @@ export const DEFAULT_BUSINESS_RULES: BusinessRules = {
   minBookingLeadMinutes: 0,
   maxAdvanceBookingDays: 90,
   slotIntervalMinutes: 30,
+  depositAmount: 1,
   weeklyHours: DEFAULT_WEEKLY_HOURS,
   dateOverrides: [],
 };
@@ -53,6 +54,7 @@ export async function getBusinessRules(): Promise<BusinessRules> {
       minBookingLeadMinutes: true,
       maxAdvanceBookingDays: true,
       slotIntervalMinutes: true,
+      depositAmount: true,
     },
   });
 
@@ -100,6 +102,7 @@ export async function getBusinessRules(): Promise<BusinessRules> {
     minBookingLeadMinutes: rule.minBookingLeadMinutes,
     maxAdvanceBookingDays: rule.maxAdvanceBookingDays,
     slotIntervalMinutes: rule.slotIntervalMinutes,
+    depositAmount: rule.depositAmount,
     weeklyHours: DEFAULT_WEEKLY_HOURS.map((day) => ({
       dayOfWeek: day.dayOfWeek,
       intervals: weeklyHours
@@ -213,6 +216,7 @@ export async function replaceBusinessRules(input: UpdateBusinessRulesInput) {
             minBookingLeadMinutes: parsed.data.minBookingLeadMinutes,
             maxAdvanceBookingDays: parsed.data.maxAdvanceBookingDays,
             slotIntervalMinutes: parsed.data.slotIntervalMinutes,
+            depositAmount: parsed.data.depositAmount,
           })
           .where(eq(businessRules.id, existingRule.id))
           .returning({ id: businessRules.id })
@@ -222,6 +226,7 @@ export async function replaceBusinessRules(input: UpdateBusinessRulesInput) {
             minBookingLeadMinutes: parsed.data.minBookingLeadMinutes,
             maxAdvanceBookingDays: parsed.data.maxAdvanceBookingDays,
             slotIntervalMinutes: parsed.data.slotIntervalMinutes,
+            depositAmount: parsed.data.depositAmount,
           })
           .returning({ id: businessRules.id });
 

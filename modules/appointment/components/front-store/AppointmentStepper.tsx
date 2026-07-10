@@ -3,7 +3,6 @@
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
 import { Button } from "@/components/ui/button";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { cn } from "@/lib/utils";
 import { createCustomerAppointment } from "@/modules/appointment/actions/create-customer-appointment";
 import type { Pet } from "@/modules/pet/types/pet";
@@ -55,6 +54,7 @@ export default function AppointmentStepper({
   const [formData, setFormData] = useState<FrontStoreFormData>(initialFormData);
   const [createdAppointmentId, setCreatedAppointmentId] = useState("");
   const [createdAppointmentTime, setCreatedAppointmentTime] = useState("");
+  const [createdDepositAmount, setCreatedDepositAmount] = useState(0);
   const [hasAcceptedRules, setHasAcceptedRules] = useState(false);
   const [hasRejectedRules, setHasRejectedRules] = useState(false);
   // หลังลูกค้าจองสำเร็จแล้ว component เดิมจะเปลี่ยนเป็นหน้าจ่ายมัดจำ
@@ -247,8 +247,15 @@ export default function AppointmentStepper({
         return;
       }
 
+      if (!result.data.requiresDeposit) {
+        toast.success("จองคิวและยืนยันคิวสำเร็จ");
+        router.push("/appointments");
+        return;
+      }
+
       setCreatedAppointmentId(result.data.appointmentId);
       setCreatedAppointmentTime(result.data.appointmentCreatedAt);
+      setCreatedDepositAmount(result.data.depositAmount);
       toast.success("จองคิวสำเร็จ");
     });
   };
@@ -321,7 +328,7 @@ export default function AppointmentStepper({
               <AppointmentStatusBadge status="CONFIRMED" />
             </div>
             <p className="mt-1">
-              ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT}{" "}
+            ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {createdDepositAmount}{" "}
               บาทเรียบร้อยแล้ว
             </p>
             <p className="mt-2 text-emerald-800 dark:text-emerald-300 text-xs">
@@ -333,6 +340,7 @@ export default function AppointmentStepper({
           <DepositSlipUpload
             appointmentId={createdAppointmentId}
             appointmentCreatedAt={createdAppointmentTime}
+            depositAmount={createdDepositAmount}
             onVerified={(transRef) => {
               setVerifiedSlipTransRef(transRef || "-");
               router.push("/appointments");

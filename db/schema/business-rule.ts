@@ -1,17 +1,29 @@
 import * as p from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { timestamps } from "./column.helper";
 
 // ตาราง singleton สำหรับ policy การจองของร้าน
 export const businessRules = p
-  .pgTable("business_rules", {
-    id: p.uuid("id").defaultRandom().primaryKey(),
-    minBookingLeadMinutes: p.integer("min_booking_lead_minutes").default(0).notNull(),
-    maxAdvanceBookingDays: p.integer("max_advance_booking_days")
-      .default(90)
-      .notNull(),
-    slotIntervalMinutes: p.integer("slot_interval_minutes").default(30).notNull(),
-    ...timestamps,
-  })
+  .pgTable(
+    "business_rules",
+    {
+      id: p.uuid("id").defaultRandom().primaryKey(),
+      minBookingLeadMinutes: p.integer("min_booking_lead_minutes").default(0).notNull(),
+      maxAdvanceBookingDays: p.integer("max_advance_booking_days")
+        .default(90)
+        .notNull(),
+      slotIntervalMinutes: p.integer("slot_interval_minutes").default(30).notNull(),
+      // ยอดมัดจำเริ่มต้นสำหรับคิวใหม่; ยอดจริงจะถูก snapshot ไว้ใน appointment
+      depositAmount: p.integer("deposit_amount").default(1).notNull(),
+      ...timestamps,
+    },
+    (table) => [
+      p.check(
+        "business_rules_deposit_amount_check",
+        sql`${table.depositAmount} BETWEEN 0 AND 100000`,
+      ),
+    ],
+  )
   .enableRLS();
 
 // รองรับหลายช่วงเวลาทำการในวันเดียวกัน เช่น 09:00-12:00 และ 13:00-18:00

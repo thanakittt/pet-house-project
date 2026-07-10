@@ -61,6 +61,7 @@ export const updateBusinessRulesSchema = z
     minBookingLeadMinutes: z.number().int().min(0).max(10_080),
     maxAdvanceBookingDays: z.number().int().min(1).max(365),
     slotIntervalMinutes: z.number().int().min(5).max(120),
+    depositAmount: z.number().int().min(0).max(100_000),
     weeklyHours: z.array(weeklyBusinessHoursSchema).length(7),
     dateOverrides: z.array(businessDateOverrideSchema).max(365),
   })

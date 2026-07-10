@@ -60,6 +60,15 @@ export async function getPOSCheckoutData(appointmentId: string) {
             },
           },
         },
+        payments: {
+          where: (payment, { and, eq, isNull }) =>
+            and(
+              eq(payment.paymentType, "DEPOSIT"),
+              eq(payment.status, "PAID"),
+              isNull(payment.deletedAt),
+            ),
+          columns: { amount: true },
+        },
       },
     });
 
@@ -72,6 +81,11 @@ export async function getPOSCheckoutData(appointmentId: string) {
       new Map(
         appointmentData.items.map((item) => [item.pet.id, item.pet]),
       ).values(),
+    );
+    const { payments: depositPayments, ...appointment } = appointmentData;
+    const paidDepositAmount = depositPayments.reduce(
+      (total, payment) => total + Number(payment.amount),
+      0,
     );
 
     // 4. ดึงข้อมูลบริการ "ทั้งหมด" ของร้าน (สำหรับ Dropdown เพิ่มรายการ)
@@ -99,7 +113,8 @@ export async function getPOSCheckoutData(appointmentId: string) {
     return {
       success: true,
       data: {
-        appointment: appointmentData,
+        appointment,
+        paidDepositAmount,
         availablePets: availablePetsData,
         availableServices: availableServices,
       },

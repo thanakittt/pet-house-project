@@ -60,7 +60,7 @@ function findMatchingVariant(
 
 export async function createAppointment(
   data: CreateMultipleAppointmentInput,
-): Promise<ActionResponse<{ appointmentId: string }>> {
+): Promise<ActionResponse<{ appointmentId: string; requiresDeposit: boolean }>> {
   try {
     const session = await requireStaff({ redirect: false });
 
@@ -141,7 +141,8 @@ export async function createAppointment(
         .values({
           appointmentDate: appointmentDateValue,
           customerId: data.customerId,
-          status: "PENDING_DEPOSIT",
+          status: rules.depositAmount > 0 ? "PENDING_DEPOSIT" : "CONFIRMED",
+          depositAmount: rules.depositAmount,
           note: data.note || null,
         })
         .returning({ id: appointments.id });
@@ -267,7 +268,7 @@ export async function createAppointment(
     revalidatePath("/appointments/create");
     revalidatePath("/appointments");
 
-    return { success: true, data: { appointmentId } };
+    return { success: true, data: { appointmentId, requiresDeposit: rules.depositAmount > 0 } };
   } catch (error) {
     console.error("Create Appointment Transaction Error:", error);
     return {

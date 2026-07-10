@@ -300,6 +300,20 @@ export function BusinessRulesSettingsForm({
               />
               {errors.slotIntervalMinutes && <FieldError>{errors.slotIntervalMinutes.message}</FieldError>}
             </Field>
+            <Field orientation="responsive" data-invalid={Boolean(errors.depositAmount)}>
+              <FieldLabel htmlFor="deposit-amount">เงินมัดจำ (บาท)</FieldLabel>
+              <Input
+                id="deposit-amount"
+                type="number"
+                min={0}
+                max={100000}
+                step={1}
+                aria-invalid={Boolean(errors.depositAmount)}
+                {...register("depositAmount", { valueAsNumber: true })}
+              />
+              <FieldDescription>ตั้งเป็น 0 บาทเพื่อยืนยันคิวใหม่ทันที</FieldDescription>
+              {errors.depositAmount && <FieldError>{errors.depositAmount.message}</FieldError>}
+            </Field>
           </FieldGroup>
         </CardContent>
       </Card>

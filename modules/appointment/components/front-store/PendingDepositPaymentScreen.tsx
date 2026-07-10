@@ -1,7 +1,6 @@
 "use client";
 
 import { AppointmentStatusBadge } from "@/components/shared/AppointmentStatusBadge";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { ShieldCheck, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,9 +10,11 @@ import DepositSlipUpload from "./DepositSlipUpload";
 export default function PendingDepositPaymentScreen({
   appointmentId,
   appointmentCreatedAt,
+  depositAmount,
 }: {
   appointmentId: string;
   appointmentCreatedAt: string;
+  depositAmount: number;
 }) {
   const router = useRouter();
   // เมื่อ verify slip ผ่านแล้ว DepositSlipUpload จะส่ง transRef กลับมา
@@ -51,7 +52,7 @@ export default function PendingDepositPaymentScreen({
             <AppointmentStatusBadge status="CONFIRMED" />
           </div>
           <p className="mt-1">
-            ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {APPOINTMENT_DEPOSIT_AMOUNT}{" "}
+            ระบบตรวจสอบสลิปและบันทึกค่ามัดจำ {depositAmount}{" "}
             บาทเรียบร้อยแล้ว
           </p>
           <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-300">
@@ -75,6 +76,7 @@ export default function PendingDepositPaymentScreen({
           <DepositSlipUpload
             appointmentId={appointmentId}
             appointmentCreatedAt={appointmentCreatedAt}
+            depositAmount={depositAmount}
             onVerified={(transRef) => {
               setVerifiedSlipTransRef(transRef || "-");
               router.push("/appointments");

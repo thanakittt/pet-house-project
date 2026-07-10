@@ -2,7 +2,6 @@
 
 import { db } from "@/db";
 import { payments } from "@/db/schema";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { formatDateOnly } from "@/lib/finance/date";
 import { recordTransaction } from "@/lib/finance/record-transaction";
 import { requireStaff } from "@/lib/session";
@@ -66,6 +65,7 @@ export async function recordAppointmentDeposit(input: {
           columns: {
             id: true,
             status: true,
+            depositAmount: true,
           },
         });
 
@@ -81,6 +81,10 @@ export async function recordAppointmentDeposit(input: {
             error:
               "ไม่สามารถบันทึกมัดจำให้คิวที่จบงาน ยกเลิก หรือไม่มาตามนัดแล้ว",
           };
+        }
+
+        if (appointment.depositAmount <= 0) {
+          return { success: false, error: "คิวนี้ไม่มีการเรียกเก็บเงินมัดจำ" };
         }
 
         const existingDeposit = await tx.query.payments.findFirst({
@@ -117,7 +121,7 @@ export async function recordAppointmentDeposit(input: {
           .insert(payments)
           .values({
             appointmentId: input.appointmentId,
-            amount: APPOINTMENT_DEPOSIT_AMOUNT.toFixed(2),
+            amount: appointment.depositAmount.toFixed(2),
             paymentMethod: input.paymentMethod,
             paymentDate: formatDateOnly(today),
             status: "PAID",
@@ -131,7 +135,7 @@ export async function recordAppointmentDeposit(input: {
           });
 
         await recordTransaction(tx, {
-          amount: APPOINTMENT_DEPOSIT_AMOUNT,
+          amount: appointment.depositAmount,
           transactionDate: today,
           categoryType: "INCOME",
           categoryName: "รายรับมัดจำการนัดหมาย",

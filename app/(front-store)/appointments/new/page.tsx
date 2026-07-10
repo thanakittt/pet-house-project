@@ -54,6 +54,7 @@ export default async function Page() {
         <PendingDepositPaymentScreen
           appointmentId={pendingDeposit.data.id}
           appointmentCreatedAt={pendingDeposit.data.createdAt.toISOString()}
+          depositAmount={pendingDeposit.data.depositAmount}
         />
       </div>
     );
