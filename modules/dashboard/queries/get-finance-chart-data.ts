@@ -1,195 +1,97 @@
-// ===================================================
-// get-finance-chart-data.ts — Query ดึงข้อมูล Chart รายรับ-รายจ่าย
-// ===================================================
-// ใช้ Drizzle SQL query + date-fns
-// สร้าง time-series data สำหรับ Bar Chart
-// - DAILY: แสดงรายวันของช่วงที่เลือก (1 จุดต่อวัน)
-// - MONTHLY: แสดงรายวัน 30 วันล่าสุด
-// - YEARLY: แสดงรายเดือน 12 เดือนของปีนี้
-// ===================================================
-
 import { db } from "@/db";
 import { transactions, transactionCategories } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import { FinanceChartData, FinanceChartPoint, DashboardPeriod } from "../types/dashboard";
-import { getDateRange } from "../utils/date-range";
-import { formatThaiCompactDate } from "@/lib/utils";
 import {
-  format,
   eachDayOfInterval,
   eachMonthOfInterval,
+  eachYearOfInterval,
+  format,
+  parseISO,
 } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatDateOnly } from "@/lib/finance/date";
+import { formatThaiCompactDate } from "@/lib/utils";
+import type {
+  DashboardChartGranularity,
+  DashboardFilter,
+  FinanceChartData,
+  FinanceChartPoint,
+} from "../types/dashboard";
 
-// ===================================================
-// Helper: ดึงข้อมูล income/expense รวมในช่วงเวลาหนึ่ง
-// ===================================================
+type Bucket = { income: number; expense: number };
 
-/**
- * ดึงข้อมูล time-series สำหรับ Bar Chart
- * - DAILY: รายวัน (1 จุดต่อวัน) ของช่วงที่เลือก
- * - MONTHLY: รายวัน 30 วันล่าสุด
- * - YEARLY: รายเดือน 12 เดือนของปีนี้
- */
+function getBucketKey(dateValue: string, granularity: DashboardChartGranularity) {
+  if (granularity === "DAY") return dateValue;
+  if (granularity === "MONTH") return dateValue.slice(0, 7);
+  return dateValue.slice(0, 4);
+}
+
+function getBucketLabel(key: string, granularity: DashboardChartGranularity) {
+  if (granularity === "DAY") return formatThaiCompactDate(key);
+  if (granularity === "MONTH") {
+    return format(parseISO(`${key}-01`), "MMM yyyy", { locale: th });
+  }
+  return `พ.ศ. ${Number(key) + 543}`;
+}
+
+function createBucketKeys(filter: DashboardFilter): string[] {
+  // ใช้เวลาเที่ยง UTC เพื่อให้ date-fns สร้าง calendar buckets ตรงกัน
+  // ทั้งบนเครื่องที่รันด้วย UTC และ Asia/Bangkok
+  const interval = {
+    start: new Date(`${filter.startDateValue}T12:00:00.000Z`),
+    end: new Date(`${filter.endDateValue}T12:00:00.000Z`),
+  };
+  if (filter.chartGranularity === "DAY") {
+    return eachDayOfInterval(interval).map(formatDateOnly);
+  }
+  if (filter.chartGranularity === "MONTH") {
+    return eachMonthOfInterval(interval).map((date) => formatDateOnly(date).slice(0, 7));
+  }
+  return eachYearOfInterval(interval).map((date) => formatDateOnly(date).slice(0, 4));
+}
+
 export async function getFinanceChartData(
-  period: DashboardPeriod
+  filter: DashboardFilter,
 ): Promise<FinanceChartData> {
-  const { startDate, endDate } = getDateRange(period);
+  const results = await db
+    .select({
+      type: transactionCategories.type,
+      dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM-DD')`,
+      total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
+    })
+    .from(transactions)
+    .innerJoin(
+      transactionCategories,
+      eq(transactions.transactionCategoryId, transactionCategories.id),
+    )
+    .where(
+      and(
+        isNull(transactions.deletedAt),
+        isNull(transactionCategories.deletedAt),
+        sql`${transactions.transactionDate} >= ${filter.startDateValue}::date`,
+        sql`${transactions.transactionDate} <= ${filter.endDateValue}::date`,
+      ),
+    )
+    .groupBy(transactionCategories.type, transactions.transactionDate);
 
-  let points: FinanceChartPoint[] = [];
+  const bucketMap = new Map<string, Bucket>(
+    createBucketKeys(filter).map((key) => [key, { income: 0, expense: 0 }]),
+  );
 
-  if (period === "DAILY") {
-    // DAILY: 1 bucket ต่อวัน — ใช้ transactionDate (date-only) เป็น key
-    // เนื่องจาก transactionDate ไม่มีเวลา การแบ่งเป็น hour bucket จะทำให้ข้อมูลกองอยู่ใน bucket เดียว
-    // จึงเปลี่ยนมาใช้ eachDayOfInterval เหมือน MONTHLY แต่ label แสดงเป็นวัน/เดือน
-    const results = await db
-      .select({
-        type: transactionCategories.type,
-        dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM-DD')`,
-        total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
-      })
-      .from(transactions)
-      .innerJoin(
-        transactionCategories,
-        eq(transactions.transactionCategoryId, transactionCategories.id)
-      )
-      .where(
-        and(
-          isNull(transactions.deletedAt),
-          isNull(transactionCategories.deletedAt),
-          sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
-          sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
-        )
-      )
-      .groupBy(transactionCategories.type, transactions.transactionDate);
-
-    // สร้าง map สำหรับทุกวันในช่วง (DAILY = วันเดียว แต่ใช้ pattern เดียวกับ MONTHLY)
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-    const dayMap = new Map<string, { income: number; expense: number }>();
-    for (const day of days) {
-      dayMap.set(format(day, "yyyy-MM-dd"), { income: 0, expense: 0 });
-    }
-
-    // เติมข้อมูลจริงโดย map transactionDate → วัน
-    for (const row of results) {
-      const key = row.dateString;
-      const existing = dayMap.get(key) ?? { income: 0, expense: 0 };
-      if (row.type === "INCOME") existing.income += row.total;
-      else if (row.type === "EXPENSE") existing.expense += row.total;
-      dayMap.set(key, existing);
-    }
-
-    // แปลง map → points โดย label แสดงเป็น "d MMM" (เช่น "28 เม.ย.")
-    points = days.map((day) => {
-      const key = format(day, "yyyy-MM-dd");
-      const bucket = dayMap.get(key) ?? { income: 0, expense: 0 };
-      return {
-        label: formatThaiCompactDate(day),
-        income: bucket.income,
-        expense: bucket.expense,
-      };
-    });
-  } else if (period === "MONTHLY") {
-    // รายวัน 30 วันล่าสุด: ดึง aggregate รายวันด้วย SQL GROUP BY date
-    const results = await db
-      .select({
-        type: transactionCategories.type,
-        dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM-DD')`,
-        total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
-      })
-      .from(transactions)
-      .innerJoin(
-        transactionCategories,
-        eq(transactions.transactionCategoryId, transactionCategories.id)
-      )
-      .where(
-        and(
-          isNull(transactions.deletedAt),
-          isNull(transactionCategories.deletedAt),
-          sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
-          sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
-        )
-      )
-      .groupBy(transactionCategories.type, transactions.transactionDate);
-
-    // สร้าง map สำหรับทุกวันใน 30 วัน
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-    const dayMap = new Map<string, { income: number; expense: number }>();
-    for (const day of days) {
-      dayMap.set(format(day, "yyyy-MM-dd"), { income: 0, expense: 0 });
-    }
-
-    // เติมข้อมูลจริง
-    for (const row of results) {
-      const key = row.dateString;
-      const existing = dayMap.get(key) ?? { income: 0, expense: 0 };
-      if (row.type === "INCOME") existing.income = row.total;
-      else if (row.type === "EXPENSE") existing.expense = row.total;
-      dayMap.set(key, existing);
-    }
-
-    points = days.map((day) => {
-      const key = format(day, "yyyy-MM-dd");
-      const bucket = dayMap.get(key) ?? { income: 0, expense: 0 };
-      return {
-        label: formatThaiCompactDate(day), // เช่น "1 เม.ย."
-        income: bucket.income,
-        expense: bucket.expense,
-      };
-    });
-  } else {
-    // YEARLY: รายเดือน 12 เดือนของปีนี้
-    const results = await db
-      .select({
-        type: transactionCategories.type,
-        dateString: sql<string>`TO_CHAR(${transactions.transactionDate}, 'YYYY-MM')`,
-        total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`.mapWith(Number),
-      })
-      .from(transactions)
-      .innerJoin(
-        transactionCategories,
-        eq(transactions.transactionCategoryId, transactionCategories.id)
-      )
-      .where(
-        and(
-          isNull(transactions.deletedAt),
-          isNull(transactionCategories.deletedAt),
-          sql`${transactions.transactionDate} >= ${format(startDate, "yyyy-MM-dd")}::date`,
-          sql`${transactions.transactionDate} <= ${format(endDate, "yyyy-MM-dd")}::date`
-        )
-      )
-      .groupBy(transactionCategories.type, transactions.transactionDate);
-
-    // สร้าง map 12 เดือน
-    const months = eachMonthOfInterval({ start: startDate, end: endDate });
-    const monthMap = new Map<string, { income: number; expense: number }>();
-    for (const month of months) {
-      monthMap.set(format(month, "yyyy-MM"), { income: 0, expense: 0 });
-    }
-
-    // เติมข้อมูลจริง (aggregate ด้วย JS โดย map date → month)
-    for (const row of results) {
-      const key = row.dateString;
-      const existing = monthMap.get(key) ?? { income: 0, expense: 0 };
-      if (row.type === "INCOME") existing.income += row.total;
-      else if (row.type === "EXPENSE") existing.expense += row.total;
-      monthMap.set(key, existing);
-    }
-
-    points = months.map((month) => {
-      const key = format(month, "yyyy-MM");
-      const bucket = monthMap.get(key) ?? { income: 0, expense: 0 };
-      return {
-        label: format(month, "MMM", { locale: th }), // เช่น "ม.ค."
-        income: bucket.income,
-        expense: bucket.expense,
-      };
-    });
+  for (const row of results) {
+    const key = getBucketKey(row.dateString, filter.chartGranularity);
+    const bucket = bucketMap.get(key) ?? { income: 0, expense: 0 };
+    if (row.type === "INCOME") bucket.income += row.total;
+    if (row.type === "EXPENSE") bucket.expense += row.total;
+    bucketMap.set(key, bucket);
   }
 
-  // คำนวณยอดรวม
-  const totalIncome = points.reduce((sum, p) => sum + p.income, 0);
-  const totalExpense = points.reduce((sum, p) => sum + p.expense, 0);
+  const points: FinanceChartPoint[] = [...bucketMap.entries()].map(([key, bucket]) => ({
+    label: getBucketLabel(key, filter.chartGranularity),
+    ...bucket,
+  }));
+  const totalIncome = points.reduce((sum, point) => sum + point.income, 0);
+  const totalExpense = points.reduce((sum, point) => sum + point.expense, 0);
 
   return {
     points,

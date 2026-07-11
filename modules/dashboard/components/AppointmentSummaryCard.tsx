@@ -14,23 +14,17 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarCheck } from "lucide-react";
-import { AppointmentSummary, DashboardPeriod } from "../types/dashboard";
+import type { AppointmentSummary } from "../types/dashboard";
 
 interface AppointmentSummaryCardProps {
   summary: AppointmentSummary;
-  period: DashboardPeriod;
+  periodLabel: string;
 }
 
 // แปลง period เป็นข้อความไทย
-const periodLabel: Record<DashboardPeriod, string> = {
-  DAILY: "วันนี้",
-  MONTHLY: "30 วันล่าสุด",
-  YEARLY: "ปีนี้",
-};
-
 export function AppointmentSummaryCard({
   summary,
-  period,
+  periodLabel,
 }: AppointmentSummaryCardProps) {
   return (
     <Card>
@@ -40,7 +34,7 @@ export function AppointmentSummaryCard({
             การจองคิว
           </CardTitle>
           <CardDescription className="text-xs mt-0.5">
-            {periodLabel[period]}
+            {periodLabel}
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}

@@ -9,8 +9,8 @@
 import { db } from "@/db";
 import { payments } from "@/db/schema";
 import { and, eq, gte, lte, isNull, sql } from "drizzle-orm";
-import { SalesSummary, DashboardPeriod } from "../types/dashboard";
-import { getDateRange, getPreviousDateRange } from "../utils/date-range";
+import type { DashboardFilter, SalesSummary } from "../types/dashboard";
+import { getPreviousFilterDateRange } from "../utils/date-range";
 import { formatDateOnly } from "@/lib/finance/date";
 
 /**
@@ -20,11 +20,9 @@ import { formatDateOnly } from "@/lib/finance/date";
  * - เปรียบเทียบกับ period ก่อนหน้าเพื่อหา % เปลี่ยนแปลง
  */
 export async function getSalesSummary(
-  period: DashboardPeriod
+  filter: DashboardFilter,
 ): Promise<SalesSummary> {
-  const { startDate, endDate } = getDateRange(period);
-  const { startDate: prevStart, endDate: prevEnd } =
-    getPreviousDateRange(period);
+  const { startDate: prevStart, endDate: prevEnd } = getPreviousFilterDateRange(filter);
 
   // ดึงยอดขาย period ปัจจุบัน + period ก่อนหน้าพร้อมกัน
   const [currentResult, previousResult] = await Promise.all([
@@ -40,8 +38,8 @@ export async function getSalesSummary(
         and(
           eq(payments.status, "PAID"),
           isNull(payments.deletedAt),
-          gte(payments.paymentDate, formatDateOnly(startDate)),
-          lte(payments.paymentDate, formatDateOnly(endDate))
+          gte(payments.paymentDate, filter.startDateValue),
+          lte(payments.paymentDate, filter.endDateValue)
         )
       ),
 

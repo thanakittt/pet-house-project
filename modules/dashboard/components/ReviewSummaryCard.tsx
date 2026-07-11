@@ -13,21 +13,15 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Star } from "lucide-react";
-import { ReviewSummary, DashboardPeriod } from "../types/dashboard";
+import type { ReviewSummary } from "../types/dashboard";
 import { formatThaiDate } from "@/lib/utils";
 
 interface ReviewSummaryCardProps {
   summary: ReviewSummary;
-  period: DashboardPeriod;
+  periodLabel: string;
 }
 
 // แปลง period เป็นข้อความไทย
-const periodLabel: Record<DashboardPeriod, string> = {
-  DAILY: "วันนี้",
-  MONTHLY: "30 วันล่าสุด",
-  YEARLY: "ปีนี้",
-};
-
 // Component แสดงดาว (filled/empty)
 function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
   const sizeClass = size === "md" ? "size-5" : "size-3";
@@ -46,7 +40,7 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
   );
 }
 
-export function ReviewSummaryCard({ summary, period }: ReviewSummaryCardProps) {
+export function ReviewSummaryCard({ summary, periodLabel }: ReviewSummaryCardProps) {
   // หาจำนวนรีวิวสูงสุดสำหรับ distribution bar
   const maxDistribution = Math.max(...Object.values(summary.distribution), 1);
 
@@ -58,7 +52,7 @@ export function ReviewSummaryCard({ summary, period }: ReviewSummaryCardProps) {
             รีวิวลูกค้า
           </CardTitle>
           <CardDescription className="text-xs mt-0.5">
-            {periodLabel[period]}
+            {periodLabel}
           </CardDescription>
         </div>
         <div className="bg-yellow-400/10 p-2.5 rounded-lg">
@@ -109,7 +103,7 @@ export function ReviewSummaryCard({ summary, period }: ReviewSummaryCardProps) {
         {/* กรณีไม่มีรีวิว */}
         {summary.totalReviews === 0 && (
           <p className="text-sm text-muted-foreground text-center py-2">
-            ไม่มีรีวิวใน{periodLabel[period]}
+            ไม่มีรีวิวใน{periodLabel}
           </p>
         )}
 

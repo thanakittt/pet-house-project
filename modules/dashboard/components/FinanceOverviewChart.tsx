@@ -30,21 +30,15 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { FinanceChartData, DashboardPeriod } from "../types/dashboard";
+import type { FinanceChartData } from "../types/dashboard";
 import { formatCurrency } from "@/lib/utils";
 
 interface FinanceOverviewChartProps {
   data: FinanceChartData;
-  period: DashboardPeriod;
+  periodLabel: string;
 }
 
 // แปลง period เป็นข้อความไทย
-const periodLabel: Record<DashboardPeriod, string> = {
-  DAILY: "วันนี้",
-  MONTHLY: "30 วันล่าสุด",
-  YEARLY: "ปีนี้",
-};
-
 // config สำหรับ chart (สี + label)
 const chartConfig = {
   income: {
@@ -62,7 +56,7 @@ const chartHeightClass =
 
 export function FinanceOverviewChart({
   data,
-  period,
+  periodLabel,
 }: FinanceOverviewChartProps) {
   const isProfit = data.netProfit >= 0;
 
@@ -75,7 +69,7 @@ export function FinanceOverviewChart({
               รายรับ-รายจ่าย
             </CardTitle>
             <CardDescription className="text-xs mt-0.5">
-              {periodLabel[period]}
+              {periodLabel}
             </CardDescription>
           </div>
 
@@ -126,7 +120,7 @@ export function FinanceOverviewChart({
           <div
             className={`flex items-center justify-center ${chartHeightClass} text-sm text-muted-foreground`}
           >
-            ไม่มีข้อมูลธุรกรรมใน{periodLabel[period]}
+            ไม่มีข้อมูลธุรกรรมใน{periodLabel}
           </div>
         ) : (
           <ChartContainer

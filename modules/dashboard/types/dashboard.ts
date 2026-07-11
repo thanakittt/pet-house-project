@@ -3,7 +3,19 @@
 // ===================================================
 
 // ช่วงเวลาที่ใช้ filter ข้อมูล Dashboard
-export type DashboardPeriod = "DAILY" | "MONTHLY" | "YEARLY";
+export type DashboardPeriod = "DAILY" | "MONTHLY" | "YEARLY" | "CUSTOM";
+
+export type DashboardChartGranularity = "DAY" | "MONTH" | "YEAR";
+
+export type DashboardFilter = {
+  period: DashboardPeriod;
+  startDate: Date;
+  endDate: Date;
+  startDateValue: string;
+  endDateValue: string;
+  label: string;
+  chartGranularity: DashboardChartGranularity;
+};
 
 // ===================================================
 // 💰 ยอดขาย (Sales)
