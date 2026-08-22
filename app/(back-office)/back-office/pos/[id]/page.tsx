@@ -5,7 +5,6 @@ import { POSCheckoutForm } from "@/modules/pos/components/POSCheckoutForm";
 import { SiteHeader } from "@/components/site-header";
 import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import BackButton from "@/components/BackButton";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -55,7 +54,7 @@ export default async function POSPage({ params }: POSPageProps) {
           appointment={result.data.appointment}
           availablePets={result.data.availablePets}
           availableServices={result.data.availableServices}
-          depositAmount={APPOINTMENT_DEPOSIT_AMOUNT}
+          depositAmount={result.data.paidDepositAmount}
         />
       </BackOfficeContainer>
     </>

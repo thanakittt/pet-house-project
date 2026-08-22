@@ -14,9 +14,7 @@ import {
   appointments,
 } from "@/db/schema";
 import { and, eq, gte, lte, isNull, sql, desc, notInArray } from "drizzle-orm";
-import { PopularService, DashboardPeriod } from "../types/dashboard";
-import { getDateRange } from "../utils/date-range";
-import { formatDateOnly } from "@/lib/finance/date";
+import type { DashboardFilter, PopularService } from "../types/dashboard";
 
 /**
  * ดึง TOP 5 บริการยอดนิยมตาม period ที่เลือก
@@ -25,13 +23,9 @@ import { formatDateOnly } from "@/lib/finance/date";
  * - เรียงจากมากไปน้อย (count DESC)
  */
 export async function getPopularServices(
-  period: DashboardPeriod,
+  filter: DashboardFilter,
   limit: number = 5,
 ): Promise<PopularService[]> {
-  const { startDate, endDate } = getDateRange(period);
-  const startDateValue = formatDateOnly(startDate);
-  const endDateValue = formatDateOnly(endDate);
-
   // JOIN: appointment_items → appointments (สำหรับ filter วันที่)
   //       appointment_items → service_variants → services (สำหรับชื่อบริการ)
   const results = await db
@@ -59,8 +53,8 @@ export async function getPopularServices(
         isNull(serviceVariants.deletedAt),
         isNull(services.deletedAt),
         notInArray(appointments.status, ["CANCELLED", "NO_SHOW"]),
-        gte(appointments.appointmentDate, startDateValue),
-        lte(appointments.appointmentDate, endDateValue),
+        gte(appointments.appointmentDate, filter.startDateValue),
+        lte(appointments.appointmentDate, filter.endDateValue),
       ),
     )
     .groupBy(services.id, services.name)

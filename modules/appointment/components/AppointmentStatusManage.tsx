@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/select";
 import { AppointmentStatus } from "@/modules/appointment/types/status";
 import { STATUS_CONFIG } from "@/lib/constants/appointment-status";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { formatCurrency, formatThaiDate } from "@/lib/utils";
 import { recordAppointmentDeposit } from "../actions/record-appointment-deposit";
 import { updateAppointmentStatus } from "../actions/update-appointment";
@@ -48,6 +47,7 @@ type DepositPayment = {
 interface Props {
   appointmentId: string;
   currentStatus: AppointmentStatus;
+  depositAmount: number;
   depositPayment: DepositPayment | null;
 }
 
@@ -86,6 +86,7 @@ const PAYMENT_METHOD_LABELS: Record<DepositPaymentMethod, string> = {
 export default function AppointmentStatusManager({
   appointmentId,
   currentStatus,
+  depositAmount,
   depositPayment,
 }: Props) {
   const router = useRouter();
@@ -112,7 +113,7 @@ export default function AppointmentStatusManager({
   const isFinished = ["COMPLETED", "CANCELLED", "NO_SHOW"].includes(
     currentStatus,
   );
-  const canRecordDeposit = !isFinished && !depositPayment;
+  const canRecordDeposit = !isFinished && depositAmount > 0 && !depositPayment;
 
   const showSuccessToast = (newStatus: AppointmentStatus) => {
     toast.success(`อัปเดตสถานะเป็น "${STATUS_CONFIG[newStatus].label}" สำเร็จ`);
@@ -396,7 +397,7 @@ export default function AppointmentStatusManager({
             <AlertDialogTitle>บันทึกค่ามัดจำ</AlertDialogTitle>
             <AlertDialogDescription>
               เลือกช่องทางชำระเงินสำหรับค่ามัดจำ{" "}
-              {formatCurrency(APPOINTMENT_DEPOSIT_AMOUNT)}
+              {formatCurrency(depositAmount)}
             </AlertDialogDescription>
           </AlertDialogHeader>
 

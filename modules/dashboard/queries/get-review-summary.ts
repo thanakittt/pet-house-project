@@ -8,8 +8,7 @@
 import { db } from "@/db";
 import { reviews, customers, appointments } from "@/db/schema";
 import { and, eq, gte, lte, isNull, sql, desc } from "drizzle-orm";
-import { ReviewSummary, RecentReview, DashboardPeriod } from "../types/dashboard";
-import { getDateRange } from "../utils/date-range";
+import type { DashboardFilter, ReviewSummary, RecentReview } from "../types/dashboard";
 
 /**
  * ดึงสรุปรีวิวของลูกค้าตาม period ที่เลือก
@@ -19,17 +18,15 @@ import { getDateRange } from "../utils/date-range";
  * - ดึงรีวิวล่าสุด 5 รายการพร้อมชื่อลูกค้า
  */
 export async function getReviewSummary(
-  period: DashboardPeriod
+  filter: DashboardFilter,
 ): Promise<ReviewSummary> {
-  const { startDate, endDate } = getDateRange(period);
-
   // กรองตาม reviews.createdAt เพื่อให้ period ตรงกับวันที่เขียนรีวิวจริง
   // (ไม่ใช่ appointmentDate ซึ่งเป็นวันนัดหมาย อาจอยู่คนละช่วงเวลากัน)
   const dateFilter = and(
     isNull(reviews.deletedAt),
     isNull(appointments.deletedAt),
-    gte(reviews.createdAt, startDate),
-    lte(reviews.createdAt, endDate)
+    gte(reviews.createdAt, filter.startDate),
+    lte(reviews.createdAt, filter.endDate)
   );
 
   // ดึง aggregate stats + distribution พร้อมกัน

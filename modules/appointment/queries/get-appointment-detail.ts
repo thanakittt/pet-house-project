@@ -117,6 +117,7 @@ export async function getAppointmentDetail(appointmentId: string) {
       id: appointmentData.id,
       date: new Date(appointmentData.appointmentDate),
       status: appointmentData.status as AppointmentStatus,
+      depositAmount: appointmentData.depositAmount,
       note: appointmentData.note,
       customer: {
         id: appointmentData.customer.id,

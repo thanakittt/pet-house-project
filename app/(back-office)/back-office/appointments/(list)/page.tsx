@@ -7,6 +7,10 @@ import { SiteHeader } from "@/components/site-header";
 import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import { requireStaff } from "@/lib/session";
 import { getBangkokTodayString } from "@/lib/finance/date";
+import {
+  getBusinessRules,
+  resolveOperatingIntervals,
+} from "@/modules/business-rules/business-rules";
 
 export const metadata: Metadata = {
   title: "จัดการนัดหมาย",
@@ -25,9 +29,10 @@ export default async function AppointmentsPage({
     (await searchParams).date || getBangkokTodayString();
 
   // เรียกข้อมูลทั้งสองแท็บพร้อมกัน เพื่อลดเวลารอของหน้า appointments
-  const [scheduleResult, newRequestsResult] = await Promise.all([
+  const [scheduleResult, newRequestsResult, businessRules] = await Promise.all([
     getScheduleByDate(targetDate),
     getConfirmedAppointmentRequests(),
+    getBusinessRules(),
   ]);
 
   const appointments =
@@ -44,6 +49,7 @@ export default async function AppointmentsPage({
           initialDate={targetDate}
           appointments={appointments}
           newAppointmentRequests={newAppointmentRequests}
+          operatingIntervals={resolveOperatingIntervals(businessRules, targetDate)}
         />
       </BackOfficeContainer>
     </>

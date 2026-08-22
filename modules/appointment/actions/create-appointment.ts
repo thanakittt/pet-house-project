@@ -12,7 +12,10 @@ import { addMinutes, parseISO } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
+import {
+  getBusinessRules,
+  validateBookingTime,
+} from "@/modules/business-rules/business-rules";
 
 type PetBookingInput = {
   petId: string;
@@ -57,7 +60,7 @@ function findMatchingVariant(
 
 export async function createAppointment(
   data: CreateMultipleAppointmentInput,
-): Promise<ActionResponse<{ appointmentId: string }>> {
+): Promise<ActionResponse<{ appointmentId: string; requiresDeposit: boolean }>> {
   try {
     const session = await requireStaff({ redirect: false });
 
@@ -85,16 +88,12 @@ export async function createAppointment(
     }
 
     const initialStartTime = parseISO(data.startTimeIso);
-    const dateString = data.startTimeIso.split("T")[0];
-    const appointmentDate = new Date(`${dateString}T00:00:00Z`);
-    const appointmentDateValue = dateString;
-
-    if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
-      return {
-        success: false,
-        error: "ไม่สามารถจองคิวในวันหยุดของร้านได้",
-      };
+    if (Number.isNaN(initialStartTime.getTime())) {
+      return { success: false, error: "รูปแบบวันและเวลาไม่ถูกต้อง" };
     }
+    const dateString = data.startTimeIso.split("T")[0];
+    const appointmentDateValue = dateString;
+    const rules = await getBusinessRules();
 
     const allPetIds = new Set<string>();
     const allServiceIds = new Set<string>();
@@ -142,7 +141,8 @@ export async function createAppointment(
         .values({
           appointmentDate: appointmentDateValue,
           customerId: data.customerId,
-          status: "PENDING_DEPOSIT",
+          status: rules.depositAmount > 0 ? "PENDING_DEPOSIT" : "CONFIRMED",
+          depositAmount: rules.depositAmount,
           note: data.note || null,
         })
         .returning({ id: appointments.id });
@@ -213,6 +213,17 @@ export async function createAppointment(
         }
       }
 
+      const bookingValidationError = validateBookingTime({
+        rules,
+        startTime: initialStartTime,
+        durationMinutes: Math.round(
+          (currentStartTime.getTime() - initialStartTime.getTime()) / 60_000,
+        ),
+      });
+      if (bookingValidationError) {
+        throw new Error(bookingValidationError);
+      }
+
       if (itemsToInsert.length > 0) {
         const overlapConditions = itemsToInsert.map((item) =>
           and(
@@ -257,7 +268,7 @@ export async function createAppointment(
     revalidatePath("/appointments/create");
     revalidatePath("/appointments");
 
-    return { success: true, data: { appointmentId } };
+    return { success: true, data: { appointmentId, requiresDeposit: rules.depositAmount > 0 } };
   } catch (error) {
     console.error("Create Appointment Transaction Error:", error);
     return {

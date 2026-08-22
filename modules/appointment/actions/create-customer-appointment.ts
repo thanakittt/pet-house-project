@@ -9,12 +9,15 @@ import {
   services,
   serviceVariants,
 } from "@/db/schema";
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
 import { requireCustomer } from "@/lib/session";
 import { ActionResponse } from "@/types/action";
 import { addMinutes, parseISO } from "date-fns";
 import { and, eq, gt, inArray, isNull, lt, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import {
+  getBusinessRules,
+  validateBookingTime,
+} from "@/modules/business-rules/business-rules";
 
 type CustomerPetBookingInput = {
   petId: string;
@@ -60,7 +63,12 @@ function findMatchingVariant(
 
 export async function createCustomerAppointment(
   data: CreateCustomerAppointmentInput,
-): Promise<ActionResponse<{ appointmentId: string; appointmentCreatedAt: string }>> {
+): Promise<ActionResponse<{
+  appointmentId: string;
+  appointmentCreatedAt: string;
+  requiresDeposit: boolean;
+  depositAmount: number;
+}>> {
   try {
     // action นี้เป็น customer-facing จึงใช้ requireCustomer แทน requireStaff
     // และต้องตรวจ owner ของ pet ทุกตัวใน server อีกครั้ง
@@ -127,26 +135,7 @@ export async function createCustomerAppointment(
     }
 
     const dateString = data.startTimeIso.split("T")[0];
-    const appointmentDate = new Date(`${dateString}T00:00:00Z`);
-
-    // ตรวจ server-side ว่าเวลานัดหมายต้องไม่ผ่านมาแล้ว
-    // ทำหลัง isNaN check เพราะต้องแน่ใจว่า initialStartTime อ่านได้ก่อน
-    // ป้องกัน user ที่ bypass UI date-picker แล้วส่ง ISO ในอดีตมาตรง ๆ
-    if (initialStartTime.getTime() <= Date.now()) {
-      return {
-        success: false,
-        error: "ไม่สามารถจองคิวในเวลาที่ผ่านมาแล้วได้",
-      };
-    }
-
-    // ใช้ค่ากลาง SHOP_CLOSED_DAY เพื่อให้ UI และ server ปิดวันเดียวกัน
-    // server check สำคัญเพราะ user อาจ bypass UI แล้วเรียก action ตรง ๆ
-    if (appointmentDate.getUTCDay() === SHOP_CLOSED_DAY) {
-      return {
-        success: false,
-        error: "ไม่สามารถจองคิวในวันหยุดของร้านได้",
-      };
-    }
+    const rules = await getBusinessRules();
 
     const allPetIds = new Set<string>();
     const allServiceIds = new Set<string>();
@@ -163,6 +152,7 @@ export async function createCustomerAppointment(
 
     let appointmentId = "";
     let appointmentCreatedAt = "";
+    const requiresDeposit = rules.depositAmount > 0;
 
     await db.transaction(async (tx) => {
       // ดึงเฉพาะ pet ที่เป็นของ customer คนนี้เท่านั้น
@@ -269,14 +259,14 @@ export async function createCustomerAppointment(
         );
       }
 
-      // จองจากหน้าลูกค้าจะเริ่มที่ PENDING_DEPOSIT เสมอ
-      // หลัง upload slip และ Thunder verify ผ่าน จึงเปลี่ยนเป็น CONFIRMED
+      // snapshot ยอดมัดจำไว้กับคิว และยืนยันทันทีเมื่อร้านปิดการเก็บมัดจำ
       const [newAppointment] = await tx
         .insert(appointments)
         .values({
           appointmentDate: dateString,
           customerId: customer.id,
-          status: "PENDING_DEPOSIT",
+          status: requiresDeposit ? "PENDING_DEPOSIT" : "CONFIRMED",
+          depositAmount: rules.depositAmount,
           note: data.note?.trim() || null,
         })
         .returning({
@@ -354,6 +344,17 @@ export async function createCustomerAppointment(
         }
       }
 
+      const bookingValidationError = validateBookingTime({
+        rules,
+        startTime: initialStartTime,
+        durationMinutes: Math.round(
+          (currentStartTime.getTime() - initialStartTime.getTime()) / 60_000,
+        ),
+      });
+      if (bookingValidationError) {
+        throw new Error(bookingValidationError);
+      }
+
       const overlapConditions = itemsToInsert.map((item) =>
         and(
           lt(appointmentItems.startTime, item.endTime),
@@ -399,7 +400,15 @@ export async function createCustomerAppointment(
     revalidatePath("/appointments/new");
     revalidatePath("/back-office/appointments");
 
-    return { success: true, data: { appointmentId, appointmentCreatedAt } };
+    return {
+      success: true,
+      data: {
+        appointmentId,
+        appointmentCreatedAt,
+        requiresDeposit,
+        depositAmount: rules.depositAmount,
+      },
+    };
   } catch (error) {
     console.error("createCustomerAppointment error:", error);
 

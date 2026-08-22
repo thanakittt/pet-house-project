@@ -13,21 +13,15 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
-import { PopularService, DashboardPeriod } from "../types/dashboard";
+import type { PopularService } from "../types/dashboard";
 import { formatCurrency } from "@/lib/utils";
 
 interface PopularServicesCardProps {
   services: PopularService[];
-  period: DashboardPeriod;
+  periodLabel: string;
 }
 
 // แปลง period เป็นข้อความไทย
-const periodLabel: Record<DashboardPeriod, string> = {
-  DAILY: "วันนี้",
-  MONTHLY: "30 วันล่าสุด",
-  YEARLY: "ปีนี้",
-};
-
 // สีตามอันดับ (1st = gold, 2nd = silver, 3rd = bronze, ที่เหลือ = muted)
 const rankColors = [
   "text-yellow-500",  // อันดับ 1
@@ -39,7 +33,7 @@ const rankColors = [
 
 export function PopularServicesCard({
   services,
-  period,
+  periodLabel,
 }: PopularServicesCardProps) {
   // หาจำนวนสูงสุดสำหรับคำนวณ progress bar
   const maxCount = Math.max(...services.map((s) => s.count), 1);
@@ -52,7 +46,7 @@ export function PopularServicesCard({
             บริการยอดนิยม
           </CardTitle>
           <CardDescription className="text-xs mt-0.5">
-            TOP 5 — {periodLabel[period]}
+            TOP 5 — {periodLabel}
           </CardDescription>
         </div>
         <div className="bg-yellow-500/10 p-2.5 rounded-lg">
@@ -64,7 +58,7 @@ export function PopularServicesCard({
         {services.length === 0 ? (
           // กรณีไม่มีข้อมูล
           <p className="text-sm text-muted-foreground text-center py-4">
-            ไม่มีข้อมูลใน{periodLabel[period]}
+            ไม่มีข้อมูลใน{periodLabel}
           </p>
         ) : (
           <div className="flex flex-col gap-3">

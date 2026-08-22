@@ -9,6 +9,7 @@ export type LatestPendingDepositAppointment = {
   id: string;
   appointmentDate: string;
   createdAt: Date;
+  depositAmount: number;
 };
 
 // ใช้สำหรับหน้า /appointments/new เท่านั้น:
@@ -23,6 +24,7 @@ export async function getLatestPendingDepositAppointment(
         id: true,
         appointmentDate: true,
         createdAt: true,
+        depositAmount: true,
       },
       where: and(
         // customerId ทำให้ลูกค้าเห็นเฉพาะคิวของตัวเอง

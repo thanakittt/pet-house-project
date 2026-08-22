@@ -46,6 +46,12 @@ import { reviews } from "./store";
 
 // --- Staff ---
 import { staffs } from "./staff";
+import {
+  businessDateOverrideHours,
+  businessDateOverrides,
+  businessRules,
+  businessWeeklyHours,
+} from "./business-rule";
 
 // ===================================================
 // 🔐 AUTH DOMAIN
@@ -428,3 +434,39 @@ export const staffRelations = relations(staffs, ({ one, many }) => ({
   // staff สร้างใบสั่งซื้อได้หลายใบ
   purchaseOrders: many(purchaseOrders),
 }));
+
+export const businessRuleRelations = relations(businessRules, ({ many }) => ({
+  weeklyHours: many(businessWeeklyHours),
+  dateOverrides: many(businessDateOverrides),
+}));
+
+export const businessWeeklyHoursRelations = relations(
+  businessWeeklyHours,
+  ({ one }) => ({
+    businessRule: one(businessRules, {
+      fields: [businessWeeklyHours.businessRuleId],
+      references: [businessRules.id],
+    }),
+  }),
+);
+
+export const businessDateOverrideRelations = relations(
+  businessDateOverrides,
+  ({ one, many }) => ({
+    businessRule: one(businessRules, {
+      fields: [businessDateOverrides.businessRuleId],
+      references: [businessRules.id],
+    }),
+    hours: many(businessDateOverrideHours),
+  }),
+);
+
+export const businessDateOverrideHoursRelations = relations(
+  businessDateOverrideHours,
+  ({ one }) => ({
+    override: one(businessDateOverrides, {
+      fields: [businessDateOverrideHours.businessDateOverrideId],
+      references: [businessDateOverrides.id],
+    }),
+  }),
+);

@@ -9,6 +9,7 @@ import { listAllPetBreeds } from "@/modules/pet-breed/queries/list-pet-breeds";
 import { listPets } from "@/modules/pet/queries/list-pets";
 import { listServicesWithVariants } from "@/modules/service/queries/list-services";
 import { redirect } from "next/navigation";
+import { getBusinessRules } from "@/modules/business-rules/business-rules";
 
 export const metadata: Metadata = {
   title: "จองคิว",
@@ -53,16 +54,18 @@ export default async function Page() {
         <PendingDepositPaymentScreen
           appointmentId={pendingDeposit.data.id}
           appointmentCreatedAt={pendingDeposit.data.createdAt.toISOString()}
+          depositAmount={pendingDeposit.data.depositAmount}
         />
       </div>
     );
   }
 
   // ถึงจุดนี้แปลว่าลูกค้าไม่มีคิวค้างมัดจำแล้ว จึงค่อยโหลดข้อมูลสำหรับเริ่มจองคิวใหม่
-  const [pets, petBreeds, services] = await Promise.all([
+  const [pets, petBreeds, services, bookingRules] = await Promise.all([
     listPets(profile.data.customerId),
     listAllPetBreeds(),
     listServicesWithVariants(),
+    getBusinessRules(),
   ]);
 
   if (!services.success) {
@@ -85,6 +88,7 @@ export default async function Page() {
         petBreeds={petBreeds.data}
         customerId={profile.data.customerId}
         services={services.data}
+        bookingRules={bookingRules}
       />
     </div>
   );

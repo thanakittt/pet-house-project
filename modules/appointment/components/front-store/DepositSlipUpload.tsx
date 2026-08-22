@@ -10,7 +10,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { APPOINTMENT_DEPOSIT_AMOUNT } from "@/lib/constants/appointment";
 import { verifyCustomerDepositSlip } from "@/modules/appointment/actions/verify-customer-deposit-slip";
 import {
   CheckCircle2,
@@ -77,10 +76,12 @@ function formatCountdownTime(totalSeconds: number) {
 export default function DepositSlipUpload({
   appointmentId,
   appointmentCreatedAt,
+  depositAmount,
   onVerified,
 }: {
   appointmentId: string;
   appointmentCreatedAt: string;
+  depositAmount: number;
   onVerified: (transRef?: string) => void;
 }) {
   const router = useRouter();
@@ -228,7 +229,7 @@ export default function DepositSlipUpload({
               ชำระมัดจำเพื่อยืนยันคิว
             </h2>
             <Badge variant="outline" className="border-primary text-primary p-3">
-              {APPOINTMENT_DEPOSIT_AMOUNT} บาท
+              {depositAmount} บาท
             </Badge>
           </div>
           <p className="mt-1 text-muted-foreground text-xs md:text-sm w-70 md:w-full">
@@ -295,7 +296,7 @@ export default function DepositSlipUpload({
             ) : (
               <Image
                 src={DEPOSIT_QR_IMAGE_SRC}
-                alt={`QR Code สำหรับชำระค่ามัดจำ ${APPOINTMENT_DEPOSIT_AMOUNT} บาท`}
+                alt={`QR Code สำหรับชำระค่ามัดจำ ${depositAmount} บาท`}
                 fill
                 sizes={`(min-width: 768px) ${DEPOSIT_QR_IMAGE_SIZE_PX}px, 80vw`}
                 className="p-2 object-contain"
@@ -308,7 +309,7 @@ export default function DepositSlipUpload({
               Scan เพื่อชำระมัดจำ
             </p>
             <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
-              ชำระ {APPOINTMENT_DEPOSIT_AMOUNT} บาท ก่อนอัปโหลดสลิป
+              ชำระ {depositAmount} บาท ก่อนอัปโหลดสลิป
             </p>
           </div>
           <div className="px-3 text-left text-xs text-primary">

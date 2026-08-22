@@ -14,22 +14,15 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
-import { SalesSummary, DashboardPeriod } from "../types/dashboard";
+import type { SalesSummary } from "../types/dashboard";
 import { formatCurrency } from "@/lib/utils";
 
 interface SalesOverviewCardProps {
   summary: SalesSummary;
-  period: DashboardPeriod;
+  periodLabel: string;
 }
 
-// แปลง period เป็นข้อความไทย
-const periodLabel: Record<DashboardPeriod, string> = {
-  DAILY: "วันนี้",
-  MONTHLY: "30 วันล่าสุด",
-  YEARLY: "ปีนี้",
-};
-
-export function SalesOverviewCard({ summary, period }: SalesOverviewCardProps) {
+export function SalesOverviewCard({ summary, periodLabel }: SalesOverviewCardProps) {
   const isPositive = summary.changePercent >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
@@ -41,7 +34,7 @@ export function SalesOverviewCard({ summary, period }: SalesOverviewCardProps) {
             ยอดขาย
           </CardTitle>
           <CardDescription className="mt-0.5 text-xs">
-            {periodLabel[period]}
+            {periodLabel}
           </CardDescription>
         </div>
         {/* ไอคอนพื้นหลัง */}

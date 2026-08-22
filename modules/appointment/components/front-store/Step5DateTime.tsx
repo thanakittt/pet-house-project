@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
-import { getBangkokDayOfWeek, getBangkokTodayString } from "@/lib/finance/date";
+import { getBangkokTodayString } from "@/lib/finance/date";
 import { formatThaiDate } from "@/lib/utils";
 import { getAvailableSlots } from "@/modules/appointment/queries/get-available-slots";
-import { format, parseISO } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 import { th } from "date-fns/locale";
 import { CalendarDays, Clock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -15,29 +14,20 @@ import {
   formatDurationMinutes,
   type FrontStoreFormData,
 } from "./booking-utils";
-
-function getInitialDate() {
-  let date = getBangkokTodayString();
-
-  while (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
-    const nextDate = new Date(`${date}T00:00:00`);
-    nextDate.setDate(nextDate.getDate() + 1);
-    date = format(nextDate, "yyyy-MM-dd");
-  }
-
-  return date;
-}
+import type { BusinessRules } from "@/modules/business-rules/types/business-rules";
 
 export default function Step5DateTime({
   data,
   update,
   durationMinutes,
+  bookingRules,
 }: {
   data: FrontStoreFormData;
   update: (data: FrontStoreFormData) => void;
   durationMinutes: number;
+  bookingRules: BusinessRules;
 }) {
-  const [selectedDate, setSelectedDate] = useState(getInitialDate);
+  const [selectedDate, setSelectedDate] = useState(getBangkokTodayString);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -57,13 +47,6 @@ export default function Step5DateTime({
       }
 
       update({ ...data, startTimeIso: "" });
-
-      const dayOfWeek = getBangkokDayOfWeek(selectedDate);
-
-      if (dayOfWeek === SHOP_CLOSED_DAY) {
-        setAvailableSlots([]);
-        return;
-      }
 
       setIsLoading(true);
 
@@ -129,7 +112,7 @@ export default function Step5DateTime({
                 วันที่รับบริการ
               </Label>
               <p className="pl-1 text-muted-foreground text-xs">
-                *ร้านหยุดทุกวันพุธ
+                *จองล่วงหน้าได้สูงสุด {bookingRules.maxAdvanceBookingDays} วัน
               </p>
             </div>
             <Input
@@ -138,6 +121,13 @@ export default function Step5DateTime({
               type="date"
               value={selectedDate}
               min={getBangkokTodayString()}
+              max={format(
+                addDays(
+                  new Date(`${getBangkokTodayString()}T00:00:00`),
+                  bookingRules.maxAdvanceBookingDays,
+                ),
+                "yyyy-MM-dd",
+              )}
               onChange={(event) => setSelectedDate(event.target.value)}
             />
 
@@ -149,9 +139,11 @@ export default function Step5DateTime({
                 <Clock className="size-4 text-primary" />
                 เวลาที่สามารถจองได้
               </Label>
-              <p className="pl-1 text-muted-foreground text-xs">
-                * เวลาทำการ 09:00 - 18:00 น.
-              </p>
+              {bookingRules.minBookingLeadMinutes > 0 ? (
+                <p className="pl-1 text-muted-foreground text-xs">
+                  *จองก่อนอย่างน้อย {bookingRules.minBookingLeadMinutes} นาที
+                </p>
+              ) : null}
             </div>
             <Input
               type="text"

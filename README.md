@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pet House Project 🐾
 
-## Getting Started
+ระบบบริหารจัดการร้านและคลินิกสัตว์เลี้ยง (Pet Care & Clinic Management System) พัฒนาด้วย Next.js 16 (App Router), React 19, Drizzle ORM และ PostgreSQL / Supabase
 
-First, run the development server:
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16.2 (App Router), React 19
+- **Database & ORM**: PostgreSQL (Supabase), Drizzle ORM
+- **Authentication**: Better Auth (รองรับ Email/Password, Google OAuth, LINE Login)
+- **Styling & UI**: Tailwind CSS v4, shadcn/ui, Radix UI, Lucide Icons
+- **Integrations**: LINE Messaging API, LINE LIFF, Google Gemini AI, Nodemailer
+
+---
+
+## 📋 ข้อกำหนดเบื้องต้น (Prerequisites)
+
+- [Node.js](https://nodejs.org/) v20.x ขึ้นไป
+- [pnpm](https://pnpm.io/) v9.x ขึ้นไป (แนะนำ)
+- บัญชี [Supabase](https://supabase.com/) หรือฐานข้อมูล PostgreSQL
+
+---
+
+## 🚀 ขั้นตอนการติดตั้งและเริ่มใช้งาน (Installation Guide)
+
+### 1. ติดตั้ง Dependencies
+
+รันคำสั่งเพื่อติดตั้งแพ็กเกจทั้งหมดผ่าน `pnpm`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. ตั้งค่า Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+คัดลอกไฟล์ `.env.example` ไปเป็น `.env`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env
+```
 
-## Learn More
+จากนั้นแก้ไขค่าในไฟล์ `.env` ให้ตรงกับระบบของคุณ:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+# Database (PostgreSQL / Supabase Connection String)
+DATABASE_URL="postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Better Auth Configuration
+BETTER_AUTH_SECRET="สร้างคีย์ความปลอดภัยสุ่มความยาวอย่างน้อย 32 ตัวอักษร"
+BETTER_AUTH_URL="http://localhost:3000"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# OAuth Authentication (Google & LINE)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+LINE_CLIENT_ID=""
+LINE_CLIENT_SECRET=""
 
-## Deploy on Vercel
+# Supabase (Storage & Client SDK)
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY=""
+SUPABASE_SERVICE_ROLE_KEY=""
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Email Notifications (Gmail SMTP / Nodemailer)
+GOOGLE_APP_USER="your-email@gmail.com"
+GOOGLE_APP_PASSWORD="your-gmail-app-password"
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# AI & Verification APIs
+GEMINI_KEY=""
+THUNDER_API_KEY=""
+
+# LINE Official Account & LIFF
+NEXT_PUBLIC_LIFF_ID=""
+LINE_CHANNEL_ACCESS_TOKEN=""
+```
+
+### 3. ซิงค์ Database Schema ด้วย Drizzle
+
+ดัน Schema เข้าฐานข้อมูล PostgreSQL / Supabase:
+
+```bash
+# Push schema ไปยังฐานข้อมูลโดยตรง
+pnpm db:push
+
+# หรือ Generate migration files
+pnpm db:generate
+pnpm db:migrate
+```
+
+### 4. รันโปรเจกต์ในโหมด Development
+
+```bash
+pnpm dev
+```
+
+เปิดเว็บเบราว์เซอร์แล้วเข้าใช้งานที่ [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 💻 คำสั่งที่มีในโปรเจกต์ (Available Scripts)
+
+| คำสั่ง | รายละเอียด |
+| :--- | :--- |
+| `pnpm dev` | เริ่มต้น Development Server ที่พอร์ต 3000 |
+| `pnpm build` | ทำการ Build โปรเจกต์สำหรับ Production |
+| `pnpm start` | รันเซิร์ฟเวอร์โหมด Production หลัง Build |
+| `pnpm lint` | ตรวจสอบโค้ดด้วย ESLint |
+| `pnpm db:push` | อัปเดต Schema เข้าฐานข้อมูลโดยตรง |
+| `pnpm db:generate` | สร้าง Migration files จาก Drizzle Schema |
+| `pnpm db:migrate` | รัน Migration files ไปยังฐานข้อมูล |
+| `pnpm db:studio` | เปิด Drizzle Studio ดูข้อมูล Database ผ่านเว็บ UI |
+
+---
+
+## 📁 โครงสร้างโปรเจกต์ (Project Structure)
+
+```text
+├── app/                  # Next.js App Router (หน้าเว็บและ Route Handlers)
+├── components/           # UI Components (shadcn/ui & Shared components)
+├── db/                   # Database connection & Drizzle schemas
+│   └── schema/           # ตารางข้อมูลต่างๆ (users, pets, appointments, ฯลฯ)
+├── hooks/                # Custom React Hooks
+├── lib/                  # Auth, Supabase client, Utility functions
+├── modules/              # Feature modules (POS, Pets, Appointments, AI, LINE)
+├── public/               # Static assets (รูปภาพ, ไอคอน)
+├── supabase/             # Supabase migrations & config
+└── types/                # TypeScript type definitions
+```

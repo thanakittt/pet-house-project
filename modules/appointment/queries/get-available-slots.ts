@@ -3,14 +3,18 @@
 import { db } from "@/db";
 import { appointments, appointmentItems } from "@/db/schema";
 import { and, gte, lte, ne, eq } from "drizzle-orm";
-import { addMinutes, isBefore } from "date-fns";
+import { addDays, addMinutes, isBefore } from "date-fns";
 
-import { SHOP_CLOSED_DAY } from "@/lib/constants/appointment";
 import {
+  formatDateOnly,
   getBangkokDateAtTime,
-  getBangkokDayOfWeek,
   getBangkokDayRange,
+  getBangkokTodayString,
 } from "@/lib/finance/date";
+import {
+  getBusinessRules,
+  resolveOperatingIntervals,
+} from "@/modules/business-rules/business-rules";
 
 interface GetSlotsParams {
   date: string;
@@ -22,7 +26,16 @@ export async function getAvailableSlots({
   durationMinutes,
 }: GetSlotsParams) {
   try {
-    if (getBangkokDayOfWeek(date) === SHOP_CLOSED_DAY) {
+    const rules = await getBusinessRules();
+    const latestBookingDate = formatDateOnly(
+      addDays(
+        new Date(`${getBangkokTodayString()}T00:00:00Z`),
+        rules.maxAdvanceBookingDays,
+      ),
+    );
+    const operatingIntervals = resolveOperatingIntervals(rules, date);
+
+    if (date > latestBookingDate || operatingIntervals.length === 0) {
       return { success: true, data: [] };
     }
 
@@ -49,47 +62,45 @@ export async function getAvailableSlots({
         ),
       );
 
-    // 2. กำหนดเวลาเปิด-ปิดร้าน และเงื่อนไขเวลา
-    const openingTime = getBangkokDateAtTime(date, 9, 0);
-    const closingTime = getBangkokDateAtTime(date, 18, 0);
-    const slotInterval = 30; // ตัดสล็อตทุกๆ 30 นาที
-
-    // [NEW] กำหนดเวลาปัจจุบัน (สามารถตั้ง Lead Time ได้ในอนาคต เช่น addMinutes(now, 30))
+    // กฎเวลาทำการและ policy ถูกดึงจาก Business Rules ชุดเดียวกับที่ server action ใช้ validate
     const now = new Date();
-    const minimumBookingTime = addMinutes(now, 0);
+    const minimumBookingTime = addMinutes(now, rules.minBookingLeadMinutes);
 
     const availableSlots: string[] = [];
-    let currentSlotStart = openingTime;
+    for (const interval of operatingIntervals) {
+      const [startHour, startMinute] = interval.startTime.split(":").map(Number);
+      const [endHour, endMinute] = interval.endTime.split(":").map(Number);
+      const openingTime = getBangkokDateAtTime(date, startHour, startMinute);
+      const closingTime = getBangkokDateAtTime(date, endHour, endMinute);
+      let currentSlotStart = openingTime;
 
-    // 3. ตรวจสอบการทับซ้อนทีละสล็อต
-    while (isBefore(currentSlotStart, closingTime)) {
-      // [NEW] ข้ามสล็อตนี้ทันที ถ้าเวลาเริ่มของสล็อตนี้ น้อยกว่า เวลาที่อนุญาตให้จองได้ (อดีต หรือกระชั้นชิดเกินไป)
-      if (isBefore(currentSlotStart, minimumBookingTime)) {
-        currentSlotStart = addMinutes(currentSlotStart, slotInterval);
-        continue;
-      }
+      // ตรวจสอบการทับซ้อนทีละสล็อตภายในแต่ละช่วงเวลาที่ร้านเปิด
+      while (isBefore(currentSlotStart, closingTime)) {
+        if (isBefore(currentSlotStart, minimumBookingTime)) {
+          currentSlotStart = addMinutes(
+            currentSlotStart,
+            rules.slotIntervalMinutes,
+          );
+          continue;
+        }
 
-      const currentSlotEnd = addMinutes(currentSlotStart, durationMinutes);
+        const currentSlotEnd = addMinutes(currentSlotStart, durationMinutes);
+        if (currentSlotEnd > closingTime) break;
 
-      // ตรวจสอบว่าเวลาสิ้นสุดของคิวนี้ เกินเวลาปิดร้านหรือไม่
-      if (isBefore(closingTime, currentSlotEnd)) {
-        break;
-      }
-
-      // ตรวจสอบ Collision
-      const isOverlapping = bookedSlots.some((slot) => {
-        return (
-          currentSlotStart < slot.endTime && currentSlotEnd > slot.startTime
+        const isOverlapping = bookedSlots.some(
+          (slot) =>
+            currentSlotStart < slot.endTime && currentSlotEnd > slot.startTime,
         );
-      });
 
-      // หากไม่ทับซ้อน ให้เพิ่มเข้าในรายการคิวว่าง
-      if (!isOverlapping) {
-        availableSlots.push(currentSlotStart.toISOString());
+        if (!isOverlapping) {
+          availableSlots.push(currentSlotStart.toISOString());
+        }
+
+        currentSlotStart = addMinutes(
+          currentSlotStart,
+          rules.slotIntervalMinutes,
+        );
       }
-
-      // ขยับไปสล็อตถัดไป (+30 นาที)
-      currentSlotStart = addMinutes(currentSlotStart, slotInterval);
     }
 
     return { success: true, data: availableSlots };

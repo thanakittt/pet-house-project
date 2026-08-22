@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { requireOwner } from "@/lib/session";
 import { SiteHeader } from "@/components/site-header";
@@ -20,7 +21,11 @@ import { PopularServicesCard } from "@/modules/dashboard/components/PopularServi
 import { ReviewSummaryCard } from "@/modules/dashboard/components/ReviewSummaryCard";
 import { FinanceOverviewChart } from "@/modules/dashboard/components/FinanceOverviewChart";
 
-import { DashboardPeriod } from "@/modules/dashboard/types/dashboard";
+import {
+  getCanonicalCustomUrl,
+  resolveDashboardFilter,
+  type DashboardSearchParams,
+} from "@/modules/dashboard/utils/date-range";
 
 export const metadata: Metadata = {
   title: "ภาพรวมธุรกิจ",
@@ -35,29 +40,24 @@ export const metadata: Metadata = {
 // ===================================================
 
 export default async function DashboardPage(props: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<DashboardSearchParams>;
 }) {
   // ตรวจสอบสิทธิ์: เฉพาะ owner เท่านั้น
   await requireOwner();
 
   const searchParams = await props.searchParams;
 
-  // กำหนด period จาก URL หรือ default = MONTHLY
-  const allowedPeriods: DashboardPeriod[] = ["DAILY", "MONTHLY", "YEARLY"];
-  const period: DashboardPeriod = allowedPeriods.includes(
-    searchParams.period as DashboardPeriod,
-  )
-    ? (searchParams.period as DashboardPeriod)
-    : "MONTHLY";
+  const { filter, needsCanonicalRedirect } = resolveDashboardFilter(searchParams);
+  if (needsCanonicalRedirect) redirect(getCanonicalCustomUrl(filter));
 
   // ดึงข้อมูลทั้ง 5 sections พร้อมกัน
   const [sales, appointments, popularServices, reviews, financeChart] =
     await Promise.all([
-      getSalesSummary(period),
-      getAppointmentSummary(period),
-      getPopularServices(period, 5),
-      getReviewSummary(period),
-      getFinanceChartData(period),
+      getSalesSummary(filter),
+      getAppointmentSummary(filter),
+      getPopularServices(filter, 5),
+      getReviewSummary(filter),
+      getFinanceChartData(filter),
     ]);
 
   return (
@@ -70,20 +70,20 @@ export default async function DashboardPage(props: {
           <div className="flex sm:flex-row flex-col sm:justify-end sm:items-center gap-4">
             {/* ต้องครอบด้วย Suspense เนื่องจาก useSearchParams */}
             <Suspense fallback={<Skeleton className="w-[240px] h-9" />}>
-              <DashboardPeriodFilter currentPeriod={period} />
+              <DashboardPeriodFilter filter={filter} />
             </Suspense>
           </div>
           {/* ===== Row 1: ยอดขาย + การจองคิว (2 cols) ===== */}
           <div className="gap-4 grid grid-cols-1 sm:grid-cols-2">
-            <SalesOverviewCard summary={sales} period={period} />
-            <AppointmentSummaryCard summary={appointments} period={period} />
+            <SalesOverviewCard summary={sales} periodLabel={filter.label} />
+            <AppointmentSummaryCard summary={appointments} periodLabel={filter.label} />
           </div>
           {/* ===== Row 2: Finance Chart (เต็มความกว้าง) ===== */}
-          <FinanceOverviewChart data={financeChart} period={period} />
+          <FinanceOverviewChart data={financeChart} periodLabel={filter.label} />
           {/* ===== Row 3: บริการยอดนิยม + รีวิวลูกค้า (2 cols) ===== */}
           <div className="gap-4 grid grid-cols-1 lg:grid-cols-2">
-            <PopularServicesCard services={popularServices} period={period} />
-            <ReviewSummaryCard summary={reviews} period={period} />
+            <PopularServicesCard services={popularServices} periodLabel={filter.label} />
+            <ReviewSummaryCard summary={reviews} periodLabel={filter.label} />
           </div>
         </div>
       </BackOfficeContainer>

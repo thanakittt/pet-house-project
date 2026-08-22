@@ -7,16 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "start:all": "pnpm db:start && pnpm dev",
-    "db:start": "pnpx supabase start",
-    "db:stop": "pnpx supabase stop",
-    "db:init": "pnpx supabase init",
-    "db:reset": "pnpx supabase db reset",
-    "db:migrate-up": "pnpx supabase migration up",
     "db:studio": "pnpm drizzle-kit studio",
     "db:generate": "pnpm drizzle-kit generate",
     "db:check": "pnpm drizzle-kit check",
-    "db:push": "pnpm drizzle-kit push"
+    "db:push": "pnpm drizzle-kit push",
+    "db:migrate": "pnpm drizzle-kit migrate"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
@@ -45,6 +40,7 @@
     "pg": "^8.20.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.4",
+    "react-day-picker": "^10.0.1",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.72.1",
     "recharts": "3.8.0",

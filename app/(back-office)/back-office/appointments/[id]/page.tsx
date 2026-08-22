@@ -99,6 +99,7 @@ export default async function AppointmentDetailPage({
             <AppointmentStatusManager
               appointmentId={appointment.id}
               currentStatus={appointment.status}
+              depositAmount={appointment.depositAmount}
               depositPayment={appointment.depositPayment}
             />
           </div>
