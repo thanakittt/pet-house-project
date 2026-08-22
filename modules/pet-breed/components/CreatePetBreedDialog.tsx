@@ -1,0 +1,226 @@
+"use client";
+
+import { LoadingButton } from "@/components/shared/LoadingButton";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Field,
+  // FieldContent ถูกลบออก — ไม่มี field ที่ต้องการ wrapper นี้ใน CreatePetBreedDialog
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { PET_TYPE_OPTIONS } from "@/lib/constants/pet-type";
+import { PET_SIZE_OPTIONS } from "@/lib/constants/service-type";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { PetBreedForm } from "../types/pet-breed";
+import { createPetBreed } from "../actions/create-pet-breed";
+
+const petSizeOptions = PET_SIZE_OPTIONS.filter(
+  (option) => option.value !== "ALL",
+);
+
+export function CreatePetBreedDialog() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      type: "",
+      size: "",
+    },
+    mode: "onBlur",
+  });
+
+  const onSubmit = async (data: PetBreedForm) => {
+    try {
+      setServerError(null);
+
+      const result = await createPetBreed(data);
+
+      if (!result.success) {
+        setServerError(result.error);
+        return;
+      }
+
+      setOpen(false);
+      form.reset();
+      toast.success("สร้างพันธุ์สัตว์เลี้ยงสำเร็จ");
+      router.refresh();
+    } catch (error) {
+      console.error("CreatePetBreed Error:", error);
+      setServerError("เกิดข้อผิดพลาดในการสร้างพันธุ์สัตว์เลี้ยง");
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value) {
+          form.reset();
+          setServerError(null);
+        }
+        setOpen(value);
+      }}
+    >
+      <form onSubmit={form.handleSubmit(onSubmit)} id="create-pet-breed">
+        <DialogTrigger asChild className="px-6 py-5 text-sm cursor-pointer">
+          <Button type="button">
+            {" "}
+            <PlusIcon className="size-4" /> เพิ่มสายพันธุ์
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="md:max-w-md">
+          <DialogHeader className="px-4 pt-4">
+            <DialogTitle className="font-bold text-lg">
+              เพิ่มสายพันธุ์
+            </DialogTitle>
+            <DialogDescription>
+              กรุณากรอกข้อมูลสายพันธุ์
+            </DialogDescription>
+            {serverError && (
+              <DialogDescription className="text-destructive">
+                {serverError}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          <FieldGroup className="gap-3 px-4 pb-3">
+            {/* Pet Breed Name Field */}
+            <Controller
+              name="name"
+              control={form.control}
+              rules={{
+                required: "กรุณาระบุชื่อสายพันธุ์",
+                maxLength: {
+                  value: 100,
+                  message: "ชื่อสายพันธุ์ไม่เกิน 100 ตัวอักษร",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>ชื่อสายพันธุ์</FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="ระบุชื่อพันธุ์"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            {/* Pet Type Field */}
+            <Controller
+              name="type"
+              control={form.control}
+              rules={{
+                required: "กรุณาระบุประเภทสัตว์เลี้ยง",
+              }}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    ประเภทสัตว์เลี้ยง
+                  </FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={field.name}>
+                      <SelectValue placeholder="เลือกประเภท" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PET_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            {/* Pet Size Field */}
+            <Controller
+              name="size"
+              control={form.control}
+              rules={{
+                required: "กรุณาระบุขนาดสัตว์เลี้ยง",
+              }}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    ขนาดสัตว์เลี้ยง
+                  </FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={field.name}>
+                      <SelectValue placeholder="เลือกขนาด" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {petSizeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+
+          <DialogFooter>
+            <div className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  className="px-6 py-5 text-sm cursor-pointer"
+                >
+                  ยกเลิก
+                </Button>
+              </DialogClose>
+              <LoadingButton
+                type="submit"
+                form="create-pet-breed"
+                className="px-6 py-5 text-sm cursor-pointer"
+
+               isLoading={form.formState.isSubmitting} loadingText="กำลังบันทึก...">บันทึก</LoadingButton>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </form>
+    </Dialog>
+  );
+}
