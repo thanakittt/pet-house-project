@@ -1,0 +1,1 @@
+ALTER TABLE "pet_breeds" ADD COLUMN "size" "pet_size" DEFAULT 'ALL' NOT NULL;

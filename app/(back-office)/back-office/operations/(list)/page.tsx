@@ -1,0 +1,41 @@
+import type { Metadata } from "next";
+import { getTodayAppointmentsBoard } from "@/modules/operation/queries/get-today-appointments";
+import DailyAppointmentsBoard from "@/modules/operation/components/DailyAppointmentsBoard";
+import { SiteHeader } from "@/components/site-header";
+import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
+import { requireStaff } from "@/lib/session";
+
+export const metadata: Metadata = {
+  title: "คิวงานประจำวัน",
+  description: "ติดตามสถานะคิวงานบริการสัตว์เลี้ยงประจำวัน",
+};
+
+export default async function DailyBoardPage() {
+  await requireStaff();
+
+  const result = await getTodayAppointmentsBoard();
+
+  if (!result.success) {
+    throw new Error(result.error || "ไม่สามารถดึงคิวงานได้");
+  }
+
+  if (!result.data) {
+    return (
+      <>
+        <SiteHeader title="คิวงานประจำวัน" />
+        <BackOfficeContainer>
+          <p className="text-muted-foreground">ไม่มีข้อมูลคิวงานวันนี้</p>
+        </BackOfficeContainer>
+      </>
+    );
+  }
+  return (
+    <>
+      <SiteHeader title="คิวงานประจำวัน" />
+      {/* โยน Data จาก Server Action เข้าไปยัง Client Component */}
+      <BackOfficeContainer>
+        <DailyAppointmentsBoard initialAppointments={result.data} />
+      </BackOfficeContainer>
+    </>
+  );
+}

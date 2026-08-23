@@ -1,0 +1,1 @@
+ALTER TABLE "pet_breeds" ALTER COLUMN "size" SET DEFAULT 'M';

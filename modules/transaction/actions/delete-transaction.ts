@@ -1,0 +1,56 @@
+"use server";
+
+import { db } from "@/db";
+import { transactions, transactionCategories } from "@/db/schema";
+import { ActionResponse } from "@/types/action";
+import { requireStaff } from "@/lib/session";
+import { revalidatePath } from "next/cache";
+import { and, eq, isNull } from "drizzle-orm";
+import { isSystemCategory } from "../constants/system-categories";
+
+export async function deleteTransaction(
+  id: string,
+): Promise<ActionResponse<null>> {
+  try {
+    const session = await requireStaff({ redirect: false });
+
+    if (!session) {
+      return { success: false, error: "คุณไม่มีสิทธิ์ในการดำเนินการนี้" };
+    }
+
+    // Check if transaction exists and is not soft-deleted
+    const [existingTransaction] = await db
+      .select({
+        id: transactions.id,
+        categoryName: transactionCategories.name,
+      })
+      .from(transactions)
+      .innerJoin(
+        transactionCategories,
+        eq(transactions.transactionCategoryId, transactionCategories.id)
+      )
+      .where(
+        and(eq(transactions.id, id), isNull(transactions.deletedAt))
+      );
+
+    if (!existingTransaction) {
+      return { success: false, error: "ไม่พบข้อมูลรายการ" };
+    }
+
+    // Check if it's a system category (cannot delete)
+    if (isSystemCategory(existingTransaction.categoryName)) {
+      return { success: false, error: "ไม่สามารถลบรายการของระบบได้" };
+    }
+
+    await db
+      .update(transactions)
+      .set({ deletedAt: new Date() })
+      .where(eq(transactions.id, id));
+
+    revalidatePath("/accounting");
+    return { success: true, data: null };
+  } catch (error) {
+    console.error("deleteTransaction error:", error);
+    return { success: false, error: "ไม่สามารถลบรายการได้" };
+  }
+}

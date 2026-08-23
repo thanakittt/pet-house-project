@@ -1,0 +1,59 @@
+"use server";
+
+import { db } from "@/db";
+import { and, or, ilike, isNull } from "drizzle-orm";
+import { customers, pets } from "@/db/schema";
+import { CustomerSearchResult } from "../types/customer";
+import { ActionResponse } from "@/types/action";
+
+export async function searchCustomer(
+  keyword: string,
+): Promise<ActionResponse<CustomerSearchResult[]>> {
+  try {
+    const trimmedKeyword = keyword.trim();
+
+    if (trimmedKeyword.length < 2) {
+      return { success: true, data: [] };
+    }
+
+    const pattern = `%${trimmedKeyword}%`;
+
+    const customer = await db.query.customers.findMany({
+      columns: {
+        id: true,
+        nickname: true,
+      },
+      where: and(
+        or(
+          ilike(customers.walkInPhoneNumber, pattern),
+          ilike(customers.nickname, pattern),
+        ),
+        isNull(customers.deletedAt),
+      ),
+      with: {
+        pets: {
+          where: isNull(pets.deletedAt),
+          columns: {
+            id: true,
+            name: true,
+          },
+          with: {
+            breed: {
+              columns: {
+                name: true,
+                type: true,
+                size: true,
+              },
+            },
+          },
+        },
+      },
+      limit: 50,
+    });
+
+    return { success: true, data: customer };
+  } catch (error) {
+    console.error("searchCustomer error:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการค้นหาลูกค้า" };
+  }
+}

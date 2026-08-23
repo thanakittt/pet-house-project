@@ -1,0 +1,1 @@
+-- constraint ถูกย้ายไปอยู่ใน 0015_needy_chat.sql เพื่อให้รันหลังคอลัมน์ line_user_id ถูกสร้างแล้ว

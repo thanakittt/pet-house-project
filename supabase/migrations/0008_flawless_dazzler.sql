@@ -1,0 +1,1 @@
+ALTER TABLE "payments" ADD COLUMN "payment_type" "payment_type" DEFAULT 'FULL_PAYMENT' NOT NULL;
