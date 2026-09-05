@@ -118,3 +118,34 @@ export type PurchaseOrderItemForm = z.infer<typeof purchaseOrderItemFormSchema>;
  */
 export type PurchaseOrderForm = z.infer<typeof purchaseOrderFormSchema>;
 
+export const updatePurchaseOrderVendorSnapshotSchema = z.object({
+  purchaseOrderId: z.string().uuid("รหัสใบสั่งซื้อไม่ถูกต้อง"),
+  vendorName: z
+    .string()
+    .trim()
+    .min(1, "กรุณาระบุชื่อผู้จำหน่าย")
+    .max(150, "ชื่อผู้จำหน่ายต้องไม่เกิน 150 ตัวอักษร"),
+  vendorAddress: z
+    .string()
+    .trim()
+    .max(500, "ที่อยู่ต้องไม่เกิน 500 ตัวอักษร")
+    .optional()
+    .nullable(),
+  vendorPhone: z
+    .string()
+    .trim()
+    .max(50, "เบอร์โทรศัพท์ต้องไม่เกิน 50 ตัวอักษร")
+    .optional()
+    .nullable(),
+  vendorTaxId: z
+    .string()
+    .trim()
+    .max(20, "เลขประจำตัวผู้เสียภาษีต้องไม่เกิน 20 ตัวอักษร")
+    .optional()
+    .nullable(),
+});
+
+export type UpdatePurchaseOrderVendorSnapshotInput = z.infer<
+  typeof updatePurchaseOrderVendorSnapshotSchema
+>;
+

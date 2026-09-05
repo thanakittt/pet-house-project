@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Printer, ArrowLeft, Percent, Store } from "lucide-react";
+import { Printer, ArrowLeft, Percent, Store, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +13,8 @@ import {
 import type { PurchaseOrderDetail } from "@/modules/inventories/types/purchase-order";
 import { formatThaiDate } from "@/lib/utils";
 import { thaiBahtText } from "@/modules/inventories/utils/baht-text";
+import { toast } from "sonner";
+import { updatePurchaseOrderVendorSnapshot } from "@/modules/inventories/actions/update-purchase-order-vendor-snapshot";
 import Image from "next/image";
 
 function formatMoney(amount: number): string {
@@ -38,11 +40,36 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
   // State ปรับอัตรา VAT (เริ่มต้น 7%)
   const [vatRate, setVatRate] = useState<number>(7);
 
-  // State ข้อมูลคู่ค้า / ผู้จำหน่าย (กรอกสดบนหน้าพิมพ์)
-  const [vendorName, setVendorName] = useState("");
-  const [vendorAddress, setVendorAddress] = useState("");
-  const [vendorTaxId, setVendorTaxId] = useState("");
-  const [vendorPhone, setVendorPhone] = useState("");
+  // State ข้อมูลคู่ค้า / ผู้จำหน่าย (ดึงค่าเริ่มต้นจาก Snapshot ใน PO)
+  const [vendorName, setVendorName] = useState(order.vendorName ?? "");
+  const [vendorAddress, setVendorAddress] = useState(order.vendorAddress ?? "");
+  const [vendorTaxId, setVendorTaxId] = useState(order.vendorTaxId ?? "");
+  const [vendorPhone, setVendorPhone] = useState(order.vendorPhone ?? "");
+
+  const [isSaving, startSaving] = useTransition();
+
+  const handleSaveVendorSnapshot = () => {
+    if (!vendorName.trim()) {
+      toast.error("กรุณาระบุชื่อผู้จำหน่าย");
+      return;
+    }
+
+    startSaving(async () => {
+      const res = await updatePurchaseOrderVendorSnapshot({
+        purchaseOrderId: order.id,
+        vendorName: vendorName.trim(),
+        vendorAddress: vendorAddress.trim() || null,
+        vendorPhone: vendorPhone.trim() || null,
+        vendorTaxId: vendorTaxId.trim() || null,
+      });
+
+      if (res.success) {
+        toast.success("บันทึกข้อมูลผู้จำหน่ายในใบสั่งซื้อเรียบร้อย");
+      } else {
+        toast.error(res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      }
+    });
+  };
 
   // คำนวณยอดเงิน Subtotal จากรายการจริง
   const subtotal = order.items.reduce((sum, item) => {
@@ -208,6 +235,16 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                   />
                 </div>
               </div>
+              <Button
+                type="button"
+                size="sm"
+                className="w-full h-8 text-xs font-medium bg-slate-900 text-white hover:bg-slate-800"
+                disabled={isSaving}
+                onClick={handleSaveVendorSnapshot}
+              >
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลผู้จำหน่าย"}
+              </Button>
             </PopoverContent>
           </Popover>
         </div>
@@ -295,9 +332,22 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                   <p className="font-bold text-xs uppercase tracking-wider text-slate-500">
                     ผู้จำหน่าย / VENDOR
                   </p>
-                  <span className="text-[10px] text-amber-600 font-medium print:hidden">
-                    (คลิกพิมพ์แก้ไขได้)
-                  </span>
+                  <div className="flex items-center gap-2 print:hidden">
+                    <span className="text-[10px] text-amber-600 font-medium">
+                      (คลิกพิมพ์แก้ไขได้)
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-6 px-2 text-[11px] font-medium text-slate-700 hover:text-slate-900 border-slate-300"
+                      disabled={isSaving}
+                      onClick={handleSaveVendorSnapshot}
+                    >
+                      <Save className="w-3 h-3 mr-1" />
+                      {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลผู้จำหน่าย"}
+                    </Button>
+                  </div>
                 </div>
                 <input
                   type="text"

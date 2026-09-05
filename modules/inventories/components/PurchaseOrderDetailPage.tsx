@@ -15,6 +15,10 @@ import {
   PlusIcon,
   Info,
   Printer,
+  Store,
+  Phone,
+  Receipt,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { LoadingButton } from "@/components/shared/LoadingButton";
@@ -361,6 +365,79 @@ export default function PurchaseOrderDetailPage({
                     </span>
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="py-6 px-2">
+            <CardHeader>
+              <CardTitle className="text-base font-bold text-primary flex items-center gap-2">
+                <Store className="text-primary" size={18} /> ข้อมูลผู้จำหน่าย
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4">
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-start gap-4 bg-muted/50 p-4 rounded-lg">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
+                    <Store size={18} />
+                  </div>
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      ชื่อผู้จำหน่าย / บริษัท
+                    </span>
+                    <span className="text-sm md:text-base font-bold text-primary">
+                      {order.vendorName || "ไม่ระบุผู้จำหน่าย"}
+                    </span>
+                  </div>
+                </div>
+
+                {order.vendorPhone && (
+                  <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
+                    <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
+                      <Phone size={18} />
+                    </div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        เบอร์โทรศัพท์
+                      </span>
+                      <span className="text-sm font-medium text-foreground">
+                        {order.vendorPhone}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {order.vendorTaxId && (
+                  <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
+                    <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
+                      <Receipt size={18} />
+                    </div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        เลขประจำตัวผู้เสียภาษี
+                      </span>
+                      <span className="text-sm font-mono font-medium text-foreground">
+                        {order.vendorTaxId}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {order.vendorAddress && (
+                  <div className="flex items-start gap-4 bg-muted/50 rounded-lg p-4">
+                    <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
+                      <MapPin size={18} />
+                    </div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        ที่อยู่
+                      </span>
+                      <span className="text-xs leading-relaxed text-foreground whitespace-pre-line">
+                        {order.vendorAddress}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

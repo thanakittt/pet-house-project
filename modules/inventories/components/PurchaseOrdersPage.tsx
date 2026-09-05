@@ -70,7 +70,7 @@ export default function PurchaseOrdersPage({
           search={{
             ariaLabel: "ค้นหาใบสั่งซื้อ",
             paramName: "orderQ",
-            placeholder: "ค้นหาพนักงานหรือวันที่สั่งซื้อ",
+            placeholder: "ค้นหาผู้จำหน่าย, พนักงาน หรือวันที่สั่งซื้อ",
             value: orderData.q,
           }}
           selectFilters={[
@@ -98,6 +98,7 @@ export default function PurchaseOrdersPage({
             <TableHeader className="bg-muted">
               <TableRow>
                 <TableHead className="text-center">เลขที่</TableHead>
+                <TableHead>ผู้จำหน่าย</TableHead>
                 <TableHead>พนักงาน</TableHead>
                 <TableHead>วันที่สั่งซื้อ</TableHead>
                 <TableHead className="text-right">ยอดรวม</TableHead>
@@ -109,7 +110,7 @@ export default function PurchaseOrdersPage({
               {orderData.orders.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="py-10 text-muted-foreground text-center"
                   >
                     ไม่พบข้อมูลใบสั่งซื้อ
@@ -120,6 +121,9 @@ export default function PurchaseOrdersPage({
                   <TableRow key={order.id}>
                     <TableCell className="text-center">
                       {rowOffset + index + 1}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {order.vendorName || "-"}
                     </TableCell>
                     <TableCell>
                       {order.staffNickname}
