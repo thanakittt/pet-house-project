@@ -1,5 +1,6 @@
 import { InferSelectModel } from "drizzle-orm";
 import { purchaseOrderItems, purchaseOrders } from "@/db/schema";
+import { z } from "zod";
 
 // ===================================================
 // DB Types — อนุมานจาก Drizzle schema โดยตรง
@@ -46,29 +47,74 @@ export interface PurchaseOrderDetail extends DbPurchaseOrder {
 }
 
 // ===================================================
-// Form Types — ใช้รับข้อมูลจาก UI ก่อนส่ง action
+// Form Types & Schemas — ใช้รับข้อมูลจาก UI ก่อนส่ง action
 // ===================================================
+
+export const purchaseOrderItemFormSchema = z.object({
+  /** UUID ของสินค้าจาก inventory_items */
+  inventoryItemId: z.string().uuid("รหัสสินค้าไม่ถูกต้อง"),
+  /** ชื่อสินค้า (แสดงใน UI เท่านั้น) */
+  inventoryItemName: z.string().min(1, "ชื่อสินค้าต้องไม่ว่าง"),
+  /** จำนวนที่สั่งซื้อ */
+  quantity: z
+    .number({ message: "จำนวนสินค้าต้องเป็นตัวเลข" })
+    .int("จำนวนสินค้าต้องเป็นจำนวนเต็ม")
+    .min(1, "จำนวนสินค้าต้องมากกว่า 0"),
+  /** ราคาต่อหน่วย (บาท) */
+  unitCost: z
+    .number({ message: "ราคาต่อหน่วยต้องเป็นตัวเลข" })
+    .min(0, "ราคาต่อหน่วยต้องไม่ติดลบ"),
+});
+
+export const purchaseOrderFormSchema = z.object({
+  /** วันที่สั่งซื้อ รูปแบบ YYYY-MM-DD */
+  orderDate: z.string().min(1, "กรุณาระบุวันที่สั่งซื้อ"),
+  /** UUID ของผู้จำหน่ายจากตาราง vendors */
+  vendorId: z
+    .string()
+    .trim()
+    .min(1, "กรุณาเลือกผู้จำหน่าย")
+    .uuid("รหัสผู้จำหน่ายไม่ถูกต้อง"),
+  /** Snapshot: ชื่อผู้จำหน่าย ณ เวลาสั่งซื้อ */
+  vendorName: z
+    .string()
+    .trim()
+    .min(1, "กรุณาระบุชื่อผู้จำหน่าย")
+    .max(150, "ชื่อผู้จำหน่ายต้องไม่เกิน 150 ตัวอักษร"),
+  /** Snapshot: ที่อยู่ผู้จำหน่าย */
+  vendorAddress: z
+    .string()
+    .trim()
+    .max(500, "ที่อยู่ต้องไม่เกิน 500 ตัวอักษร")
+    .optional()
+    .nullable(),
+  /** Snapshot: เบอร์โทรผู้จำหน่าย */
+  vendorPhone: z
+    .string()
+    .trim()
+    .max(50, "เบอร์โทรศัพท์ต้องไม่เกิน 50 ตัวอักษร")
+    .optional()
+    .nullable(),
+  /** Snapshot: เลขประจำตัวผู้เสียภาษี */
+  vendorTaxId: z
+    .string()
+    .trim()
+    .max(20, "เลขประจำตัวผู้เสียภาษีต้องไม่เกิน 20 ตัวอักษร")
+    .optional()
+    .nullable(),
+  /** รายการสินค้าที่สั่งซื้อ */
+  items: z
+    .array(purchaseOrderItemFormSchema)
+    .min(1, "กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ"),
+});
 
 /**
  * PurchaseOrderItemForm — ข้อมูล 1 รายการสินค้าในฟอร์ม
  */
-export interface PurchaseOrderItemForm {
-  /** UUID ของสินค้าจาก inventory_items */
-  inventoryItemId: string;
-  /** ชื่อสินค้า (แสดงใน UI เท่านั้น) */
-  inventoryItemName: string;
-  /** จำนวนที่สั่งซื้อ */
-  quantity: number;
-  /** ราคาต่อหน่วย (บาท) */
-  unitCost: number;
-}
+export type PurchaseOrderItemForm = z.infer<typeof purchaseOrderItemFormSchema>;
 
 /**
  * PurchaseOrderForm — ข้อมูลทั้งหมดของฟอร์มสร้างใบสั่งซื้อ
  */
-export interface PurchaseOrderForm {
-  /** วันที่สั่งซื้อ รูปแบบ YYYY-MM-DD */
-  orderDate: string;
-  /** รายการสินค้าที่สั่งซื้อ */
-  items: PurchaseOrderItemForm[];
-}
+export type PurchaseOrderForm = z.infer<typeof purchaseOrderFormSchema>;
+

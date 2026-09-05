@@ -1,23 +1,32 @@
 "use server";
 
 import { db } from "@/db";
-import { purchaseOrders, purchaseOrderItems, inventoryItems } from "@/db/schema";
+import {
+  purchaseOrders,
+  purchaseOrderItems,
+  inventoryItems,
+  vendors,
+} from "@/db/schema";
 import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, isNull } from "drizzle-orm";
-import { PurchaseOrderForm } from "../types/purchase-order";
+import {
+  PurchaseOrderForm,
+  purchaseOrderFormSchema,
+} from "../types/purchase-order";
 import { staffs } from "@/db/schema/staff";
 
 /**
  * createPurchaseOrder — สร้างใบสั่งซื้อใหม่
  * - ตรวจสอบ session ก่อน
- * - Validate ข้อมูล input
+ * - Validate ข้อมูล input ผ่าน purchaseOrderFormSchema
+ * - ตรวจสอบว่า vendor มีอยู่จริง, ยังไม่ถูกลบ, และเปิดใช้งานอยู่
  * - ตรวจสอบว่า inventoryItem ทุกตัวมีอยู่จริง
- * - Insert purchaseOrders + purchaseOrderItems ใน transaction เดียวกัน
+ * - Insert purchaseOrders (พร้อม Vendor Snapshot) + purchaseOrderItems ใน transaction เดียวกัน
  */
 export async function createPurchaseOrder(
-  data: PurchaseOrderForm
+  data: PurchaseOrderForm,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     const session = await requireStaff({ redirect: false });
@@ -29,36 +38,38 @@ export async function createPurchaseOrder(
       };
     }
 
-    // ── Validate: ต้องมีรายการสินค้าอย่างน้อย 1 รายการ ──
-    if (!data.items || data.items.length === 0) {
+    // ── Validate: ตรวจสอบข้อมูลด้วย Zod Schema ──
+    const parseResult = purchaseOrderFormSchema.safeParse(data);
+    if (!parseResult.success) {
+      const firstError = parseResult.error.issues?.[0]?.message;
       return {
         success: false,
-        error: "กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ",
+        error: firstError || "ข้อมูลใบสั่งซื้อไม่ถูกต้อง",
       };
     }
 
-    // ── Validate: วันที่สั่งซื้อต้องไม่ว่าง ──
-    if (!data.orderDate) {
+    const validData = parseResult.data;
+
+    // ── ตรวจสอบข้อมูลผู้จำหน่าย (Vendor): ต้องมีอยู่จริง, active, และไม่ถูกลบ ──
+    const [vendorRow] = await db
+      .select({
+        id: vendors.id,
+        name: vendors.name,
+      })
+      .from(vendors)
+      .where(
+        and(
+          eq(vendors.id, validData.vendorId),
+          isNull(vendors.deletedAt),
+          eq(vendors.isActive, true),
+        ),
+      );
+
+    if (!vendorRow) {
       return {
         success: false,
-        error: "กรุณาระบุวันที่สั่งซื้อ",
+        error: "ไม่พบข้อมูลผู้จำหน่าย หรือผู้จำหน่ายถูกระงับการใช้งาน",
       };
-    }
-
-    // ── Validate: quantity และ unitCost ต้องเป็นค่าบวก ──
-    for (const item of data.items) {
-      if (item.quantity <= 0) {
-        return {
-          success: false,
-          error: `จำนวนสินค้า "${item.inventoryItemName}" ต้องมากกว่า 0`,
-        };
-      }
-      if (item.unitCost < 0) {
-        return {
-          success: false,
-          error: `ราคาสินค้า "${item.inventoryItemName}" ต้องไม่ติดลบ`,
-        };
-      }
     }
 
     // ── ดึง staffId จาก userId ในฐานข้อมูล ──
@@ -75,7 +86,7 @@ export async function createPurchaseOrder(
     }
 
     // ── ตรวจสอบว่ามีสินค้าซ้ำซ้อนหรือไม่ ──
-    const itemIds = data.items.map((i) => i.inventoryItemId);
+    const itemIds = validData.items.map((i) => i.inventoryItemId);
     const uniqueItemIds = Array.from(new Set(itemIds));
 
     if (itemIds.length !== uniqueItemIds.length) {
@@ -92,8 +103,8 @@ export async function createPurchaseOrder(
       .where(
         and(
           inArray(inventoryItems.id, uniqueItemIds),
-          isNull(inventoryItems.deletedAt)
-        )
+          isNull(inventoryItems.deletedAt),
+        ),
       );
 
     // เช็คว่าหา item ครบทุกตัวหรือไม่
@@ -106,24 +117,29 @@ export async function createPurchaseOrder(
 
     // ── Insert ใน transaction เพื่อความ atomic ──
     const result = await db.transaction(async (tx) => {
-      // 1. Insert ใบสั่งซื้อหลัก
+      // 1. Insert ใบสั่งซื้อหลักพร้อม Vendor Snapshot
       const [newOrder] = await tx
         .insert(purchaseOrders)
         .values({
-          orderDate: data.orderDate,
+          orderDate: validData.orderDate,
           status: "DRAFT", // เริ่มต้นเป็น DRAFT เสมอ
           staffId: staffRow.id,
+          vendorId: validData.vendorId,
+          vendorName: validData.vendorName,
+          vendorAddress: validData.vendorAddress || null,
+          vendorPhone: validData.vendorPhone || null,
+          vendorTaxId: validData.vendorTaxId || null,
         })
         .returning({ id: purchaseOrders.id });
 
       // 2. Insert รายการสินค้าทั้งหมดในใบสั่งซื้อนี้
       await tx.insert(purchaseOrderItems).values(
-        data.items.map((item) => ({
+        validData.items.map((item) => ({
           purchaseOrderId: newOrder.id,
           inventoryItemId: item.inventoryItemId,
           quantity: item.quantity,
           unitCost: String(item.unitCost), // numeric column ต้องส่งเป็น string
-        }))
+        })),
       );
 
       return newOrder;
@@ -131,6 +147,7 @@ export async function createPurchaseOrder(
 
     // revalidate หน้า inventory เพื่อให้ list อัปเดต
     revalidatePath("/inventories");
+    revalidatePath("/back-office/inventories");
 
     return {
       success: true,

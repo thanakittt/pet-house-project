@@ -42,14 +42,18 @@ import {
   Check,
   MinusIcon,
   PlusIcon,
+  Building2,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import {
   PurchaseOrderForm,
   PurchaseOrderItemForm,
 } from "@/modules/inventories/types/purchase-order";
+import { Vendor } from "@/modules/vendors/types/vendor";
 import { createPurchaseOrder } from "@/modules/inventories/actions/create-purchase-order";
 import { cn } from "@/lib/utils";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -75,8 +79,10 @@ function adjustOrderQuantity(quantity: number, change: 1 | -1): number {
  */
 export default function PurchaseOrderFormPage({
   inventoryItems,
+  vendors = [],
 }: {
   inventoryItems: InventoryItem[];
+  vendors?: Vendor[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -84,12 +90,33 @@ export default function PurchaseOrderFormPage({
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string>("");
 
+  // State สำหรับ Vendor และ Snapshot
+  const [vendorComboboxOpen, setVendorComboboxOpen] = useState(false);
+  const [selectedVendorId, setSelectedVendorId] = useState<string>("");
+  const [vendorName, setVendorName] = useState<string>("");
+  const [vendorAddress, setVendorAddress] = useState<string>("");
+  const [vendorPhone, setVendorPhone] = useState<string>("");
+  const [vendorTaxId, setVendorTaxId] = useState<string>("");
+
   // 2. ใช้ Local Type ที่รองรับค่าว่างกับ State ของตาราง
   const [orderItems, setOrderItems] = useState<OrderItemState[]>([]);
 
   const [orderDate, setOrderDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd"),
   );
+
+  const handleSelectVendor = (vendorId: string) => {
+    const vendor = vendors.find((v) => v.id === vendorId);
+    if (!vendor) return;
+
+    setSelectedVendorId(vendor.id);
+    // Autofill ข้อมูลลงในฟิลด์ Snapshot ของฟอร์มโดยอัตโนมัติ
+    setVendorName(vendor.name);
+    setVendorAddress(vendor.address || "");
+    setVendorPhone(vendor.phone || "");
+    setVendorTaxId(vendor.taxId || "");
+    setVendorComboboxOpen(false);
+  };
 
   const handleAddItem = (inventoryItemId: string) => {
     const product = inventoryItems.find((p) => p.id === inventoryItemId);
@@ -150,6 +177,11 @@ export default function PurchaseOrderFormPage({
   );
 
   const handleSubmit = () => {
+    if (!selectedVendorId || !vendorName.trim()) {
+      toast.error("กรุณาเลือกผู้จำหน่ายก่อนบันทึกใบสั่งซื้อ");
+      return;
+    }
+
     if (orderItems.length === 0) {
       toast.error("กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ");
       return;
@@ -165,6 +197,11 @@ export default function PurchaseOrderFormPage({
     // 6. Map ข้อมูลเพื่อเตรียมส่ง แปลง unitCost ให้เป็นตัวเลขล้วนเพื่อความปลอดภัย
     const formData: PurchaseOrderForm = {
       orderDate,
+      vendorId: selectedVendorId,
+      vendorName: vendorName.trim(),
+      vendorAddress: vendorAddress.trim() || undefined,
+      vendorPhone: vendorPhone.trim() || undefined,
+      vendorTaxId: vendorTaxId.trim() || undefined,
       items: orderItems.map((item) => ({
         ...item,
         unitCost: Number(item.unitCost) || 0,
@@ -201,7 +238,7 @@ export default function PurchaseOrderFormPage({
           <FieldGroup className="gap-6 grid grid-cols-1 md:grid-cols-2 pb-4">
             <Field>
               <FieldLabel className="font-medium text-muted-foreground text-xs md:text-sm uppercase">
-                วันที่สั่งซื้อ
+                วันที่สั่งซื้อ <span className="text-destructive">*</span>
               </FieldLabel>
               <Input
                 id="order-date"
@@ -210,7 +247,163 @@ export default function PurchaseOrderFormPage({
                 onChange={(e) => setOrderDate(e.target.value)}
               />
             </Field>
+
+            <Field>
+              <FieldLabel className="flex justify-between items-center font-medium text-muted-foreground text-xs md:text-sm uppercase">
+                <span>
+                  ผู้จำหน่าย / คู่ค้า <span className="text-destructive">*</span>
+                </span>
+                <Link
+                  href="/back-office/vendors"
+                  target="_blank"
+                  className="inline-flex items-center gap-1 font-normal text-primary text-xs hover:underline"
+                >
+                  <Building2 className="size-3" />
+                  จัดการผู้จำหน่าย
+                  <ExternalLink className="size-2.5 opacity-60" />
+                </Link>
+              </FieldLabel>
+              <Popover
+                open={vendorComboboxOpen}
+                onOpenChange={setVendorComboboxOpen}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    id="vendor-select-button"
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={vendorComboboxOpen}
+                    className={cn(
+                      "justify-between w-full font-normal",
+                      !selectedVendorId && "text-muted-foreground",
+                    )}
+                  >
+                    {selectedVendorId ? (
+                      <span className="font-medium text-foreground truncate">
+                        {vendorName}
+                      </span>
+                    ) : (
+                      "เลือกผู้จำหน่าย..."
+                    )}
+                    <ChevronsUpDown className="opacity-50 ml-2 size-4 shrink-0" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 w-[350px] sm:w-[450px]" align="start">
+                  <Command>
+                    <CommandInput placeholder="พิมพ์ค้นหาชื่อผู้จำหน่าย หรือเบอร์โทร..." />
+                    <CommandList>
+                      <CommandEmpty>
+                        <div className="py-4 text-center">
+                          <p className="text-muted-foreground text-sm">
+                            ไม่พบผู้จำหน่ายที่เปิดใช้งานอยู่
+                          </p>
+                          <Link
+                            href="/back-office/vendors"
+                            target="_blank"
+                            className="inline-flex items-center gap-1 mt-2 text-primary text-xs hover:underline"
+                          >
+                            เพิ่มผู้จำหน่ายใหม่
+                            <ExternalLink className="size-3" />
+                          </Link>
+                        </div>
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {vendors.map((vendor) => (
+                          <CommandItem
+                            key={vendor.id}
+                            value={`${vendor.name} ${vendor.phone || ""} ${vendor.taxId || ""}`}
+                            onSelect={() => handleSelectVendor(vendor.id)}
+                            className="cursor-pointer"
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 size-4 shrink-0",
+                                selectedVendorId === vendor.id
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-medium text-sm truncate">
+                                {vendor.name}
+                              </span>
+                              {(vendor.contactName || vendor.phone) && (
+                                <span className="text-muted-foreground text-xs truncate">
+                                  {vendor.contactName && `ติดต่อ: ${vendor.contactName} `}
+                                  {vendor.phone && `(${vendor.phone})`}
+                                </span>
+                              )}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </Field>
           </FieldGroup>
+
+          {/* การ์ดแสดงและแก้ไขข้อมูล Vendor Snapshot สำหรับใบสั่งซื้อนี้ */}
+          {selectedVendorId && (
+            <div className="bg-muted/40 mb-4 p-4 border rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="size-4 text-primary" />
+                <span className="font-semibold text-foreground text-xs uppercase tracking-wide">
+                  ข้อมูลผู้จำหน่ายในใบสั่งซื้อ (Snapshot)
+                </span>
+                <span className="ml-auto text-[11px] text-muted-foreground">
+                  บันทึก snapshot แยกจากประวัติหลัก
+                </span>
+              </div>
+              <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 text-xs">
+                <Field>
+                  <FieldLabel className="text-muted-foreground text-[11px]">
+                    ชื่อผู้จำหน่าย
+                  </FieldLabel>
+                  <Input
+                    value={vendorName}
+                    onChange={(e) => setVendorName(e.target.value)}
+                    placeholder="ชื่อผู้จำหน่าย"
+                    className="h-8 text-xs"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel className="text-muted-foreground text-[11px]">
+                    เบอร์โทรศัพท์
+                  </FieldLabel>
+                  <Input
+                    value={vendorPhone}
+                    onChange={(e) => setVendorPhone(e.target.value)}
+                    placeholder="เบอร์โทรศัพท์"
+                    className="h-8 text-xs"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel className="text-muted-foreground text-[11px]">
+                    เลขประจำตัวผู้เสียภาษี
+                  </FieldLabel>
+                  <Input
+                    value={vendorTaxId}
+                    onChange={(e) => setVendorTaxId(e.target.value)}
+                    placeholder="เลขประจำตัวผู้เสียภาษี"
+                    className="h-8 text-xs"
+                  />
+                </Field>
+                <Field className="sm:col-span-2 md:col-span-3">
+                  <FieldLabel className="text-muted-foreground text-[11px]">
+                    ที่อยู่
+                  </FieldLabel>
+                  <Input
+                    value={vendorAddress}
+                    onChange={(e) => setVendorAddress(e.target.value)}
+                    placeholder="ที่อยู่ผู้จำหน่าย"
+                    className="h-8 text-xs"
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
 
           <Separator className="my-4" />
 

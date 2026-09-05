@@ -80,6 +80,7 @@ export async function listPurchaseOrders({
     if (search) {
       const pattern = `%${search}%`;
       const searchFilter = or(
+        ilike(purchaseOrders.vendorName, pattern),
         ilike(staffs.nickname, pattern),
         // ค้นหาด้วยรูปแบบ DD/MM/YYYY (เช่น 27/04/2026)
         ilike(
@@ -121,6 +122,11 @@ export async function listPurchaseOrders({
         orderDate: purchaseOrders.orderDate,
         status: purchaseOrders.status,
         staffId: purchaseOrders.staffId,
+        vendorId: purchaseOrders.vendorId,
+        vendorName: purchaseOrders.vendorName,
+        vendorAddress: purchaseOrders.vendorAddress,
+        vendorPhone: purchaseOrders.vendorPhone,
+        vendorTaxId: purchaseOrders.vendorTaxId,
         createdAt: purchaseOrders.createdAt,
         updatedAt: purchaseOrders.updatedAt,
         deletedAt: purchaseOrders.deletedAt,

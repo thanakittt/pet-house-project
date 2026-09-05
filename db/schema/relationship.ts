@@ -41,6 +41,9 @@ import {
   purchaseOrderItems,
 } from "./inventory";
 
+// --- Vendor ---
+import { vendors } from "./vendor";
+
 // --- Store ---
 import { reviews } from "./store";
 
@@ -361,7 +364,8 @@ export const inventoryItemRelations = relations(
 
 /**
  * purchaseOrders → purchaseOrderItems (1:N)
- * (staffId ยังไม่มี FK constraint จริง — relation ใช้งานได้ตอน query)
+ * purchaseOrders → staffs (N:1)
+ * purchaseOrders → vendors (N:1 optional)
  */
 export const purchaseOrderRelations = relations(
   purchaseOrders,
@@ -372,6 +376,11 @@ export const purchaseOrderRelations = relations(
     staff: one(staffs, {
       fields: [purchaseOrders.staffId],
       references: [staffs.id],
+    }),
+    // ใบสั่งซื้อสั่งจากผู้จำหน่ายคนหนึ่ง (optional สำหรับ PO ย้อนหลัง)
+    vendor: one(vendors, {
+      fields: [purchaseOrders.vendorId],
+      references: [vendors.id],
     }),
   }),
 );
@@ -470,3 +479,15 @@ export const businessDateOverrideHoursRelations = relations(
     }),
   }),
 );
+
+// ===================================================
+// 🏢 VENDOR DOMAIN
+// ===================================================
+
+/**
+ * vendors → purchaseOrders (1:N)
+ */
+export const vendorRelations = relations(vendors, ({ many }) => ({
+  purchaseOrders: many(purchaseOrders),
+}));
+

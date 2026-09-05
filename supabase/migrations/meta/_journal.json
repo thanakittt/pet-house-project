@@ -176,6 +176,13 @@
       "when": 1788619315689,
       "tag": "0024_add_vendors",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1788620930859,
+      "tag": "0025_po_vendor_snapshot",
+      "breakpoints": true
     }
   ]
 }

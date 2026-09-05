@@ -2,6 +2,7 @@ import * as p from "drizzle-orm/pg-core";
 import { timestamps } from "./column.helper";
 import { purchaseOrderStatusEnum, unitTypeEnum } from "./enum";
 import { staffs } from "./staff";
+import { vendors } from "./vendor";
 import { sql } from "drizzle-orm";
 
 // ตาราง inventoryCategories: เก็บหมวดหมู่สินค้าคงคลัง เช่น ยา, แชมพู
@@ -62,11 +63,24 @@ export const purchaseOrders = p
         .references(() => staffs.id, {
           onDelete: "restrict",
         }),
+      // FK ไปยัง vendors (ผู้จำหน่าย) — Nullable เพื่อรองรับข้อมูล PO เดิม
+      vendorId: p
+        .uuid("vendor_id")
+        .references(() => vendors.id, {
+          onDelete: "restrict",
+        }),
+      // Snapshot ข้อมูลผู้จำหน่าย ณ เวลาที่ออกใบสั่งซื้อ
+      vendorName: p.text("vendor_name"),
+      vendorAddress: p.text("vendor_address"),
+      vendorPhone: p.text("vendor_phone"),
+      vendorTaxId: p.text("vendor_tax_id"),
       ...timestamps,
     },
     (table) => [
       // index สำหรับดูประวัติการสั่งซื้อของพนักงาน
       p.index("purchase_orders_staff_id_idx").on(table.staffId),
+      // index สำหรับค้นหาใบสั่งซื้อตามผู้จำหน่าย
+      p.index("purchase_orders_vendor_id_idx").on(table.vendorId),
     ],
   )
   .enableRLS();
