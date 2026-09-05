@@ -83,11 +83,11 @@ export async function updatePurchaseOrderItems(
       };
     }
 
-    // ── บังคับเฉพาะ DRAFT ─ ไม่อนุญาตแก้ไข order ที่ส่งไปแล้ว ──
-    if (order.status !== "DRAFT") {
+    // ── บังคับเฉพาะ DRAFT และ ORDERED ─ ไม่อนุญาตแก้ไข order ที่ปิดไปแล้ว (RECEIVED หรือ CANCELLED) ──
+    if (order.status !== "DRAFT" && order.status !== "ORDERED") {
       return {
         success: false,
-        error: "ไม่สามารถแก้ไขรายการสินค้าได้ เนื่องจากใบสั่งซื้อไม่ได้อยู่ในสถานะ 'ร่าง'",
+        error: "ไม่สามารถแก้ไขรายการสินค้าได้ เนื่องจากใบสั่งซื้อไม่ได้อยู่ในสถานะ 'ร่าง' หรือ 'สั่งซื้อแล้ว'",
       };
     }
 
@@ -128,6 +128,8 @@ export async function updatePurchaseOrderItems(
     });
 
     // revalidate ทั้งหน้า list และหน้า detail
+    revalidatePath("/back-office/inventories");
+    revalidatePath(`/back-office/inventories/purchase-orders/${purchaseOrderId}`);
     revalidatePath("/inventories");
     revalidatePath(`/inventories/purchase-orders/${purchaseOrderId}`);
 

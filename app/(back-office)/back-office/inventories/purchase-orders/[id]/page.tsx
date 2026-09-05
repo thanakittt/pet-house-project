@@ -36,11 +36,11 @@ export default async function PurchaseOrderPage({
   }
 
   const order = result.data;
-  // ดึง inventoryItems เฉพาะตอนที่ status = DRAFT
-  // เพื่อลดการ query DB ที่ไม่จำเป็นเมื่อ PO ปิดแล้ว
+  // ดึง inventoryItems ตอนที่ status = DRAFT หรือ ORDERED เพื่อใช้ในฟีเจอร์แก้ไขรายการ
+  // และลดการ query DB ที่ไม่จำเป็นเมื่อ PO ปิดแล้ว (RECEIVED หรือ CANCELLED)
   let inventoryItems: InventoryItem[] = [];
 
-  if (order.status === "DRAFT") {
+  if (order.status === "DRAFT" || order.status === "ORDERED") {
     const inventoriesResult = await listAllInventories();
     if (inventoriesResult.success) {
       inventoryItems = inventoriesResult.data;

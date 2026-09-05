@@ -101,7 +101,7 @@ export default function PurchaseOrderDetailPage({
 }) {
   const currentStatus = order.status as PurchaseOrderStatus;
   const statusConfig = PURCHASE_ORDER_STATUS_CONFIG[currentStatus];
-  const isDraft = currentStatus === "DRAFT";
+  const canEdit = currentStatus === "DRAFT" || currentStatus === "ORDERED";
 
   // ── State: โหมดแก้ไข ──
   const [isEditing, setIsEditing] = useState(false);
@@ -120,6 +120,17 @@ export default function PurchaseOrderDetailPage({
   const [selectedItemId, setSelectedItemId] = useState("");
 
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setEditItems(
+      order.items.map((item) => ({
+        inventoryItemId: item.inventoryItemId,
+        inventoryItemName: item.inventoryItemName,
+        quantity: item.quantity,
+        unitCost: parseFloat(item.unitCost),
+      })),
+    );
+  }, [order.items]);
 
   useEffect(() => {
     const laptopQuery = window.matchMedia("(min-width: 1024px)");
@@ -358,7 +369,7 @@ export default function PurchaseOrderDetailPage({
                     {displayItems.length} รายการ
                   </Badge>
 
-                  {isDraft && !isEditing && (
+                  {canEdit && !isEditing && (
                     <Button
                       size="sm"
                       variant="outline"
