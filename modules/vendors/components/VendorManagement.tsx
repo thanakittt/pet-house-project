@@ -77,7 +77,7 @@ export function VendorManagement({
             placeholder: "สถานะทั้งหมด",
             value: status,
             options: [
-              { label: "สถานะทั้งหมด", value: "all" },
+              { label: "สถานะทั้งหมด", value: "ALL" },
               { label: "เปิดใช้งาน", value: "active" },
               { label: "ปิดใช้งาน", value: "inactive" },
             ],

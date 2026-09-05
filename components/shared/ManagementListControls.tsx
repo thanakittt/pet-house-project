@@ -69,7 +69,7 @@ function useUrlParamUpdater() {
     const params = new URLSearchParams(searchParams.toString());
 
     Object.entries(updates).forEach(([key, value]) => {
-      if (!value || value === "ALL") {
+      if (!value || value.toUpperCase() === "ALL") {
         params.delete(key);
         return;
       }
@@ -97,8 +97,10 @@ export function ManagementListControls({
   const searchParamName = search?.paramName ?? "q";
   const { isPending, updateUrl } = useUrlParamUpdater();
   const hasFilters =
-    (search?.value ?? "").length > 0 ||
-    selectFilters.some((filter) => filter.value !== "ALL");
+    (search?.value ?? "").trim().length > 0 ||
+    selectFilters.some(
+      (filter) => Boolean(filter.value) && filter.value.toUpperCase() !== "ALL",
+    );
 
   return (
     <div className="mb-2 flex flex-col gap-2" aria-busy={isPending}>

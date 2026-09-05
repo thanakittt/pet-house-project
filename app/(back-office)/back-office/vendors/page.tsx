@@ -6,6 +6,7 @@ import { VendorManagement } from "@/modules/vendors/components/VendorManagement"
 import {
   listVendors,
   parseVendorPage,
+  parseVendorStatusFilter,
 } from "@/modules/vendors/queries/list-vendors";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ type VendorsPageProps = {
   searchParams: Promise<{
     page?: string;
     q?: string;
-    status?: "all" | "active" | "inactive";
+    status?: string;
   }>;
 };
 
@@ -28,7 +29,7 @@ export default async function VendorsPage({ searchParams }: VendorsPageProps) {
   const vendorsResult = await listVendors({
     page: parseVendorPage(query.page),
     q: query.q,
-    status: query.status,
+    status: parseVendorStatusFilter(query.status),
   });
 
   if (!vendorsResult.success) {

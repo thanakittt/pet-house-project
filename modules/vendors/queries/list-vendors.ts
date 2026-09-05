@@ -7,10 +7,13 @@ import { Vendor } from "../types/vendor";
 
 export const VENDOR_MANAGEMENT_PAGE_SIZE = 10;
 
+export const VENDOR_STATUS_FILTERS = ["ALL", "active", "inactive"] as const;
+export type VendorStatusFilter = (typeof VENDOR_STATUS_FILTERS)[number];
+
 export type ListVendorsParams = {
   page?: number;
   q?: string;
-  status?: "all" | "active" | "inactive";
+  status?: VendorStatusFilter;
 };
 
 export type ListVendorsResult = {
@@ -20,7 +23,7 @@ export type ListVendorsResult = {
   pageSize: number;
   totalPages: number;
   q: string;
-  status: "all" | "active" | "inactive";
+  status: VendorStatusFilter;
 };
 
 export function parseVendorPage(value: unknown): number {
@@ -30,10 +33,26 @@ export function parseVendorPage(value: unknown): number {
   return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : 1;
 }
 
+export function parseVendorStatusFilter(value: unknown): VendorStatusFilter {
+  if (typeof value === "string") {
+    const normalized = value.trim().toUpperCase();
+    if (normalized === "ALL") {
+      return "ALL";
+    }
+    if (normalized === "ACTIVE") {
+      return "active";
+    }
+    if (normalized === "INACTIVE") {
+      return "inactive";
+    }
+  }
+  return "ALL";
+}
+
 export async function listVendors({
   page = 1,
   q = "",
-  status = "all",
+  status = "ALL",
 }: ListVendorsParams = {}): Promise<ActionResponse<ListVendorsResult>> {
   try {
     const session = await requireStaff({ redirect: false });
