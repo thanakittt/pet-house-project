@@ -71,3 +71,22 @@ export function isValidPurchaseOrderStatus(
     Object.keys(PURCHASE_ORDER_STATUS_CONFIG).includes(value)
   );
 }
+
+/** สถานะที่อนุญาตให้พิมพ์ใบสั่งซื้อ (A4) */
+export const PRINTABLE_PURCHASE_ORDER_STATUSES: readonly PurchaseOrderStatus[] = [
+  "ORDERED",
+  "RECEIVED",
+] as const;
+
+/**
+ * ตรวจสอบว่า status สามารถพิมพ์ใบสั่งซื้อได้หรือไม่
+ */
+export function isPrintablePurchaseOrderStatus(
+  status: unknown
+): boolean {
+  return (
+    typeof status === "string" &&
+    PRINTABLE_PURCHASE_ORDER_STATUSES.includes(status as PurchaseOrderStatus)
+  );
+}
+

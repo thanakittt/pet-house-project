@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import StatusUpdate from "@/modules/inventories/components/StatusUpdate";
 import {
+  isPrintablePurchaseOrderStatus,
   PURCHASE_ORDER_STATUS_CONFIG,
   PURCHASE_ORDER_STATUS_KEYS,
   PurchaseOrderStatus,
@@ -138,6 +139,15 @@ export default function PurchaseOrdersPage({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-1">
+                        {isPrintablePurchaseOrderStatus(order.status) ? (
+                          <TableActionLink
+                            aria-label="พิมพ์ใบสั่งซื้อ (A4)"
+                            action="print"
+                            href={`/back-office/inventories/purchase-orders/${order.id}/print`}
+                            target="_blank"
+                          />
+                        ) : null}
+
                         <TableActionLink
                           aria-label="ดูรายละเอียดใบสั่งซื้อ"
                           action="view"

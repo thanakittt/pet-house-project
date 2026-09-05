@@ -14,7 +14,9 @@ import {
   MinusIcon,
   PlusIcon,
   Info,
+  Printer,
 } from "lucide-react";
+import Link from "next/link";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +52,7 @@ import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import StatusUpdate from "@/modules/inventories/components/StatusUpdate";
 import {
+  isPrintablePurchaseOrderStatus,
   PURCHASE_ORDER_STATUS_CONFIG,
   PurchaseOrderStatus,
 } from "@/modules/inventories/constants/purchase-order-status";
@@ -122,6 +125,7 @@ export default function PurchaseOrderDetailPage({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEditItems(
       order.items.map((item) => ({
         inventoryItemId: item.inventoryItemId,
@@ -277,7 +281,18 @@ export default function PurchaseOrderDetailPage({
                 {statusConfig.title}
               </Badge>
             </div>
-            <div className="backdrop-blur-sm flex justify-end">
+            <div className="backdrop-blur-sm flex items-center justify-end gap-2">
+              {isPrintablePurchaseOrderStatus(currentStatus) && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link
+                    href={`/back-office/inventories/purchase-orders/${order.id}/print`}
+                    target="_blank"
+                  >
+                    <Printer className="w-4 h-4 mr-1.5" />
+                    พิมพ์ใบสั่งซื้อ (A4)
+                  </Link>
+                </Button>
+              )}
               <StatusUpdate
                 orderId={order.id}
                 currentStatus={currentStatus}
