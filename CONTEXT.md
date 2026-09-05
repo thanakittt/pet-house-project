@@ -17,3 +17,14 @@ _Avoid_: Private message, Direct message, ยิงเดี่ยว
 **Line Connected Customer**:
 ลูกค้าที่มีข้อมูลบัญชี LINE ผูกไว้กับระบบ (`line_user_id IS NOT NULL`)
 _Avoid_: LINE member, LINE user, ลูกค้าสมาชิก LINE
+
+### Inventory & Purchasing
+
+**Purchase Order (PO)**:
+เอกสารใบสั่งซื้อสินค้าที่พนักงานจัดทำขึ้นเพื่อสั่งซื้อสินค้าเข้าสต็อก ประกอบด้วยเลขที่เอกสาร วันที่ รายการสินค้า จำนวน ราคาต่อหน่วย และยอดรวม
+_Avoid_: Order Sheet, ใบซื้อ, ใบสั่งของ
+
+**Purchase Order Print Document**:
+เอกสารใบสั่งซื้อในรูปแบบหน้ากระดาษ A4 สำหรับพิมพ์หรือส่งออกเป็น PDF มีข้อมูลผู้ออกเอกสาร (Pet House), รายละเอียดสินค้า, ภาษีมูลค่าเพิ่ม (VAT), และช่องลงลายมือชื่อ
+_Avoid_: Invoice, ใบแจ้งหนี้, ใบเสร็จรับเงิน
+

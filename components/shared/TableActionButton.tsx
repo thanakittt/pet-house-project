@@ -8,6 +8,7 @@ import {
   CircleCheckIcon,
   EyeIcon,
   PencilIcon,
+  PrinterIcon,
   SettingsIcon,
   TrashIcon,
   type LucideIcon,
@@ -15,7 +16,7 @@ import {
 import Link from "next/link";
 import type * as React from "react";
 
-type TableAction = "ban" | "delete" | "edit" | "manage" | "unban" | "view";
+type TableAction = "ban" | "delete" | "edit" | "manage" | "print" | "unban" | "view";
 
 type TableActionButtonProps = Omit<
   React.ComponentProps<typeof Button>,
@@ -35,6 +36,8 @@ type TableActionLinkProps = Omit<
   desktopOnly?: boolean;
   href: string;
   icon?: LucideIcon;
+  target?: string;
+  rel?: string;
 };
 
 export const DESKTOP_ONLY_ACTION_CLASS = "max-lg:hidden";
@@ -45,6 +48,7 @@ export const TABLE_ACTION_ICONS = {
   delete: TrashIcon,
   edit: PencilIcon,
   manage: SettingsIcon,
+  print: PrinterIcon,
   unban: CircleCheckIcon,
   view: EyeIcon,
 } as const satisfies Record<string, LucideIcon>;
@@ -69,6 +73,11 @@ export const TABLE_ACTION_CONFIG = {
     icon: TABLE_ACTION_ICONS.manage,
     className:
       "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:text-secondary-foreground",
+  },
+  print: {
+    icon: TABLE_ACTION_ICONS.print,
+    className:
+      "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:border-slate-400 focus-visible:ring-slate-500/20 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800",
   },
   unban: {
     icon: TABLE_ACTION_ICONS.unban,
@@ -138,6 +147,8 @@ export function TableActionLink({
   desktopOnly,
   href,
   icon,
+  target,
+  rel,
   size = "icon",
   variant = "outline",
   ...props
@@ -156,7 +167,7 @@ export function TableActionLink({
       asChild
       {...props}
     >
-      <Link href={href}>
+      <Link href={href} target={target} rel={rel}>
         <ActionIcon icon={icon ?? config.icon} />
       </Link>
     </Button>

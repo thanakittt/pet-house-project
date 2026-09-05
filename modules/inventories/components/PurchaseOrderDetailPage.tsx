@@ -283,7 +283,7 @@ export default function PurchaseOrderDetailPage({
             </div>
             <div className="backdrop-blur-sm flex items-center justify-end gap-2">
               {isPrintablePurchaseOrderStatus(currentStatus) && (
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="lg" asChild>
                   <Link
                     href={`/back-office/inventories/purchase-orders/${order.id}/print`}
                     target="_blank"
