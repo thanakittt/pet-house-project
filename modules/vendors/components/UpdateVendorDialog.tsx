@@ -100,7 +100,7 @@ export function UpdateVendorDialog({
         onOpenChange(value);
       }}
     >
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={form.handleSubmit(onSubmit)} id="update-vendor-form">
           <DialogHeader className="px-4 pt-4">
             <DialogTitle className="font-bold text-lg">
@@ -147,38 +147,37 @@ export function UpdateVendorDialog({
               )}
             />
 
-            {/* Contact Person */}
-            <Controller
-              name="contactName"
-              control={form.control}
-              rules={{
-                maxLength: {
-                  value: 100,
-                  message: "ชื่อผู้ติดต่อต้องไม่เกิน 100 ตัวอักษร",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`update-${field.name}`}>
-                    ชื่อผู้ติดต่อ
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value ?? ""}
-                    id={`update-${field.name}`}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="เช่น คุณสมชาย (ฝ่ายขาย)"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
+            {/* Row 1: Contact Person & Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Phone */}
+              <Controller
+                name="contactName"
+                control={form.control}
+                rules={{
+                  maxLength: {
+                    value: 100,
+                    message: "ชื่อผู้ติดต่อต้องไม่เกิน 100 ตัวอักษร",
+                  },
+                }}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`update-${field.name}`}>
+                      ชื่อผู้ติดต่อ
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      id={`update-${field.name}`}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="เช่น คุณสมชาย (ฝ่ายขาย)"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
               <Controller
                 name="phone"
                 control={form.control}
@@ -207,8 +206,44 @@ export function UpdateVendorDialog({
                   </Field>
                 )}
               />
+            </div>
 
-              {/* Tax ID */}
+            {/* Row 2: Email & Tax ID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Controller
+                name="email"
+                control={form.control}
+                rules={{
+                  maxLength: {
+                    value: 100,
+                    message: "อีเมลต้องไม่เกิน 100 ตัวอักษร",
+                  },
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "รูปแบบอีเมลไม่ถูกต้อง",
+                  },
+                }}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`update-${field.name}`}>
+                      อีเมล
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      id={`update-${field.name}`}
+                      type="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="เช่น contact@supplier.com"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
               <Controller
                 name="taxId"
                 control={form.control}
@@ -238,41 +273,6 @@ export function UpdateVendorDialog({
                 )}
               />
             </div>
-
-            {/* Email */}
-            <Controller
-              name="email"
-              control={form.control}
-              rules={{
-                maxLength: {
-                  value: 100,
-                  message: "อีเมลต้องไม่เกิน 100 ตัวอักษร",
-                },
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "รูปแบบอีเมลไม่ถูกต้อง",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`update-${field.name}`}>
-                    อีเมล
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value ?? ""}
-                    id={`update-${field.name}`}
-                    type="email"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="เช่น contact@supplier.com"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
 
             {/* Address */}
             <Controller

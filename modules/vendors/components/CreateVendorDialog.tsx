@@ -84,7 +84,7 @@ export function CreateVendorDialog() {
             <PlusIcon className="size-4" /> เพิ่มผู้จำหน่าย
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="px-4 pt-4">
             <DialogTitle className="font-bold text-lg">
               เพิ่มข้อมูลผู้จำหน่าย
@@ -130,36 +130,35 @@ export function CreateVendorDialog() {
               )}
             />
 
-            {/* Contact Person */}
-            <Controller
-              name="contactName"
-              control={form.control}
-              rules={{
-                maxLength: {
-                  value: 100,
-                  message: "ชื่อผู้ติดต่อต้องไม่เกิน 100 ตัวอักษร",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>ชื่อผู้ติดต่อ</FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value ?? ""}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="เช่น คุณสมชาย (ฝ่ายขาย)"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
+            {/* Row 1: Contact Person & Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Phone */}
+              <Controller
+                name="contactName"
+                control={form.control}
+                rules={{
+                  maxLength: {
+                    value: 100,
+                    message: "ชื่อผู้ติดต่อต้องไม่เกิน 100 ตัวอักษร",
+                  },
+                }}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>ชื่อผู้ติดต่อ</FieldLabel>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="เช่น คุณสมชาย (ฝ่ายขาย)"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
               <Controller
                 name="phone"
                 control={form.control}
@@ -186,8 +185,42 @@ export function CreateVendorDialog() {
                   </Field>
                 )}
               />
+            </div>
 
-              {/* Tax ID */}
+            {/* Row 2: Email & Tax ID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Controller
+                name="email"
+                control={form.control}
+                rules={{
+                  maxLength: {
+                    value: 100,
+                    message: "อีเมลต้องไม่เกิน 100 ตัวอักษร",
+                  },
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "รูปแบบอีเมลไม่ถูกต้อง",
+                  },
+                }}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>อีเมล</FieldLabel>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      id={field.name}
+                      type="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="เช่น contact@supplier.com"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
               <Controller
                 name="taxId"
                 control={form.control}
@@ -217,39 +250,6 @@ export function CreateVendorDialog() {
                 )}
               />
             </div>
-
-            {/* Email */}
-            <Controller
-              name="email"
-              control={form.control}
-              rules={{
-                maxLength: {
-                  value: 100,
-                  message: "อีเมลต้องไม่เกิน 100 ตัวอักษร",
-                },
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "รูปแบบอีเมลไม่ถูกต้อง",
-                },
-              }}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>อีเมล</FieldLabel>
-                  <Input
-                    {...field}
-                    value={field.value ?? ""}
-                    id={field.name}
-                    type="email"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="เช่น contact@supplier.com"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
 
             {/* Address */}
             <Controller
