@@ -79,10 +79,13 @@ import {
   type StaffLineAppointmentStatusTemplateView,
   type StaffLineTemplatePlaceholder,
 } from "../types/staff-appointment-status-template";
+import { LineConnectedCustomerTable } from "./LineConnectedCustomerTable";
+import type { LineConnectedCustomer } from "../types/line-connected-customer";
 
 type LineOAManagementProps = {
   templates: LineAppointmentStatusTemplateView[];
   staffTemplate: StaffLineAppointmentStatusTemplateView;
+  customers: LineConnectedCustomer[];
 };
 
 type TemplateStatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
@@ -105,6 +108,7 @@ const staffPlaceholderLabels: Record<StaffLineTemplatePlaceholder, string> = {
 export function LineOAManagement({
   templates,
   staffTemplate,
+  customers,
 }: LineOAManagementProps) {
   const [message, setMessage] = useState("");
   const [messageError, setMessageError] = useState<string | null>(null);
@@ -173,13 +177,13 @@ export function LineOAManagement({
 
   return (
     <>
-      <Tabs defaultValue="broadcast" className="hidden lg:flex flex-col gap-4">
+      <Tabs defaultValue="broadcast" className="flex flex-col gap-4">
         <TabsList size="lg" width="half" className="mb-2">
           <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
           <TabsTrigger value="templates">Template แจ้งเตือน</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="broadcast">
+        <TabsContent value="broadcast" className="flex flex-col gap-4">
           <div className="gap-4 grid lg:grid-cols-[minmax(0,1fr)_320px]">
             <Card>
               <CardHeader>
@@ -230,7 +234,7 @@ export function LineOAManagement({
               </CardFooter>
             </Card>
 
-            <Alert className="p-4 ">
+            <Alert className="p-4">
               <MegaphoneIcon />
               <AlertTitle>Broadcast จะส่งถึงเพื่อน OA ทั้งหมด</AlertTitle>
               <AlertDescription>
@@ -239,6 +243,18 @@ export function LineOAManagement({
               </AlertDescription>
             </Alert>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>ลูกค้าที่เชื่อมต่อบัญชี LINE</CardTitle>
+              <CardDescription>
+                รายชื่อลูกค้าที่มีการผูกบัญชี LINE กับทางร้าน (Line Connected Customers)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LineConnectedCustomerTable customers={customers} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="templates">
