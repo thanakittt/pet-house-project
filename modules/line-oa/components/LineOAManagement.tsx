@@ -48,18 +48,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 import {
+  AlertCircleIcon,
   BellIcon,
   MegaphoneIcon,
   RotateCcwIcon,
   SaveIcon,
   SendIcon,
+  UsersIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { broadcastLineText } from "../actions/broadcast-line-text";
+import { multicastLineText } from "../actions/multicast-line-text";
 import { updateAppointmentStatusTemplate } from "../actions/update-appointment-status-template";
 import { updateStaffAppointmentStatusTemplate } from "../actions/update-staff-appointment-status-template";
+import {
+  addItemsToSet,
+  removeItemsFromSet,
+  toggleItemInSet,
+} from "../types/multicast";
 import {
   LINE_TEMPLATE_PLACEHOLDERS,
   LINE_TEMPLATE_SAMPLE_DATA,
@@ -110,6 +118,13 @@ export function LineOAManagement({
   staffTemplate,
   customers,
 }: LineOAManagementProps) {
+  const [deliveryMode, setDeliveryMode] = useState<"broadcast" | "multicast">(
+    "broadcast",
+  );
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [recipientError, setRecipientError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [messageError, setMessageError] = useState<string | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -134,44 +149,81 @@ export function LineOAManagement({
     return templates;
   }, [templateStatusFilter, templates]);
 
-  function validateMessage() {
+  function validateForm() {
+    let hasError = false;
+
     if (!trimmedMessage) {
       setMessageError("กรุณากรอกข้อความที่ต้องการส่ง");
-      return false;
-    }
-
-    if (message.length > MAX_LINE_TEMPLATE_LENGTH) {
+      hasError = true;
+    } else if (message.length > MAX_LINE_TEMPLATE_LENGTH) {
       setMessageError("ข้อความต้องไม่เกิน 5,000 ตัวอักษร");
-      return false;
+      hasError = true;
+    } else {
+      setMessageError(null);
     }
 
-    setMessageError(null);
-    return true;
+    if (deliveryMode === "multicast" && selectedCustomerIds.size === 0) {
+      setRecipientError(
+        "กรุณาเลือกลูกค้าอย่างน้อย 1 คนสำหรับส่งข้อความ Multicast",
+      );
+      toast.error("กรุณาเลือกลูกค้าอย่างน้อย 1 คนสำหรับส่งข้อความ Multicast");
+      hasError = true;
+    } else {
+      setRecipientError(null);
+    }
+
+    return !hasError;
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!validateMessage()) {
+    if (!validateForm()) {
       return;
     }
 
     setIsConfirmOpen(true);
   }
 
-  function handleConfirmBroadcast() {
+  function handleConfirmSend() {
     startTransition(async () => {
-      const result = await broadcastLineText({ text: trimmedMessage });
+      if (deliveryMode === "broadcast") {
+        const result = await broadcastLineText({ text: trimmedMessage });
 
-      if (!result.success) {
-        toast.error(result.error);
-        return;
+        if (!result.success) {
+          toast.error(result.error);
+          return;
+        }
+
+        toast.success("ส่งข้อความ Broadcast ผ่าน LINE OA สำเร็จ");
+        setMessage("");
+        setMessageError(null);
+        setIsConfirmOpen(false);
+      } else {
+        const targetLineUserIds = customers
+          .filter((c) => selectedCustomerIds.has(c.id))
+          .map((c) => c.lineUserId);
+
+        const result = await multicastLineText({
+          text: trimmedMessage,
+          targetUserIds: targetLineUserIds,
+        });
+
+        if (!result.success) {
+          toast.error(result.error);
+          return;
+        }
+
+        const count = result.data?.recipientCount ?? targetLineUserIds.length;
+        toast.success(
+          `ส่งข้อความ Multicast สำเร็จ (${count.toLocaleString("th-TH")} คน)`,
+        );
+        setMessage("");
+        setMessageError(null);
+        setSelectedCustomerIds(new Set());
+        setRecipientError(null);
+        setIsConfirmOpen(false);
       }
-
-      toast.success("ส่งข้อความ Broadcast ผ่าน LINE OA สำเร็จ");
-      setMessage("");
-      setMessageError(null);
-      setIsConfirmOpen(false);
     });
   }
 
@@ -179,7 +231,7 @@ export function LineOAManagement({
     <>
       <Tabs defaultValue="broadcast" className="flex flex-col gap-4">
         <TabsList size="lg" width="half" className="mb-2">
-          <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
+          <TabsTrigger value="broadcast">ส่งข้อความ</TabsTrigger>
           <TabsTrigger value="templates">Template แจ้งเตือน</TabsTrigger>
         </TabsList>
 
@@ -187,14 +239,82 @@ export function LineOAManagement({
           <div className="gap-4 grid lg:grid-cols-[minmax(0,1fr)_320px]">
             <Card>
               <CardHeader>
-                <CardTitle>ส่งข้อความ Broadcast</CardTitle>
+                <CardTitle>
+                  {deliveryMode === "broadcast"
+                    ? "ส่งข้อความ Broadcast"
+                    : "ส่งข้อความ Multicast"}
+                </CardTitle>
                 <CardDescription>
-                  ส่งข้อความ text ไปหาเพื่อนทั้งหมดของ LINE Official Account
+                  {deliveryMode === "broadcast"
+                    ? "ส่งข้อความ text ไปหาเพื่อนทั้งหมดของ LINE Official Account"
+                    : "ส่งข้อความ text เจาะจงไปยังรายชื่อลูกค้าที่เลือก (Line Connected Customers)"}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <FieldLabel>รูปแบบการส่งข้อความ (Delivery Mode)</FieldLabel>
+                  <ToggleGroup
+                    type="single"
+                    value={deliveryMode}
+                    onValueChange={(val) => {
+                      if (val) {
+                        setDeliveryMode(val as "broadcast" | "multicast");
+                        setRecipientError(null);
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                    aria-label="เลือกรูปแบบการส่งข้อความ"
+                  >
+                    <ToggleGroupItem value="broadcast" className="gap-2 px-3">
+                      <MegaphoneIcon className="size-4" />
+                      Broadcast Message
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="multicast" className="gap-2 px-3">
+                      <UsersIcon className="size-4" />
+                      Multicast Message
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {deliveryMode === "multicast" && (
+                  <div className="flex sm:flex-row flex-col sm:items-center justify-between gap-2 p-3 border rounded-md bg-muted/40 text-sm">
+                    <div className="flex items-center gap-2">
+                      <UsersIcon className="size-4 text-primary" />
+                      <span>
+                        ผู้รับที่เลือก:{" "}
+                        <strong className="font-semibold text-foreground">
+                          {selectedCustomerIds.size.toLocaleString("th-TH")}
+                        </strong>{" "}
+                        คน
+                      </span>
+                    </div>
+                    {selectedCustomerIds.size > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => setSelectedCustomerIds(new Set())}
+                        className="p-0 h-auto text-muted-foreground hover:text-foreground text-xs"
+                      >
+                        ล้างการเลือกทั้งหมด
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {recipientError && (
+                  <Alert variant="destructive" className="py-2.5">
+                    <AlertCircleIcon className="size-4" />
+                    <AlertDescription className="text-sm">
+                      {recipientError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <form
-                  id="line-oa-broadcast-form"
+                  id="line-oa-message-form"
                   onSubmit={handleSubmit}
                   className="flex flex-col gap-4"
                 >
@@ -210,7 +330,11 @@ export function LineOAManagement({
                           setMessage(event.target.value);
                           setMessageError(null);
                         }}
-                        placeholder="พิมพ์ข้อความที่ต้องการส่งให้ลูกค้าทาง LINE OA"
+                        placeholder={
+                          deliveryMode === "broadcast"
+                            ? "พิมพ์ข้อความที่ต้องการส่งให้ลูกค้าทาง LINE OA"
+                            : "พิมพ์ข้อความที่ต้องการส่งให้ลูกค้าที่เลือกทาง LINE OA"
+                        }
                         rows={8}
                         aria-invalid={Boolean(messageError)}
                         disabled={isPending}
@@ -227,32 +351,78 @@ export function LineOAManagement({
                 </form>
               </CardContent>
               <CardFooter className="justify-end">
-                <Button type="submit" form="line-oa-broadcast-form">
+                <Button type="submit" form="line-oa-message-form">
                   <SendIcon data-icon="inline-start" />
                   ตรวจสอบและส่ง
                 </Button>
               </CardFooter>
             </Card>
 
-            <Alert className="p-4">
-              <MegaphoneIcon />
-              <AlertTitle>Broadcast จะส่งถึงเพื่อน OA ทั้งหมด</AlertTitle>
-              <AlertDescription>
-                การส่งนี้นับรวมในโควตาข้อความของ LINE OA และ LINE จำกัด
-                Broadcast 60 requests ต่อชั่วโมงต่อ Channel
-              </AlertDescription>
-            </Alert>
+            {deliveryMode === "broadcast" ? (
+              <Alert className="p-4">
+                <MegaphoneIcon />
+                <AlertTitle>Broadcast จะส่งถึงเพื่อน OA ทั้งหมด</AlertTitle>
+                <AlertDescription>
+                  การส่งนี้นับรวมในโควตาข้อความของ LINE OA และ LINE จำกัด
+                  Broadcast 60 requests ต่อชั่วโมงต่อ Channel
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert className="p-4">
+                <UsersIcon />
+                <AlertTitle>Multicast จะส่งเฉพาะลูกค้าที่เลือก</AlertTitle>
+                <AlertDescription>
+                  ระบบจะส่งข้อความไปยัง LINE User ID ของลูกค้าที่เลือกโดยอัตโนมัติ
+                  และแบ่งชุดคำสั่งละไม่เกิน 500 คนตามมาตรฐานของ LINE Multicast API
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
-          <Card>
+          <Card
+            className={cn(
+              deliveryMode === "multicast" && "ring-1 ring-primary/20",
+            )}
+          >
             <CardHeader>
-              <CardTitle>ลูกค้าที่เชื่อมต่อบัญชี LINE</CardTitle>
-              <CardDescription>
-                รายชื่อลูกค้าที่มีการผูกบัญชี LINE กับทางร้าน (Line Connected Customers)
-              </CardDescription>
+              <div className="flex sm:flex-row flex-col sm:items-center justify-between gap-2">
+                <div>
+                  <CardTitle>ลูกค้าที่เชื่อมต่อบัญชี LINE</CardTitle>
+                  <CardDescription>
+                    {deliveryMode === "multicast"
+                      ? "ทำเครื่องหมายถูกที่หน้ารายชื่อลูกค้าเพื่อเลือกผู้รับข้อความ Multicast"
+                      : "รายชื่อลูกค้าที่มีการผูกบัญชี LINE กับทางร้าน (Line Connected Customers)"}
+                  </CardDescription>
+                </div>
+                {deliveryMode === "multicast" && (
+                  <Badge
+                    variant={
+                      selectedCustomerIds.size > 0 ? "default" : "secondary"
+                    }
+                  >
+                    เลือกผู้รับแล้ว{" "}
+                    {selectedCustomerIds.size.toLocaleString("th-TH")} คน
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              <LineConnectedCustomerTable customers={customers} />
+              <LineConnectedCustomerTable
+                customers={customers}
+                selectable={deliveryMode === "multicast"}
+                selectedCustomerIds={selectedCustomerIds}
+                onToggleSelectCustomer={(id) => {
+                  setSelectedCustomerIds((prev) => toggleItemInSet(prev, id));
+                  setRecipientError(null);
+                }}
+                onSelectAllFiltered={(ids) => {
+                  setSelectedCustomerIds((prev) => addItemsToSet(prev, ids));
+                  setRecipientError(null);
+                }}
+                onDeselectAllFiltered={(ids) => {
+                  setSelectedCustomerIds((prev) => removeItemsFromSet(prev, ids));
+                }}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -380,20 +550,59 @@ export function LineOAManagement({
       </Tabs>
 
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>ยืนยันการส่ง Broadcast</AlertDialogTitle>
+            <AlertDialogTitle>
+              {deliveryMode === "broadcast"
+                ? "ยืนยันการส่งข้อความ Broadcast"
+                : "ยืนยันการส่งข้อความ Multicast"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              ข้อความนี้จะถูกส่งไปหาเพื่อนทั้งหมดของ LINE OA และจะนับรวมในโควตา
-              Messaging API ของบัญชีร้าน
+              โปรดตรวจสอบรายละเอียดก่อนยืนยันการส่งข้อความผ่าน LINE OA
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          <div className="flex flex-col gap-3 py-2 text-sm">
+            <div className="flex justify-between items-center bg-muted/40 p-2.5 border rounded-md">
+              <span className="text-muted-foreground">รูปแบบการส่ง:</span>
+              <Badge variant="outline" className="font-normal">
+                {deliveryMode === "broadcast" ? (
+                  <span className="flex items-center gap-1">
+                    <MegaphoneIcon className="size-3" /> Broadcast Message
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <UsersIcon className="size-3" /> Multicast Message
+                  </span>
+                )}
+              </Badge>
+            </div>
+
+            <div className="flex justify-between items-center bg-muted/40 p-2.5 border rounded-md">
+              <span className="text-muted-foreground">จำนวนผู้รับ:</span>
+              <span className="font-semibold text-foreground">
+                {deliveryMode === "broadcast"
+                  ? "เพื่อนทั้งหมดใน LINE OA"
+                  : `${selectedCustomerIds.size.toLocaleString("th-TH")} คน`}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-muted-foreground text-xs">
+                ตัวอย่างข้อความที่ส่ง:
+              </span>
+              <div className="bg-muted/50 p-3 border rounded-md max-h-48 overflow-y-auto text-sm whitespace-pre-wrap break-words">
+                {trimmedMessage}
+              </div>
+            </div>
+          </div>
+
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>ยกเลิก</AlertDialogCancel>
             <AlertDialogAction
               onClick={(event) => {
                 event.preventDefault();
-                handleConfirmBroadcast();
+                handleConfirmSend();
               }}
               disabled={isPending}
             >
@@ -401,7 +610,9 @@ export function LineOAManagement({
                 isLoading={isPending}
                 loadingText="กำลังส่ง..."
               >
-                ยืนยันส่ง Broadcast
+                {deliveryMode === "broadcast"
+                  ? "ยืนยันส่ง Broadcast"
+                  : `ยืนยันส่ง Multicast (${selectedCustomerIds.size} คน)`}
               </LoadingButtonContent>
             </AlertDialogAction>
           </AlertDialogFooter>

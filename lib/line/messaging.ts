@@ -75,3 +75,66 @@ export async function broadcastLineTextMessage(text: string) {
     );
   }
 }
+
+export const LINE_MULTICAST_MAX_RECIPIENTS = 500;
+
+export function chunkArray<T>(items: T[], size: number): T[][] {
+  if (size <= 0 || items.length === 0) {
+    return [];
+  }
+
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+type LineMulticastMessageBody = {
+  to: string[];
+  messages: LineTextMessage[];
+};
+
+export async function multicastLineTextMessage(
+  recipients: string[],
+  text: string,
+) {
+  if (recipients.length === 0) {
+    return;
+  }
+
+  const channelAccessToken = requiredEnv("LINE_CHANNEL_ACCESS_TOKEN");
+  const chunks = chunkArray(recipients, LINE_MULTICAST_MAX_RECIPIENTS);
+
+  for (const chunk of chunks) {
+    const body: LineMulticastMessageBody = {
+      to: chunk,
+      messages: [
+        {
+          type: "text",
+          text,
+        },
+      ],
+    };
+
+    const response = await fetch("https://api.line.me/v2/bot/message/multicast", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${channelAccessToken}`,
+        "Content-Type": "application/json",
+        "X-Line-Retry-Key": crypto.randomUUID(),
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      const lineRequestId = response.headers.get("x-line-request-id");
+
+      throw new Error(
+        `LINE multicast message failed with status ${response.status}, request id ${lineRequestId ?? "-"}: ${errorText}`,
+      );
+    }
+  }
+}
+
