@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Package,
   Settings2,
+  Building2,
 } from "lucide-react";
 
 export type UserRole = "owner" | "admin" | "staff" | "customer" | "guest";
@@ -111,6 +112,13 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     url: "/back-office/inventories",
     icon: <Package className="size-5" />,
     allowedUserRoles: ["owner", "admin", "staff"],
+  },
+  {
+    title: "จัดการผู้จำหน่าย",
+    url: "/back-office/vendors",
+    icon: <Building2 className="size-5" />,
+    allowedUserRoles: ["owner", "admin", "staff"],
+    desktopOnly: true,
   },
   {
     title: "ตั้งค่าร้าน",

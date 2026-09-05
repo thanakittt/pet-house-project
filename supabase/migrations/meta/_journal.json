@@ -169,6 +169,13 @@
       "when": 1786381200000,
       "tag": "0023_configurable_appointment_deposit",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1788619315689,
+      "tag": "0024_add_vendors",
+      "breakpoints": true
     }
   ]
 }

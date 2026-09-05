@@ -15,3 +15,4 @@ export * from "./enum";
 export * from "./relationship";
 export * from "./line";
 export * from "./business-rule";
+export * from "./vendor";
