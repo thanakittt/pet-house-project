@@ -371,7 +371,7 @@ export default function PurchaseOrderDetailPage({
                     <span className="text-xs font-semibold text-muted-foreground">
                       รหัสเอกสาร
                     </span>
-                    <span className="text-sm md:text-base font-mono font-bold text-primary">
+                    <span className="text-sm md:text-base font-bold text-primary">
                       {order.id.split("-")[0]}...
                     </span>
                   </div>
@@ -427,7 +427,7 @@ export default function PurchaseOrderDetailPage({
                       <span className="text-xs font-semibold text-muted-foreground">
                         เลขประจำตัวผู้เสียภาษี
                       </span>
-                      <span className="text-sm font-mono font-medium text-foreground">
+                      <span className="text-sm font-medium text-foreground">
                         {order.vendorTaxId}
                       </span>
                     </div>

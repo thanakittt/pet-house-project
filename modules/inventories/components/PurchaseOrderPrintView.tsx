@@ -322,7 +322,7 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                     <span className="font-bold text-slate-700">
                       เลขที่ PO:{" "}
                     </span>
-                    <span className="font-mono font-bold text-slate-900">
+                    <span className="font-bold text-slate-900">
                       {formatPoNumber(order.id)}
                     </span>
                   </div>
@@ -482,13 +482,13 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                             {item.inventoryItemName}
                           </p>
                         </td>
-                        <td className="border-r border-slate-300 py-2 px-2 text-center font-mono">
+                        <td className="border-r border-slate-300 py-2 px-2 text-center tabular-nums">
                           {item.quantity}
                         </td>
-                        <td className="border-r border-slate-300 py-2 px-3 text-right font-mono">
+                        <td className="border-r border-slate-300 py-2 px-3 text-right tabular-nums">
                           {formatMoney(cost)}
                         </td>
-                        <td className="py-2 px-3 text-right font-mono font-medium">
+                        <td className="py-2 px-3 text-right tabular-nums font-medium">
                           {formatMoney(rowTotal)}
                         </td>
                       </tr>
@@ -520,7 +520,7 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                   <span className="text-slate-600">
                     รวมเป็นเงิน (Subtotal):
                   </span>
-                  <span className="font-mono font-medium">
+                  <span className="font-medium tabular-nums">
                     {formatMoney(subtotal)}
                   </span>
                 </div>
@@ -528,13 +528,13 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                   <span className="text-slate-600">
                     ภาษีมูลค่าเพิ่ม (VAT {vatRate}%):
                   </span>
-                  <span className="font-mono font-medium">
+                  <span className="font-medium tabular-nums">
                     {formatMoney(vatAmount)}
                   </span>
                 </div>
                 <div className="flex justify-between py-2 px-3 bg-slate-100 font-bold text-slate-900 text-sm">
                   <span>จำนวนเงินรวมสุทธิ:</span>
-                  <span className="font-mono text-emerald-700">
+                  <span className="tabular-nums text-emerald-700">
                     {formatMoney(grandTotal)}
                   </span>
                 </div>

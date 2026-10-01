@@ -123,7 +123,7 @@ export function VendorManagement({
                   <TableCell>
                     <div className="space-y-0.5">
                       {vendor.phone && (
-                        <div className="text-sm font-mono">{vendor.phone}</div>
+                        <div className="text-sm">{vendor.phone}</div>
                       )}
                       {vendor.email && (
                         <div className="text-xs text-muted-foreground">
@@ -137,7 +137,7 @@ export function VendorManagement({
                   </TableCell>
                   <TableCell>
                     {vendor.taxId ? (
-                      <span className="font-mono text-sm">{vendor.taxId}</span>
+                      <span className="text-sm">{vendor.taxId}</span>
                     ) : (
                       <span className="text-muted-foreground text-xs">-</span>
                     )}
