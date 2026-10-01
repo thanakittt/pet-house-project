@@ -3,6 +3,27 @@ import { purchaseOrderItems, purchaseOrders } from "@/db/schema";
 import { z } from "zod";
 
 // ===================================================
+// Receive Preview — ใช้ใน ReceiveConfirmDialog
+// ===================================================
+
+/**
+ * ReceivePreviewRow — ข้อมูล 1 แถวในตาราง dialog ยืนยันการรับของ
+ * แสดงก่อน commit สถานะ RECEIVED
+ */
+export interface ReceivePreviewRow {
+  /** UUID ของสินค้าในคลัง */
+  inventoryItemId: string;
+  /** ชื่อสินค้า */
+  inventoryItemName: string;
+  /** จำนวน stock ปัจจุบัน (ก่อนรับของ) */
+  currentStock: number;
+  /** จำนวนที่สั่งซื้อใน PO */
+  orderedQuantity: number;
+  /** ผลลัพธ์: currentStock + orderedQuantity */
+  resultStock: number;
+}
+
+// ===================================================
 // DB Types — อนุมานจาก Drizzle schema โดยตรง
 // ===================================================
 

@@ -10,16 +10,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   PURCHASE_ORDER_STATUS_CONFIG,
   PURCHASE_ORDER_STATUS_KEYS,
   type PurchaseOrderStatus,
 } from "@/modules/inventories/constants/purchase-order-status";
 import { updatePurchaseOrderStatus } from "@/modules/inventories/actions/update-purchase-order-status";
-import { Check, ChevronDown, Clock, X } from "lucide-react";
+import { getReceivePreview } from "@/modules/inventories/actions/get-receive-preview";
+import { Check, ChevronDown, Clock, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { DESKTOP_ONLY_CONTAINER_CLASS } from "@/components/shared/TableActionButton";
+import type { ReceivePreviewRow } from "@/modules/inventories/types/purchase-order";
 
 export default function StatusUpdate({
   orderId,
@@ -33,13 +51,45 @@ export default function StatusUpdate({
   const [localStatus, setLocalStatus] =
     useState<PurchaseOrderStatus>(currentStatus);
   const [isPending, startTransition] = useTransition();
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const router = useRouter();
   const config = PURCHASE_ORDER_STATUS_CONFIG[localStatus];
   const groups = ["Not Started", "Active", "Closed"] as const;
 
-  const handleStatusChange = (newStatus: PurchaseOrderStatus) => {
+  // state ของ dialog ยืนยันรับของ
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [previewRows, setPreviewRows] = useState<ReceivePreviewRow[]>([]);
+
+  /**
+   * เมื่อ newStatus === "RECEIVED" → ดึง preview ก่อน แล้วค่อยเปิด dialog
+   * สถานะอื่น → เปลี่ยนทันที
+   */
+  const handleStatusChange = async (newStatus: PurchaseOrderStatus) => {
     if (newStatus === localStatus) return;
 
+    if (newStatus === "RECEIVED") {
+      setIsLoadingPreview(true);
+      try {
+        const result = await getReceivePreview(orderId);
+        if (!result.success) {
+          toast.error(result.error || "ไม่สามารถดึงข้อมูลสินค้าได้");
+          return;
+        }
+        setPreviewRows(result.data);
+        setDialogOpen(true);
+      } catch {
+        toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+      } finally {
+        setIsLoadingPreview(false);
+      }
+      return;
+    }
+
+    commitStatusChange(newStatus);
+  };
+
+  /** commit การเปลี่ยนสถานะจริง (ไม่ผ่าน dialog) */
+  const commitStatusChange = (newStatus: PurchaseOrderStatus) => {
     const prevStatus = localStatus;
     setLocalStatus(newStatus);
 
@@ -48,7 +98,6 @@ export default function StatusUpdate({
         const result = await updatePurchaseOrderStatus(orderId, newStatus);
 
         if (!result.success) {
-          // กรณี API return success: false
           setLocalStatus(prevStatus);
           toast.error(result.error || "ไม่สามารถอัปเดตสถานะได้");
           router.refresh();
@@ -58,7 +107,6 @@ export default function StatusUpdate({
         toast.success("อัปเดตสถานะใบสั่งซื้อเรียบร้อย");
         router.refresh();
       } catch (error) {
-        // กรณีเกิด Exception อื่นๆ เช่น Network Error
         setLocalStatus(prevStatus);
         const errorMessage =
           error instanceof Error ? error.message : "เกิดข้อผิดพลาดที่ไม่รู้จัก";
@@ -66,6 +114,12 @@ export default function StatusUpdate({
         router.refresh();
       }
     });
+  };
+
+  /** ยืนยัน dialog → commit RECEIVED */
+  const handleConfirmReceive = () => {
+    setDialogOpen(false);
+    commitStatusChange("RECEIVED");
   };
 
   return (
@@ -85,10 +139,14 @@ export default function StatusUpdate({
           variant="ghost"
           size="lg"
           className={`${config.color} w-28 md:w-32`}
-          disabled={isPending || config.next === null}
+          disabled={isPending || isLoadingPreview || config.next === null}
           onClick={() => config.next && handleStatusChange(config.next)}
         >
-          {config.title}
+          {isLoadingPreview && config.next === "RECEIVED" ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            config.title
+          )}
         </Button>
 
         <DropdownMenu>
@@ -97,7 +155,7 @@ export default function StatusUpdate({
               variant="ghost"
               size="lg"
               className={config.color}
-              disabled={isPending}
+              disabled={isPending || isLoadingPreview}
             >
               <ChevronDown size={14} />
             </Button>
@@ -166,6 +224,75 @@ export default function StatusUpdate({
           </DropdownMenuContent>
         </DropdownMenu>
       </ButtonGroup>
+
+      {/* Dialog ยืนยันการรับของ */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>ยืนยันการรับสินค้า</DialogTitle>
+            <DialogDescription>
+              ตรวจสอบรายการสินค้าที่จะถูกเพิ่มเข้าสต็อกหลังยืนยัน
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-lg border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-[40%]">ชื่อสินค้า</TableHead>
+                  <TableHead className="text-right">stock เดิม</TableHead>
+                  <TableHead className="text-right">จำนวนที่สั่ง</TableHead>
+                  <TableHead className="text-right font-semibold">
+                    ผลลัพธ์
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {previewRows.map((row) => (
+                  <TableRow key={row.inventoryItemId}>
+                    <TableCell className="font-medium">
+                      {row.inventoryItemName}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {row.currentStock}
+                    </TableCell>
+                    <TableCell className="text-right text-emerald-600 dark:text-emerald-400 font-medium">
+                      +{row.orderedQuantity}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {row.resultStock}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={isPending}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleConfirmReceive}
+              disabled={isPending}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 size={14} className="animate-spin mr-2" />
+                  กำลังบันทึก…
+                </>
+              ) : (
+                "ยืนยันรับของ"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
