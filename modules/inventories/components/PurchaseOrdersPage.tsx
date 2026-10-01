@@ -99,7 +99,6 @@ export default function PurchaseOrdersPage({
               <TableRow>
                 <TableHead className="text-center">เลขที่</TableHead>
                 <TableHead>ผู้จำหน่าย</TableHead>
-                <TableHead>พนักงาน</TableHead>
                 <TableHead>วันที่สั่งซื้อ</TableHead>
                 <TableHead className="text-right">ยอดรวม</TableHead>
                 <TableHead className="text-right">สถานะ</TableHead>
@@ -110,7 +109,7 @@ export default function PurchaseOrdersPage({
               {orderData.orders.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={6}
                     className="py-10 text-muted-foreground text-center"
                   >
                     ไม่พบข้อมูลใบสั่งซื้อ
@@ -124,9 +123,6 @@ export default function PurchaseOrdersPage({
                     </TableCell>
                     <TableCell className="font-medium">
                       {order.vendorName || "-"}
-                    </TableCell>
-                    <TableCell>
-                      {order.staffNickname}
                     </TableCell>
                     <TableCell>{formatThaiDate(order.orderDate)}</TableCell>
                     <TableCell className="tabular-nums text-right">
