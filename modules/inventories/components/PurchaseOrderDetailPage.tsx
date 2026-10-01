@@ -19,6 +19,7 @@ import {
   Phone,
   Receipt,
   MapPin,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { LoadingButton } from "@/components/shared/LoadingButton";
@@ -52,6 +53,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import StatusUpdate from "@/modules/inventories/components/StatusUpdate";
@@ -73,6 +80,8 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import PurchaseOrderTimeline from "./PurchaseOrderTimeline";
+import type { PurchaseOrderLogEntry } from "../queries/get-purchase-order-logs";
 
 // 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่างใน Edit Mode
 interface OrderItemEditState extends Omit<PurchaseOrderItemForm, "unitCost"> {
@@ -102,9 +111,11 @@ function adjustOrderQuantity(quantity: number, change: 1 | -1): number {
 export default function PurchaseOrderDetailPage({
   order,
   inventoryItems = [],
+  logs = [],
 }: {
   order: PurchaseOrderDetail;
   inventoryItems?: InventoryItem[];
+  logs?: PurchaseOrderLogEntry[];
 }) {
   const currentStatus = order.status as PurchaseOrderStatus;
   const statusConfig = PURCHASE_ORDER_STATUS_CONFIG[currentStatus];
@@ -443,8 +454,27 @@ export default function PurchaseOrderDetailPage({
           </Card>
         </div>
 
-        {/* ── Right Column: Items Table ── */}
+        {/* ── Right Column: Items Table + ประวัติ ── */}
         <div className="lg:col-span-2">
+          <Tabs defaultValue="items" id="po-detail-tabs">
+            <TabsList className="mb-4">
+              <TabsTrigger value="items" id="tab-items" className="gap-1.5">
+                <ShoppingCart size={14} />
+                รายการสินค้า
+              </TabsTrigger>
+              <TabsTrigger value="history" id="tab-history" className="gap-1.5">
+                <History size={14} />
+                ประวัติ
+                {logs.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 text-xs px-1.5">
+                    {logs.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* ── Tab: รายการสินค้า ── */}
+            <TabsContent value="items">
           <Card className="py-6">
             <CardHeader className="px-6">
               <div className="flex items-center justify-between">
@@ -474,90 +504,88 @@ export default function PurchaseOrderDetailPage({
                   )}
 
                   {isEditing && (
-                    <div className="hidden lg:flex items-center gap-1.5">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1 h-8 text-muted-foreground hover:text-primary"
-
-                        onClick={handleCancelEdit}
-                      >
-                        <X size={13} />
-                        ยกเลิก
-                      </Button>
-                      <LoadingButton
-                        size="sm"
-                        className="gap-1.5 h-8"
-                        disabled={isPending || editItems.length === 0}
-                        isLoading={isPending}
-                        loadingText="กำลังบันทึก..."
-                        onClick={handleSaveEdit}
-                      >
-                        <Save data-icon="inline-start" />
-                        บันทึก
-                      </LoadingButton>
-                    </div>
+                    <>
+                      <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="hidden lg:inline-flex gap-1.5 text-muted-foreground hover:text-primary h-8"
+                            aria-expanded={comboboxOpen}
+                          >
+                            <PlusIcon size={13} />
+                            เพิ่มสินค้า
+                            <ChevronsUpDown
+                              size={14}
+                              className="ml-2 shrink-0 opacity-50"
+                            />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-xs p-0">
+                          <Command>
+                            <CommandInput placeholder="พิมพ์ชื่อสินค้า..." />
+                            <CommandList>
+                              <CommandEmpty>ไม่พบสินค้าที่ค้นหา</CommandEmpty>
+                              <CommandGroup>
+                                {inventoryItems.map((item) => (
+                                  <CommandItem
+                                    key={item.id}
+                                    value={item.name}
+                                    onSelect={() => {
+                                      setSelectedItemId(item.id);
+                                      handleAddItem(item.id);
+                                    }}
+                                  >
+                                    <Check
+                                      size={14}
+                                      className={cn(
+                                        "mr-2",
+                                        editItems.some(
+                                          (e) => e.inventoryItemId === item.id,
+                                        )
+                                          ? "opacity-100 text-primary"
+                                          : "opacity-0",
+                                      )}
+                                    />
+                                    <span>{item.name}</span>
+                                    <span className="ml-auto text-xs text-muted-foreground">
+                                      {item.inventoryCategoryName}
+                                    </span>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </>
                   )}
                 </div>
               </div>
 
               {isEditing && (
-                <div className="hidden lg:flex items-center gap-3 mt-5">
-                  <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={comboboxOpen}
-                        className="w-full sm:max-w-xs justify-between text-muted-foreground h-9 text-sm"
-                      >
-                        {selectedItemId
-                          ? inventoryItems.find((i) => i.id === selectedItemId)
-                            ?.name
-                          : "ค้นหาและเพิ่มสินค้า..."}
-                        <ChevronsUpDown
-                          size={14}
-                          className="ml-2 shrink-0 opacity-50"
-                        />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-xs p-0">
-                      <Command>
-                        <CommandInput placeholder="พิมพ์ชื่อสินค้า..." />
-                        <CommandList>
-                          <CommandEmpty>ไม่พบสินค้าที่ค้นหา</CommandEmpty>
-                          <CommandGroup>
-                            {inventoryItems.map((item) => (
-                              <CommandItem
-                                key={item.id}
-                                value={item.name}
-                                onSelect={() => {
-                                  setSelectedItemId(item.id);
-                                  handleAddItem(item.id);
-                                }}
-                              >
-                                <Check
-                                  size={14}
-                                  className={cn(
-                                    "mr-2",
-                                    editItems.some(
-                                      (e) => e.inventoryItemId === item.id,
-                                    )
-                                      ? "opacity-100 text-primary"
-                                      : "opacity-0",
-                                  )}
-                                />
-                                <span>{item.name}</span>
-                                <span className="ml-auto text-xs text-muted-foreground">
-                                  {item.inventoryCategoryName}
-                                </span>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                <div className="flex items-center gap-2 pt-2">
+                  <LoadingButton
+                    size="sm"
+                    className="hidden lg:inline-flex gap-1.5 h-8"
+                    onClick={handleSaveEdit}
+                    isLoading={isPending}
+                    loadingText="กำลังบันทึก..."
+                    id="save-edit-btn"
+                  >
+                    <Save size={13} />
+                    บันทึก
+                  </LoadingButton>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="hidden lg:inline-flex gap-1.5 text-muted-foreground hover:text-primary h-8"
+                    onClick={handleCancelEdit}
+                    id="cancel-edit-btn"
+                  >
+                    <X size={13} />
+                    ยกเลิก
+                  </Button>
                 </div>
               )}
             </CardHeader>
@@ -590,33 +618,30 @@ export default function PurchaseOrderDetailPage({
                       <TableRow>
                         <TableCell
                           colSpan={isEditing ? 6 : 5}
+                          className="text-center text-muted-foreground py-8"
                         >
-                          <div className="text-muted-foreground flex flex-col items-center gap-2 justify-center h-full py-6">
-                            <span>
-                              ยังไม่มีรายการสินค้า — ค้นหาสินค้าด้านบนเพื่อเพิ่ม
-                            </span>
-                          </div>
+                          ยังไม่มีรายการสินค้า
                         </TableCell>
                       </TableRow>
                     ) : isEditing ? (
-                      editItems.map((item, idx) => (
-                        <TableRow
-                          key={item.inventoryItemId}
-                          className="hover:bg-muted transition-colors group"
-                        >
-                          <TableCell className="text-xs text-center font-medium">
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell className="font-semibold text-primary">
-                            {item.inventoryItemName}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <InputGroup className="ml-auto h-8 w-28">
-                              <InputGroupAddon>
+                      // ── Edit Mode Rows ──
+                      editItems.map((item, idx) => {
+                        const rowTotal =
+                          item.quantity * (Number(item.unitCost) || 0);
+                        return (
+                          <TableRow
+                            key={item.inventoryItemId}
+                          >
+                            <TableCell className="text-muted-foreground text-left font-medium group-hover:text-muted-foreground transition-colors">
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell className="text-primary font-medium">
+                              {item.inventoryItemName}
+                            </TableCell>
+                            <TableCell>
+                              <InputGroup className="max-w-[120px] ml-auto">
                                 <InputGroupButton
-                                  size="icon-xs"
-                                  aria-label="ลดจำนวนสินค้า"
-                                  disabled={item.quantity <= 1}
+                                  className="px-2 h-8"
                                   onClick={() =>
                                     updateEditItemField(
                                       item.inventoryItemId,
@@ -625,27 +650,26 @@ export default function PurchaseOrderDetailPage({
                                     )
                                   }
                                 >
-                                  <MinusIcon />
+                                  <MinusIcon size={12} />
                                 </InputGroupButton>
-                              </InputGroupAddon>
-                              <InputGroupInput
-                                type="number"
-                                min="1"
-                                step="1"
-                                className="text-right text-sm"
-                                value={item.quantity}
-                                onChange={(e) =>
-                                  updateEditItemField(
-                                    item.inventoryItemId,
-                                    "quantity",
-                                    Math.max(1, Number(e.target.value)),
-                                  )
-                                }
-                              />
-                              <InputGroupAddon align="inline-end">
+                                <InputGroupInput
+                                  type="number"
+                                  min={1}
+                                  value={item.quantity}
+                                  className="text-center h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  onChange={(e) =>
+                                    updateEditItemField(
+                                      item.inventoryItemId,
+                                      "quantity",
+                                      Math.max(
+                                        1,
+                                        parseInt(e.target.value) || 1,
+                                      ),
+                                    )
+                                  }
+                                />
                                 <InputGroupButton
-                                  size="icon-xs"
-                                  aria-label="เพิ่มจำนวนสินค้า"
+                                  className="px-2 h-8"
                                   onClick={() =>
                                     updateEditItemField(
                                       item.inventoryItemId,
@@ -654,51 +678,48 @@ export default function PurchaseOrderDetailPage({
                                     )
                                   }
                                 >
-                                  <PlusIcon />
+                                  <PlusIcon size={12} />
                                 </InputGroupButton>
-                              </InputGroupAddon>
-                            </InputGroup>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {/* 7. Input ของราคารองรับค่าว่าง (Edit Mode) */}
-                            <Input
-                              type="number"
-                              min="0"
-                              step="1"
-                              className="w-24 text-right ml-auto h-8 text-sm"
-                              value={item.unitCost}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                const parsed = parseFloat(val);
-                                updateEditItemField(
-                                  item.inventoryItemId,
-                                  "unitCost",
-                                  val === "" ? "" : (Number.isFinite(parsed) ? Math.max(0, parsed) : val),
-                                );
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell className="text-right text-primary font-bold tabular-nums">
-                            {/* คำนวณแปลงค่าเป็น 0 กรณีค่าว่าง */}฿
-                            {formatCurrency(
-                              item.quantity * (Number(item.unitCost) || 0),
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="size-8"
-                              onClick={() =>
-                                removeEditItem(item.inventoryItemId)
-                              }
-                              aria-label="ลบรายการสินค้า"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                              </InputGroup>
+                            </TableCell>
+                            <TableCell>
+                              <InputGroup className="max-w-[140px] ml-auto">
+                                <InputGroupAddon>฿</InputGroupAddon>
+                                <InputGroupInput
+                                  type="number"
+                                  min={0}
+                                  step={0.01}
+                                  placeholder="0.00"
+                                  value={item.unitCost}
+                                  className="text-right h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  onChange={(e) =>
+                                    updateEditItemField(
+                                      item.inventoryItemId,
+                                      "unitCost",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </InputGroup>
+                            </TableCell>
+                            <TableCell className="text-right text-primary font-bold tabular-nums">
+                              ฿{formatCurrency(rowTotal)}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() =>
+                                  removeEditItem(item.inventoryItemId)
+                                }
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     ) : (
                       // ── View Mode Rows ──
                       order.items.map((item, idx) => {
@@ -751,6 +772,23 @@ export default function PurchaseOrderDetailPage({
               </div>
             </CardContent>
           </Card>
+            </TabsContent>
+
+            {/* ── Tab: ประวัติ ── */}
+            <TabsContent value="history">
+              <Card className="py-6">
+                <CardHeader className="px-6">
+                  <CardTitle className="text-base font-bold text-primary flex items-center gap-2">
+                    <History size={18} />
+                    ประวัติการกระทำ
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-6">
+                  <PurchaseOrderTimeline logs={logs} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/session";
 import { getPurchaseOrder } from "@/modules/inventories/queries/get-purchase-order";
+import { getPurchaseOrderLogs } from "@/modules/inventories/queries/get-purchase-order-logs";
 import { listAllInventories } from "@/modules/inventories/queries/list-inventories";
 import PurchaseOrderDetailPage from "@/modules/inventories/components/PurchaseOrderDetailPage";
 import { InventoryItem } from "@/modules/inventories/types/inventory";
 import { SiteHeader } from "@/components/site-header";
 import { BackOfficeContainer } from "@/components/shared/BackOfficeContainer";
 import BackButton from "@/components/BackButton";
+import type { PurchaseOrderLogEntry } from "@/modules/inventories/queries/get-purchase-order-logs";
 
 export const metadata: Metadata = {
   title: "รายละเอียดใบสั่งซื้อ",
@@ -28,7 +30,10 @@ export default async function PurchaseOrderPage({
 
   const { id } = await params;
 
-  const result = await getPurchaseOrder(id);
+  const [result, logsResult] = await Promise.all([
+    getPurchaseOrder(id),
+    getPurchaseOrderLogs(id),
+  ]);
 
   // ถ้าไม่พบ PO หรือเกิด error → แสดงหน้า 404
   if (!result.success || !result.data) {
@@ -36,6 +41,8 @@ export default async function PurchaseOrderPage({
   }
 
   const order = result.data;
+  const logs: PurchaseOrderLogEntry[] = logsResult.success ? logsResult.data : [];
+
   // ดึง inventoryItems ตอนที่ status = DRAFT หรือ ORDERED เพื่อใช้ในฟีเจอร์แก้ไขรายการ
   // และลดการ query DB ที่ไม่จำเป็นเมื่อ PO ปิดแล้ว (RECEIVED หรือ CANCELLED)
   let inventoryItems: InventoryItem[] = [];
@@ -56,6 +63,7 @@ export default async function PurchaseOrderPage({
         <PurchaseOrderDetailPage
           order={order}
           inventoryItems={inventoryItems}
+          logs={logs}
         />
       </BackOfficeContainer>
     </>

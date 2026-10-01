@@ -1,6 +1,6 @@
 import * as p from "drizzle-orm/pg-core";
 import { timestamps } from "./column.helper";
-import { purchaseOrderStatusEnum, unitTypeEnum } from "./enum";
+import { purchaseOrderStatusEnum, unitTypeEnum, purchaseOrderLogEventEnum } from "./enum";
 import { staffs } from "./staff";
 import { vendors } from "./vendor";
 import { sql } from "drizzle-orm";
@@ -128,6 +128,46 @@ export const purchaseOrderItems = p
         "purchase_order_items_unit_cost_check",
         sql`${table.unitCost} >= 0`,
       ),
+    ],
+  )
+  .enableRLS();
+
+// ตาราง purchaseOrderLogs: เก็บ audit trail ของการกระทำบนใบสั่งซื้อ
+// immutable — ไม่มี updatedAt / deletedAt เพราะ log ห้ามแก้ไขหรือลบ
+// index บน purchase_order_id เพื่อเร่ง query logs ตาม PO
+export const purchaseOrderLogs = p
+  .pgTable(
+    "purchase_order_logs",
+    {
+      id: p.uuid("id").defaultRandom().primaryKey(),
+      // FK → purchase_orders (RESTRICT เพื่อป้องกันลบ PO ที่มี log)
+      purchaseOrderId: p
+        .uuid("purchase_order_id")
+        .notNull()
+        .references(() => purchaseOrders.id, { onDelete: "restrict" }),
+      // FK → staffs (ผู้กระทำ action นั้น)
+      staffId: p
+        .uuid("staff_id")
+        .notNull()
+        .references(() => staffs.id, { onDelete: "restrict" }),
+      // ประเภทของ event
+      event: purchaseOrderLogEventEnum("event").notNull(),
+      // สถานะก่อน/หลัง — ใช้เฉพาะ STATUS_CHANGED event
+      fromStatus: purchaseOrderStatusEnum("from_status"),
+      toStatus: purchaseOrderStatusEnum("to_status"),
+      // note อธิบาย event (สร้างโดยระบบอัตโนมัติ)
+      note: p.text("note"),
+      // immutable timestamp — ไม่มี updatedAt / deletedAt
+      createdAt: p
+        .timestamp("created_at", { withTimezone: true })
+        .notNull()
+        .defaultNow(),
+    },
+    (table) => [
+      // index สำหรับ query logs ตาม PO
+      p
+        .index("purchase_order_logs_order_id_idx")
+        .on(table.purchaseOrderId),
     ],
   )
   .enableRLS();

@@ -10,6 +10,8 @@ import {
   UpdatePurchaseOrderVendorSnapshotInput,
   updatePurchaseOrderVendorSnapshotSchema,
 } from "../types/purchase-order";
+import { insertPurchaseOrderLog } from "../utils/insert-purchase-order-log";
+import { staffs } from "@/db/schema/staff";
 
 /**
  * updatePurchaseOrderVendorSnapshot — บันทึกข้อมูล Vendor Snapshot ลงบนใบสั่งซื้อเฉพาะใบ
@@ -26,6 +28,19 @@ export async function updatePurchaseOrderVendorSnapshot(
       return {
         success: false,
         error: "คุณไม่ได้รับอนุญาตในการแก้ไขข้อมูลใบสั่งซื้อ",
+      };
+    }
+
+    // ดึง staffId จาก session
+    const [staffRow] = await db
+      .select({ id: staffs.id })
+      .from(staffs)
+      .where(eq(staffs.userId, session.user.id));
+
+    if (!staffRow) {
+      return {
+        success: false,
+        error: "ไม่พบข้อมูลพนักงาน กรุณาติดต่อผู้ดูแลระบบ",
       };
     }
 
@@ -72,16 +87,26 @@ export async function updatePurchaseOrderVendorSnapshot(
     }
 
     // อัปเดตเฉพาะคอลัมน์ Snapshot ของ PO ใบนี้ ไม่กระทบตาราง vendors หลัก
-    await db
-      .update(purchaseOrders)
-      .set({
-        vendorName,
-        vendorAddress: vendorAddress?.trim() || null,
-        vendorPhone: vendorPhone?.trim() || null,
-        vendorTaxId: vendorTaxId?.trim() || null,
-        updatedAt: new Date(),
-      })
-      .where(eq(purchaseOrders.id, purchaseOrderId));
+    // พร้อม insert log VENDOR_UPDATED ใน transaction เดียวกัน
+    await db.transaction(async (tx) => {
+      await tx
+        .update(purchaseOrders)
+        .set({
+          vendorName,
+          vendorAddress: vendorAddress?.trim() || null,
+          vendorPhone: vendorPhone?.trim() || null,
+          vendorTaxId: vendorTaxId?.trim() || null,
+          updatedAt: new Date(),
+        })
+        .where(eq(purchaseOrders.id, purchaseOrderId));
+
+      // บันทึก log VENDOR_UPDATED
+      await insertPurchaseOrderLog(tx, {
+        purchaseOrderId,
+        staffId: staffRow.id,
+        event: "VENDOR_UPDATED",
+      });
+    });
 
     // Revalidate paths ที่เกี่ยวข้อง
     revalidatePath("/back-office/inventories");

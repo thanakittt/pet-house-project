@@ -7,6 +7,8 @@ import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { PurchaseOrderItemForm } from "../types/purchase-order";
+import { insertPurchaseOrderLog } from "../utils/insert-purchase-order-log";
+import { staffs } from "@/db/schema/staff";
 
 /**
  * updatePurchaseOrderItems — แก้ไขรายการสินค้าในใบสั่งซื้อที่เป็น DRAFT
@@ -27,6 +29,19 @@ export async function updatePurchaseOrderItems(
       return {
         success: false,
         error: "คุณไม่ได้รับอนุญาตในการแก้ไขใบสั่งซื้อ",
+      };
+    }
+
+    // ดึง staffId จาก session
+    const [staffRow] = await db
+      .select({ id: staffs.id })
+      .from(staffs)
+      .where(eq(staffs.userId, session.user.id));
+
+    if (!staffRow) {
+      return {
+        success: false,
+        error: "ไม่พบข้อมูลพนักงาน กรุณาติดต่อผู้ดูแลระบบ",
       };
     }
 
@@ -125,6 +140,13 @@ export async function updatePurchaseOrderItems(
           unitCost: String(item.unitCost), // numeric column ต้องส่งเป็น string
         })),
       );
+
+      // 3. บันทึก log ITEMS_UPDATED
+      await insertPurchaseOrderLog(tx, {
+        purchaseOrderId,
+        staffId: staffRow.id,
+        event: "ITEMS_UPDATED",
+      });
     });
 
     // revalidate ทั้งหน้า list และหน้า detail

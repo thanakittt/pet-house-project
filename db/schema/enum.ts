@@ -69,3 +69,7 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
   "EXPENSE",
   "INCOME",
 ]);
+export const purchaseOrderLogEventEnum = pgEnum(
+  "purchase_order_log_event",
+  ["CREATED", "STATUS_CHANGED", "ITEMS_UPDATED", "VENDOR_UPDATED", "DELETED"],
+);

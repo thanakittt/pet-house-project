@@ -39,6 +39,7 @@ import {
   inventoryItems,
   purchaseOrders,
   purchaseOrderItems,
+  purchaseOrderLogs,
 } from "./inventory";
 
 // --- Vendor ---
@@ -372,6 +373,8 @@ export const purchaseOrderRelations = relations(
   ({ many, one }) => ({
     // ใบสั่งซื้อมีรายการสินค้าหลายรายการ
     items: many(purchaseOrderItems),
+    // ใบสั่งซื้อมี log หลายรายการ
+    logs: many(purchaseOrderLogs),
     // ใบสั่งซื้อสร้างโดย staff คนหนึ่ง
     staff: one(staffs, {
       fields: [purchaseOrders.staffId],
@@ -491,3 +494,29 @@ export const vendorRelations = relations(vendors, ({ many }) => ({
   purchaseOrders: many(purchaseOrders),
 }));
 
+/**
+ * purchaseOrderLogs → purchaseOrders (N:1)
+ * purchaseOrderLogs → staffs (N:1)
+ */
+export const purchaseOrderLogRelations = relations(
+  purchaseOrderLogs,
+  ({ one }) => ({
+    // log เป็นของใบสั่งซื้อใบหนึ่ง
+    purchaseOrder: one(purchaseOrders, {
+      fields: [purchaseOrderLogs.purchaseOrderId],
+      references: [purchaseOrders.id],
+    }),
+    // log บันทึกโดย staff คนหนึ่ง
+    staff: one(staffs, {
+      fields: [purchaseOrderLogs.staffId],
+      references: [staffs.id],
+    }),
+  }),
+);
+
+/**
+ * staffs → purchaseOrderLogs (1:N)
+ */
+export const staffLogRelations = relations(staffs, ({ many }) => ({
+  purchaseOrderLogs: many(purchaseOrderLogs),
+}));

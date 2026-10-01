@@ -16,6 +16,7 @@ import {
   purchaseOrderFormSchema,
 } from "../types/purchase-order";
 import { staffs } from "@/db/schema/staff";
+import { insertPurchaseOrderLog } from "../utils/insert-purchase-order-log";
 
 /**
  * createPurchaseOrder — สร้างใบสั่งซื้อใหม่
@@ -141,6 +142,13 @@ export async function createPurchaseOrder(
           unitCost: String(item.unitCost), // numeric column ต้องส่งเป็น string
         })),
       );
+
+      // 3. บันทึก log CREATED
+      await insertPurchaseOrderLog(tx, {
+        purchaseOrderId: newOrder.id,
+        staffId: staffRow.id,
+        event: "CREATED",
+      });
 
       return newOrder;
     });

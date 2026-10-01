@@ -6,6 +6,8 @@ import { ActionResponse } from "@/types/action";
 import { requireStaff } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { and, eq, isNull } from "drizzle-orm";
+import { insertPurchaseOrderLog } from "../utils/insert-purchase-order-log";
+import { staffs } from "@/db/schema/staff";
 
 /**
  * deletePurchaseOrder — ลบใบสั่งซื้อ (soft delete)
@@ -22,6 +24,19 @@ export async function deletePurchaseOrder(
       return {
         success: false,
         error: "คุณไม่ได้รับอนุญาตในการลบใบสั่งซื้อ",
+      };
+    }
+
+    // ── ดึง staffId จาก session ──
+    const [staffRow] = await db
+      .select({ id: staffs.id })
+      .from(staffs)
+      .where(eq(staffs.userId, session.user.id));
+
+    if (!staffRow) {
+      return {
+        success: false,
+        error: "ไม่พบข้อมูลพนักงาน กรุณาติดต่อผู้ดูแลระบบ",
       };
     }
 
@@ -47,6 +62,13 @@ export async function deletePurchaseOrder(
     }
 
     await db.transaction(async (tx) => {
+      // บันทึก log DELETED ก่อน soft-delete (ยังอ่าน FK ได้อยู่)
+      await insertPurchaseOrderLog(tx, {
+        purchaseOrderId: id,
+        staffId: staffRow.id,
+        event: "DELETED",
+      });
+
       // ลบ items ก่อน (soft delete)
       await tx
         .update(purchaseOrderItems)

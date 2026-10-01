@@ -15,6 +15,8 @@ import {
   PurchaseOrderStatus,
 } from "../constants/purchase-order-status";
 import { recordTransaction } from "@/lib/finance/record-transaction";
+import { insertPurchaseOrderLog } from "../utils/insert-purchase-order-log";
+import { staffs } from "@/db/schema/staff";
 
 const ALLOWED_TRANSITIONS: Record<PurchaseOrderStatus, PurchaseOrderStatus[]> =
   {
@@ -45,6 +47,19 @@ export async function updatePurchaseOrderStatus(
       return {
         success: false,
         error: "สถานะที่ระบุไม่ถูกต้อง",
+      };
+    }
+
+    // ดึง staffId จาก session
+    const [staffRow] = await db
+      .select({ id: staffs.id })
+      .from(staffs)
+      .where(eq(staffs.userId, session.user.id));
+
+    if (!staffRow) {
+      return {
+        success: false,
+        error: "ไม่พบข้อมูลพนักงาน กรุณาติดต่อผู้ดูแลระบบ",
       };
     }
 
@@ -207,6 +222,15 @@ export async function updatePurchaseOrderStatus(
             });
           }
         }
+
+        // บันทึก log STATUS_CHANGED
+        await insertPurchaseOrderLog(tx, {
+          purchaseOrderId: id,
+          staffId: staffRow.id,
+          event: "STATUS_CHANGED",
+          fromStatus: currentStatus,
+          toStatus: newStatus,
+        });
 
         return { success: true, data: null };
       },

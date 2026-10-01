@@ -36,3 +36,7 @@ _Avoid_: Supplier, Seller, ผู้ขาย, ร้านค้าส่ง
 ชุดข้อมูลสำเนาของผู้จำหน่าย ณ เวลาที่ออกใบสั่งซื้อ (ชื่อ ที่อยู่ เบอร์โทร เลขผู้เสียภาษี) ที่บันทึกแนบไว้กับ PO นั้นๆ โดยตรง เพื่อคงความถูกต้องของเอกสารย้อนหลังตามกฎหมายภาษีและบัญชี แม้ข้อมูลหลักของ Vendor จะถูกเปลี่ยนแปลงในภายหลัง
 _Avoid_: Vendor Copy, Static Vendor
 
+**Purchase Order Log (PO Log)**:
+บันทึกเหตุการณ์ที่เกิดขึ้นกับ PO แต่ละใบ เก็บไว้ใน `purchase_order_logs` ประกอบด้วย event type (CREATED / STATUS_CHANGED / ITEMS_UPDATED / VENDOR_UPDATED / DELETED), ผู้กระทำ (staffId), สถานะก่อน/หลัง (fromStatus/toStatus) และ note ที่ระบบสร้างให้อัตโนมัติ บันทึกเฉพาะเมื่อ action สำเร็จเท่านั้น และห้ามแก้ไขหรือลบ (immutable)
+_Avoid_: Audit Log, Activity Log, History
+
