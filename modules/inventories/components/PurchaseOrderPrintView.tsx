@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Lock } from "lucide-react";
 import Link from "next/link";
 import { Printer, ArrowLeft, Percent, Store, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,13 @@ interface PurchaseOrderPrintViewProps {
  * ซ่อน UI ควบคุมอัตโนมัติเมื่อสั่งพิมพ์ผ่าน @media print
  */
 export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
+  /**
+   * PO ที่อยู่ใน terminal status (RECEIVED / CANCELLED) ห้ามแก้ไข snapshot
+   * เพื่อรักษา audit trail และความถูกต้องของเอกสารทางบัญชี (ADR-0001 ข้อ 5)
+   */
+  const isEditable =
+    order.status !== "RECEIVED" && order.status !== "CANCELLED";
+
   // State ปรับอัตรา VAT (เริ่มต้น 7%)
   const [vatRate, setVatRate] = useState<number>(7);
 
@@ -169,84 +177,91 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
 
           <div className="h-6 w-px bg-slate-200" />
 
-          {/* ปุ่มกรอกข้อมูลผู้จำหน่าย */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 text-xs font-medium"
+          {/* ปุ่มกรอกข้อมูลผู้จำหน่าย — ซ่อนเมื่อ PO อยู่ใน terminal status */}
+          {isEditable ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs font-medium"
+                >
+                  <Store className="w-3.5 h-3.5 mr-1.5 text-slate-600" />
+                  ระบุข้อมูลผู้จำหน่าย
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-80 p-4 text-xs space-y-3"
+                align="start"
               >
-                <Store className="w-3.5 h-3.5 mr-1.5 text-slate-600" />
-                ระบุข้อมูลผู้จำหน่าย
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-80 p-4 text-xs space-y-3"
-              align="start"
-            >
-              <p className="font-bold text-slate-800 text-sm border-b pb-1.5">
-                ข้อมูลผู้จำหน่าย (Vendor)
-              </p>
-              <div>
-                <label className="text-slate-600 block mb-1 font-medium">
-                  ชื่อบริษัท / ผู้จัดจำหน่าย
-                </label>
-                <Input
-                  value={vendorName}
-                  onChange={(e) => setVendorName(e.target.value)}
-                  placeholder="เช่น บริษัท เพ็ทแคร์ จำกัด"
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div>
-                <label className="text-slate-600 block mb-1 font-medium">
-                  ที่อยู่
-                </label>
-                <textarea
-                  rows={2}
-                  value={vendorAddress}
-                  onChange={(e) => setVendorAddress(e.target.value)}
-                  placeholder="ที่อยู่สำหรับออกเอกสาร..."
-                  className="w-full rounded-md border border-input p-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring resize-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
+                <p className="font-bold text-slate-800 text-sm border-b pb-1.5">
+                  ข้อมูลผู้จำหน่าย (Vendor)
+                </p>
                 <div>
                   <label className="text-slate-600 block mb-1 font-medium">
-                    เบอร์โทร
+                    ชื่อบริษัท / ผู้จัดจำหน่าย
                   </label>
                   <Input
-                    value={vendorPhone}
-                    onChange={(e) => setVendorPhone(e.target.value)}
-                    placeholder="02-xxx-xxxx"
+                    value={vendorName}
+                    onChange={(e) => setVendorName(e.target.value)}
+                    placeholder="เช่น บริษัท เพ็ทแคร์ จำกัด"
                     className="h-8 text-xs"
                   />
                 </div>
                 <div>
                   <label className="text-slate-600 block mb-1 font-medium">
-                    เลขผู้เสียภาษี
+                    ที่อยู่
                   </label>
-                  <Input
-                    value={vendorTaxId}
-                    onChange={(e) => setVendorTaxId(e.target.value)}
-                    placeholder="13 หลัก"
-                    className="h-8 text-xs"
+                  <textarea
+                    rows={2}
+                    value={vendorAddress}
+                    onChange={(e) => setVendorAddress(e.target.value)}
+                    placeholder="ที่อยู่สำหรับออกเอกสาร..."
+                    className="w-full rounded-md border border-input p-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring resize-none"
                   />
                 </div>
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                className="w-full h-8 text-xs font-medium bg-slate-900 text-white hover:bg-slate-800"
-                disabled={isSaving}
-                onClick={handleSaveVendorSnapshot}
-              >
-                <Save className="w-3.5 h-3.5 mr-1.5" />
-                {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลผู้จำหน่าย"}
-              </Button>
-            </PopoverContent>
-          </Popover>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-slate-600 block mb-1 font-medium">
+                      เบอร์โทร
+                    </label>
+                    <Input
+                      value={vendorPhone}
+                      onChange={(e) => setVendorPhone(e.target.value)}
+                      placeholder="02-xxx-xxxx"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-600 block mb-1 font-medium">
+                      เลขผู้เสียภาษี
+                    </label>
+                    <Input
+                      value={vendorTaxId}
+                      onChange={(e) => setVendorTaxId(e.target.value)}
+                      placeholder="13 หลัก"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="w-full h-8 text-xs font-medium bg-slate-900 text-white hover:bg-slate-800"
+                  disabled={isSaving}
+                  onClick={handleSaveVendorSnapshot}
+                >
+                  <Save className="w-3.5 h-3.5 mr-1.5" />
+                  {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลผู้จำหน่าย"}
+                </Button>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-slate-100 border border-slate-200 text-xs text-slate-500 font-medium">
+              <Lock className="w-3 h-3" />
+              ข้อมูลผู้จำหน่ายถูกล็อก (เอกสารยืนยันแล้ว)
+            </div>
+          )}
         </div>
 
         {/* ปุ่มสั่งพิมพ์ */}
@@ -332,45 +347,67 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                   <p className="font-bold text-xs uppercase tracking-wider text-slate-500">
                     ผู้จำหน่าย / VENDOR
                   </p>
-                  <div className="flex items-center gap-2 print:hidden">
-                    <span className="text-[10px] text-amber-600 font-medium">
-                      (คลิกพิมพ์แก้ไขได้)
-                    </span>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="h-6 px-2 text-[11px] font-medium text-slate-700 hover:text-slate-900 border-slate-300"
-                      disabled={isSaving}
-                      onClick={handleSaveVendorSnapshot}
-                    >
-                      <Save className="w-3 h-3 mr-1" />
-                      {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลผู้จำหน่าย"}
-                    </Button>
-                  </div>
+                  {isEditable ? (
+                    <div className="flex items-center gap-2 print:hidden">
+                      <span className="text-[10px] text-amber-600 font-medium">
+                        (คลิกพิมพ์แก้ไขได้)
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 text-[11px] font-medium text-slate-700 hover:text-slate-900 border-slate-300"
+                        disabled={isSaving}
+                        onClick={handleSaveVendorSnapshot}
+                      >
+                        <Save className="w-3 h-3 mr-1" />
+                        {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลผู้จำหน่าย"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 print:hidden text-[10px] text-slate-400 font-medium">
+                      <Lock className="w-3 h-3" />
+                      read-only
+                    </div>
+                  )}
                 </div>
                 <input
                   type="text"
                   value={vendorName}
-                  onChange={(e) => setVendorName(e.target.value)}
+                  readOnly={!isEditable}
+                  onChange={isEditable ? (e) => setVendorName(e.target.value) : undefined}
                   placeholder="ระบุชื่อบริษัท / ผู้จัดจำหน่าย..."
-                  className="w-full font-bold text-slate-900 border-b border-dashed border-transparent hover:border-slate-300 focus:border-slate-800 focus:outline-none bg-transparent py-0.5 print:border-none placeholder:text-slate-300"
+                  className={`w-full font-bold text-slate-900 border-b border-dashed border-transparent bg-transparent py-0.5 print:border-none placeholder:text-slate-300 ${
+                    isEditable
+                      ? "hover:border-slate-300 focus:border-slate-800 focus:outline-none"
+                      : "cursor-default select-text"
+                  }`}
                 />
                 <textarea
                   rows={2}
                   value={vendorAddress}
-                  onChange={(e) => setVendorAddress(e.target.value)}
+                  readOnly={!isEditable}
+                  onChange={isEditable ? (e) => setVendorAddress(e.target.value) : undefined}
                   placeholder="ระบุที่อยู่ผู้จัดจำหน่าย..."
-                  className="w-full text-xs text-slate-600 border-b border-dashed border-transparent hover:border-slate-300 focus:border-slate-800 focus:outline-none bg-transparent py-0.5 mt-0.5 resize-none print:border-none placeholder:text-slate-300"
+                  className={`w-full text-xs text-slate-600 border-b border-dashed border-transparent bg-transparent py-0.5 mt-0.5 resize-none print:border-none placeholder:text-slate-300 ${
+                    isEditable
+                      ? "hover:border-slate-300 focus:border-slate-800 focus:outline-none"
+                      : "cursor-default select-text"
+                  }`}
                 />
                 <div className="flex gap-2 text-xs text-slate-600 mt-1">
                   <span>โทร:</span>
                   <input
                     type="text"
                     value={vendorPhone}
-                    onChange={(e) => setVendorPhone(e.target.value)}
+                    readOnly={!isEditable}
+                    onChange={isEditable ? (e) => setVendorPhone(e.target.value) : undefined}
                     placeholder="02-xxx-xxxx"
-                    className="flex-1 border-b border-dashed border-transparent hover:border-slate-300 focus:border-slate-800 focus:outline-none bg-transparent print:border-none placeholder:text-slate-300"
+                    className={`flex-1 border-b border-dashed border-transparent bg-transparent print:border-none placeholder:text-slate-300 ${
+                      isEditable
+                        ? "hover:border-slate-300 focus:border-slate-800 focus:outline-none"
+                        : "cursor-default select-text"
+                    }`}
                   />
                 </div>
                 <div className="flex gap-2 text-xs text-slate-600">
@@ -378,9 +415,14 @@ export function PurchaseOrderPrintView({ order }: PurchaseOrderPrintViewProps) {
                   <input
                     type="text"
                     value={vendorTaxId}
-                    onChange={(e) => setVendorTaxId(e.target.value)}
+                    readOnly={!isEditable}
+                    onChange={isEditable ? (e) => setVendorTaxId(e.target.value) : undefined}
                     placeholder="เลข 13 หลัก"
-                    className="flex-1 border-b border-dashed border-transparent hover:border-slate-300 focus:border-slate-800 focus:outline-none bg-transparent print:border-none placeholder:text-slate-300"
+                    className={`flex-1 border-b border-dashed border-transparent bg-transparent print:border-none placeholder:text-slate-300 ${
+                      isEditable
+                        ? "hover:border-slate-300 focus:border-slate-800 focus:outline-none"
+                        : "cursor-default select-text"
+                    }`}
                   />
                 </div>
               </div>

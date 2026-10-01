@@ -8,5 +8,5 @@
 2. **Back-office Route `/back-office/vendors`**: มีหน้าจัดการผู้จำหน่ายเต็มรูปแบบ (ค้นหา, เพิ่ม, แก้ไข, เปิด/ปิดสถานะ, soft-delete) เข้าถึงได้จากแถบเมนูด้านข้าง
 3. **PO Foreign Key & Snapshot Columns**: ในตาราง `purchase_orders` เพิ่ม `vendor_id` (FK nullable) พร้อมแยกคอลัมน์ Snapshot: `vendor_name`, `vendor_address`, `vendor_phone`, `vendor_tax_id`
 4. **PO Creation Flow**: หน้าสร้าง PO มี Dropdown ให้เลือกผู้จำหน่ายที่เปิดใช้งานอยู่ และ autofill ข้อมูลลงใน snapshot ของฟอร์ม
-5. **Editable Snapshot in Print View**: หน้าพิมพ์ใบสั่งซื้อ (`PurchaseOrderPrintView`) รองรับการดูและแก้ไข snapshot เฉพาะใบสั่งซื้อนั้น พร้อมปุ่มกดบันทึกเพื่ออัปเดต snapshot ลงฐานข้อมูลจริง
+5. **Editable Snapshot in Print View**: หน้าพิมพ์ใบสั่งซื้อ (`PurchaseOrderPrintView`) รองรับการดูและแก้ไข snapshot เฉพาะใบสั่งซื้อนั้น พร้อมปุ่มกดบันทึกเพื่ออัปเดต snapshot ลงฐานข้อมูลจริง **แต่เฉพาะ PO ที่ยังไม่อยู่ใน terminal status เท่านั้น** — PO ที่มีสถานะ `received` (รับของแล้ว) หรือ `cancelled` (ยกเลิก) จะแสดงข้อมูลผู้จำหน่ายแบบ read-only เพื่อรักษา audit trail และความถูกต้องของเอกสารทางบัญชี
 6. **Deletion & Data Safety**: ใช้ Soft Delete ร่วมกับ flag `is_active` ป้องกันการลบข้อมูลผู้จำหน่ายที่เคยมีประวัติการสั่งซื้อในอดีต
