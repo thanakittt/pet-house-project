@@ -81,6 +81,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import PurchaseOrderTimeline from "./PurchaseOrderTimeline";
+import PurchaseOrderDiscrepancyCard from "./PurchaseOrderDiscrepancyCard";
 import type { PurchaseOrderLogEntry } from "../queries/get-purchase-order-logs";
 
 // 1. สร้าง Type สำหรับ Local State เพื่อรองรับค่าว่างใน Edit Mode
@@ -801,7 +802,16 @@ export default function PurchaseOrderDetailPage({
               </div>
             </CardContent>
           </Card>
-            </TabsContent>
+
+          {/* ── Discrepancy Card: แสดงตารางแจ้งเตือนของขาดและปุ่มรับของส่วนที่เหลือ ── */}
+          {currentStatus === "PARTIALLY_RECEIVED" && (
+            <PurchaseOrderDiscrepancyCard
+              orderId={order.id}
+              items={order.items}
+              issues={order.issues}
+            />
+          )}
+        </TabsContent>
 
             {/* ── Tab: ประวัติ ── */}
             <TabsContent value="history">

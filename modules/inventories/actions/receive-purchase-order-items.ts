@@ -344,7 +344,9 @@ export async function receivePurchaseOrderItems(
           note:
             nextStatus === "RECEIVED"
               ? "ตรวจรับสินค้าครบถ้วน"
-              : "ตรวจรับสินค้าบางส่วน (มีสินค้าค้างส่ง)",
+              : currentStatus === "PARTIALLY_RECEIVED"
+                ? "ตรวจรับสินค้าเพิ่มเติม (มีสินค้าค้างส่ง)"
+                : "ตรวจรับสินค้าบางส่วน (มีสินค้าค้างส่ง)",
         });
 
         return {

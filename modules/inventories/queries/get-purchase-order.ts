@@ -46,6 +46,16 @@ export async function getPurchaseOrder(
             },
           },
         },
+        // JOIN issues พร้อม inventory item name
+        issues: {
+          with: {
+            inventoryItem: {
+              columns: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -56,7 +66,7 @@ export async function getPurchaseOrder(
       };
     }
 
-    const { staff, items, ...order } = row;
+    const { staff, items, issues, ...order } = row;
 
     // แปลงข้อมูลให้ตรงกับ PurchaseOrderDetail type
     const data: PurchaseOrderDetail = {
@@ -64,6 +74,10 @@ export async function getPurchaseOrder(
       staffNickname: staff?.nickname ?? "ไม่ระบุพนักงาน",
       items: items.map(({ inventoryItem, ...item }) => ({
         ...item,
+        inventoryItemName: inventoryItem?.name ?? "ไม่ระบุสินค้า",
+      })),
+      issues: (issues ?? []).map(({ inventoryItem, ...issue }) => ({
+        ...issue,
         inventoryItemName: inventoryItem?.name ?? "ไม่ระบุสินค้า",
       })),
     };

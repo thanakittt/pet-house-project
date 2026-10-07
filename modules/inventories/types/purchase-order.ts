@@ -1,5 +1,5 @@
 import { InferSelectModel } from "drizzle-orm";
-import { purchaseOrderItems, purchaseOrders } from "@/db/schema";
+import { purchaseOrderIssues, purchaseOrderItems, purchaseOrders } from "@/db/schema";
 import { z } from "zod";
 
 // ===================================================
@@ -41,6 +41,9 @@ export type DbPurchaseOrder = InferSelectModel<typeof purchaseOrders>;
 /** Type ตรงกับ row ใน purchase_order_items table */
 export type DbPurchaseOrderItem = InferSelectModel<typeof purchaseOrderItems>;
 
+/** Type ตรงกับ row ใน purchase_order_issues table */
+export type DbPurchaseOrderIssue = InferSelectModel<typeof purchaseOrderIssues>;
+
 // ===================================================
 // Application Types — ใช้ในหน้า UI / component
 // ===================================================
@@ -67,12 +70,22 @@ export interface PurchaseOrderItemDetail extends DbPurchaseOrderItem {
 }
 
 /**
+ * PurchaseOrderIssueDetail — รายการสินค้าที่ค้างส่ง/ปัญหาในใบสั่งซื้อ
+ * รวม inventoryItemName ที่ JOIN มาจาก inventory_items table
+ */
+export interface PurchaseOrderIssueDetail extends DbPurchaseOrderIssue {
+  /** ชื่อสินค้าจาก inventory_items */
+  inventoryItemName: string;
+}
+
+/**
  * PurchaseOrderDetail — ใช้ใน detail/edit page
  * รวม items ทั้งหมดของใบสั่งซื้อ
  */
 export interface PurchaseOrderDetail extends DbPurchaseOrder {
   staffNickname: string;
   items: PurchaseOrderItemDetail[];
+  issues?: PurchaseOrderIssueDetail[];
 }
 
 // ===================================================

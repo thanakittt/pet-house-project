@@ -82,12 +82,17 @@ export default function StatusUpdate({
         }
 
         const initialQuantities: Record<string, number> = {};
-        result.data.forEach((row) => {
+        const activeRows =
+          localStatus === "PARTIALLY_RECEIVED"
+            ? result.data.filter((row) => row.remainingQuantity > 0)
+            : result.data;
+
+        activeRows.forEach((row) => {
           initialQuantities[row.purchaseOrderItemId] = row.remainingQuantity;
         });
 
         setReceivedQuantities(initialQuantities);
-        setPreviewRows(result.data);
+        setPreviewRows(activeRows);
         setDialogOpen(true);
       } catch {
         toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูล");
