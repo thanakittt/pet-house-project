@@ -803,8 +803,15 @@ export default function PurchaseOrderDetailPage({
             </CardContent>
           </Card>
 
-          {/* ── Discrepancy Card: แสดงตารางแจ้งเตือนของขาดและปุ่มรับของส่วนที่เหลือ ── */}
-          {currentStatus === "PARTIALLY_RECEIVED" && (
+          {/* ── Discrepancy Card: แสดงตารางแจ้งเตือนของขาดและปุ่มรับของส่วนที่เหลือ / บันทึกการยุติปัญหา ── */}
+          {(currentStatus === "PARTIALLY_RECEIVED" ||
+            (currentStatus === "RECEIVED" &&
+              order.issues?.some(
+                (i) =>
+                  i.status === "RESOLVED" &&
+                  i.resolutionType &&
+                  i.resolutionType !== "ALL_ITEMS_RECEIVED",
+              ))) && (
             <PurchaseOrderDiscrepancyCard
               orderId={order.id}
               items={order.items}

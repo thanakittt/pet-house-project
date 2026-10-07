@@ -191,3 +191,21 @@ export type UpdatePurchaseOrderVendorSnapshotInput = z.infer<
   typeof updatePurchaseOrderVendorSnapshotSchema
 >;
 
+export const resolvePurchaseOrderDiscrepancySchema = z.object({
+  purchaseOrderId: z.string().uuid("รหัสใบสั่งซื้อไม่ถูกต้อง"),
+  resolutionType: z.enum(
+    ["DISCOUNT_NEXT_ORDER", "REFUNDED", "WAIVED"],
+    { message: "กรุณาเลือกรูปแบบการยุติปัญหาที่ถูกต้อง" },
+  ),
+  resolutionNote: z
+    .string()
+    .trim()
+    .min(1, "กรุณาระบุบันทึกข้อตกลง / เหตุผลการยุติปัญหา")
+    .max(1000, "บันทึกข้อตกลงต้องไม่เกิน 1,000 ตัวอักษร"),
+});
+
+export type ResolvePurchaseOrderDiscrepancyInput = z.infer<
+  typeof resolvePurchaseOrderDiscrepancySchema
+>;
+
+

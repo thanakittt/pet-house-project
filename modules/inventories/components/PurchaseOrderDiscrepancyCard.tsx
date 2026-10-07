@@ -11,10 +11,17 @@ import {
   Plus,
   Loader2,
   Clock,
+  ShieldAlert,
+  CheckCircle2,
+  FileText,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Card,
   CardContent,
@@ -40,11 +47,18 @@ import {
 } from "@/components/ui/dialog";
 import { getReceivePreview } from "@/modules/inventories/actions/get-receive-preview";
 import { receivePurchaseOrderItems } from "@/modules/inventories/actions/receive-purchase-order-items";
+import { resolvePurchaseOrderDiscrepancy } from "@/modules/inventories/actions/resolve-purchase-order-discrepancy";
+import {
+  PURCHASE_ORDER_MANUAL_RESOLUTION_TYPES,
+  RESOLUTION_TYPE_CONFIG,
+  type PurchaseOrderManualResolutionType,
+} from "@/modules/inventories/constants/purchase-order-issue";
 import type {
   PurchaseOrderItemDetail,
   PurchaseOrderIssueDetail,
   ReceivePreviewRow,
 } from "@/modules/inventories/types/purchase-order";
+import { formatThaiDateTime } from "@/lib/utils";
 
 // ── Helper: format ยอดเงินเป็นบาท ──
 function formatCurrency(value: number): string {
@@ -68,13 +82,19 @@ export default function PurchaseOrderDiscrepancyCard({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // State สำหรับ Dialog
-  const [dialogOpen, setDialogOpen] = useState(false);
+  // State สำหรับ Dialog ตรวจรับสินค้าส่วนที่เหลือ
+  const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [previewRows, setPreviewRows] = useState<ReceivePreviewRow[]>([]);
   const [receivedQuantities, setReceivedQuantities] = useState<
     Record<string, number>
   >({});
+
+  // State สำหรับ Dialog ยุติปัญหาของขาด (Resolve Issue)
+  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
+  const [selectedResolutionType, setSelectedResolutionType] =
+    useState<PurchaseOrderManualResolutionType>("DISCOUNT_NEXT_ORDER");
+  const [resolutionNote, setResolutionNote] = useState("");
 
   // กรองเฉพาะรายการที่ยังมีของค้างส่ง (shortage > 0)
   const outstandingItems = items
@@ -95,7 +115,147 @@ export default function PurchaseOrderDiscrepancyCard({
       };
     });
 
+  // กรองรายการปัญหาที่ถูกยุติเรียบร้อยแล้วโดยไม่ส่งของ
+  const resolvedNonDeliveryIssues = issues.filter(
+    (iss) =>
+      iss.status === "RESOLVED" &&
+      iss.resolutionType &&
+      iss.resolutionType !== "ALL_ITEMS_RECEIVED",
+  );
+
+  // หากไม่มีรายการค้างส่ง แต่มีรายการที่ยุติปัญหาแล้ว → แสดงการ์ดยืนยันการยุติปัญหา (Resolved card)
   if (outstandingItems.length === 0) {
+    if (resolvedNonDeliveryIssues.length > 0) {
+      const primaryIssue = resolvedNonDeliveryIssues[0];
+      const resConfig = primaryIssue?.resolutionType
+        ? RESOLUTION_TYPE_CONFIG[
+            primaryIssue.resolutionType as PurchaseOrderManualResolutionType
+          ]
+        : null;
+
+      const totalResolvedShortage = resolvedNonDeliveryIssues.reduce(
+        (sum, iss) => sum + iss.shortageQuantity,
+        0,
+      );
+
+      return (
+        <Card
+          id="po-resolved-discrepancy-card"
+          className="mt-6 border-emerald-500/30 bg-emerald-500/[0.03] shadow-sm overflow-hidden"
+        >
+          <CardHeader className="px-6 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-emerald-500/10 p-1.5 text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="size-4" />
+                  </div>
+                  <CardTitle className="text-base font-bold text-emerald-950 dark:text-emerald-200">
+                    บันทึกการยุติปัญหาของขาดในใบสั่งซื้อ (Discrepancy Resolved)
+                  </CardTitle>
+                  {resConfig && (
+                    <Badge
+                      variant="outline"
+                      className={`text-xs font-semibold ml-1 ${resConfig.badgeClass}`}
+                    >
+                      {resConfig.shortLabel}
+                    </Badge>
+                  )}
+                </div>
+                <CardDescription className="text-xs text-muted-foreground">
+                  ใบสั่งซื้อนี้ปิดสมบูรณ์แล้วโดยยุติปัญหาของขาด ({totalResolvedShortage} ชิ้น)
+                  ตามข้อตกลงร่วมกับผู้จำหน่าย
+                </CardDescription>
+              </div>
+
+              {primaryIssue?.resolvedAt && (
+                <div className="text-xs text-muted-foreground">
+                  บันทึกเมื่อ:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatThaiDateTime(primaryIssue.resolvedAt)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="px-6 pb-5 space-y-4">
+            {primaryIssue?.resolutionNote && (
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.05] p-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <FileText className="size-4 text-emerald-600 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-emerald-900 dark:text-emerald-200 text-xs">
+                      บันทึกข้อตกลง:
+                    </span>
+                    <p className="text-sm text-foreground mt-0.5">
+                      {primaryIssue.resolutionNote}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-lg border overflow-hidden">
+              <Table id="po-resolved-issues-table">
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-12 text-left text-xs font-semibold">
+                      #
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold">
+                      รายการสินค้าที่ขาด
+                    </TableHead>
+                    <TableHead className="text-right text-xs font-semibold">
+                      จำนวนสั่ง
+                    </TableHead>
+                    <TableHead className="text-right text-xs font-semibold">
+                      รับจริง
+                    </TableHead>
+                    <TableHead className="text-right text-xs font-semibold text-amber-600">
+                      ยอดขาดที่ยุติ
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-semibold">
+                      รูปแบบการยุติ
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {resolvedNonDeliveryIssues.map((iss, idx) => (
+                    <TableRow key={iss.id}>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {idx + 1}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {iss.inventoryItemName}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground tabular-nums">
+                        {iss.orderedQuantity}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground tabular-nums">
+                        {iss.receivedQuantity}
+                      </TableCell>
+                      <TableCell className="text-right font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                        {iss.shortageQuantity} ชิ้น
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant="outline"
+                          className="text-[11px] border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                        >
+                          ยุติปัญหาแล้ว
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
     return null;
   }
 
@@ -111,7 +271,7 @@ export default function PurchaseOrderDiscrepancyCard({
   /**
    * เปิด Dialog และโหลดข้อมูล preview รายการสินค้าที่ยังค้างส่ง
    */
-  const handleOpenDialog = async () => {
+  const handleOpenReceiveDialog = async () => {
     setIsLoadingPreview(true);
     try {
       const result = await getReceivePreview(orderId);
@@ -127,15 +287,14 @@ export default function PurchaseOrderDiscrepancyCard({
 
       const initialQuantities: Record<string, number> = {};
       outstandingRows.forEach((row) => {
-        // ค่าเริ่มต้นกรอกตามจำนวนที่ค้างส่ง เพื่อให้กดยืนยันได้ทันทีหากส่งครบ
         initialQuantities[row.purchaseOrderItemId] = row.remainingQuantity;
       });
 
       setPreviewRows(outstandingRows);
       setReceivedQuantities(initialQuantities);
-      setDialogOpen(true);
+      setReceiveDialogOpen(true);
     } catch (error) {
-      console.error("handleOpenDialog error:", error);
+      console.error("handleOpenReceiveDialog error:", error);
       toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสินค้า");
     } finally {
       setIsLoadingPreview(false);
@@ -152,7 +311,8 @@ export default function PurchaseOrderDiscrepancyCard({
           .map((row) => ({
             purchaseOrderItemId: row.purchaseOrderItemId,
             receivedQuantity:
-              receivedQuantities[row.purchaseOrderItemId] ?? row.remainingQuantity,
+              receivedQuantities[row.purchaseOrderItemId] ??
+              row.remainingQuantity,
           }))
           .filter((item) => item.receivedQuantity > 0);
 
@@ -171,7 +331,7 @@ export default function PurchaseOrderDiscrepancyCard({
           return;
         }
 
-        setDialogOpen(false);
+        setReceiveDialogOpen(false);
         toast.success(
           result.data?.status === "RECEIVED"
             ? "ตรวจรับสินค้าครบถ้วนเรียบร้อย ใบสั่งซื้อปิดสมบูรณ์"
@@ -186,7 +346,42 @@ export default function PurchaseOrderDiscrepancyCard({
     });
   };
 
-  // คำนวณสรุปใน Dialog
+  /**
+   * ส่ง Server Action ยุติปัญหาของขาดโดยไม่รับของ (Resolve Discrepancy)
+   */
+  const handleConfirmResolution = () => {
+    if (!resolutionNote.trim()) {
+      toast.error("กรุณาระบุบันทึกข้อตกลง / เหตุผลการยุติปัญหา");
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const result = await resolvePurchaseOrderDiscrepancy({
+          purchaseOrderId: orderId,
+          resolutionType: selectedResolutionType,
+          resolutionNote: resolutionNote.trim(),
+        });
+
+        if (!result.success) {
+          toast.error(result.error || "ไม่สามารถบันทึกการยุติปัญหาได้");
+          return;
+        }
+
+        setResolveDialogOpen(false);
+        toast.success(
+          "ยุติปัญหาของขาดและปิดใบสั่งซื้อเรียบร้อย (สถานะ 'รับของแล้ว')",
+        );
+        router.refresh();
+      } catch (error) {
+        const msg =
+          error instanceof Error ? error.message : "เกิดข้อผิดพลาดที่ไม่รู้จัก";
+        toast.error(`เกิดข้อผิดพลาด: ${msg}`);
+      }
+    });
+  };
+
+  // คำนวณสรุปใน Dialog รับของ
   const totalReceivedInDialog = previewRows.reduce((sum, row) => {
     const qty =
       receivedQuantities[row.purchaseOrderItemId] ?? row.remainingQuantity;
@@ -233,14 +428,24 @@ export default function PurchaseOrderDiscrepancyCard({
               </div>
               <CardDescription className="text-xs text-amber-800/80 dark:text-amber-300/80">
                 ตรวจพบรายการสินค้าที่ยังไม่ได้รับมอบครบตามยอดสั่งซื้อ
-                สามารถบันทึกตรวจรับสินค้าส่วนที่เหลือเมื่อร้านค้าจัดส่งเพิ่มเติม
+                สามารถบันทึกตรวจรับสินค้าส่วนที่เหลือ หรือยุติปัญหาเมื่อตกลงชดเชยเรียบร้อย
               </CardDescription>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               <Button
+                id="resolve-issue-btn"
+                variant="outline"
+                onClick={() => setResolveDialogOpen(true)}
+                disabled={isLoadingPreview || isPending}
+                className="border-amber-600/40 text-amber-900 hover:bg-amber-500/10 dark:text-amber-200 dark:border-amber-400/40 font-medium gap-1.5 h-9"
+              >
+                <ShieldAlert className="size-4 text-amber-600 dark:text-amber-400" />
+                ยุติปัญหา
+              </Button>
+              <Button
                 id="receive-remaining-btn"
-                onClick={handleOpenDialog}
+                onClick={handleOpenReceiveDialog}
                 disabled={isLoadingPreview || isPending}
                 className="bg-amber-600 hover:bg-amber-700 text-white font-medium gap-1.5 shadow-sm h-9"
               >
@@ -344,8 +549,8 @@ export default function PurchaseOrderDiscrepancyCard({
         </CardContent>
       </Card>
 
-      {/* Dialog: ตรวจรับสินค้าส่วนที่เหลือ (แสดงเฉพาะรายการค้างส่ง) */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* ── Dialog 1: ตรวจรับสินค้าส่วนที่เหลือ (แสดงเฉพาะรายการค้างส่ง) ── */}
+      <Dialog open={receiveDialogOpen} onOpenChange={setReceiveDialogOpen}>
         <DialogContent
           id="receive-remaining-dialog"
           className="sm:max-w-4xl max-h-[90vh] overflow-y-auto"
@@ -502,7 +707,7 @@ export default function PurchaseOrderDiscrepancyCard({
               <Check className="size-4 shrink-0 text-emerald-600" />
               <p className="font-semibold text-xs sm:text-sm">
                 สินค้าจะได้รับครบถ้วนทุกรายการ — ใบสั่งซื้อจะเปลี่ยนสถานะเป็น{" "}
-                <strong>"รับของแล้ว" (Received)</strong> และปิดรายการปัญหาทั้งหมด
+                <strong>&ldquo;รับของแล้ว&rdquo; (Received)</strong> และปิดรายการปัญหาทั้งหมด
               </p>
             </div>
           ) : (
@@ -514,7 +719,7 @@ export default function PurchaseOrderDiscrepancyCard({
                 </p>
                 <p className="text-xs text-amber-700/90 dark:text-amber-300/90 mt-0.5">
                   ใบสั่งซื้อจะยังคงอยู่ในสถานะ{" "}
-                  <strong>"รับสินค้าบางส่วน" (Partially Received)</strong>{" "}
+                  <strong>&ldquo;รับสินค้าบางส่วน&rdquo; (Partially Received)</strong>{" "}
                   เพื่อรองรับการตรวจรับในรอบถัดไป
                 </p>
               </div>
@@ -533,7 +738,7 @@ export default function PurchaseOrderDiscrepancyCard({
               <Button
                 id="cancel-receive-remaining-btn"
                 variant="outline"
-                onClick={() => setDialogOpen(false)}
+                onClick={() => setReceiveDialogOpen(false)}
                 disabled={isPending}
               >
                 ยกเลิก
@@ -560,6 +765,162 @@ export default function PurchaseOrderDiscrepancyCard({
                 )}
               </Button>
             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog 2: ยุติปัญหาของขาด (Resolve Issue without delivery) ── */}
+      <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
+        <DialogContent
+          id="resolve-discrepancy-dialog"
+          className="sm:max-w-xl max-h-[90vh] overflow-y-auto"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <ShieldAlert className="size-5 text-amber-600 dark:text-amber-400" />
+              ยุติปัญหาของขาด (Resolve Issue)
+            </DialogTitle>
+            <DialogDescription>
+              กรณีร้านค้าไม่สามารถจัดส่งสินค้าที่ขาดได้ และตกลงชดเชยผ่านส่วนลด,
+              คืนเงิน หรือยกเลิก การยุติปัญหานี้จะปิดใบสั่งซื้อเป็น &ldquo;รับของแล้ว&rdquo;
+              โดยไม่มีการเพิ่มสต็อกหรือคิดค่าใช้จ่ายเพิ่มเติม
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* สรุปรายการสินค้าที่ค้างส่งและจะถูกยุติปัญหา */}
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-3 space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-amber-900 dark:text-amber-200">
+                <span>สรุปรายการสินค้าที่จะยุติปัญหา ({outstandingItems.length} รายการ)</span>
+                <span>รวมค้างส่ง: {totalShortageQuantity} ชิ้น</span>
+              </div>
+              <div className="text-xs text-muted-foreground divide-y divide-amber-500/10">
+                {outstandingItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="py-1 flex items-center justify-between"
+                  >
+                    <span className="font-medium text-foreground">
+                      {item.inventoryItemName}
+                    </span>
+                    <span className="tabular-nums">
+                      ขาด {item.shortageQuantity} ชิ้น (฿{formatCurrency(item.shortageAmount)})
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="pt-1 border-t border-amber-500/20 flex items-center justify-between text-xs font-bold text-amber-900 dark:text-amber-200">
+                <span>มูลค่ารวมของสินค้าที่ยุติปัญหา:</span>
+                <span className="text-amber-600 dark:text-amber-400 tabular-nums">
+                  ฿{formatCurrency(totalShortageAmount)}
+                </span>
+              </div>
+            </div>
+
+            {/* ตัวเลือกรูปแบบการยุติปัญหา (Resolution Type) */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-foreground">
+                รูปแบบการยุติปัญหา (Resolution Type) <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup
+                value={selectedResolutionType}
+                onValueChange={(val) =>
+                  setSelectedResolutionType(
+                    val as PurchaseOrderManualResolutionType,
+                  )
+                }
+                className="grid gap-2"
+              >
+                {PURCHASE_ORDER_MANUAL_RESOLUTION_TYPES.map((type) => {
+                  const cfg = RESOLUTION_TYPE_CONFIG[type];
+                  const isChecked = selectedResolutionType === type;
+
+                  return (
+                    <label
+                      key={type}
+                      htmlFor={`resolution-type-${type}`}
+                      className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                        isChecked
+                          ? "border-amber-500/60 bg-amber-500/10"
+                          : "border-border hover:bg-muted/50"
+                      }`}
+                    >
+                      <RadioGroupItem
+                        id={`resolution-type-${type}`}
+                        value={type}
+                        className="mt-0.5"
+                      />
+                      <div className="space-y-0.5 min-w-0 flex-1">
+                        <div className="text-sm font-semibold text-foreground">
+                          {cfg.label}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {cfg.description}
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </RadioGroup>
+            </div>
+
+            {/* บันทึกข้อตกลง / เหตุผล */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="resolution-note-input"
+                className="text-sm font-semibold text-foreground"
+              >
+                บันทึกข้อตกลง / เหตุผลการยุติปัญหา <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="resolution-note-input"
+                value={resolutionNote}
+                onChange={(e) => setResolutionNote(e.target.value)}
+                placeholder="เช่น ได้รับการโอนเงินคืน 600 บาทเข้าบัญชีบริษัทแล้ว หรือ ผู้จำหน่ายตกลงให้ส่วนลดใน PO รอบถัดไป..."
+                rows={3}
+                disabled={isPending}
+                className="resize-none"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                ข้อความนี้จะถูกบันทึกเป็นประวัติ Audit Trail เพื่อใช้อ้างอิงการตรวจสอบภายใน
+              </p>
+            </div>
+
+            {/* Warning Callout */}
+            <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground flex items-start gap-2">
+              <Info className="size-4 shrink-0 text-muted-foreground mt-0.5" />
+              <p>
+                เมื่อยืนยันแล้ว สถานะใบสั่งซื้อจะเปลี่ยนเป็น{" "}
+                <strong className="text-foreground">&ldquo;รับของแล้ว&rdquo; (Received)</strong>{" "}
+                โดยไม่มีการเพิ่มสต็อกสินค้าคงคลัง และไม่มีการบันทึกค่าใช้จ่ายเพิ่มเติม
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-end items-center pt-2">
+            <Button
+              id="cancel-resolve-issue-btn"
+              variant="outline"
+              onClick={() => setResolveDialogOpen(false)}
+              disabled={isPending}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              id="confirm-resolve-issue-btn"
+              onClick={handleConfirmResolution}
+              disabled={isPending || !resolutionNote.trim()}
+              className="bg-amber-600 hover:bg-amber-700 text-white font-medium"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 size={14} className="animate-spin mr-2" />
+                  กำลังบันทึก…
+                </>
+              ) : (
+                "ยืนยันการยุติปัญหา"
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
