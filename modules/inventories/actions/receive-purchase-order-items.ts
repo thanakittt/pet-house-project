@@ -19,7 +19,7 @@ import { z } from "zod";
 
 const MAX_SMALLINT = 32767;
 
-export const receivePurchaseOrderItemInputSchema = z.object({
+const receivePurchaseOrderItemInputSchema = z.object({
   purchaseOrderItemId: z.string().uuid("รหัสรายการสินค้าไม่ถูกต้อง"),
   receivedQuantity: z
     .number({ message: "จำนวนสินค้าต้องเป็นตัวเลข" })
@@ -27,7 +27,7 @@ export const receivePurchaseOrderItemInputSchema = z.object({
     .min(0, "จำนวนสินค้าต้องไม่ติดลบ"),
 });
 
-export const receivePurchaseOrderItemsSchema = z.object({
+const receivePurchaseOrderItemsSchema = z.object({
   purchaseOrderId: z.string().uuid("รหัสใบสั่งซื้อไม่ถูกต้อง"),
   items: z
     .array(receivePurchaseOrderItemInputSchema)
