@@ -814,6 +814,7 @@ export default function PurchaseOrderDetailPage({
               ))) && (
             <PurchaseOrderDiscrepancyCard
               orderId={order.id}
+              orderStatus={currentStatus}
               items={order.items}
               issues={order.issues}
             />

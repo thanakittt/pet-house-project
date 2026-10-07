@@ -53,6 +53,7 @@ import {
   RESOLUTION_TYPE_CONFIG,
   type PurchaseOrderManualResolutionType,
 } from "@/modules/inventories/constants/purchase-order-issue";
+import type { PurchaseOrderStatus } from "@/modules/inventories/constants/purchase-order-status";
 import type {
   PurchaseOrderItemDetail,
   PurchaseOrderIssueDetail,
@@ -72,12 +73,14 @@ interface PurchaseOrderDiscrepancyCardProps {
   orderId: string;
   items: PurchaseOrderItemDetail[];
   issues?: PurchaseOrderIssueDetail[];
+  orderStatus?: PurchaseOrderStatus;
 }
 
 export default function PurchaseOrderDiscrepancyCard({
   orderId,
   items,
   issues = [],
+  orderStatus,
 }: PurchaseOrderDiscrepancyCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -96,25 +99,6 @@ export default function PurchaseOrderDiscrepancyCard({
     useState<PurchaseOrderManualResolutionType>("DISCOUNT_NEXT_ORDER");
   const [resolutionNote, setResolutionNote] = useState("");
 
-  // กรองเฉพาะรายการที่ยังมีของค้างส่ง (shortage > 0)
-  const outstandingItems = items
-    .filter((item) => item.quantity > item.receivedQuantity)
-    .map((item) => {
-      const shortage = item.quantity - item.receivedQuantity;
-      const unitCostNum = parseFloat(item.unitCost) || 0;
-      const matchingIssue = issues.find(
-        (iss) => iss.purchaseOrderItemId === item.id && iss.status === "OPEN",
-      );
-
-      return {
-        ...item,
-        shortageQuantity: shortage,
-        unitCostNum,
-        shortageAmount: shortage * unitCostNum,
-        issueId: matchingIssue?.id,
-      };
-    });
-
   // กรองรายการปัญหาที่ถูกยุติเรียบร้อยแล้วโดยไม่ส่งของ
   const resolvedNonDeliveryIssues = issues.filter(
     (iss) =>
@@ -122,6 +106,37 @@ export default function PurchaseOrderDiscrepancyCard({
       iss.resolutionType &&
       iss.resolutionType !== "ALL_ITEMS_RECEIVED",
   );
+
+  // กรองเฉพาะรายการที่ยังมีของค้างส่งและยังไม่ได้รับการยุติปัญหา (shortage > 0 และ issue ยังไม่ RESOLVED)
+  // หากสถานะ PO เป็น RECEIVED แล้ว หรือรายการถูก Resolve แล้ว จะไม่นับเป็น outstanding
+  const outstandingItems =
+    orderStatus === "RECEIVED"
+      ? []
+      : items
+          .filter((item) => {
+            const hasShortage = item.quantity > item.receivedQuantity;
+            if (!hasShortage) return false;
+            const matchingIssue = issues.find(
+              (iss) => iss.purchaseOrderItemId === item.id,
+            );
+            return matchingIssue?.status !== "RESOLVED";
+          })
+          .map((item) => {
+            const shortage = item.quantity - item.receivedQuantity;
+            const unitCostNum = parseFloat(item.unitCost) || 0;
+            const matchingIssue = issues.find(
+              (iss) =>
+                iss.purchaseOrderItemId === item.id && iss.status === "OPEN",
+            );
+
+            return {
+              ...item,
+              shortageQuantity: shortage,
+              unitCostNum,
+              shortageAmount: shortage * unitCostNum,
+              issueId: matchingIssue?.id,
+            };
+          });
 
   // หากไม่มีรายการค้างส่ง แต่มีรายการที่ยุติปัญหาแล้ว → แสดงการ์ดยืนยันการยุติปัญหา (Resolved card)
   if (outstandingItems.length === 0) {
