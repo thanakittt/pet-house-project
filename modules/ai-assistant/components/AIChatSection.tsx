@@ -9,6 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area" // ใช้ ScrollArea
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+
 type Message = {
     role: "user" | "assistant";
     content: string;
@@ -33,27 +36,91 @@ const ChatBubble = ({ msg, isLoading = false }: { msg?: Message; isLoading?: boo
 
     return (
         <div className={cn(
-            "slide-in-from-bottom-2 flex gap-3 max-w-[85%] md:max-w-[70%] animate-in duration-300 fade-in",
+            "slide-in-from-bottom-2 flex gap-3 max-w-[88%] md:max-w-[75%] animate-in duration-300 fade-in",
             isUser ? "ml-auto flex-row-reverse" : "mr-auto"
         )}>
             <div className={cn(
-                "flex justify-center items-center border rounded-full size-8 transition-all shrink-0",
+                "flex justify-center items-center border rounded-full size-8 transition-all shrink-0 mt-0.5",
                 isUser ? "bg-primary text-primary-foreground border-primary" : "bg-card border-primary/10 text-primary shadow-sm"
             )}>
                 {isUser ? <User size={16} /> : <Bot size={16} />}
             </div>
             <div className={cn(
-                "shadow-sm px-3 py-2 rounded-2xl text-sm leading-relaxed",
+                "shadow-sm px-4 py-3 rounded-2xl text-sm leading-relaxed",
                 isUser
-                    ? "bg-primary text-primary-foreground rounded-tr-none"
-                    : "bg-card text-card-foreground rounded-tl-none border"
+                    ? "bg-primary text-primary-foreground rounded-tr-none whitespace-pre-wrap break-words"
+                    : "bg-card text-card-foreground rounded-tl-none border break-words"
             )}>
                 {isLoading ? (
                     <div className="flex items-center gap-2 text-muted-foreground italic">
                         <Loader2 size={14} className="animate-spin" /> กำลังคิดคำตอบให้ทาสแป๊บนึงนะ...
                     </div>
-                ) : (
+                ) : isUser ? (
                     msg?.content
+                ) : (
+                    <div className="space-y-2 text-foreground/90">
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                                h3: ({ children }) => (
+                                    <h3 className="font-bold text-foreground text-sm mt-3 mb-1.5 first:mt-0 flex items-center gap-1.5">
+                                        {children}
+                                    </h3>
+                                ),
+                                h4: ({ children }) => (
+                                    <h4 className="font-semibold text-foreground text-xs mt-2 mb-1">
+                                        {children}
+                                    </h4>
+                                ),
+                                p: ({ children }) => (
+                                    <p className="leading-relaxed mb-2 last:mb-0">
+                                        {children}
+                                    </p>
+                                ),
+                                ul: ({ children }) => (
+                                    <ul className="my-1.5 ml-4 list-disc space-y-1">
+                                        {children}
+                                    </ul>
+                                ),
+                                ol: ({ children }) => (
+                                    <ol className="my-1.5 ml-4 list-decimal space-y-1">
+                                        {children}
+                                    </ol>
+                                ),
+                                li: ({ children }) => (
+                                    <li className="leading-relaxed text-sm">
+                                        {children}
+                                    </li>
+                                ),
+                                strong: ({ children }) => (
+                                    <strong className="font-semibold text-foreground">
+                                        {children}
+                                    </strong>
+                                ),
+                                a: ({ href, children }) => {
+                                    const isTel = href?.startsWith("tel:");
+                                    return (
+                                        <a
+                                            href={href}
+                                            target={isTel ? undefined : "_blank"}
+                                            rel={isTel ? undefined : "noopener noreferrer"}
+                                            className="text-primary hover:underline font-semibold inline-flex items-center gap-0.5 underline-offset-2"
+                                        >
+                                            {children}
+                                        </a>
+                                    );
+                                },
+                                hr: () => <hr className="my-2.5 border-border/60" />,
+                                blockquote: ({ children }) => (
+                                    <blockquote className="border-l-2 border-primary/40 pl-2.5 py-0.5 my-2 italic text-muted-foreground bg-muted/20 rounded-r">
+                                        {children}
+                                    </blockquote>
+                                ),
+                            }}
+                        >
+                            {msg?.content || ""}
+                        </ReactMarkdown>
+                    </div>
                 )}
             </div>
         </div>
