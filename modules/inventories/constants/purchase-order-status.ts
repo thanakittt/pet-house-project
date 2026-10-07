@@ -4,7 +4,12 @@
 // ===================================================
 
 /** สถานะทั้งหมดที่ DB รองรับ */
-export type PurchaseOrderStatus = "DRAFT" | "ORDERED" | "RECEIVED" | "CANCELLED";
+export type PurchaseOrderStatus =
+  | "DRAFT"
+  | "ORDERED"
+  | "PARTIALLY_RECEIVED"
+  | "RECEIVED"
+  | "CANCELLED";
 
 /**
  * ค่า config สำหรับแต่ละสถานะ
@@ -36,6 +41,13 @@ export const PURCHASE_ORDER_STATUS_CONFIG: Record<
     group: "Active",
     color: "bg-amber-500/10 text-amber-700 border-amber-500/50 hover:bg-amber-500/20 dark:text-amber-300",
     dot: "bg-amber-400 border-amber-400",
+    next: "RECEIVED",
+  },
+  PARTIALLY_RECEIVED: {
+    title: "รับสินค้าบางส่วน",
+    group: "Active",
+    color: "bg-sky-500/10 text-sky-700 border-sky-500/50 hover:bg-sky-500/20 dark:text-sky-300",
+    dot: "bg-sky-400 border-sky-400",
     next: "RECEIVED",
   },
   RECEIVED: {
@@ -75,6 +87,7 @@ export function isValidPurchaseOrderStatus(
 /** สถานะที่อนุญาตให้พิมพ์ใบสั่งซื้อ (A4) */
 export const PRINTABLE_PURCHASE_ORDER_STATUSES: readonly PurchaseOrderStatus[] = [
   "ORDERED",
+  "PARTIALLY_RECEIVED",
   "RECEIVED",
 ] as const;
 

@@ -1,9 +1,16 @@
 import * as p from "drizzle-orm/pg-core";
 import { timestamps } from "./column.helper";
-import { purchaseOrderStatusEnum, unitTypeEnum, purchaseOrderLogEventEnum } from "./enum";
+import {
+  purchaseOrderStatusEnum,
+  unitTypeEnum,
+  purchaseOrderLogEventEnum,
+  purchaseOrderIssueStatusEnum,
+  purchaseOrderIssueResolutionTypeEnum,
+} from "./enum";
 import { staffs } from "./staff";
 import { vendors } from "./vendor";
 import { sql } from "drizzle-orm";
+
 
 // ตาราง inventoryCategories: เก็บหมวดหมู่สินค้าคงคลัง เช่น ยา, แชมพู
 // ไม่มี FK → ไม่ต้องใส่ index เพิ่ม
@@ -93,6 +100,7 @@ export const purchaseOrderItems = p
     {
       id: p.uuid("id").defaultRandom().primaryKey(),
       quantity: p.smallint("quantity").notNull(),
+      receivedQuantity: p.smallint("received_quantity").notNull().default(0),
       unitCost: p.numeric("unit_cost", { precision: 8, scale: 2 }).notNull(),
       // FK ไปยัง purchaseOrders (ใบสั่งซื้อ)
       purchaseOrderId: p
@@ -123,10 +131,67 @@ export const purchaseOrderItems = p
         "purchase_order_items_quantity_check",
         sql`${table.quantity} > 0`,
       ),
+      // check constraint เพื่อป้องกัน received_quantity ติดลบ
+      p.check(
+        "purchase_order_items_received_quantity_check",
+        sql`${table.receivedQuantity} >= 0`,
+      ),
       // check constraint เพื่อป้องกัน unit_cost ติดลบ
       p.check(
         "purchase_order_items_unit_cost_check",
         sql`${table.unitCost} >= 0`,
+      ),
+    ],
+  )
+  .enableRLS();
+
+// ตาราง purchaseOrderIssues: เก็บบันทึกรายการปัญหาของขาดในใบสั่งซื้อ
+export const purchaseOrderIssues = p
+  .pgTable(
+    "purchase_order_issues",
+    {
+      id: p.uuid("id").defaultRandom().primaryKey(),
+      purchaseOrderId: p
+        .uuid("purchase_order_id")
+        .notNull()
+        .references(() => purchaseOrders.id, { onDelete: "restrict" }),
+      purchaseOrderItemId: p
+        .uuid("purchase_order_item_id")
+        .notNull()
+        .references(() => purchaseOrderItems.id, { onDelete: "restrict" }),
+      inventoryItemId: p
+        .uuid("inventory_item_id")
+        .notNull()
+        .references(() => inventoryItems.id, { onDelete: "restrict" }),
+      orderedQuantity: p.smallint("ordered_quantity").notNull(),
+      receivedQuantity: p.smallint("received_quantity").notNull().default(0),
+      shortageQuantity: p.smallint("shortage_quantity").notNull(),
+      status: purchaseOrderIssueStatusEnum("status").notNull().default("OPEN"),
+      resolutionType: purchaseOrderIssueResolutionTypeEnum("resolution_type"),
+      resolutionNote: p.text("resolution_note"),
+      resolvedAt: p.timestamp("resolved_at", { withTimezone: true }),
+      resolvedBy: p
+        .uuid("resolved_by")
+        .references(() => staffs.id, { onDelete: "restrict" }),
+      ...timestamps,
+    },
+    (table) => [
+      p.index("purchase_order_issues_order_id_idx").on(table.purchaseOrderId),
+      p
+        .index("purchase_order_issues_item_id_idx")
+        .on(table.purchaseOrderItemId),
+      p.index("purchase_order_issues_status_idx").on(table.status),
+      p.check(
+        "purchase_order_issues_ordered_quantity_check",
+        sql`${table.orderedQuantity} >= 0`,
+      ),
+      p.check(
+        "purchase_order_issues_received_quantity_check",
+        sql`${table.receivedQuantity} >= 0`,
+      ),
+      p.check(
+        "purchase_order_issues_shortage_quantity_check",
+        sql`${table.shortageQuantity} >= 0`,
       ),
     ],
   )

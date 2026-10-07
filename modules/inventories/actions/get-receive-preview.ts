@@ -41,24 +41,27 @@ export async function getReceivePreview(
     // ดึง items ของ PO พร้อม JOIN inventory_items เพื่อได้ชื่อและ stock เดิม
     const rows = await db
       .select({
+        purchaseOrderItemId: purchaseOrderItems.id,
         inventoryItemId: purchaseOrderItems.inventoryItemId,
         inventoryItemName: inventoryItems.name,
         currentStock: inventoryItems.quantity,
         orderedQuantity: purchaseOrderItems.quantity,
+        receivedQuantity: purchaseOrderItems.receivedQuantity,
+        unitCost: purchaseOrderItems.unitCost,
       })
       .from(purchaseOrderItems)
       .innerJoin(
         inventoryItems,
         and(
           eq(purchaseOrderItems.inventoryItemId, inventoryItems.id),
-          isNull(inventoryItems.deletedAt)
-        )
+          isNull(inventoryItems.deletedAt),
+        ),
       )
       .where(
         and(
           eq(purchaseOrderItems.purchaseOrderId, orderId),
-          isNull(purchaseOrderItems.deletedAt)
-        )
+          isNull(purchaseOrderItems.deletedAt),
+        ),
       );
 
     if (rows.length === 0) {
@@ -68,34 +71,23 @@ export async function getReceivePreview(
       };
     }
 
-    // Aggregate: รวมจำนวนสั่งซื้อในกรณีที่สินค้าเดียวกันปรากฏหลายแถว
-    const aggregatedMap = new Map<
-      string,
-      { inventoryItemName: string; currentStock: number; orderedQuantity: number }
-    >();
-
-    for (const row of rows) {
-      const existing = aggregatedMap.get(row.inventoryItemId);
-      if (existing) {
-        existing.orderedQuantity += row.orderedQuantity;
-      } else {
-        aggregatedMap.set(row.inventoryItemId, {
-          inventoryItemName: row.inventoryItemName,
-          currentStock: row.currentStock,
-          orderedQuantity: row.orderedQuantity,
-        });
-      }
-    }
-
-    const data: ReceivePreviewRow[] = Array.from(aggregatedMap.entries()).map(
-      ([inventoryItemId, { inventoryItemName, currentStock, orderedQuantity }]) => ({
-        inventoryItemId,
-        inventoryItemName,
-        currentStock,
-        orderedQuantity,
-        resultStock: currentStock + orderedQuantity,
-      })
-    );
+    const data: ReceivePreviewRow[] = rows.map((row) => {
+      const remainingQuantity = Math.max(
+        0,
+        row.orderedQuantity - row.receivedQuantity,
+      );
+      return {
+        purchaseOrderItemId: row.purchaseOrderItemId,
+        inventoryItemId: row.inventoryItemId,
+        inventoryItemName: row.inventoryItemName,
+        currentStock: row.currentStock,
+        orderedQuantity: row.orderedQuantity,
+        receivedQuantity: row.receivedQuantity,
+        remainingQuantity,
+        unitCost: parseFloat(row.unitCost),
+        resultStock: row.currentStock + remainingQuantity,
+      };
+    });
 
     return { success: true, data };
   } catch (error) {

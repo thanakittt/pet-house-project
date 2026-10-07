@@ -40,3 +40,15 @@ _Avoid_: Vendor Copy, Static Vendor
 บันทึกเหตุการณ์ที่เกิดขึ้นกับ PO แต่ละใบ เก็บไว้ใน `purchase_order_logs` ประกอบด้วย event type (CREATED / STATUS_CHANGED / ITEMS_UPDATED / VENDOR_UPDATED / DELETED), ผู้กระทำ (staffId), สถานะก่อน/หลัง (fromStatus/toStatus) และ note ที่ระบบสร้างให้อัตโนมัติ บันทึกเฉพาะเมื่อ action สำเร็จเท่านั้น และห้ามแก้ไขหรือลบ (immutable)
 _Avoid_: Audit Log, Activity Log, History
 
+**Partially Received (รับสินค้าบางส่วน)**:
+สถานะของใบสั่งซื้อ (`PARTIALLY_RECEIVED`) ที่พนักงานตรวจรับสินค้าแล้วแต่ได้สินค้าไม่ครบตามจำนวนสั่งซื้อ โดยมีสินค้าบางส่วนค้างส่งอยู่
+_Avoid_: Incomplete PO, Partial Delivery, รับของขาด
+
+**Purchase Order Issue (รายงานปัญหาการสั่งซื้อ)**:
+บันทึกรายการสินค้าที่ส่งมาไม่ครบตามใบสั่งซื้อ ระบุจำนวนที่สั่ง, จำนวนที่รับจริง, จำนวนที่ขาด และสถานะการติดตาม (รอส่งเพิ่ม หรือ ยุติปัญหาแล้ว)
+_Avoid_: Claim, Defect, ใบแจ้งปัญหา, แจ้งเตือนของขาด
+
+**Purchase Order Issue Resolution (การยุติปัญหาการสั่งซื้อ)**:
+ข้อตกลงและผลสรุปของการจัดการปัญหาสินค้าไม่ครบ ได้แก่ ได้รับสินค้าที่ขาดครบแล้ว, ผู้จำหน่ายมอบส่วนลดในการสั่งซื้อรอบหน้า, หรือคืนเงิน
+_Avoid_: Close Case, ยุติข้อพิพาท, ตัดยอดทิ้ง
+

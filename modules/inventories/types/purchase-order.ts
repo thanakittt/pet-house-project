@@ -11,6 +11,8 @@ import { z } from "zod";
  * แสดงก่อน commit สถานะ RECEIVED
  */
 export interface ReceivePreviewRow {
+  /** UUID ของรายการสินค้าใน PO (purchase_order_items.id) */
+  purchaseOrderItemId: string;
   /** UUID ของสินค้าในคลัง */
   inventoryItemId: string;
   /** ชื่อสินค้า */
@@ -19,7 +21,13 @@ export interface ReceivePreviewRow {
   currentStock: number;
   /** จำนวนที่สั่งซื้อใน PO */
   orderedQuantity: number;
-  /** ผลลัพธ์: currentStock + orderedQuantity */
+  /** จำนวนที่รับแล้วสะสม */
+  receivedQuantity: number;
+  /** จำนวนที่ค้างส่ง (orderedQuantity - receivedQuantity) */
+  remainingQuantity: number;
+  /** ราคาต่อหน่วย (บาท) */
+  unitCost: number;
+  /** ผลลัพธ์: currentStock + remainingQuantity */
   resultStock: number;
 }
 

@@ -46,6 +46,7 @@ interface InsertPurchaseOrderLogParams {
   event: PurchaseOrderLogEvent;
   fromStatus?: PurchaseOrderStatus;
   toStatus?: PurchaseOrderStatus;
+  note?: string;
 }
 
 /**
@@ -56,7 +57,8 @@ export async function insertPurchaseOrderLog(
   tx: Tx,
   params: InsertPurchaseOrderLogParams,
 ): Promise<void> {
-  const { purchaseOrderId, staffId, event, fromStatus, toStatus } = params;
+  const { purchaseOrderId, staffId, event, fromStatus, toStatus, note } =
+    params;
 
   await tx.insert(purchaseOrderLogs).values({
     purchaseOrderId,
@@ -64,6 +66,6 @@ export async function insertPurchaseOrderLog(
     event,
     fromStatus: fromStatus ?? null,
     toStatus: toStatus ?? null,
-    note: buildNote(event, fromStatus, toStatus),
+    note: note ?? buildNote(event, fromStatus, toStatus),
   });
 }

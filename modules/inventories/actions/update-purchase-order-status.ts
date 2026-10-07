@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import {
   inventoryItems,
+  purchaseOrderIssues,
   purchaseOrderItems,
   purchaseOrders,
 } from "@/db/schema";
@@ -21,7 +22,8 @@ import { staffs } from "@/db/schema/staff";
 const ALLOWED_TRANSITIONS: Record<PurchaseOrderStatus, PurchaseOrderStatus[]> =
   {
     DRAFT: ["ORDERED", "CANCELLED"],
-    ORDERED: ["RECEIVED", "CANCELLED"],
+    ORDERED: ["PARTIALLY_RECEIVED", "RECEIVED", "CANCELLED"],
+    PARTIALLY_RECEIVED: ["RECEIVED", "CANCELLED"],
     RECEIVED: [], // terminal — ไม่สามารถเปลี่ยนสถานะได้อีก
     CANCELLED: [], // terminal — ไม่สามารถเปลี่ยนสถานะได้อีก
   };
@@ -103,99 +105,14 @@ export async function updatePurchaseOrderStatus(
             ),
           );
 
-        // 4. ถ้าสถานะเปลี่ยนเป็น RECEIVED ให้เพิ่มสินค้าเข้า inventory
+        // 4. ถ้าสถานะเปลี่ยนเป็น RECEIVED ให้เพิ่มสินค้าเข้า inventory เฉพาะส่วนที่ยังไม่ได้รับ
         if (newStatus === "RECEIVED") {
           const items = await tx
             .select({
+              id: purchaseOrderItems.id,
               inventoryItemId: purchaseOrderItems.inventoryItemId,
               quantity: purchaseOrderItems.quantity,
-            })
-            .from(purchaseOrderItems)
-            .where(
-              and(
-                eq(purchaseOrderItems.purchaseOrderId, id),
-                isNull(purchaseOrderItems.deletedAt),
-              ),
-            );
-
-          if (items.length > 0) {
-            // 5. Aggregate: รวมจำนวนปริมาณสินค้าในกรณีที่มี Item ID ซ้ำกันใน PO
-            const aggregatedItems = new Map<string, number>();
-            for (const item of items) {
-              const currentQty = aggregatedItems.get(item.inventoryItemId) || 0;
-              aggregatedItems.set(
-                item.inventoryItemId,
-                currentQty + item.quantity,
-              );
-            }
-
-            const uniqueItemIds = Array.from(aggregatedItems.keys());
-
-            // 6. Lock แถวของสินค้าคงคลังด้วย FOR UPDATE โดยใช้ ID ที่ไม่ซ้ำ
-            const lockedInventoryItems = await tx
-              .select({
-                id: inventoryItems.id,
-                name: inventoryItems.name,
-                quantity: inventoryItems.quantity,
-              })
-              .from(inventoryItems)
-              .where(
-                and(
-                  inArray(inventoryItems.id, uniqueItemIds),
-                  isNull(inventoryItems.deletedAt),
-                ),
-              )
-              .for("update");
-
-            // 7. Verify Integrity: ตรวจสอบว่าสินค้าที่พบครบตามจำนวน Unique ID ที่ขอไปหรือไม่
-            if (lockedInventoryItems.length !== uniqueItemIds.length) {
-              throw new Error(
-                "ไม่พบสินค้าบางรายการ หรือมีสินค้าที่ถูกลบออกจากระบบไปแล้ว",
-              );
-            }
-
-            // 8. Validate ป้องกัน SmallInt Overflow ผ่านข้อมูลที่รวมไว้ (Aggregated Map)
-            for (const lockedItem of lockedInventoryItems) {
-              const incomingQuantity = aggregatedItems.get(lockedItem.id) || 0;
-              const totalQuantity = lockedItem.quantity + incomingQuantity;
-
-              if (totalQuantity > MAX_SMALLINT) {
-                throw new Error(
-                  `สินค้า "${lockedItem.name}" จะมีจำนวน (${totalQuantity}) ซึ่งเกินขีดจำกัดของระบบ (${MAX_SMALLINT})`,
-                );
-              }
-            }
-
-            // 9. เตรียมคำสั่ง Batch Update ด้วย CASE Statement จาก Map ที่ไม่ซ้ำ
-            const sqlChunks: SQL[] = [sql`(CASE id`];
-            for (const [
-              itemId,
-              totalIncomingQty,
-            ] of aggregatedItems.entries()) {
-              sqlChunks.push(
-                sql`WHEN ${itemId} THEN quantity + ${totalIncomingQty}::integer`,
-              );
-            }
-            sqlChunks.push(sql`END)`);
-
-            const caseStatement = sql.join(sqlChunks, sql` `);
-
-            // 10. ทำการ Update รวดเดียว โดยระบุ where ให้ตรงกับชุดที่ล็อกไว้เป๊ะๆ
-            await tx
-              .update(inventoryItems)
-              .set({ quantity: caseStatement })
-              .where(
-                and(
-                  inArray(inventoryItems.id, uniqueItemIds),
-                  isNull(inventoryItems.deletedAt),
-                ),
-              );
-          }
-
-          // 11. คำนวณยอดรวมค่าสินค้าจาก purchaseOrderItems และบันทึก transaction รายจ่าย
-          const orderItems = await tx
-            .select({
-              quantity: purchaseOrderItems.quantity,
+              receivedQuantity: purchaseOrderItems.receivedQuantity,
               unitCost: purchaseOrderItems.unitCost,
             })
             .from(purchaseOrderItems)
@@ -206,21 +123,127 @@ export async function updatePurchaseOrderStatus(
               ),
             );
 
-          // คำนวณยอดรวม: SUM(quantity * unitCost)
-          const totalAmount = orderItems.reduce((sum, item) => {
-            return sum + item.quantity * parseFloat(item.unitCost);
-          }, 0);
+          if (items.length > 0) {
+            // 5. Aggregate: รวมจำนวนปริมาณสินค้าที่ค้างรับในกรณีที่มี Item ID ซ้ำกันใน PO
+            const aggregatedItems = new Map<string, number>();
+            let totalAdditionalExpense = 0;
 
-          // บันทึก transaction รายจ่ายเฉพาะเมื่อมียอดรวม > 0
-          if (totalAmount > 0) {
-            await recordTransaction(tx, {
-              amount: totalAmount,
-              transactionDate: new Date(),
-              categoryType: "EXPENSE",
-              categoryName: "ค่าสั่งซื้อสินค้าคลัง",
-              note: `รับสินค้าใบสั่งซื้อ #${id}`,
-            });
+            for (const item of items) {
+              const remaining = Math.max(0, item.quantity - item.receivedQuantity);
+              if (remaining > 0) {
+                const currentQty = aggregatedItems.get(item.inventoryItemId) || 0;
+                aggregatedItems.set(
+                  item.inventoryItemId,
+                  currentQty + remaining,
+                );
+                totalAdditionalExpense += remaining * parseFloat(item.unitCost);
+              }
+            }
+
+            const uniqueItemIds = Array.from(aggregatedItems.keys());
+
+            if (uniqueItemIds.length > 0) {
+              // 6. Lock แถวของสินค้าคงคลังด้วย FOR UPDATE โดยใช้ ID ที่ไม่ซ้ำ
+              const lockedInventoryItems = await tx
+                .select({
+                  id: inventoryItems.id,
+                  name: inventoryItems.name,
+                  quantity: inventoryItems.quantity,
+                })
+                .from(inventoryItems)
+                .where(
+                  and(
+                    inArray(inventoryItems.id, uniqueItemIds),
+                    isNull(inventoryItems.deletedAt),
+                  ),
+                )
+                .for("update");
+
+              // 7. Verify Integrity: ตรวจสอบว่าสินค้าที่พบครบตามจำนวน Unique ID ที่ขอไปหรือไม่
+              if (lockedInventoryItems.length !== uniqueItemIds.length) {
+                throw new Error(
+                  "ไม่พบสินค้าบางรายการ หรือมีสินค้าที่ถูกลบออกจากระบบไปแล้ว",
+                );
+              }
+
+              // 8. Validate ป้องกัน SmallInt Overflow ผ่านข้อมูลที่รวมไว้ (Aggregated Map)
+              for (const lockedItem of lockedInventoryItems) {
+                const incomingQuantity = aggregatedItems.get(lockedItem.id) || 0;
+                const totalQuantity = lockedItem.quantity + incomingQuantity;
+
+                if (totalQuantity > MAX_SMALLINT) {
+                  throw new Error(
+                    `สินค้า "${lockedItem.name}" จะมีจำนวน (${totalQuantity}) ซึ่งเกินขีดจำกัดของระบบ (${MAX_SMALLINT})`,
+                  );
+                }
+              }
+
+              // 9. เตรียมคำสั่ง Batch Update ด้วย CASE Statement จาก Map ที่ไม่ซ้ำ
+              const sqlChunks: SQL[] = [sql`(CASE id`];
+              for (const [
+                itemId,
+                totalIncomingQty,
+              ] of aggregatedItems.entries()) {
+                sqlChunks.push(
+                  sql`WHEN ${itemId} THEN quantity + ${totalIncomingQty}::integer`,
+                );
+              }
+              sqlChunks.push(sql`END)`);
+
+              const caseStatement = sql.join(sqlChunks, sql` `);
+
+              // 10. ทำการ Update รวดเดียว โดยระบุ where ให้ตรงกับชุดที่ล็อกไว้เป๊ะๆ
+              await tx
+                .update(inventoryItems)
+                .set({ quantity: caseStatement })
+                .where(
+                  and(
+                    inArray(inventoryItems.id, uniqueItemIds),
+                    isNull(inventoryItems.deletedAt),
+                  ),
+                );
+            }
+
+            // อัปเดต receivedQuantity ของทุกรายการใน PO ให้เท่ากับ quantity
+            await tx
+              .update(purchaseOrderItems)
+              .set({ receivedQuantity: sql`${purchaseOrderItems.quantity}` })
+              .where(
+                and(
+                  eq(purchaseOrderItems.purchaseOrderId, id),
+                  isNull(purchaseOrderItems.deletedAt),
+                ),
+              );
+
+            // บันทึก transaction รายจ่ายเฉพาะเมื่อมียอดเพิ่มเติม > 0
+            if (totalAdditionalExpense > 0) {
+              await recordTransaction(tx, {
+                amount: totalAdditionalExpense,
+                transactionDate: new Date(),
+                categoryType: "EXPENSE",
+                categoryName: "ค่าสั่งซื้อสินค้าคลัง",
+                note: `รับสินค้าใบสั่งซื้อ #${id}`,
+              });
+            }
           }
+
+          // ปิด issue ที่เปิดค้างอยู่ของ PO นี้
+          await tx
+            .update(purchaseOrderIssues)
+            .set({
+              status: "RESOLVED",
+              resolutionType: "ALL_ITEMS_RECEIVED",
+              resolvedAt: new Date(),
+              resolvedBy: staffRow.id,
+              receivedQuantity: sql`ordered_quantity`,
+              shortageQuantity: 0,
+            })
+            .where(
+              and(
+                eq(purchaseOrderIssues.purchaseOrderId, id),
+                eq(purchaseOrderIssues.status, "OPEN"),
+              ),
+            );
         }
 
         // บันทึก log STATUS_CHANGED

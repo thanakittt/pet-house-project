@@ -602,8 +602,13 @@ export default function PurchaseOrderDetailPage({
                         ชื่อสินค้า
                       </TableHead>
                       <TableHead className="text-right">
-                        จำนวน
+                        {currentStatus === "PARTIALLY_RECEIVED"
+                          ? "สั่งซื้อ"
+                          : "จำนวน"}
                       </TableHead>
+                      {currentStatus === "PARTIALLY_RECEIVED" && (
+                        <TableHead className="text-right">รับแล้ว</TableHead>
+                      )}
                       <TableHead className="text-right">
                         ราคา/หน่วย
                       </TableHead>
@@ -617,7 +622,13 @@ export default function PurchaseOrderDetailPage({
                     {displayItems.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={isEditing ? 6 : 5}
+                          colSpan={
+                            isEditing
+                              ? 6
+                              : currentStatus === "PARTIALLY_RECEIVED"
+                                ? 6
+                                : 5
+                          }
                           className="text-center text-muted-foreground py-8"
                         >
                           ยังไม่มีรายการสินค้า
@@ -738,6 +749,24 @@ export default function PurchaseOrderDetailPage({
                             <TableCell className="text-right tabular-nums">
                               {item.quantity}
                             </TableCell>
+                            {currentStatus === "PARTIALLY_RECEIVED" && (
+                              <TableCell className="text-right tabular-nums">
+                                <span
+                                  className={
+                                    item.receivedQuantity < item.quantity
+                                      ? "text-amber-600 font-semibold dark:text-amber-400"
+                                      : "text-emerald-600 font-medium dark:text-emerald-400"
+                                  }
+                                >
+                                  {item.receivedQuantity}
+                                </span>
+                                {item.receivedQuantity < item.quantity && (
+                                  <span className="text-xs text-muted-foreground ml-1">
+                                    (ขาด {item.quantity - item.receivedQuantity})
+                                  </span>
+                                )}
+                              </TableCell>
+                            )}
                             <TableCell className="text-right text-muted-foreground tabular-nums font-medium">
                               ฿{formatCurrency(parseFloat(item.unitCost))}
                             </TableCell>

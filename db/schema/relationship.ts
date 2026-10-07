@@ -40,6 +40,7 @@ import {
   purchaseOrders,
   purchaseOrderItems,
   purchaseOrderLogs,
+  purchaseOrderIssues,
 } from "./inventory";
 
 // --- Vendor ---
@@ -375,6 +376,8 @@ export const purchaseOrderRelations = relations(
     items: many(purchaseOrderItems),
     // ใบสั่งซื้อมี log หลายรายการ
     logs: many(purchaseOrderLogs),
+    // ใบสั่งซื้อมีปัญหาของขาดหลายรายการ
+    issues: many(purchaseOrderIssues),
     // ใบสั่งซื้อสร้างโดย staff คนหนึ่ง
     staff: one(staffs, {
       fields: [purchaseOrders.staffId],
@@ -391,10 +394,11 @@ export const purchaseOrderRelations = relations(
 /**
  * purchaseOrderItems → purchaseOrders (N:1)
  * purchaseOrderItems → inventoryItems (N:1)
+ * purchaseOrderItems → purchaseOrderIssues (1:N)
  */
 export const purchaseOrderItemRelations = relations(
   purchaseOrderItems,
-  ({ one }) => ({
+  ({ one, many }) => ({
     // item เป็นส่วนหนึ่งของใบสั่งซื้อหนึ่ง
     purchaseOrder: one(purchaseOrders, {
       fields: [purchaseOrderItems.purchaseOrderId],
@@ -404,6 +408,36 @@ export const purchaseOrderItemRelations = relations(
     inventoryItem: one(inventoryItems, {
       fields: [purchaseOrderItems.inventoryItemId],
       references: [inventoryItems.id],
+    }),
+    // item อาจมีประวัติปัญหาของขาด
+    issues: many(purchaseOrderIssues),
+  }),
+);
+
+/**
+ * purchaseOrderIssues → purchaseOrders (N:1)
+ * purchaseOrderIssues → purchaseOrderItems (N:1)
+ * purchaseOrderIssues → inventoryItems (N:1)
+ * purchaseOrderIssues → staffs (N:1 optional)
+ */
+export const purchaseOrderIssueRelations = relations(
+  purchaseOrderIssues,
+  ({ one }) => ({
+    purchaseOrder: one(purchaseOrders, {
+      fields: [purchaseOrderIssues.purchaseOrderId],
+      references: [purchaseOrders.id],
+    }),
+    purchaseOrderItem: one(purchaseOrderItems, {
+      fields: [purchaseOrderIssues.purchaseOrderItemId],
+      references: [purchaseOrderItems.id],
+    }),
+    inventoryItem: one(inventoryItems, {
+      fields: [purchaseOrderIssues.inventoryItemId],
+      references: [inventoryItems.id],
+    }),
+    resolvedByStaff: one(staffs, {
+      fields: [purchaseOrderIssues.resolvedBy],
+      references: [staffs.id],
     }),
   }),
 );

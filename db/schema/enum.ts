@@ -62,9 +62,18 @@ export const unitTypeEnum = pgEnum("unit", [
 export const purchaseOrderStatusEnum = pgEnum("purchase_order_status", [
   "DRAFT",
   "ORDERED",
+  "PARTIALLY_RECEIVED",
   "RECEIVED",
   "CANCELLED",
 ]);
+export const purchaseOrderIssueStatusEnum = pgEnum(
+  "purchase_order_issue_status",
+  ["OPEN", "RESOLVED"],
+);
+export const purchaseOrderIssueResolutionTypeEnum = pgEnum(
+  "purchase_order_issue_resolution_type",
+  ["ALL_ITEMS_RECEIVED", "DISCOUNT_NEXT_ORDER", "REFUNDED", "WAIVED"],
+);
 export const transactionTypeEnum = pgEnum("transaction_type", [
   "EXPENSE",
   "INCOME",
@@ -73,3 +82,4 @@ export const purchaseOrderLogEventEnum = pgEnum(
   "purchase_order_log_event",
   ["CREATED", "STATUS_CHANGED", "ITEMS_UPDATED", "VENDOR_UPDATED", "DELETED"],
 );
+
