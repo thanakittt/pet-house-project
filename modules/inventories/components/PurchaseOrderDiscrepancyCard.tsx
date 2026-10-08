@@ -7,18 +7,17 @@ import {
   AlertTriangle,
   PackageCheck,
   Check,
-  Minus,
-  Plus,
-  Loader2,
+  MinusIcon,
+  PlusIcon,
   Clock,
   ShieldAlert,
   CheckCircle2,
   FileText,
   Info,
 } from "lucide-react";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -45,6 +44,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  InputGroup,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { getReceivePreview } from "@/modules/inventories/actions/get-receive-preview";
 import { receivePurchaseOrderItems } from "@/modules/inventories/actions/receive-purchase-order-items";
 import { resolvePurchaseOrderDiscrepancy } from "@/modules/inventories/actions/resolve-purchase-order-discrepancy";
@@ -156,30 +160,28 @@ export default function PurchaseOrderDiscrepancyCard({
       return (
         <Card
           id="po-resolved-discrepancy-card"
-          className="mt-6 border-emerald-500/30 bg-emerald-500/[0.03] shadow-sm overflow-hidden"
+          className="py-6 mt-6 border-emerald-500/30"
         >
-          <CardHeader className="px-6 pb-4">
+          <CardHeader className="px-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-emerald-500/10 p-1.5 text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="size-4" />
-                  </div>
-                  <CardTitle className="text-base font-bold text-emerald-950 dark:text-emerald-200">
-                    บันทึกการยุติปัญหาของขาดในใบสั่งซื้อ (Discrepancy Resolved)
+                  <CardTitle className="text-base font-bold text-primary flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                    บันทึกการยุติปัญหาของขาดในใบสั่งซื้อ
                   </CardTitle>
                   {resConfig && (
                     <Badge
                       variant="outline"
-                      className={`text-xs font-semibold ml-1 ${resConfig.badgeClass}`}
+                      className={`text-xs font-semibold ${resConfig.badgeClass}`}
                     >
                       {resConfig.shortLabel}
                     </Badge>
                   )}
                 </div>
                 <CardDescription className="text-xs text-muted-foreground">
-                  ใบสั่งซื้อนี้ปิดสมบูรณ์แล้วโดยยุติปัญหาของขาด ({totalResolvedShortage} ชิ้น)
-                  ตามข้อตกลงร่วมกับผู้จำหน่าย
+                  ใบสั่งซื้อนี้ปิดสมบูรณ์แล้วโดยยุติปัญหาของขาด (
+                  {totalResolvedShortage} ชิ้น) ตามข้อตกลงร่วมกับผู้จำหน่าย
                 </CardDescription>
               </div>
 
@@ -194,60 +196,48 @@ export default function PurchaseOrderDiscrepancyCard({
             </div>
           </CardHeader>
 
-          <CardContent className="px-6 pb-5 space-y-4">
+          <CardContent className="p-0 flex-1 flex flex-col space-y-4">
             {primaryIssue?.resolutionNote && (
-              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.05] p-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <FileText className="size-4 text-emerald-600 mt-0.5 shrink-0" />
-                  <div>
-                    <span className="font-semibold text-emerald-900 dark:text-emerald-200 text-xs">
-                      บันทึกข้อตกลง:
-                    </span>
-                    <p className="text-sm text-foreground mt-0.5">
-                      {primaryIssue.resolutionNote}
-                    </p>
-                  </div>
+              <div className="mx-6 bg-muted/50 rounded-lg p-4 text-sm flex items-start gap-3">
+                <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
+                  <FileText className="size-4" />
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    บันทึกข้อตกลง
+                  </span>
+                  <p className="text-sm font-medium text-foreground">
+                    {primaryIssue.resolutionNote}
+                  </p>
                 </div>
               </div>
             )}
 
-            <div className="rounded-lg border overflow-hidden">
+            <div className="overflow-x-auto">
               <Table id="po-resolved-issues-table">
                 <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="w-12 text-left text-xs font-semibold">
-                      #
-                    </TableHead>
-                    <TableHead className="text-xs font-semibold">
-                      รายการสินค้าที่ขาด
-                    </TableHead>
-                    <TableHead className="text-right text-xs font-semibold">
-                      จำนวนสั่ง
-                    </TableHead>
-                    <TableHead className="text-right text-xs font-semibold">
-                      รับจริง
-                    </TableHead>
-                    <TableHead className="text-right text-xs font-semibold text-amber-600">
-                      ยอดขาดที่ยุติ
-                    </TableHead>
-                    <TableHead className="text-center text-xs font-semibold">
-                      รูปแบบการยุติ
-                    </TableHead>
+                  <TableRow>
+                    <TableHead className="w-12 text-left">#</TableHead>
+                    <TableHead>รายการสินค้าที่ขาด</TableHead>
+                    <TableHead className="text-right">จำนวนสั่ง</TableHead>
+                    <TableHead className="text-right">รับจริง</TableHead>
+                    <TableHead className="text-right">ยอดขาดที่ยุติ</TableHead>
+                    <TableHead className="text-center">รูปแบบการยุติ</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {resolvedNonDeliveryIssues.map((iss, idx) => (
                     <TableRow key={iss.id}>
-                      <TableCell className="text-xs text-muted-foreground">
+                      <TableCell className="text-muted-foreground text-left font-medium">
                         {idx + 1}
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="text-primary font-medium">
                         {iss.inventoryItemName}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground tabular-nums">
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
                         {iss.orderedQuantity}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground tabular-nums">
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
                         {iss.receivedQuantity}
                       </TableCell>
                       <TableCell className="text-right font-bold text-amber-600 dark:text-amber-400 tabular-nums">
@@ -255,8 +245,8 @@ export default function PurchaseOrderDiscrepancyCard({
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge
-                          variant="outline"
-                          className="text-[11px] border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                          variant="secondary"
+                          className="bg-muted text-muted-foreground text-xs"
                         >
                           ยุติปัญหาแล้ว
                         </Badge>
@@ -419,100 +409,79 @@ export default function PurchaseOrderDiscrepancyCard({
 
   return (
     <>
-      <Card
-        id="po-discrepancy-card"
-        className="mt-6 border-amber-500/40 bg-amber-500/[0.03] shadow-sm overflow-hidden"
-      >
-        <CardHeader className="px-6 pb-4">
+      <Card id="po-discrepancy-card" className="py-6 mt-6 border-amber-500/30">
+        <CardHeader className="px-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <div className="rounded-full bg-amber-500/10 p-1.5 text-amber-600 dark:text-amber-400">
-                  <AlertTriangle className="size-4" />
-                </div>
-                <CardTitle className="text-base font-bold text-amber-900 dark:text-amber-200">
+                <CardTitle className="text-base font-bold text-primary flex items-center gap-2">
+                  <AlertTriangle className="size-4 text-amber-500 shrink-0" />
                   รายการสินค้าค้างส่ง / ส่งไม่ครบตามใบสั่งซื้อ
                 </CardTitle>
                 <Badge
-                  variant="outline"
-                  className="border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-semibold text-xs ml-1"
+                  variant="secondary"
+                  className="bg-muted text-muted-foreground ml-1"
                 >
-                  ค้างส่ง {totalShortageQuantity} ชิ้น ({outstandingItems.length}{" "}
-                  รายการ)
+                  ค้างส่ง {totalShortageQuantity} ชิ้น (
+                  {outstandingItems.length} รายการ)
                 </Badge>
               </div>
-              <CardDescription className="text-xs text-amber-800/80 dark:text-amber-300/80">
+              <CardDescription className="text-xs text-muted-foreground">
                 ตรวจพบรายการสินค้าที่ยังไม่ได้รับมอบครบตามยอดสั่งซื้อ
-                สามารถบันทึกตรวจรับสินค้าส่วนที่เหลือ หรือยุติปัญหาเมื่อตกลงชดเชยเรียบร้อย
+                สามารถบันทึกตรวจรับสินค้าส่วนที่เหลือ
+                หรือยุติปัญหาเมื่อตกลงชดเชยเรียบร้อย
               </CardDescription>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               <Button
                 id="resolve-issue-btn"
+                size="sm"
                 variant="outline"
                 onClick={() => setResolveDialogOpen(true)}
                 disabled={isLoadingPreview || isPending}
-                className="border-amber-600/40 text-amber-900 hover:bg-amber-500/10 dark:text-amber-200 dark:border-amber-400/40 font-medium gap-1.5 h-9"
+                className="gap-1.5 h-8 text-muted-foreground hover:text-primary"
               >
-                <ShieldAlert className="size-4 text-amber-600 dark:text-amber-400" />
+                <ShieldAlert className="size-3.5 text-amber-500" />
                 ยุติปัญหา
               </Button>
-              <Button
+              <LoadingButton
                 id="receive-remaining-btn"
+                size="sm"
                 onClick={handleOpenReceiveDialog}
-                disabled={isLoadingPreview || isPending}
-                className="bg-amber-600 hover:bg-amber-700 text-white font-medium gap-1.5 shadow-sm h-9"
+                isLoading={isLoadingPreview}
+                disabled={isPending}
+                loadingText="กำลังโหลด..."
+                className="gap-1.5 h-8 bg-amber-600 hover:bg-amber-700 text-white"
               >
-                {isLoadingPreview ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <PackageCheck className="size-4" />
-                )}
+                <PackageCheck className="size-3.5" />
                 ตรวจรับสินค้าส่วนที่เหลือ
-              </Button>
+              </LoadingButton>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="p-0">
-          <div className="overflow-x-auto border-t border-amber-500/20">
+        <CardContent className="p-0 flex-1 flex flex-col">
+          <div className="overflow-x-auto">
             <Table id="po-discrepancy-table">
               <TableHeader>
-                <TableRow className="bg-amber-500/5 hover:bg-amber-500/5">
-                  <TableHead className="w-12 text-left text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    #
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    รายการสินค้า
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    จำนวนสั่งซื้อ
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    รับแล้วสะสม
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    ค้างส่ง (ขาด)
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    ราคา/หน่วย
-                  </TableHead>
-                  <TableHead className="text-right text-xs font-semibold text-amber-900 dark:text-amber-200">
-                    มูลค่าคงค้าง
-                  </TableHead>
+                <TableRow>
+                  <TableHead className="w-12 text-left">#</TableHead>
+                  <TableHead>ชื่อสินค้า</TableHead>
+                  <TableHead className="text-right">สั่งซื้อ</TableHead>
+                  <TableHead className="text-right">รับแล้ว</TableHead>
+                  <TableHead className="text-right">ค้างส่ง (ขาด)</TableHead>
+                  <TableHead className="text-right">ราคา/หน่วย</TableHead>
+                  <TableHead className="text-right">มูลค่าคงค้าง</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {outstandingItems.map((item, idx) => (
-                  <TableRow
-                    key={item.id}
-                    className="hover:bg-amber-500/[0.04] transition-colors"
-                  >
-                    <TableCell className="text-xs text-muted-foreground font-medium">
+                  <TableRow key={item.id}>
+                    <TableCell className="text-muted-foreground text-left font-medium group-hover:text-muted-foreground transition-colors">
                       {idx + 1}
                     </TableCell>
-                    <TableCell className="font-medium text-foreground">
+                    <TableCell className="text-primary font-medium">
                       {item.inventoryItemName}
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-muted-foreground">
@@ -522,14 +491,14 @@ export default function PurchaseOrderDiscrepancyCard({
                       {item.receivedQuantity}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                      <span className="text-amber-600 font-semibold dark:text-amber-400">
                         {item.shortageQuantity} ชิ้น
                       </span>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                    <TableCell className="text-right tabular-nums text-muted-foreground font-medium">
                       ฿{formatCurrency(item.unitCostNum)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums font-semibold text-amber-700 dark:text-amber-300">
+                    <TableCell className="text-right tabular-nums text-primary font-bold">
                       ฿{formatCurrency(item.shortageAmount)}
                     </TableCell>
                   </TableRow>
@@ -538,26 +507,30 @@ export default function PurchaseOrderDiscrepancyCard({
             </Table>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-4 px-6 py-4 bg-amber-500/[0.03] border-t border-amber-500/20">
-            <div className="text-xs text-amber-800/80 dark:text-amber-300/80">
-              * ข้อมูลอิงตามรายการสั่งซื้อและประวัติการตรวจรับสินค้าเข้าคลัง
-            </div>
-            <div className="flex items-baseline gap-6">
-              <div className="text-right">
-                <span className="text-xs text-muted-foreground block">
-                  รวมจำนวนค้างส่ง
-                </span>
-                <span className="text-base font-bold text-foreground tabular-nums">
-                  {totalShortageQuantity} ชิ้น
-                </span>
+          {/* ── Footer: ยอดรวม ── */}
+          <div className="mt-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4 px-6 pt-6">
+              <div className="text-xs text-muted-foreground font-medium">
+                * ข้อมูลอิงตามรายการสั่งซื้อและประวัติการตรวจรับสินค้าเข้าคลัง
               </div>
-              <div className="text-right">
-                <span className="text-xs text-muted-foreground block">
-                  รวมมูลค่าสินค้าค้างส่ง
-                </span>
-                <span className="text-xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums">
-                  ฿{formatCurrency(totalShortageAmount)}
-                </span>
+              <div className="flex flex-row items-center gap-8">
+                <div className="text-right">
+                  <span className="text-xs font-bold text-muted-foreground block">
+                    รวมจำนวนค้างส่ง
+                  </span>
+                  <span className="text-base font-bold text-foreground tabular-nums">
+                    {totalShortageQuantity} ชิ้น
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-bold text-muted-foreground block">
+                    รวมมูลค่าคงค้าง
+                  </span>
+                  <span className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
+                    <span className="text-lg font-bold mr-1">฿</span>
+                    {formatCurrency(totalShortageAmount)}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -571,12 +544,13 @@ export default function PurchaseOrderDiscrepancyCard({
           className="sm:max-w-4xl max-h-[90vh] overflow-y-auto"
         >
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <PackageCheck className="size-5 text-amber-600 dark:text-amber-400" />
+            <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
+              <PackageCheck className="size-5 text-amber-500" />
               ตรวจรับสินค้าส่วนที่เหลือเข้าคลัง
             </DialogTitle>
             <DialogDescription>
-              ระบุจำนวนสินค้าที่ได้รับเพิ่มในรอบนี้ (แสดงเฉพาะรายการที่ยังค้างส่ง)
+              ระบุจำนวนสินค้าที่ได้รับเพิ่มในรอบนี้
+              (แสดงเฉพาะรายการที่ยังค้างส่ง)
               ระบบจะอัปเดตสต็อกและบันทึกรายจ่ายตามยอดจริง
             </DialogDescription>
           </DialogHeader>
@@ -584,21 +558,17 @@ export default function PurchaseOrderDiscrepancyCard({
           <div className="rounded-lg border overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/50">
+                <TableRow>
                   <TableHead className="w-[30%]">ชื่อสินค้า</TableHead>
-                  <TableHead className="text-right">stock เดิม</TableHead>
+                  <TableHead className="text-right">สต็อกเดิม</TableHead>
                   <TableHead className="text-right">สั่งซื้อ</TableHead>
-                  <TableHead className="text-right">รับแล้วรอบก่อน</TableHead>
-                  <TableHead className="text-right font-semibold text-amber-600">
-                    ค้างส่ง
-                  </TableHead>
-                  <TableHead className="text-center w-[160px]">
+                  <TableHead className="text-right">รับแล้ว</TableHead>
+                  <TableHead className="text-right">ค้างส่ง</TableHead>
+                  <TableHead className="text-center w-[140px]">
                     จำนวนที่รับรอบนี้
                   </TableHead>
-                  <TableHead className="text-right font-semibold">
-                    สต็อกหลังรับ
-                  </TableHead>
-                  <TableHead className="text-center w-[110px]">สถานะ</TableHead>
+                  <TableHead className="text-right">สต็อกหลังรับ</TableHead>
+                  <TableHead className="text-center w-[100px]">สถานะ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -612,7 +582,7 @@ export default function PurchaseOrderDiscrepancyCard({
 
                   return (
                     <TableRow key={row.purchaseOrderItemId}>
-                      <TableCell className="font-medium">
+                      <TableCell className="text-primary font-medium">
                         {row.inventoryItemName}
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground tabular-nums">
@@ -628,12 +598,9 @@ export default function PurchaseOrderDiscrepancyCard({
                         {row.remainingQuantity}
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="size-7 shrink-0"
+                        <InputGroup className="max-w-[120px] mx-auto">
+                          <InputGroupButton
+                            className="px-2 h-8"
                             disabled={actualQty <= 0 || isPending}
                             onClick={() =>
                               setReceivedQuantities((prev) => ({
@@ -645,9 +612,9 @@ export default function PurchaseOrderDiscrepancyCard({
                               }))
                             }
                           >
-                            <Minus className="size-3" />
-                          </Button>
-                          <Input
+                            <MinusIcon size={12} />
+                          </InputGroupButton>
+                          <InputGroupInput
                             type="number"
                             min={0}
                             max={row.remainingQuantity}
@@ -665,13 +632,10 @@ export default function PurchaseOrderDiscrepancyCard({
                                 [row.purchaseOrderItemId]: clamped,
                               }));
                             }}
-                            className="h-7 w-16 text-center text-sm font-semibold p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="text-center h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="size-7 shrink-0"
+                          <InputGroupButton
+                            className="px-2 h-8"
                             disabled={
                               actualQty >= row.remainingQuantity || isPending
                             }
@@ -685,9 +649,9 @@ export default function PurchaseOrderDiscrepancyCard({
                               }))
                             }
                           >
-                            <Plus className="size-3" />
-                          </Button>
-                        </div>
+                            <PlusIcon size={12} />
+                          </InputGroupButton>
+                        </InputGroup>
                       </TableCell>
                       <TableCell className="text-right font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
                         {projectedStock}
@@ -695,15 +659,15 @@ export default function PurchaseOrderDiscrepancyCard({
                       <TableCell className="text-center">
                         {isShortage ? (
                           <Badge
-                            variant="outline"
-                            className="text-amber-600 border-amber-500/40 bg-amber-500/10 text-[11px] whitespace-nowrap"
+                            variant="secondary"
+                            className="text-amber-600 bg-amber-500/10 text-[11px] whitespace-nowrap"
                           >
                             ขาดอีก {shortageQty}
                           </Badge>
                         ) : (
                           <Badge
-                            variant="outline"
-                            className="text-emerald-600 border-emerald-500/40 bg-emerald-500/10 text-[11px] whitespace-nowrap"
+                            variant="secondary"
+                            className="text-emerald-600 bg-emerald-500/10 text-[11px] whitespace-nowrap"
                           >
                             ครบถ้วน
                           </Badge>
@@ -722,7 +686,8 @@ export default function PurchaseOrderDiscrepancyCard({
               <Check className="size-4 shrink-0 text-emerald-600" />
               <p className="font-semibold text-xs sm:text-sm">
                 สินค้าจะได้รับครบถ้วนทุกรายการ — ใบสั่งซื้อจะเปลี่ยนสถานะเป็น{" "}
-                <strong>&ldquo;รับของแล้ว&rdquo; (Received)</strong> และปิดรายการปัญหาทั้งหมด
+                <strong>&ldquo;รับของแล้ว&rdquo; (Received)</strong>{" "}
+                และปิดรายการปัญหาทั้งหมด
               </p>
             </div>
           ) : (
@@ -734,7 +699,9 @@ export default function PurchaseOrderDiscrepancyCard({
                 </p>
                 <p className="text-xs text-amber-700/90 dark:text-amber-300/90 mt-0.5">
                   ใบสั่งซื้อจะยังคงอยู่ในสถานะ{" "}
-                  <strong>&ldquo;รับสินค้าบางส่วน&rdquo; (Partially Received)</strong>{" "}
+                  <strong>
+                    &ldquo;รับสินค้าบางส่วน&rdquo; (Partially Received)
+                  </strong>{" "}
                   เพื่อรองรับการตรวจรับในรอบถัดไป
                 </p>
               </div>
@@ -758,27 +725,22 @@ export default function PurchaseOrderDiscrepancyCard({
               >
                 ยกเลิก
               </Button>
-              <Button
+              <LoadingButton
                 id="confirm-receive-remaining-btn"
                 onClick={handleConfirmReceipt}
-                disabled={isPending || totalReceivedInDialog <= 0}
+                disabled={totalReceivedInDialog <= 0}
+                isLoading={isPending}
+                loadingText="กำลังบันทึก…"
                 className={
                   willBeFullyReceived
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                     : "bg-amber-600 hover:bg-amber-700 text-white"
                 }
               >
-                {isPending ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin mr-2" />
-                    กำลังบันทึก…
-                  </>
-                ) : willBeFullyReceived ? (
-                  "ยืนยันรับสินค้าครบถ้วน"
-                ) : (
-                  "ยืนยันรับสินค้าเพิ่มเติม"
-                )}
-              </Button>
+                {willBeFullyReceived
+                  ? "ยืนยันรับสินค้าครบถ้วน"
+                  : "ยืนยันรับสินค้าเพิ่มเติม"}
+              </LoadingButton>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -791,40 +753,45 @@ export default function PurchaseOrderDiscrepancyCard({
           className="sm:max-w-xl max-h-[90vh] overflow-y-auto"
         >
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <ShieldAlert className="size-5 text-amber-600 dark:text-amber-400" />
-              ยุติปัญหาของขาด (Resolve Issue)
+            <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
+              <ShieldAlert className="size-5 text-amber-500" />
+              ยุติปัญหาของขาด
             </DialogTitle>
             <DialogDescription>
               กรณีร้านค้าไม่สามารถจัดส่งสินค้าที่ขาดได้ และตกลงชดเชยผ่านส่วนลด,
-              คืนเงิน หรือยกเลิก การยุติปัญหานี้จะปิดใบสั่งซื้อเป็น &ldquo;รับของแล้ว&rdquo;
+              คืนเงิน หรือยกเลิก การยุติปัญหานี้จะปิดใบสั่งซื้อเป็น
+              &ldquo;รับของแล้ว&rdquo;
               โดยไม่มีการเพิ่มสต็อกหรือคิดค่าใช้จ่ายเพิ่มเติม
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             {/* สรุปรายการสินค้าที่ค้างส่งและจะถูกยุติปัญหา */}
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-3 space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold text-amber-900 dark:text-amber-200">
-                <span>สรุปรายการสินค้าที่จะยุติปัญหา ({outstandingItems.length} รายการ)</span>
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between text-xs font-semibold text-primary">
+                <span>
+                  สรุปรายการสินค้าที่จะยุติปัญหา ({outstandingItems.length}{" "}
+                  รายการ)
+                </span>
                 <span>รวมค้างส่ง: {totalShortageQuantity} ชิ้น</span>
               </div>
-              <div className="text-xs text-muted-foreground divide-y divide-amber-500/10">
+              <div className="text-xs divide-y divide-border">
                 {outstandingItems.map((item) => (
                   <div
                     key={item.id}
-                    className="py-1 flex items-center justify-between"
+                    className="py-1.5 flex items-center justify-between"
                   >
                     <span className="font-medium text-foreground">
                       {item.inventoryItemName}
                     </span>
-                    <span className="tabular-nums">
-                      ขาด {item.shortageQuantity} ชิ้น (฿{formatCurrency(item.shortageAmount)})
+                    <span className="tabular-nums text-muted-foreground">
+                      ขาด {item.shortageQuantity} ชิ้น (฿
+                      {formatCurrency(item.shortageAmount)})
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="pt-1 border-t border-amber-500/20 flex items-center justify-between text-xs font-bold text-amber-900 dark:text-amber-200">
+              <div className="pt-2 border-t flex items-center justify-between text-xs font-bold text-primary">
                 <span>มูลค่ารวมของสินค้าที่ยุติปัญหา:</span>
                 <span className="text-amber-600 dark:text-amber-400 tabular-nums">
                   ฿{formatCurrency(totalShortageAmount)}
@@ -835,7 +802,7 @@ export default function PurchaseOrderDiscrepancyCard({
             {/* ตัวเลือกรูปแบบการยุติปัญหา (Resolution Type) */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-foreground">
-                รูปแบบการยุติปัญหา (Resolution Type) <span className="text-destructive">*</span>
+                รูปแบบการยุติปัญหา <span className="text-destructive">*</span>
               </Label>
               <RadioGroup
                 value={selectedResolutionType}
@@ -856,7 +823,7 @@ export default function PurchaseOrderDiscrepancyCard({
                       htmlFor={`resolution-type-${type}`}
                       className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                         isChecked
-                          ? "border-amber-500/60 bg-amber-500/10"
+                          ? "border-primary bg-primary/5"
                           : "border-border hover:bg-muted/50"
                       }`}
                     >
@@ -885,7 +852,8 @@ export default function PurchaseOrderDiscrepancyCard({
                 htmlFor="resolution-note-input"
                 className="text-sm font-semibold text-foreground"
               >
-                บันทึกข้อตกลง / เหตุผลการยุติปัญหา <span className="text-destructive">*</span>
+                บันทึกข้อตกลง / เหตุผลการยุติปัญหา{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="resolution-note-input"
@@ -894,10 +862,11 @@ export default function PurchaseOrderDiscrepancyCard({
                 placeholder="เช่น ได้รับการโอนเงินคืน 600 บาทเข้าบัญชีบริษัทแล้ว หรือ ผู้จำหน่ายตกลงให้ส่วนลดใน PO รอบถัดไป..."
                 rows={3}
                 disabled={isPending}
-                className="resize-none"
+                className="resize-none md:text-sm"
               />
               <p className="text-[11px] text-muted-foreground">
-                ข้อความนี้จะถูกบันทึกเป็นประวัติ Audit Trail เพื่อใช้อ้างอิงการตรวจสอบภายใน
+                ข้อความนี้จะถูกบันทึกเป็นประวัติ Audit Trail
+                เพื่อใช้อ้างอิงการตรวจสอบภายใน
               </p>
             </div>
 
@@ -906,8 +875,11 @@ export default function PurchaseOrderDiscrepancyCard({
               <Info className="size-4 shrink-0 text-muted-foreground mt-0.5" />
               <p>
                 เมื่อยืนยันแล้ว สถานะใบสั่งซื้อจะเปลี่ยนเป็น{" "}
-                <strong className="text-foreground">&ldquo;รับของแล้ว&rdquo; (Received)</strong>{" "}
-                โดยไม่มีการเพิ่มสต็อกสินค้าคงคลัง และไม่มีการบันทึกค่าใช้จ่ายเพิ่มเติม
+                <strong className="text-foreground">
+                  &ldquo;รับของแล้ว&rdquo; (Received)
+                </strong>{" "}
+                โดยไม่มีการเพิ่มสต็อกสินค้าคงคลัง
+                และไม่มีการบันทึกค่าใช้จ่ายเพิ่มเติม
               </p>
             </div>
           </div>
@@ -921,21 +893,16 @@ export default function PurchaseOrderDiscrepancyCard({
             >
               ยกเลิก
             </Button>
-            <Button
+            <LoadingButton
               id="confirm-resolve-issue-btn"
               onClick={handleConfirmResolution}
-              disabled={isPending || !resolutionNote.trim()}
+              disabled={!resolutionNote.trim()}
+              isLoading={isPending}
+              loadingText="กำลังบันทึก…"
               className="bg-amber-600 hover:bg-amber-700 text-white font-medium"
             >
-              {isPending ? (
-                <>
-                  <Loader2 size={14} className="animate-spin mr-2" />
-                  กำลังบันทึก…
-                </>
-              ) : (
-                "ยืนยันการยุติปัญหา"
-              )}
-            </Button>
+              ยืนยันการยุติปัญหา
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

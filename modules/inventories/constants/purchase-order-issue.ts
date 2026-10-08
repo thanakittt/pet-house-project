@@ -31,7 +31,7 @@ export const RESOLUTION_TYPE_CONFIG: Record<
 > = {
   DISCOUNT_NEXT_ORDER: {
     value: "DISCOUNT_NEXT_ORDER",
-    label: "ส่วนลดในคำสั่งซื้อถัดไป (Discount on Next Order)",
+    label: "ส่วนลดในคำสั่งซื้อถัดไป",
     shortLabel: "ส่วนลดคำสั่งซื้อถัดไป",
     description: "ผู้จำหน่ายตกลงชดเชยโดยมอบส่วนลดในรอบการสั่งซื้อครั้งต่อไป",
     badgeClass:
@@ -47,7 +47,7 @@ export const RESOLUTION_TYPE_CONFIG: Record<
   },
   WAIVED: {
     value: "WAIVED",
-    label: "ยินยอมยกเลิกส่วนที่ขาด / ไม่รับเงินคืน (Waived)",
+    label: "ยินยอมยกเลิกส่วนที่ขาด / ไม่รับเงินคืน",
     shortLabel: "ยินยอมยกเลิกส่วนที่ขาด",
     description:
       "ยินยอมยกเลิกรายการสินค้าที่ขาดโดยตกลงร่วมกันและไม่เรียกเก็บค่าชดเชย",
